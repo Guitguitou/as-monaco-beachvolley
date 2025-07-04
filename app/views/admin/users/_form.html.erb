@@ -1,0 +1,35 @@
+<%= form_with model: [:admin, @user], class: "space-y-6" do |f| %>
+  <div class="fr-input-group">
+    <%= f.label :first_name, "Prénom", class: "fr-label" %>
+    <%= f.text_field :first_name, required: true, class: "fr-input w-full" %>
+  </div>
+
+  <div class="fr-input-group">
+    <%= f.label :last_name, "Nom", class: "fr-label" %>
+    <%= f.text_field :last_name, required: true, class: "fr-input w-full" %>
+  </div>
+
+  <div class="fr-input-group">
+    <%= f.label :email, "Email", class: "fr-label" %>
+    <%= f.email_field :email, required: true, class: "fr-input w-full" %>
+  </div>
+
+  <div class="fr-fieldset__element fr-checkbox-group">
+    <%= f.check_box :admin, class: "fr-checkbox checkbox-asmbv-red" %>
+    <%= f.label :admin, "Administrateur", class: "fr-label" %>
+  </div>
+
+  <div class="fr-fieldset__element fr-checkbox-group">
+    <%= f.check_box :coach, class: "fr-checkbox checkbox-asmbv-red" %>
+    <%= f.label :coach, "Coach", class: "fr-label" %>
+  </div>
+
+  <div class="fr-fieldset__element fr-checkbox-group">
+    <%= f.check_box :responsable, class: "fr-checkbox checkbox-asmbv-red" %>
+    <%= f.label :responsable, "Responsable", class: "fr-label" %>
+  </div>
+
+  <%= f.submit class: "fr-btn bg-asmbv-red hover:bg-asmbv-red-dark text-white" do %>
+    <%= lucide_icon("save", size: 16) %> Enregistrer
+  <% end %>
+<% end %>

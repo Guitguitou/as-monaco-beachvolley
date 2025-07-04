@@ -87,6 +87,10 @@
     --tw-ring-color: var(--color-asmbv-red-light) !important;
   }
 
+  .checkbox-asmbv-red {
+    accent-color: var(--color-asmbv-red) !important;
+  }
+
   .fr-link {
     color: var(--color-asmbv-red) !important;
   }
@@ -106,7 +110,57 @@
     outline: none !important;
   }
 
+  .fr-checkbox:checked {
+    accent-color: var(--color-asmbv-red) !important;
+  }
+
+  .fr-checkbox:checked+label.fr-label::before {
+    background-color: var(--color-asmbv-red) !important;
+    border-color: var(--color-asmbv-red) !important;
+  }
+
+  .fr-checkbox:focus-visible+label.fr-label::before {
+    outline: 2px solid var(--color-asmbv-red);
+  }
+
+  /* Couleur bordure par défaut */
+  .fr-checkbox+label.fr-label::before {
+    border-color: var(--color-asmbv-red) !important;
+  }
+
+  /* Couleur remplissage quand coché */
+  .fr-checkbox:checked+label.fr-label::before {
+    background-color: var(--color-asmbv-red) !important;
+    border-color: var(--color-asmbv-red) !important;
+  }
+
+  /* Focus visible */
+  .fr-checkbox:focus-visible+label.fr-label::before {
+    outline: 2px solid var(--color-asmbv-red);
+    outline-offset: 2px;
+  }
+
+  /* Hover */
+  .fr-checkbox:hover+label.fr-label::before {
+    border-color: var(--color-asmbv-red-dark);
+  }
+
   :root {
     --text-default-error: var(--color-asmbv-red) !important;
   }
+
+    body.admin {
+      --border-action-high-blue-france: var(--color-asmbv-red) !important;
+      --text-action-high-blue-france: var(--color-asmbv-red) !important;
+      --text-action-high-blue-france-hover: var(--color-asmbv-red-dark) !important;
+    }
+
+  /* a {
+    color: var(--color-asmbv-red) !important;
+    text-decoration: none !important;
+  }
+
+  a:hover {
+    color: var(--color-asmbv-red-dark) !important;
+  } */
 }

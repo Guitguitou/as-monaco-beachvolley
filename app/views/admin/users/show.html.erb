@@ -1,0 +1,54 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between border-b pb-4">
+    <div class="flex items-center space-x-2">
+      <%= lucide_icon("user", class: "w-6 h-6 text-asmbv-red") %>
+      <h1 class="text-2xl font-semibold">Fiche joueur</h1>
+    </div>
+    <%= link_to "Modifier", edit_admin_user_path(@user), class: "fr-btn fr-btn--secondary" %>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="p-4 border rounded-md">
+      <h2 class="text-sm text-gray-500 uppercase font-semibold mb-2">Prénom</h2>
+      <p class="text-lg"><%= @user.first_name.presence || "–" %></p>
+    </div>
+
+    <div class="p-4 border rounded-md">
+      <h2 class="text-sm text-gray-500 uppercase font-semibold mb-2">Nom</h2>
+      <p class="text-lg"><%= @user.last_name.presence || "–" %></p>
+    </div>
+
+    <div class="p-4 border rounded-md">
+      <h2 class="text-sm text-gray-500 uppercase font-semibold mb-2">Email</h2>
+      <p class="text-lg"><%= @user.email %></p>
+    </div>
+
+    <div class="p-4 border rounded-md">
+      <h2 class="text-sm text-gray-500 uppercase font-semibold mb-2">Rôles</h2>
+      <div class="flex flex-wrap gap-2">
+        <% if @user.admin? %>
+          <span class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-md">
+            <%= lucide_icon("shield-user", class: "w-4 h-4 mr-1") %> Admin
+          </span>
+        <% end %>
+        <% if @user.coach? %>
+          <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-md">
+            <%= lucide_icon("dumbbell", class: "w-4 h-4 mr-1") %> Coach
+          </span>
+        <% end %>
+        <% if @user.responsable? %>
+          <span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-md">
+            <%= lucide_icon("key-round", class: "w-4 h-4 mr-1") %> Responsable
+          </span>
+        <% end %>
+        <% unless @user.admin? || @user.coach? || @user.responsable? %>
+          <span class="text-sm text-gray-500">Aucun rôle défini</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <%= link_to "Retour à la liste", admin_users_path, class: "fr-link" %>
+  </div>
+</div>
