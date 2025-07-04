@@ -1,0 +1,23 @@
+<aside class="w-64 bg-asmbv-red text-white p-6 space-y-8">
+  <div class="flex items-center gap-2 text-white text-2xl font-bold">
+    <%= lucide_icon('volleyball', class: 'w-6 h-6') %>
+    <span>Admin ASM</span>
+  </div>
+
+  <nav class="flex flex-col gap-3">
+    <%= link_to admin_root_path, class: "flex items-center gap-2 hover:underline" do %>
+      <%= lucide_icon('layout-dashboard', class: 'w-5 h-5') %>
+      <span>Dashboard</span>
+    <% end %>
+
+    <%= link_to '#', class: "flex items-center gap-2 hover:underline" do %>
+      <%= lucide_icon('users', class: 'w-5 h-5') %>
+      <span>Joueurs</span>
+    <% end %>
+
+    <%= link_to '#', method: :delete, class: "flex items-center gap-2 hover:underline mt-auto" do %>
+      <%= lucide_icon('log-out', class: 'w-5 h-5') %>
+      <span>Déconnexion</span>
+    <% end %>
+  </nav>
+</aside>

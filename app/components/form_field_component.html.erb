@@ -1,0 +1,29 @@
+<div class="fr-input-group mb-4">
+  <%= @form.label @attribute, label_text, class: "fr-label", for: field_id %>
+
+  <% case @type.to_sym
+     when :text_field, :email_field, :password_field, :number_field, :text_area %>
+    <%= @form.send(@type, @attribute, id: field_id, class: field_classes, required: @required) %>
+
+  <% when :select %>
+    <%= @form.select @attribute, @options, { include_blank: !@required }, { class: field_classes, id: field_id, required: @required } %>
+
+  <% when :check_box %>
+    <div class="fr-checkbox-group">
+      <%= @form.check_box @attribute, id: field_id, required: @required %>
+      <%= @form.label @attribute, label_text, for: field_id, class: "fr-label" %>
+    </div>
+
+  <% when :radio_buttons %>
+    <% @options.each do |label, value| %>
+      <div class="fr-radio-group">
+        <%= @form.radio_button @attribute, value, id: "#{field_id}_#{value}", required: @required %>
+        <%= @form.label "#{attribute}_#{value}", label, class: "fr-label" %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if has_error? %>
+    <p class="fr-error-text text-sm text-red-600 mt-1"><%= error_message %></p>
+  <% end %>
+</div>

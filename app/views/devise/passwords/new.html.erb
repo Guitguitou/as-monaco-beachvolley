@@ -1,0 +1,14 @@
+<div class="max-w-md mx-auto mt-12 p-6 bg-white rounded-lg shadow-md">
+  <h2 class="text-xl font-bold mb-6">Mot de passe oublié</h2>
+
+  <%= form_with model: resource, url: password_path(resource_name), method: :post, html: { class: "space-y-6" } do |f| %>
+    <div class="fr-input-group">
+      <%= f.label :email, "Adresse email", class: "fr-label" %>
+      <%= f.email_field :email, required: true, class: "fr-input w-full" %>
+    </div>
+
+    <div>
+      <%= f.submit "Envoyer les instructions", class: "fr-btn w-full bg-asmbv-red hover:bg-asmbv-red-dark text-white font-semibold" %>
+    </div>
+  <% end %>
+</div>

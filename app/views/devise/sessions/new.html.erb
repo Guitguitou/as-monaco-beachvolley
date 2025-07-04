@@ -1,0 +1,37 @@
+<div class="max-w-md mx-auto mt-12 p-6 bg-white rounded-lg shadow-md">
+  <h2 class="text-xl font-semibold mb-6">Connexion</h2>
+
+  <%= form_with model: resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-6" } do |f| %>
+    
+    <% if flash.alert %>
+      <div class="fr-alert fr-alert--error">
+        <p><%= flash.alert %></p>
+      </div>
+    <% end %>
+
+    <div class="fr-input-group">
+      <%= f.label :email, class: "fr-label" %>
+      <%= f.email_field :email, required: true, autofocus: true, class: "fr-input" %>
+    </div>
+
+    <div class="fr-input-group">
+      <%= f.label :password, class: "fr-label" %>
+      <%= f.password_field :password, required: true, class: "fr-input" %>
+    </div>
+
+    <% if devise_mapping.rememberable? %>
+      <div class="fr-checkbox-group">
+        <%= f.check_box :remember_me, class: "fr-checkbox" %>
+        <%= f.label :remember_me, class: "fr-label" %>
+      </div>
+    <% end %>
+
+    <div>
+      <%= f.submit "Se connecter", class: "fr-btn w-full bg-asmbv-red hover:bg-asmbv-red-dark text-white" %>
+    </div>
+  <% end %>
+
+  <div class="mt-4">
+    <%= link_to "Mot de passe oublié ?", new_password_path(resource_name), class: "fr-link" %>
+  </div>
+</div>

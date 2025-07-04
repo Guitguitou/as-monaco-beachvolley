@@ -1,0 +1,30 @@
+<!-- app/views/layouts/application.html.erb -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "AS Monaco Beach Volley App" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr/dist/dsfr.min.css" />
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-50 min-h-screen">
+    <% if user_signed_in? && current_user.admin? %>
+      <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <%= render "layouts/admin_sidebar" %>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+          <%= yield %>
+        </main>
+      </div>
+    <% else %>
+      <%= yield %>
+    <% end %>
+  </body>
+</html>

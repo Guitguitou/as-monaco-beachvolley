@@ -1,0 +1,112 @@
+@import "@gouvfr/dsfr/dist/dsfr.min.css";
+@import "tailwindcss";
+
+:root {
+  --color-asmbv-red: #e21e22;
+  --color-asmbv-red-light: #fef2f2;
+  --color-asmbv-red-dark: #b91c1c;
+}
+
+@layer components {
+
+  /* Backgrounds */
+  .bg-asmbv-red {
+    background-color: var(--color-asmbv-red) !important;
+  }
+
+  .bg-asmbv-red-light {
+    background-color: var(--color-asmbv-red-light) !important;
+  }
+
+  .bg-asmbv-red-dark {
+    background-color: var(--color-asmbv-red-dark) !important;
+  }
+
+  /* Text */
+  .text-asmbv-red {
+    color: var(--color-asmbv-red) !important;
+  }
+
+  .text-asmbv-red-light {
+    color: var(--color-asmbv-red-light) !important;
+  }
+
+  .text-asmbv-red-dark {
+    color: var(--color-asmbv-red-dark) !important;
+  }
+
+  /* Borders */
+  .border-asmbv-red {
+    border-color: var(--color-asmbv-red) !important;
+  }
+
+  .border-asmbv-red-light {
+    border-color: var(--color-asmbv-red-light) !important;
+  }
+
+  .border-asmbv-red-dark {
+    border-color: var(--color-asmbv-red-dark) !important;
+  }
+
+  /* Hover states (bg only) */
+  .hover\:bg-asmbv-red:hover {
+    background-color: var(--color-asmbv-red) !important;
+  }
+
+  .hover\:bg-asmbv-red-light:hover {
+    background-color: var(--color-asmbv-red-light) !important;
+  }
+
+  .hover\:bg-asmbv-red-dark:hover {
+    background-color: var(--color-asmbv-red-dark) !important;
+  }
+
+  /* Hover states (text only) */
+  .hover\:text-asmbv-red:hover {
+    color: var(--color-asmbv-red) !important;
+  }
+
+  .hover\:text-asmbv-red-light:hover {
+    color: var(--color-asmbv-red-light) !important;
+  }
+
+  .hover\:text-asmbv-red-dark:hover {
+    color: var(--color-asmbv-red-dark) !important;
+  }
+
+  /* Focus ring */
+  .focus\:ring-asmbv-red:focus {
+    --tw-ring-color: var(--color-asmbv-red) !important;
+  }
+
+  .focus\:ring-asmbv-red-dark:focus {
+    --tw-ring-color: var(--color-asmbv-red-dark) !important;
+  }
+
+  .focus\:ring-asmbv-red-light:focus {
+    --tw-ring-color: var(--color-asmbv-red-light) !important;
+  }
+
+  .fr-link {
+    color: var(--color-asmbv-red) !important;
+  }
+
+  .fr-link:hover {
+    color: var(--color-asmbv-red-dark) !important;
+  }
+
+  .fr-input:focus,
+  .fr-input:focus-visible,
+  .fr-select:focus,
+  .fr-select:focus-visible,
+  .fr-textarea:focus,
+  .fr-textarea:focus-visible {
+    box-shadow: 0 0 0 2px var(--color-asmbv-red) !important;
+    border-color: var(--color-asmbv-red) !important;
+    outline: none !important;
+  }
+
+  :root {
+    --text-default-error: var(--color-asmbv-red) !important;
+  }
+}
