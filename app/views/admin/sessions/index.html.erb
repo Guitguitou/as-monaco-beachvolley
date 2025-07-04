@@ -1,0 +1,74 @@
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold flex items-center gap-2">
+    <%= lucide_icon("calendar-clock") %>
+    Sessions
+  </h1>
+
+  <%= link_to new_admin_session_path, class: "fr-btn bg-asmbv-red text-white hover:bg-asmbv-red-dark inline-flex items-center gap-2" do %>
+    <%= lucide_icon("plus", size: 18) %>
+    Nouvelle session
+  <% end %>
+</div>
+
+<div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
+    <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
+      <tr>
+        <th class="px-6 py-3 text-left">Titre</th>
+        <th class="px-6 py-3 text-left">Type</th>
+        <th class="px-6 py-3 text-left">Date</th>
+        <th class="px-6 py-3 text-left">Coach / Responsable</th>
+        <th class="px-6 py-3 text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @sessions.each do |session| %>
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-800 flex items-center gap-2">
+            <%= lucide_icon("calendar", size: 16) %>
+            <%= session.title.presence || "(Sans titre)" %>
+          </td>
+
+          <td class="px-6 py-4 text-gray-700">
+            <% case session.session_type %>
+            <% when "entrainement" %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+                <%= lucide_icon("dumbbell", size: 14) %> Entraînement
+              </span>
+            <% when "coaching_prive" %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs font-semibold">
+                <%= lucide_icon("user-cog", size: 14) %> Coaching privé
+              </span>
+            <% when "jeu_libre" %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
+                <%= lucide_icon("volleyball", size: 14) %> Jeu libre
+              </span>
+            <% when "tournoi" %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-semibold">
+                <%= lucide_icon("trophy", size: 14) %> Tournoi
+              </span>
+            <% end %>
+          </td>
+
+          <td class="px-6 py-4 text-gray-700">
+            <%= l session.start_at, format: :short %> — <%= l session.end_at, format: :short %>
+          </td>
+
+          <td class="px-6 py-4 text-gray-700">
+            <%= session.user&.full_name || "-" %>
+          </td>
+
+          <td class="px-6 py-4 text-right space-x-2">
+            <%= link_to admin_session_path(session), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red" do %>
+              <%= lucide_icon("eye", size: 16) %> Voir
+            <% end %>
+
+            <%= link_to edit_admin_session_path(session), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red-dark" do %>
+              <%= lucide_icon("edit", size: 16) %> Modifier
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

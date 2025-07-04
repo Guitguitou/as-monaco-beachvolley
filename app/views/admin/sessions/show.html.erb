@@ -1,0 +1,10 @@
+<!-- app/views/admin/sessions/show.html.erb -->
+<h1 class="text-2xl font-bold mb-6"><%= @session.title %></h1>
+
+<ul class="space-y-2">
+  <li><strong>Type :</strong> <%= @session.session_type.humanize %></li>
+  <li><strong>Date :</strong> <%= l @session.start_at %> → <%= l @session.end_at %></li>
+  <li><strong>Max joueurs :</strong> <%= @session.max_players %></li>
+  <li><strong>Coach / Responsable :</strong> <%= @session.user&.full_name %></li>
+  <li><strong>Description :</strong> <%= simple_format(@session.description) %></li>
+</ul>
