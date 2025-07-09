@@ -20,6 +20,11 @@
       <span>Sessions</span>
     <% end %>
 
+    <%= link_to admin_levels_path, class: "flex items-center gap-2 hover:underline" do %>
+      <%= lucide_icon("layers", class: "w-5 h-5") %>
+      <span>Niveaux</span>
+    <% end %>
+
     <%= link_to '#', method: :delete, class: "flex items-center gap-2 hover:underline mt-auto" do %>
       <%= lucide_icon('log-out', class: 'w-5 h-5') %>
       <span>Déconnexion</span>

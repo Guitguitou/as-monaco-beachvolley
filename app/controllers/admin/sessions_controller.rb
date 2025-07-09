@@ -20,7 +20,6 @@ module Admin
 
     def create
       @session = Session.new(session_params)
-      @session.user = resolve_session_owner(@session.session_type)
 
       if @session.save
         redirect_to admin_session_path(@session), notice: "Session créée avec succès."
@@ -30,16 +29,16 @@ module Admin
     end
 
     def edit
+      @levels = Level.all
     end
 
     def update
       @session.assign_attributes(session_params)
-      @session.user = resolve_session_owner(@session.session_type)
-
       if @session.save
         redirect_to admin_session_path(@session), notice: "Session mise à jour avec succès."
       else
         render :edit, status: :unprocessable_entity
+        flash.now[:alert] = "Erreur lors de la mise à jour de la session: #{@session.errors.full_messages.join(', ')}"
       end
     end
 
@@ -50,21 +49,7 @@ module Admin
     end
 
     def session_params
-      params.require(:session).permit(:title, :description, :start_at, :end_at, :session_type, :max_players)
-    end
-
-    # 👇 Attribution automatique du user responsable de la session
-    def resolve_session_owner(type)
-      case type
-      when "entrainement", "coaching_prive"
-        User.where(coach: true).first
-      when "jeu_libre"
-        User.where(responsable: true).first
-      when "tournoi"
-        User.where(admin: true).first
-      else
-        current_user
-      end
+      params.require(:session).permit(:title, :description, :start_at, :end_at, :session_type, :max_players, :user_id, level_ids: [])
     end
 
     def ensure_admin!

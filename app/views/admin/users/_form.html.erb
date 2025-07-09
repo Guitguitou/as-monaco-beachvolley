@@ -1,12 +1,14 @@
-<%= form_with model: [:admin, @user], class: "space-y-6" do |f| %>
-  <div class="fr-input-group">
-    <%= f.label :first_name, "Prénom", class: "fr-label" %>
-    <%= f.text_field :first_name, required: true, class: "fr-input w-full" %>
-  </div>
+<%= form_with model: [:admin, @user], class: "space-y-6 max-w-xl" do |f| %>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="fr-input-group">
+      <%= f.label :first_name, "Prénom", class: "fr-label" %>
+      <%= f.text_field :first_name, required: true, class: "fr-input w-full" %>
+    </div>
 
-  <div class="fr-input-group">
-    <%= f.label :last_name, "Nom", class: "fr-label" %>
-    <%= f.text_field :last_name, required: true, class: "fr-input w-full" %>
+    <div class="fr-input-group">
+      <%= f.label :last_name, "Nom", class: "fr-label" %>
+      <%= f.text_field :last_name, required: true, class: "fr-input w-full" %>
+    </div>
   </div>
 
   <div class="fr-input-group">
@@ -14,19 +16,26 @@
     <%= f.email_field :email, required: true, class: "fr-input w-full" %>
   </div>
 
-  <div class="fr-fieldset__element fr-checkbox-group">
-    <%= f.check_box :admin, class: "fr-checkbox checkbox-asmbv-red" %>
-    <%= f.label :admin, "Administrateur", class: "fr-label" %>
-  </div>
+  <fieldset class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="fr-fieldset__element fr-checkbox-group">
+      <%= f.check_box :admin, class: "fr-checkbox checkbox-asmbv-red" %>
+      <%= f.label :admin, "Administrateur", class: "fr-label" %>
+    </div>
 
-  <div class="fr-fieldset__element fr-checkbox-group">
-    <%= f.check_box :coach, class: "fr-checkbox checkbox-asmbv-red" %>
-    <%= f.label :coach, "Coach", class: "fr-label" %>
-  </div>
+    <div class="fr-fieldset__element fr-checkbox-group">
+      <%= f.check_box :coach, class: "fr-checkbox checkbox-asmbv-red" %>
+      <%= f.label :coach, "Coach", class: "fr-label" %>
+    </div>
 
-  <div class="fr-fieldset__element fr-checkbox-group">
-    <%= f.check_box :responsable, class: "fr-checkbox checkbox-asmbv-red" %>
-    <%= f.label :responsable, "Responsable", class: "fr-label" %>
+    <div class="fr-fieldset__element fr-checkbox-group">
+      <%= f.check_box :responsable, class: "fr-checkbox checkbox-asmbv-red" %>
+      <%= f.label :responsable, "Responsable", class: "fr-label" %>
+    </div>
+  </fieldset>
+
+  <div class="fr-input-group max-w-xs">
+    <%= f.label :level_id, "Niveau", class: "fr-label" %>
+    <%= f.collection_select :level_id, Level.all, :id, :name, { include_blank: "Sélectionner un niveau" }, { class: "fr-select w-full" } %>
   </div>
 
   <%= f.submit class: "fr-btn bg-asmbv-red hover:bg-asmbv-red-dark text-white" do %>

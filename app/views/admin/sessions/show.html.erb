@@ -7,4 +7,11 @@
   <li><strong>Max joueurs :</strong> <%= @session.max_players %></li>
   <li><strong>Coach / Responsable :</strong> <%= @session.user&.full_name %></li>
   <li><strong>Description :</strong> <%= simple_format(@session.description) %></li>
+  <li><strong>Niveaux :</strong> 
+    <% if @session.levels.any? %>
+      <%= @session.levels.map(&:name).join(", ") %>
+    <% else %>
+      <span class="text-gray-500">Aucun niveau spécifié</span>
+    <% end %>
+  </li>
 </ul>

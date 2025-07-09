@@ -9,3 +9,24 @@
 #   end
 
 User.create(email: "admin@example.com", password: "password", admin: true)
+
+# Créer des niveaux de base
+Level.find_or_create_by!(name: "Débutant") do |level|
+  level.gender = "mixed"
+  level.color = "#10B981" # Vert
+end
+
+Level.find_or_create_by!(name: "Intermédiaire") do |level|
+  level.gender = "mixed"
+  level.color = "#F59E0B" # Orange
+end
+
+Level.find_or_create_by!(name: "Avancé") do |level|
+  level.gender = "mixed"
+  level.color = "#EF4444" # Rouge
+end
+
+Level.find_or_create_by!(name: "Expert") do |level|
+  level.gender = "mixed"
+  level.color = "#8B5CF6" # Violet
+end

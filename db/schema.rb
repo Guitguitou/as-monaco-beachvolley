@@ -10,9 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_04_132818) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_05_084526) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "levels", force: :cascade do |t|
+    t.string "name"
+    t.string "gender"
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "session_levels", force: :cascade do |t|
+    t.bigint "session_id", null: false
+    t.bigint "level_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["level_id"], name: "index_session_levels_on_level_id"
+    t.index ["session_id"], name: "index_session_levels_on_session_id"
+  end
 
   create_table "sessions", force: :cascade do |t|
     t.string "title"
@@ -40,9 +57,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_132818) do
     t.string "last_name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "level_id"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["level_id"], name: "index_users_on_level_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "session_levels", "levels"
+  add_foreign_key "session_levels", "sessions"
   add_foreign_key "sessions", "users"
+  add_foreign_key "users", "levels"
 end

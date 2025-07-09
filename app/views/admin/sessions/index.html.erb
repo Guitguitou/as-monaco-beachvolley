@@ -16,6 +16,7 @@
       <tr>
         <th class="px-6 py-3 text-left">Titre</th>
         <th class="px-6 py-3 text-left">Type</th>
+        <th class="px-6 py-3 text-left">Niveau</th>
         <th class="px-6 py-3 text-left">Date</th>
         <th class="px-6 py-3 text-left">Coach / Responsable</th>
         <th class="px-6 py-3 text-right">Actions</th>
@@ -46,6 +47,15 @@
             <% when "tournoi" %>
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-semibold">
                 <%= lucide_icon("trophy", size: 14) %> Tournoi
+              </span>
+            <% end %>
+          </td>
+
+          <td class="px-6 py-4 text-gray-700 space-x-1">
+            <% session.levels.each do |level| %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+                    style="background-color: <%= level.color %>22; color: <%= level.color %>;">
+                    <%= level.name %>
               </span>
             <% end %>
           </td>
