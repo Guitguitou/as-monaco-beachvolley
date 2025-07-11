@@ -1,0 +1,22 @@
+<h1 class="text-2xl font-bold mb-6 flex items-center gap-2">
+  <%= lucide_icon("calendar-clock") %> Mon calendrier
+</h1>
+
+<% sessions_json = @sessions.map { |s|
+  {
+    id: s.id,
+    title: "#{s.display_name} - #{s.user&.full_name || '-'}",
+    start: s.start_at.iso8601,
+    end: s.end_at.iso8601,
+    url: session_path(s),
+    backgroundColor: s.levels.first&.color || '#E60012',
+    textColor: '#fff'
+  }
+}.to_json %>
+
+<div
+  id="calendar"
+  data-controller="calendar"
+  data-sessions="<%= json_escape(sessions_json) %>"
+  class="h-[100%] bg-white mt-4 p-4">
+</div>

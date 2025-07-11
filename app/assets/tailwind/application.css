@@ -149,18 +149,38 @@
     --text-default-error: var(--color-asmbv-red) !important;
   }
 
-    body.admin {
-      --border-action-high-blue-france: var(--color-asmbv-red) !important;
-      --text-action-high-blue-france: var(--color-asmbv-red) !important;
-      --text-action-high-blue-france-hover: var(--color-asmbv-red-dark) !important;
-    }
-
-  /* a {
-    color: var(--color-asmbv-red) !important;
-    text-decoration: none !important;
+  body.admin {
+    --border-action-high-blue-france: var(--color-asmbv-red) !important;
+    --text-action-high-blue-france: var(--color-asmbv-red) !important;
+    --text-action-high-blue-france-hover: var(--color-asmbv-red-dark) !important;
   }
 
-  a:hover {
-    color: var(--color-asmbv-red-dark) !important;
-  } */
+  .fc .fc-scrollgrid,
+  .fc .fc-col-header,
+  .fc .fc-daygrid-day {
+    border: none !important;
+  }
+
+  .fc .fc-daygrid-event {
+    margin: 0.25rem 0 !important;
+  }
+
+  .fc-theme-standard .fc-scrollgrid {
+    border-radius: 1rem !important;
+    overflow: hidden !important;
+  }
+
+  .fc-timegrid-slot-label {
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+
+  .fc .fc-day-today {
+    background-color: #fff8f7 !important;
+  }
+
+  .fc .fc-day-today .fc-col-header-cell-cushion {
+    color: #e60012 !important;
+    font-weight: 600 !important;
+  }
 }

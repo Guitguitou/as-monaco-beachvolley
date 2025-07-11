@@ -1,5 +1,9 @@
 {
   "dependencies": {
+    "@fullcalendar/core": "^6.1.18",
+    "@fullcalendar/daygrid": "^6.1.18",
+    "@fullcalendar/interaction": "^6.1.18",
+    "@fullcalendar/timegrid": "^6.1.18",
     "@gouvfr/dsfr": "^1.14.0",
     "yarn": "^1.22.22"
   }

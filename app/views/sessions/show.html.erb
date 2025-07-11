@@ -1,0 +1,128 @@
+<!-- app/views/sessions/show.html.erb -->
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav class="mb-6">
+      <%= link_to "← Retour au calendrier", sessions_path, class: "text-asmbv-red hover:text-asmbv-red-dark" %>
+    </nav>
+
+    <!-- En-tête de la session -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= @session.title %></h1>
+          <div class="flex items-center gap-2 mb-4">
+            <span class="px-3 py-1 rounded-full text-sm font-medium <%= get_session_type_classes(@session.session_type) %>">
+              <%= get_session_type_label(@session.session_type) %>
+            </span>
+            <% if @session.max_players %>
+              <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                <%= @session.max_players %> places max
+              </span>
+            <% end %>
+          </div>
+        </div>
+        
+        <div class="text-right">
+          <div class="text-2xl font-bold text-gray-900">
+            <%= l @session.start_at, format: :day_month %>
+          </div>
+          <div class="text-gray-600">
+            <%= l @session.start_at, format: :time %> - <%= l @session.end_at, format: :time %>
+          </div>
+        </div>
+      </div>
+
+      <% if @session.description.present? %>
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Description</h3>
+          <p class="text-gray-700 leading-relaxed"><%= simple_format(@session.description) %></p>
+        </div>
+      <% end %>
+
+      <!-- Informations détaillées -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Informations</h3>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <%= lucide_icon('calendar', class: 'w-5 h-5 text-gray-400') %>
+              <div>
+                <div class="font-medium text-gray-900">Date et heure</div>
+                <div class="text-gray-600">
+                  <%= l @session.start_at, format: :long %> - <%= l @session.end_at, format: :time %>
+                </div>
+              </div>
+            </div>
+
+            <% if @session.user %>
+              <div class="flex items-center gap-3">
+                <%= lucide_icon('user', class: 'w-5 h-5 text-gray-400') %>
+                <div>
+                  <div class="font-medium text-gray-900">Organisateur</div>
+                  <div class="text-gray-600"><%= @session.user.full_name %></div>
+                </div>
+              </div>
+            <% end %>
+
+            <% if @session.max_players %>
+              <div class="flex items-center gap-3">
+                <%= lucide_icon('users', class: 'w-5 h-5 text-gray-400') %>
+                <div>
+                  <div class="font-medium text-gray-900">Places disponibles</div>
+                  <div class="text-gray-600"><%= @session.max_players %> joueurs maximum</div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Niveaux acceptés</h3>
+          <% if @session.levels.any? %>
+            <div class="flex flex-wrap gap-2">
+              <% @session.levels.each do |level| %>
+                <span class="px-3 py-1 rounded-full text-sm font-medium" 
+                      style="background-color: <%= level.color %>22; color: <%= level.color %>;">
+                  <%= level.name %> - <%= level.gender.humanize %>
+                </span>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-gray-500">Tous niveaux acceptés</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Participer à cette session</h3>
+      
+      <% if user_signed_in? %>
+        <div class="flex gap-4">
+          <button class="fr-btn bg-asmbv-red hover:bg-asmbv-red-dark text-white">
+            <%= lucide_icon('plus', size: 16) %> S'inscrire
+          </button>
+          <button class="fr-btn bg-gray-100 hover:bg-gray-200 text-gray-700">
+            <%= lucide_icon('share-2', size: 16) %> Partager
+          </button>
+        </div>
+      <% else %>
+        <div class="text-center py-6">
+          <p class="text-gray-600 mb-4">Connectez-vous pour participer à cette session</p>
+          <%= link_to "Se connecter", new_user_session_path, class: "fr-btn bg-asmbv-red hover:bg-asmbv-red-dark text-white" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<% content_for :head do %>
+  <style>
+    .session-type-entrainement { @apply bg-green-100 text-green-800; }
+    .session-type-jeu_libre { @apply bg-blue-100 text-blue-800; }
+    .session-type-tournoi { @apply bg-purple-100 text-purple-800; }
+    .session-type-coaching_prive { @apply bg-orange-100 text-orange-800; }
+  </style>
+<% end %> 

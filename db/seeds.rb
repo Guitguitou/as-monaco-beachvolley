@@ -11,22 +11,62 @@
 User.create(email: "admin@example.com", password: "password", admin: true)
 
 # Créer des niveaux de base
-Level.find_or_create_by!(name: "Débutant") do |level|
+Level.find_or_create_by!(name: "G1") do |level|
   level.gender = "mixed"
   level.color = "#10B981" # Vert
 end
 
-Level.find_or_create_by!(name: "Intermédiaire") do |level|
+Level.find_or_create_by!(name: "G2") do |level|
   level.gender = "mixed"
   level.color = "#F59E0B" # Orange
 end
 
-Level.find_or_create_by!(name: "Avancé") do |level|
+Level.find_or_create_by!(name: "G3") do |level|
   level.gender = "mixed"
   level.color = "#EF4444" # Rouge
 end
 
-Level.find_or_create_by!(name: "Expert") do |level|
+Level.find_or_create_by!(name: "G4") do |level|
   level.gender = "mixed"
+  level.color = "#8B5CF6" # Violet
+end
+
+Level.find_or_create_by!(name: "G1") do |level|
+  level.gender = "female"
+  level.color = "#10B981" # Vert
+end
+
+Level.find_or_create_by!(name: "G2") do |level|
+  level.gender = "female"
+  level.color = "#F59E0B" # Orange
+end
+
+Level.find_or_create_by!(name: "G3") do |level|
+  level.gender = "female"
+  level.color = "#EF4444" # Rouge
+end
+
+Level.find_or_create_by!(name: "G4") do |level|
+  level.gender = "female"
+  level.color = "#8B5CF6" # Violet
+end
+
+Level.find_or_create_by!(name: "G1") do |level|
+  level.gender = "male"
+  level.color = "#10B981" # Vert
+end
+
+Level.find_or_create_by!(name: "G2") do |level|
+  level.gender = "male"
+  level.color = "#F59E0B" # Orange
+end
+
+Level.find_or_create_by!(name: "G3") do |level|
+  level.gender = "male"
+  level.color = "#EF4444" # Rouge
+end
+
+Level.find_or_create_by!(name: "G4") do |level|
+  level.gender = "male"
   level.color = "#8B5CF6" # Violet
 end

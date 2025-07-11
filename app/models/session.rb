@@ -13,6 +13,21 @@ class Session < ApplicationRecord
 
   validate :end_at_after_start_at
 
+  def display_name
+    case session_type
+    when "entrainement"
+      title + " - " + levels.map(&:display_name).join(", ")
+    when "jeu_libre"
+      title
+    when "tournoi"
+      title
+    when "coaching_prive"
+      title
+    else
+      title
+    end
+  end
+
   private
 
   def end_at_after_start_at

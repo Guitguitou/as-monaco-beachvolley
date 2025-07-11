@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
   devise_for :users
 
+  # Routes publiques pour les joueurs
+  root "sessions#index"
+  resources :sessions, only: [:index, :show]
+
   namespace :admin do
     root to: "dashboard#index"
 
