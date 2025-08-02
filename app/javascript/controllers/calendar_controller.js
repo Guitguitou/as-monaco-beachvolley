@@ -76,6 +76,21 @@ export default class extends Controller {
       }
     });
 
+    
+const filterSelect = document.getElementById("terrain-filter")
+if (filterSelect) {
+  filterSelect.addEventListener("change", (event) => {
+    const selectedTerrain = event.target.value
+    calendar.removeAllEvents()
+
+    const filteredEvents = selectedTerrain
+      ? sessions.filter(e => e.terrain === selectedTerrain)
+      : sessions
+
+    calendar.addEventSource(filteredEvents)
+  })
+}
+
     calendar.render()
   }
 }

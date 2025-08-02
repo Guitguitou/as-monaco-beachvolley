@@ -1,0 +1,14 @@
+<div class="flex gap-4 mb-6 border-b border-gray-200">
+  <% terrains = Session.distinct(:terrain).pluck(:terrain).compact.sort %>
+  <% all_terrains = [""] + terrains %>
+
+  <% all_terrains.each do |terrain| %>
+    <% label = terrain.presence || "Tous" %>
+    <% active = params[:terrain].to_s == terrain.to_s %>
+
+    <%= link_to sessions_path(terrain: terrain.presence),
+        class: "px-4 py-2 text-sm font-medium border-b-2 #{active ? 'text-asmbv-red border-asmbv-red' : 'text-gray-500 border-transparent hover:text-asmbv-red hover:border-asmbv-red'}" do %>
+      <%= label %>
+    <% end %>
+  <% end %>
+</div>

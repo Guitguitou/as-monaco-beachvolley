@@ -1,6 +1,7 @@
 FactoryBot.define do
   factory :level do
-    name { "MyString" }
-    color { "MyString" }
+    name { "G1" }
+    color { "#10B981" }
+    gender { "male" }
   end
 end

@@ -14,14 +14,27 @@
 
   <body class="bg-gray-50 min-h-screen admin">
     <% if user_signed_in? && current_user.admin? %>
-      <div class="flex min-h-screen">
+      <div data-controller="admin-sidebar" class="flex min-h-screen">
         <!-- Sidebar -->
         <%= render "layouts/admin_sidebar" %>
 
-        <!-- Main Content -->
-        <main class="flex-1 p-8">
-          <%= yield %>
-        </main>
+        <!-- Overlay mobile -->
+        <div data-admin-sidebar-target="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden" data-action="click->admin-sidebar#close"></div>
+
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col">
+          <!-- Topbar (only for mobile toggle) -->
+          <header class="bg-white border-b border-gray-200 p-4 flex items-center justify-between lg:hidden">
+            <button type="button" class="text-asmbv-red" data-action="click->admin-sidebar#toggle">
+              <%= lucide_icon('menu', class: 'w-6 h-6') %>
+            </button>
+            <h1 class="text-lg font-semibold">Admin ASM</h1>
+          </header>
+
+          <main class="p-6 flex-1 overflow-y-auto">
+            <%= yield %>
+          </main>
+        </div>
       </div>
     <% else %>
       <%= yield %>

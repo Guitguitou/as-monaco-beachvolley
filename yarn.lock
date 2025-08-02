@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@fullcalendar/core@^6.1.18", "@fullcalendar/core@~6.1.18":
+"@fullcalendar/core@^6.1.18":
   version "6.1.18"
   resolved "https://registry.npmjs.org/@fullcalendar/core/-/core-6.1.18.tgz"
   integrity sha512-cD7XtZIZZ87Cg2+itnpsONCsZ89VIfLLDZ22pQX4IQVWlpYUB3bcCf878DhWkqyEen6dhi5ePtBoqYgm5K+0fQ==
@@ -19,7 +19,29 @@
   resolved "https://registry.npmjs.org/@fullcalendar/interaction/-/interaction-6.1.18.tgz"
   integrity sha512-f/mD5RTjzw+Q6MGTMZrLCgIrQLIUUO9NV/58aM2J6ZBQZeRlNizDqmqldqyG+j49zj2vFhUfZibPrVKWm5yA4Q==
 
-"@fullcalendar/timegrid@^6.1.18":
+"@fullcalendar/premium-common@~6.1.18":
+  version "6.1.18"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/premium-common/-/premium-common-6.1.18.tgz#2fabb638e70e6ba78eb40ed08faff58c956b8081"
+  integrity sha512-/EUtCOgdrZZss+xtEPAWRkZVCayFiqUx4SHQHBurloWdNp0Krro2xW7G1qNM8f4Qcg/0wwtK7GmOROcom0oFgg==
+
+"@fullcalendar/resource-daygrid@~6.1.18":
+  version "6.1.18"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/resource-daygrid/-/resource-daygrid-6.1.18.tgz#d29f9554ca6110fca70c153e3d37ff11c3731045"
+  integrity sha512-teeFV/lpbM3wlJzp6S/fIfKRrGzaU3fM8CUftFIB13BI4dotsiVLlfhizge+IwsKbN4ByhsjpVz5R/7A6nS6eQ==
+  dependencies:
+    "@fullcalendar/daygrid" "~6.1.18"
+    "@fullcalendar/premium-common" "~6.1.18"
+
+"@fullcalendar/resource-timegrid@^6.1.18":
+  version "6.1.18"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/resource-timegrid/-/resource-timegrid-6.1.18.tgz#c9ebc0f260123e1fe01f40dff94bfa2c6fbbbe8a"
+  integrity sha512-JCqA1ymQvMwEaCDWHnGW1RRP2BTMoIuMTH+H7TWDmL5LsXyBaSRdJ5VFCtrMd8GBwcKLtjchxQUxFrGJjeBw4g==
+  dependencies:
+    "@fullcalendar/premium-common" "~6.1.18"
+    "@fullcalendar/resource-daygrid" "~6.1.18"
+    "@fullcalendar/timegrid" "~6.1.18"
+
+"@fullcalendar/timegrid@^6.1.18", "@fullcalendar/timegrid@~6.1.18":
   version "6.1.18"
   resolved "https://registry.npmjs.org/@fullcalendar/timegrid/-/timegrid-6.1.18.tgz"
   integrity sha512-T/ouhs+T1tM8JcW7Cjx+KiohL/qQWKqvRITwjol8ktJ1e1N/6noC40/obR1tyolqOxMRWHjJkYoj9fUqfoez9A==

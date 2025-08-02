@@ -16,6 +16,7 @@
       <tr>
         <th class="px-6 py-3 text-left">Titre</th>
         <th class="px-6 py-3 text-left">Type</th>
+        <th class="px-6 py-3 text-left">Terrain</th>
         <th class="px-6 py-3 text-left">Niveau</th>
         <th class="px-6 py-3 text-left">Date</th>
         <th class="px-6 py-3 text-left">Coach / Responsable</th>
@@ -51,6 +52,12 @@
             <% end %>
           </td>
 
+          <td class="px-6 py-4 text-gray-700">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
+              <%= lucide_icon("map-pin", size: 14) %> Terrain <%= session.terrain.to_s.split('_').last %>
+            </span>
+          </td>
+
           <td class="px-6 py-4 text-gray-700 space-x-1">
             <% session.levels.each do |level| %>
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
@@ -70,11 +77,15 @@
 
           <td class="px-6 py-4 text-right space-x-2">
             <%= link_to admin_session_path(session), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red" do %>
-              <%= lucide_icon("eye", size: 16) %> Voir
+              <%= lucide_icon("eye", size: 16) %> 
             <% end %>
 
             <%= link_to edit_admin_session_path(session), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red-dark" do %>
-              <%= lucide_icon("edit", size: 16) %> Modifier
+              <%= lucide_icon("edit", size: 16) %> 
+            <% end %>
+
+            <%= link_to admin_session_path(session), data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ?" }, class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red" do %>
+              <%= lucide_icon("trash", size: 16) %> 
             <% end %>
           </td>
         </tr>

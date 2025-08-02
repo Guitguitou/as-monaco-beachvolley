@@ -9,7 +9,7 @@
   </div>
 <% end %>
 
-<%= form_with model: session, url: session.persisted? ? admin_session_path(session) : admin_sessions_path, method: session.persisted? ? :put : :post, data: { controller: "session-form" } do |f| %>
+<%= form_with model: session, url: session.persisted? ? session_path(session) : sessions_path, method: session.persisted? ? :put : :post, data: { controller: "session-form" } do |f| %>
   <div class="fr-input-group">
     <%= f.label :title, class: "fr-label" %>
     <%= f.text_field :title, class: "fr-input", required: true %>

@@ -5,7 +5,7 @@ module Admin
     layout "dashboard"
     before_action :authenticate_user!
     before_action :ensure_admin!
-    before_action :set_session, only: [:show, :edit, :update]
+    before_action :set_session, only: [:show, :edit, :update, :destroy]
 
     def index
       @sessions = Session.order(start_at: :desc)
@@ -42,6 +42,11 @@ module Admin
       end
     end
 
+    def destroy
+      @session.destroy
+      redirect_to admin_sessions_path, notice: "Session supprimée avec succès."
+    end
+
     private
 
     def set_session
@@ -49,7 +54,7 @@ module Admin
     end
 
     def session_params
-      params.require(:session).permit(:title, :description, :start_at, :end_at, :session_type, :max_players, :user_id, level_ids: [])
+      params.require(:session).permit(:title, :description, :start_at, :end_at, :session_type, :max_players, :terrain, :user_id, level_ids: [])
     end
 
     def ensure_admin!

@@ -3,6 +3,7 @@
 
 <ul class="space-y-2">
   <li><strong>Type :</strong> <%= @session.session_type.humanize %></li>
+  <li><strong>Terrain :</strong> Terrain <%= @session.terrain.to_s.split('_').last %></li>
   <li><strong>Date :</strong> <%= l @session.start_at %> → <%= l @session.end_at %></li>
   <li><strong>Max joueurs :</strong> <%= @session.max_players %></li>
   <li><strong>Coach / Responsable :</strong> <%= @session.user&.full_name %></li>
@@ -15,3 +16,9 @@
     <% end %>
   </li>
 </ul>
+
+<div class="mt-8 flex gap-4">
+  <%= link_to "Retour à l'index", admin_sessions_path, class: "px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors" %>
+  <%= link_to "Modifier", edit_admin_session_path(@session), class: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors" %>
+  <%= link_to "Supprimer", admin_session_path(@session), data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ?" }, class: "px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors" %>
+</div>

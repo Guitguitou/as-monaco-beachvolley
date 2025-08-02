@@ -2,7 +2,7 @@ class Session < ApplicationRecord
   belongs_to :user
   has_many :session_levels, dependent: :destroy
   has_many :levels, through: :session_levels
-  validates :title, :start_at, :end_at, :session_type, :user_id, presence: true
+  validates :title, :start_at, :end_at, :session_type, :user_id, :terrain, presence: true
 
   enum :session_type, {
     entrainement: "entrainement",
@@ -11,7 +11,16 @@ class Session < ApplicationRecord
     coaching_prive: "coaching_prive"
   }
 
+  enum :terrain, {
+    "Terrain 1": 1,
+    "Terrain 2": 2,
+    "Terrain 3": 3
+  }
+
   validate :end_at_after_start_at
+  validate :no_overlapping_sessions_on_same_terrain
+
+  scope :terrain, ->(terrain) { where(terrain: terrain) }
 
   def display_name
     case session_type
@@ -35,6 +44,25 @@ class Session < ApplicationRecord
 
     if end_at <= start_at
       errors.add(:end_at, "doit être après la date de début")
+    end
+  end
+
+  def no_overlapping_sessions_on_same_terrain
+    return if start_at.blank? || end_at.blank? || terrain.blank?
+
+    overlapping_sessions = Session.where(terrain: terrain)
+                                .where.not(id: id) # Exclure la session actuelle lors de la mise à jour
+                                .where(
+                                  "(start_at < ? AND end_at > ?) OR " \
+                                  "(start_at < ? AND end_at > ?) OR " \
+                                  "(start_at >= ? AND end_at <= ?)",
+                                  end_at, start_at,
+                                  end_at, start_at,
+                                  start_at, end_at
+                                )
+
+    if overlapping_sessions.exists?
+      errors.add(:base, "Une session existe déjà sur ce terrain pendant ces horaires")
     end
   end
 end

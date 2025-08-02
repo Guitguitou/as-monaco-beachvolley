@@ -1,6 +1,10 @@
-<h1 class="text-2xl font-bold mb-6 flex items-center gap-2">
-  <%= lucide_icon("calendar-clock") %> Mon calendrier
-</h1>
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold flex items-center gap-2">
+    <%= lucide_icon("calendar-clock") %> Mon calendrier
+  </h1>
+
+  <%= link_to "+ Nouvelle session", new_session_path, class: "bg-asmbv-red hover:bg-asmbv-red-dark text-asmbv-red-light font-semibold rounded-md px-4 py-2 transition" %>
+</div>
 
 <% sessions_json = @sessions.map { |s|
   {
@@ -10,9 +14,12 @@
     end: s.end_at.iso8601,
     url: session_path(s),
     backgroundColor: s.levels.first&.color || '#E60012',
-    textColor: '#fff'
+    textColor: '#fff',
+    terrain: s.terrain
   }
 }.to_json %>
+
+<%= render "terrain_filter" %>
 
 <div
   id="calendar"

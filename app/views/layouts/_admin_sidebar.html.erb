@@ -1,33 +1,25 @@
-<aside class="w-64 bg-asmbv-red text-white p-6 space-y-8">
-  <div class="flex items-center gap-2 text-white text-2xl font-bold">
-    <%= lucide_icon('volleyball', class: 'w-6 h-6') %>
-    <span>Admin ASM</span>
+<aside
+  class="fixed z-50 inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transform -translate-x-full transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:z-auto lg:block"
+  data-admin-sidebar-target="sidebar"
+>
+  <div class="p-6 flex flex-col h-full space-y-6">
+    <div class="flex items-center gap-2 text-asmbv-red text-xl font-semibold">
+      <%= lucide_icon('volleyball', class: 'w-6 h-6') %>
+      <span>Admin ASM</span>
+    </div>
+
+    <nav class="flex-1 space-y-2">
+      <%= nav_link "Dashboard", admin_root_path, icon: "layout-dashboard" %>
+      <%= nav_link "Joueurs", admin_users_path, icon: "users" %>
+      <%= nav_link "Sessions", admin_sessions_path, icon: "calendar" %>
+      <%= nav_link "Niveaux", admin_levels_path, icon: "layers" %>
+    </nav>
+
+    <div class="border-t border-gray-200 pt-6 mt-auto">
+      <%= link_to '#', method: :delete, class: "flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium" do %>
+        <%= lucide_icon('log-out', class: 'w-5 h-5 text-asmbv-red') %>
+        <span>Déconnexion</span>
+      <% end %>
+    </div>
   </div>
-
-  <nav class="flex flex-col gap-3">
-    <%= link_to admin_root_path, class: "flex items-center gap-2 hover:underline" do %>
-      <%= lucide_icon('layout-dashboard', class: 'w-5 h-5') %>
-      <span>Dashboard</span>
-    <% end %>
-
-    <%= link_to admin_users_path, class: "flex items-center gap-2 hover:underline" do %>
-      <%= lucide_icon('users', class: 'w-5 h-5') %>
-      <span>Joueurs</span>
-    <% end %>
-
-    <%= link_to admin_sessions_path, class: "flex items-center gap-2 hover:underline" do %>
-      <%= lucide_icon('calendar', class: 'w-5 h-5') %>
-      <span>Sessions</span>
-    <% end %>
-
-    <%= link_to admin_levels_path, class: "flex items-center gap-2 hover:underline" do %>
-      <%= lucide_icon("layers", class: "w-5 h-5") %>
-      <span>Niveaux</span>
-    <% end %>
-
-    <%= link_to '#', method: :delete, class: "flex items-center gap-2 hover:underline mt-auto" do %>
-      <%= lucide_icon('log-out', class: 'w-5 h-5') %>
-      <span>Déconnexion</span>
-    <% end %>
-  </nav>
 </aside>
