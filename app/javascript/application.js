@@ -2,9 +2,4 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 
-// import '@gouvfr/dsfr/dist/dsfr/dsfr.module';
-// import '@gouvfr/dsfr/dist/dsfr/dsfr.module.min.css';
 
-document.addEventListener('DOMContentLoaded', () => {
-  window.dsfr?.start();
-});

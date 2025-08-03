@@ -1,4 +1,3 @@
-<!-- app/views/layouts/application.html.erb -->
 <!DOCTYPE html>
 <html>
   <head>
@@ -12,53 +11,25 @@
     <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.18/index.global.min.css" %>
     <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/@fullcalendar/resource-timegrid@6.1.18/index.global.min.css" %>
 
-    <!-- FullCalendar JS (plugins globaux exposés dans window) -->
+    <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.18/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.18/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.18/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.18/index.global.min.js"></script>
 
-    <!-- DSFR (facultatif si tu l’utilises) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr/dist/dsfr.min.css" />
-
-    <!-- Ton CSS applicatif -->
+    <!-- App styles -->
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-
-    <!-- Stimulus, Turbo, Importmap... (doit venir après FullCalendar) -->
     <%= javascript_importmap_tags %>
-
     <%= yield :head if content_for?(:head) %>
   </head>
 
-  <body class="bg-gray-50 min-h-screen">
-    <% if user_signed_in? && current_user.admin? %>
+  <body class="bg-gray-50 min-h-screen text-gray-900">
+    <% if user_signed_in? %>
       <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 bg-asmbv-red text-white p-6 space-y-8">
-          <div class="flex items-center gap-2 text-white text-2xl font-bold">
-            <%= lucide_icon('volleyball', class: 'w-6 h-6') %>
-            <span>Admin ASM</span>
-          </div>
+        <%= render "layouts/sidebar" %>
 
-          <nav class="flex flex-col gap-3">
-            <%= link_to admin_root_path, class: "flex items-center gap-2 hover:underline" do %>
-              <%= lucide_icon('layout-dashboard', class: 'w-5 h-5') %>
-              <span>Dashboard</span>
-            <% end %>
-
-            <%= link_to '#', class: "flex items-center gap-2 hover:underline" do %>
-              <%= lucide_icon('users', class: 'w-5 h-5') %>
-              <span>Joueurs</span>
-            <% end %>
-
-            <%= link_to '#', method: :delete, class: "flex items-center gap-2 hover:underline mt-auto" do %>
-              <%= lucide_icon('log-out', class: 'w-5 h-5') %>
-              <span>Déconnexion</span>
-            <% end %>
-          </nav>
-        </aside>
-
-        <!-- Main Content -->
+        <!-- Main content -->
         <main class="flex-1 p-8">
           <%= yield %>
         </main>
@@ -66,39 +37,38 @@
     <% else %>
       <!-- Header pour les joueurs -->
       <header class="bg-white shadow-sm border-b">
-        <div class="container mx-auto px-4 py-4">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-asmbv-red rounded-lg flex items-center justify-center">
-                <%= lucide_icon('volleyball', class: 'w-6 h-6 text-white') %>
-              </div>
-              <div>
-                <h1 class="text-xl font-bold text-gray-900">AS Monaco Beach Volley</h1>
-                <p class="text-sm text-gray-600">Calendrier des sessions</p>
-              </div>
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-asmbv-red rounded-lg flex items-center justify-center">
+              <%= lucide_icon('volleyball', class: 'w-6 h-6 text-white') %>
             </div>
-            
-            <div class="flex items-center gap-4">
-              <% if user_signed_in? %>
-                <span class="text-sm text-gray-600">
-                  Bonjour, <%= current_user.first_name %>
-                </span>
-                <%= link_to "Déconnexion", destroy_user_session_path, method: :delete, class: "fr-btn bg-gray-100 hover:bg-gray-200 text-gray-700" %>
-              <% else %>
-                <%= link_to "Connexion", new_user_session_path, class: "fr-btn bg-asmbv-red hover:bg-asmbv-red-dark text-white" %>
-              <% end %>
+            <div>
+              <h1 class="text-xl font-bold text-gray-900">AS Monaco Beach Volley</h1>
+              <p class="text-sm text-gray-600">Calendrier des sessions</p>
             </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <% if user_signed_in? %>
+              <span class="text-sm text-gray-600">Bonjour, <%= current_user.first_name %></span>
+              <%= link_to "Déconnexion", destroy_user_session_path, method: :delete,
+                    class: "text-sm px-4 py-2 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium" %>
+            <% else %>
+              <%= link_to "Connexion", new_user_session_path,
+                    class: "text-sm px-4 py-2 rounded-md bg-asmbv-red hover:bg-asmbv-red-dark text-white font-medium" %>
+            <% end %>
           </div>
         </div>
       </header>
 
-      <!-- Main Content -->
-      <main>
-        <%= yield %>
+      <!-- Main content -->
+      <main class="flex-1 overflow-hidden">
+        <div class="h-[calc(100vh-80px)] overflow-y-auto px-6 pt-6">
+          <%= yield %>
+        </div>
       </main>
     <% end %>
-    
-    <!-- FullCalendar Scripts -->
+
     <%= yield :scripts if content_for?(:scripts) %>
   </body>
 </html>

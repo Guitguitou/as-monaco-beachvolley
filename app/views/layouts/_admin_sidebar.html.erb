@@ -1,21 +1,22 @@
 <aside
-  class="fixed z-50 inset-y-0 left-0 w-64 bg-white border-r border-gray-200 transform -translate-x-full transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:z-auto lg:block"
+  class="fixed z-50 inset-y-0 left-0 w-56 bg-white border-r border-gray-200 transform -translate-x-full transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:z-auto lg:block"
   data-admin-sidebar-target="sidebar"
 >
   <div class="p-6 flex flex-col h-full space-y-6">
-    <div class="flex items-center gap-2 text-asmbv-red text-xl font-semibold">
-      <%= lucide_icon('volleyball', class: 'w-6 h-6') %>
-      <span>Admin ASM</span>
+    <div class="flex items-center gap-2 text-asmbv-red text-xl font-bold flex-col">
+      <%= image_tag "logo.png", class: "w-20 h-20" %>
+      <span>Admin</span>
     </div>
 
-    <nav class="flex-1 space-y-2">
+    <nav class="flex-1 space-y-2 text-sm">
       <%= nav_link "Dashboard", admin_root_path, icon: "layout-dashboard" %>
       <%= nav_link "Joueurs", admin_users_path, icon: "users" %>
       <%= nav_link "Sessions", admin_sessions_path, icon: "calendar" %>
       <%= nav_link "Niveaux", admin_levels_path, icon: "layers" %>
+      <%= nav_link "Retour App", sessions_path, icon: "arrow-left" %>
     </nav>
 
-    <div class="border-t border-gray-200 pt-6 mt-auto">
+    <div class="border-t border-gray-200 pt-4 mt-auto">
       <%= link_to '#', method: :delete, class: "flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium" do %>
         <%= lucide_icon('log-out', class: 'w-5 h-5 text-asmbv-red') %>
         <span>Déconnexion</span>

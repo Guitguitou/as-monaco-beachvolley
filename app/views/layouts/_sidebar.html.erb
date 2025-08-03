@@ -1,0 +1,28 @@
+<!-- Nouveau layout application.html.erb adapté au layout admin -->
+<aside
+  class="fixed z-50 inset-y-0 left-0 w-48 bg-asmbv-light border-r border-gray-200 transform -translate-x-full transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:z-auto lg:block"
+  data-admin-sidebar-target="sidebar"
+>
+  <div class="p-4 flex flex-col h-full space-y-6">
+    <div class="flex items-center gap-2 text-asmbv-red text-xl font-semibold justify-center">
+      <%= image_tag "logo.png", class: "w-20 h-20" %>
+    </div>
+
+    <nav class="flex-1 space-y-2 text-sm">
+      <%= nav_link "Calendrier", sessions_path, icon: "calendar" %>
+      <%= nav_link "Mes sessions", '#', icon: "volleyball" %>
+      <%= nav_link "Mon profil", '#', icon: "user" %>
+
+      <% if current_user.admin? %>
+        <%= nav_link "Admin", admin_root_path, icon: "shield-check" %>
+      <% end %>
+    </nav>
+
+    <div class="border-t border-gray-200 pt-4 mt-auto">
+      <%= link_to '#', method: :delete, class: "flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium" do %>
+        <%= lucide_icon('log-out', class: 'w-5 h-5 text-asmbv-red') %>
+        <span>Déconnexion</span>
+      <% end %>
+    </div>
+  </div>
+</aside>

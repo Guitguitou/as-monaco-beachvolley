@@ -1,0 +1,18 @@
+fr:
+  time:
+    formats:
+      long: "%A %d %B %Y à %H:%M"
+      day_month: "%d/%m"
+      time: "%H:%M"
+      day_month_year: "%d/%m/%Y"
+  date:
+    month_names: "%b"
+    day_names: "%a"
+    abbr_month_names: "%b"
+    abbr_day_names: "%a"
+    abbr_month_names_short: "%b"
+    abbr_day_names_short: "%a"
+    abbr_month_names_short_2: "%b"
+    abbr_day_names_short_2: "%a"
+    abbr_month_names_short_3: "%b"
+    abbr_day_names_short_3: "%a"

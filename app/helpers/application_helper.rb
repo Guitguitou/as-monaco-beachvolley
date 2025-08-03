@@ -15,6 +15,16 @@ module ApplicationHelper
     labels[session_type] || session_type.humanize
   end
 
+  def session_type_icon(session_type)
+    icons = {
+      'entrainement' => 'dumbbell',
+      'jeu_libre' => 'game',
+      'tournoi' => 'trophy',
+      'coaching_prive' => 'shield-user'
+    }
+    icons[session_type] || 'game'
+  end
+
   def get_session_type_classes(session_type)
     classes = {
       'entrainement' => 'bg-green-100 text-green-800',
@@ -30,12 +40,12 @@ module ApplicationHelper
     classes = [
       "flex items-center gap-2 px-3 py-2 rounded-md",
       "hover:bg-gray-100 text-gray-800 font-medium",
-      active ? "border-l-4 border-asmbv-red bg-gray-100" : ""
+      active ? "border-l-4 border-asmbv-red bg-asmbv-red-light text-asmbv-red font-semibold" : ""
     ].join(" ")
 
     content_tag :div do
       link_to path, class: classes do
-        concat lucide_icon(icon, class: 'w-5 h-5 text-asmbv-red')
+        concat lucide_icon(icon, class: "w-5 h-5 #{active ? 'text-asmbv-red' : 'text-gray-500'}")
         concat content_tag(:span, name)
       end
     end

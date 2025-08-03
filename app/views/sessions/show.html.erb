@@ -12,23 +12,13 @@
         <div>
           <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= @session.title %></h1>
           <div class="flex items-center gap-2 mb-4">
-            <span class="px-3 py-1 rounded-full text-sm font-medium <%= get_session_type_classes(@session.session_type) %>">
+            <span class="px-3 py-1 rounded-full text-sm font-medium inline-flex items-center gap-2 <%= get_session_type_classes(@session.session_type) %>">
+              <%= lucide_icon(session_type_icon(@session.session_type), class: 'w-5 h-5') %>
               <%= get_session_type_label(@session.session_type) %>
             </span>
-            <% if @session.max_players %>
-              <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                <%= @session.max_players %> places max
+            <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+              <%= @session.terrain %>
               </span>
-            <% end %>
-          </div>
-        </div>
-        
-        <div class="text-right">
-          <div class="text-2xl font-bold text-gray-900">
-            <%= l @session.start_at, format: :day_month %>
-          </div>
-          <div class="text-gray-600">
-            <%= l @session.start_at, format: :time %> - <%= l @session.end_at, format: :time %>
           </div>
         </div>
       </div>
@@ -75,22 +65,27 @@
               </div>
             <% end %>
           </div>
+          <div class="mt-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Niveaux</h3>
+            <% if @session.levels.any? %>
+              <div class="flex flex-wrap gap-2">
+                <% @session.levels.each do |level| %>
+                  <span class="px-3 py-1 rounded-full text-sm font-medium" 
+                        style="background-color: <%= level.color %>22; color: <%= level.color %>;">
+                    <%= level.name %> - <%= level.gender.humanize %>
+                  </span>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="text-gray-500">Tous niveaux acceptés</p>
+            <% end %>
+          </div>
         </div>
-
         <div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-3">Niveaux acceptés</h3>
-          <% if @session.levels.any? %>
-            <div class="flex flex-wrap gap-2">
-              <% @session.levels.each do |level| %>
-                <span class="px-3 py-1 rounded-full text-sm font-medium" 
-                      style="background-color: <%= level.color %>22; color: <%= level.color %>;">
-                  <%= level.name %> - <%= level.gender.humanize %>
-                </span>
-              <% end %>
-            </div>
-          <% else %>
-            <p class="text-gray-500">Tous niveaux acceptés</p>
-          <% end %>
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Liste des participants</h3>
+          <div class="flex flex-wrap gap-2">
+            <!-- TODO: Afficher la liste des participants -->
+          </div>
         </div>
       </div>
     </div>

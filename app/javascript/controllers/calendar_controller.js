@@ -30,13 +30,17 @@ export default class extends Controller {
       locale: "fr",
       allDaySlot: false,
       slotMinTime: "08:00:00",
-      slotMaxTime: "24:00:00",
-      slotDuration: "00:30:00",
+      slotMaxTime: "23:00:00",
       slotLabelFormat: {
-        hour: "2-digit",
-        minute: "2-digit",
+        hour: 'numeric',
+        minute: '2-digit',
+        meridiem: false,
         hour12: false
       },
+      height: "100%",
+      contentHeight: "auto",
+      expandRows: true,
+      // slotDuration: "00:30:00",
       slotLabelClassNames: ["text-xs", "text-gray-400"],
       eventDisplay: "block",
       events: JSON.parse(calendarEl.dataset.sessions),
@@ -59,20 +63,12 @@ export default class extends Controller {
         hour12: false
       },
       eventDidMount: function(info) {
-        const el = info.el;
-        el.classList.add(
-          "rounded-lg",
-          "shadow-sm",
-          "px-2",
-          "py-1.5",
-          "text-sm",
-          "leading-tight",
-          "font-medium",
-          "transition",
-          "duration-150",
-          "ease-in-out",
-          "hover:scale-[1.01]"
-        );
+        info.el.style.backgroundColor = '#fee2e2'; // rouge très clair
+        info.el.style.borderColor = '#ef4444';     // rouge principal
+        info.el.style.color = '#991b1b';           // rouge foncé pour texte
+        info.el.style.borderRadius = '6px';
+        info.el.style.fontWeight = '500';
+        info.el.style.padding = '4px';
       }
     });
 
