@@ -51,7 +51,7 @@ class Session < ApplicationRecord
     return if start_at.blank? || end_at.blank? || terrain.blank?
 
     overlapping_sessions = Session.where(terrain: terrain)
-                                .where.not(id: id) # Exclure la session actuelle lors de la mise à jour
+                                .where.not(id: id)
                                 .where(
                                   "(start_at < ? AND end_at > ?) OR " \
                                   "(start_at < ? AND end_at > ?) OR " \

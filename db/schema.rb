@@ -10,9 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_11_065650) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_03_122623) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "balances", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_balances_on_user_id"
+  end
+
+  create_table "credit_transactions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "session_id", null: false
+    t.integer "transaction_type"
+    t.integer "amount"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["session_id"], name: "index_credit_transactions_on_session_id"
+    t.index ["user_id"], name: "index_credit_transactions_on_user_id"
+  end
 
   create_table "levels", force: :cascade do |t|
     t.string "name"
@@ -64,6 +83,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_11_065650) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "balances", "users"
+  add_foreign_key "credit_transactions", "sessions"
+  add_foreign_key "credit_transactions", "users"
   add_foreign_key "session_levels", "levels"
   add_foreign_key "session_levels", "sessions"
   add_foreign_key "sessions", "users"

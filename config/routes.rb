@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   # Routes publiques pour les joueurs
   root "sessions#index"
   resources :sessions
+  resource :profile, only: [:show], controller: 'users'
 
   namespace :admin do
     root to: "dashboard#index"

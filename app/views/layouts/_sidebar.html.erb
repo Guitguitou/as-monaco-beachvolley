@@ -11,7 +11,7 @@
     <nav class="flex-1 space-y-2 text-sm">
       <%= nav_link "Calendrier", sessions_path, icon: "calendar" %>
       <%= nav_link "Mes sessions", '#', icon: "volleyball" %>
-      <%= nav_link "Mon profil", '#', icon: "user" %>
+      <%= nav_link "Mon profil", profile_path, icon: "user" %>
 
       <% if current_user.admin? %>
         <%= nav_link "Admin", admin_root_path, icon: "shield-check" %>
