@@ -1,2 +1,2 @@
-web: bundle exec rails server -p $PORT -e $RAILS_ENV
-
+web: bundle exec puma -C config/puma.rb
+postdeploy: bin/postdeploy.sh
