@@ -2,6 +2,8 @@ class Session < ApplicationRecord
   belongs_to :user
   has_many :session_levels, dependent: :destroy
   has_many :levels, through: :session_levels
+  has_many :registrations, dependent: :destroy
+  has_many :participants, through: :registrations, source: :user
   validates :title, :start_at, :end_at, :session_type, :user_id, :terrain, presence: true
 
   enum :session_type, {
@@ -35,6 +37,10 @@ class Session < ApplicationRecord
     else
       title
     end
+  end
+
+  def full?
+    registrations.count >= max_players if max_players.present?
   end
 
   private

@@ -1,0 +1,47 @@
+<div class="flex items-start justify-between mb-4">
+  <div>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2"><%= @session.title %></h1>
+    <div class="flex items-center gap-2 mb-4">
+      <span class="px-3 py-1 rounded-full text-sm font-medium inline-flex items-center gap-2 <%= get_session_type_classes(@session.session_type) %>">
+        <%= lucide_icon(session_type_icon(@session.session_type), class: 'w-5 h-5') %>
+        <%= get_session_type_label(@session.session_type) %>
+      </span>
+      <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+        <%= @session.terrain %>
+      </span>
+      <% if @session.levels.any? %>
+        <% @session.levels.each do |level| %>
+          <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm" style="background-color: <%= level.color %>22; color: <%= level.color %>;">
+              <%= level.name %> - <%= level.gender.humanize %>
+            </span>
+        <% end %>
+      <% else %>
+        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+          Tous niveaux acceptés
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <% if user_signed_in? %>
+    <% registration = Registration.new(user: current_user, session: @session) %>
+    <% can_register, reason = registration.can_register_with_reason %>
+
+    <% if !current_user.sessions_registered.include?(@session) %>
+      <%= button_to session_registrations_path(@session),
+                    method: :post,
+                    disabled: !can_register,
+                    class: "inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 " +
+                          (can_register ? "bg-asmbv-red text-white hover:bg-asmbv-red-dark focus-visible:outline-asmbv-red" : "bg-gray-300 text-gray-600 cursor-not-allowed") do %>
+        <%= lucide_icon("check-circle", class: "-ml-0.5 size-5", aria: { hidden: true }) %>
+        <span><%= can_register ? "Je m’inscris" : reason %></span>
+      <% end %>
+    <% else %>
+      <%= button_to session_registration_path(@session), method: :delete,
+                    class: "inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600" do %>
+        <%= lucide_icon("x-circle", class: "-ml-0.5 size-5", aria: { hidden: true }) %>
+        <span>Je me désinscris</span>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

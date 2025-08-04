@@ -5,6 +5,7 @@ fr:
       day_month: "%d/%m"
       time: "%H:%M"
       day_month_year: "%d/%m/%Y"
+      short: "%d/%m" 
   date:
     month_names: "%b"
     day_names: "%a"

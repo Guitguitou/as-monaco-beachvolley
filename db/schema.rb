@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_03_122623) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_03_124432) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -39,6 +39,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_122623) do
     t.string "color"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "registrations", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "session_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["session_id"], name: "index_registrations_on_session_id"
+    t.index ["user_id", "session_id"], name: "index_registrations_on_user_id_and_session_id", unique: true
+    t.index ["user_id"], name: "index_registrations_on_user_id"
   end
 
   create_table "session_levels", force: :cascade do |t|
@@ -86,6 +96,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_122623) do
   add_foreign_key "balances", "users"
   add_foreign_key "credit_transactions", "sessions"
   add_foreign_key "credit_transactions", "users"
+  add_foreign_key "registrations", "sessions"
+  add_foreign_key "registrations", "users"
   add_foreign_key "session_levels", "levels"
   add_foreign_key "session_levels", "sessions"
   add_foreign_key "sessions", "users"

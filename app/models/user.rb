@@ -7,6 +7,8 @@ class User < ApplicationRecord
   belongs_to :level, optional: true
   has_one :balance, dependent: :destroy
   has_many :credit_transactions, dependent: :destroy
+  has_many :registrations, dependent: :destroy
+  has_many :sessions_registered, through: :registrations, source: :session
   after_create :init_balance
 
   scope :coachs, -> { where(coach: true) }
