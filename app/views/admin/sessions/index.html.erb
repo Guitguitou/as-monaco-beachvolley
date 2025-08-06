@@ -1,10 +1,11 @@
 <div class="flex items-center justify-between mb-6">
-  <h1 class="text-2xl font-bold flex items-center gap-2">
+  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
     <%= lucide_icon("calendar-clock") %>
     Sessions
   </h1>
 
-  <%= link_to new_admin_session_path, class: "fr-btn bg-asmbv-red text-white hover:bg-asmbv-red-dark inline-flex items-center gap-2" do %>
+  <%= link_to new_admin_session_path,
+        class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
     <%= lucide_icon("plus", size: 18) %>
     Nouvelle session
   <% end %>
@@ -25,12 +26,14 @@
     </thead>
     <tbody class="divide-y divide-gray-100">
       <% @sessions.each do |session| %>
-        <tr class="hover:bg-gray-50">
+        <tr class="hover:bg-gray-50 transition-colors">
+          <!-- Titre -->
           <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-800 flex items-center gap-2">
-            <%= lucide_icon("calendar", size: 16) %>
+            <%= lucide_icon("calendar", size: 16, class: "text-gray-500") %>
             <%= session.title.presence || "(Sans titre)" %>
           </td>
 
+          <!-- Type -->
           <td class="px-6 py-4 text-gray-700">
             <% case session.session_type %>
             <% when "entrainement" %>
@@ -52,40 +55,49 @@
             <% end %>
           </td>
 
+          <!-- Terrain -->
           <td class="px-6 py-4 text-gray-700">
             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
               <%= lucide_icon("map-pin", size: 14) %> <%= session.terrain.to_s.split('_').last %>
             </span>
           </td>
 
+          <!-- Niveaux -->
           <td class="px-6 py-4 text-gray-700 space-x-1">
             <% session.levels.each do |level| %>
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
                     style="background-color: <%= level.color %>22; color: <%= level.color %>;">
-                    <%= level.name %>
+                <%= level.name %>
               </span>
             <% end %>
           </td>
 
+          <!-- Date -->
           <td class="px-6 py-4 text-gray-700">
             <%= l session.start_at, format: :short %> — <%= l session.end_at, format: :short %>
           </td>
 
+          <!-- Organisateur -->
           <td class="px-6 py-4 text-gray-700">
             <%= session.user&.full_name || "-" %>
           </td>
 
+          <!-- Actions -->
           <td class="px-6 py-4 text-right space-x-2">
-            <%= link_to admin_session_path(session), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red" do %>
-              <%= lucide_icon("eye", size: 16) %> 
+            <%= link_to admin_session_path(session),
+                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red transition-colors" do %>
+              <%= lucide_icon("eye", size: 16) %>
             <% end %>
 
-            <%= link_to edit_admin_session_path(session), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red-dark" do %>
-              <%= lucide_icon("edit", size: 16) %> 
+            <%= link_to edit_admin_session_path(session),
+                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red-dark transition-colors" do %>
+              <%= lucide_icon("edit", size: 16) %>
             <% end %>
 
-            <%= link_to admin_session_path(session), data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ?" }, class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red" do %>
-              <%= lucide_icon("trash", size: 16) %> 
+            <%= link_to admin_session_path(session),
+                  data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ?" },
+                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors" do %>
+              <%= lucide_icon("trash", size: 16) %>
             <% end %>
           </td>
         </tr>

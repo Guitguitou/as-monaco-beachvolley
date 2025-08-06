@@ -1,23 +1,39 @@
-<%= form_with model: level, url: url, method: method do |f| %>
-  <div class="fr-input-group">
-    <%= f.label :name, "Nom du groupe", class: "fr-label" %>
-    <%= f.text_field :name, class: "fr-input w-full" %>
+<%= form_with model: level, url: url, method: method, class: "space-y-6 max-w-md bg-white p-6 rounded-lg shadow-md" do |f| %>
+  <!-- Nom du groupe -->
+  <div>
+    <%= f.label :name, "Nom du groupe", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.text_field :name,
+          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 
+                  text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red 
+                  focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
-  <div class="fr-input-group">
-    <%= f.label :gender, "Genre", class: "fr-label" %>
-    <%= f.select :gender, options_for_select(Level.genders.keys.map { |g| [g.humanize, g] }, @level.gender),
-          {}, class: "fr-select w-full" %>
+  <!-- Genre -->
+  <div>
+    <%= f.label :gender, "Genre", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.select :gender,
+          options_for_select(Level.genders.keys.map { |g| [g.humanize, g] }, @level.gender),
+          {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 
+                      text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
-  <div class="fr-input-group" data-controller="color-preview">
-    <%= f.label :color, "Couleur", class: "fr-label" %>
-    <div class="flex items-center gap-3">
-      <%= f.color_field :color, class: "h-10 w-20 p-0 border rounded" %>
+  <!-- Couleur -->
+  <div data-controller="color-preview">
+    <%= f.label :color, "Couleur", class: "block text-sm font-medium text-gray-900" %>
+    <div class="mt-1 flex items-center gap-3">
+      <%= f.color_field :color,
+            class: "h-10 w-20 p-0 border border-gray-300 rounded focus:outline-none 
+                    focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red" %>
     </div>
   </div>
 
-  <%= f.submit class: "fr-btn bg-asmbv-red hover:bg-asmbv-red-dark text-white" do %>
-    <%= lucide_icon("save", size: 16) %> Enregistrer
-  <% end %>
+  <!-- Bouton -->
+  <div>
+    <%= f.submit class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md 
+                        bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm 
+                        hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 
+                        focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
+      <%= lucide_icon("save", size: 16) %> Enregistrer
+    <% end %>
+  </div>
 <% end %>

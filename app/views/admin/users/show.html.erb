@@ -1,54 +1,107 @@
-<div class="space-y-6">
+<div class="max-w-5xl mx-auto space-y-8">
+  <!-- Header -->
   <div class="flex items-center justify-between border-b pb-4">
-    <div class="flex items-center space-x-2">
+    <div class="flex items-center gap-2">
       <%= lucide_icon("user", class: "w-6 h-6 text-asmbv-red") %>
-      <h1 class="text-2xl font-semibold">Fiche joueur</h1>
+      <h1 class="text-2xl font-bold text-gray-900">Fiche joueur</h1>
     </div>
-    <%= link_to "Modifier", edit_admin_user_path(@user), class: "fr-btn fr-btn--secondary" %>
+    <%= link_to edit_admin_user_path(@user),
+          class: "inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red" do %>
+      <%= lucide_icon("edit", size: 16) %> Modifier
+    <% end %>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="p-4 border rounded-md">
-      <h2 class="text-sm text-gray-500 uppercase font-semibold mb-2">Prénom</h2>
-      <p class="text-lg"><%= @user.first_name.presence || "–" %></p>
-    </div>
-
-    <div class="p-4 border rounded-md">
-      <h2 class="text-sm text-gray-500 uppercase font-semibold mb-2">Nom</h2>
-      <p class="text-lg"><%= @user.last_name.presence || "–" %></p>
-    </div>
-
-    <div class="p-4 border rounded-md">
-      <h2 class="text-sm text-gray-500 uppercase font-semibold mb-2">Email</h2>
-      <p class="text-lg"><%= @user.email %></p>
-    </div>
-
-    <div class="p-4 border rounded-md">
-      <h2 class="text-sm text-gray-500 uppercase font-semibold mb-2">Rôles</h2>
-      <div class="flex flex-wrap gap-2">
-        <% if @user.admin? %>
-          <span class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-md">
-            <%= lucide_icon("shield-user", class: "w-4 h-4 mr-1") %> Admin
-          </span>
-        <% end %>
-        <% if @user.coach? %>
-          <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-md">
-            <%= lucide_icon("dumbbell", class: "w-4 h-4 mr-1") %> Coach
-          </span>
-        <% end %>
-        <% if @user.responsable? %>
-          <span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-md">
-            <%= lucide_icon("key-round", class: "w-4 h-4 mr-1") %> Responsable
-          </span>
-        <% end %>
-        <% unless @user.admin? || @user.coach? || @user.responsable? %>
-          <span class="text-sm text-gray-500">Aucun rôle défini</span>
-        <% end %>
+  <!-- Infos personnelles -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Informations personnelles</h2>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Prénom</dt>
+        <dd class="mt-1 text-gray-900"><%= @user.first_name.presence || "–" %></dd>
       </div>
-    </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Nom</dt>
+        <dd class="mt-1 text-gray-900"><%= @user.last_name.presence || "–" %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Email</dt>
+        <dd class="mt-1 text-gray-900"><%= @user.email %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Niveau</dt>
+        <dd class="mt-1 text-gray-900"><%= @user.level&.name || "–" %></dd>
+      </div>
+      <div class="sm:col-span-2">
+        <dt class="text-sm font-medium text-gray-500 mb-2">Rôles</dt>
+        <dd class="flex flex-wrap gap-2">
+          <% if @user.admin? %>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
+              <%= lucide_icon("shield-user", size: 14) %> Admin
+            </span>
+          <% end %>
+          <% if @user.coach? %>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
+              <%= lucide_icon("dumbbell", size: 14) %> Coach
+            </span>
+          <% end %>
+          <% if @user.responsable? %>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+              <%= lucide_icon("key-round", size: 14) %> Responsable
+            </span>
+          <% end %>
+          <% unless @user.admin? || @user.coach? || @user.responsable? %>
+            <span class="text-sm text-gray-500">Aucun rôle défini</span>
+          <% end %>
+        </dd>
+      </div>
+    </dl>
   </div>
 
+  <!-- Solde de crédits -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Solde de crédits</h2>
+    <p class="text-3xl font-bold text-asmbv-red">
+      <%= @balance&.amount.to_i || 0 %> crédits
+    </p>
+  </div>
+
+  <!-- Historique des crédits -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Historique des crédits</h2>
+    <% if @transactions.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
+            <tr>
+              <th class="px-4 py-2 text-left">Date</th>
+              <th class="px-4 py-2 text-left">Type</th>
+              <th class="px-4 py-2 text-left">Montant</th>
+              <th class="px-4 py-2 text-left">Session</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @transactions.each do |t| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-2"><%= l(t.created_at, format: :short) %></td>
+                <td class="px-4 py-2"><%= t.transaction_type.humanize %></td>
+                <td class="px-4 py-2 font-medium <%= t.amount.negative? ? 'text-red-600' : 'text-green-600' %>">
+                  <%= t.amount > 0 ? "+#{t.amount}" : t.amount %>
+                </td>
+                <td class="px-4 py-2"><%= t.session&.title || "-" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500">Aucune transaction enregistrée.</p>
+    <% end %>
+  </div>
+
+  <!-- Retour -->
   <div>
-    <%= link_to "Retour à la liste", admin_users_path, class: "fr-link" %>
+    <%= link_to "← Retour à la liste",
+          admin_users_path,
+          class: "text-sm font-medium text-asmbv-red hover:text-asmbv-red-dark" %>
   </div>
 </div>

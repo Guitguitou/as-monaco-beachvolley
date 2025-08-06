@@ -1,44 +1,66 @@
-<%= form_with model: [:admin, @user], class: "space-y-6 max-w-xl" do |f| %>
+<%= form_with model: [:admin, @user], class: "space-y-6 max-w-xl bg-white p-6 rounded-lg shadow-md" do |f| %>
+  <!-- Nom / Prénom -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="fr-input-group">
-      <%= f.label :first_name, "Prénom", class: "fr-label" %>
-      <%= f.text_field :first_name, required: true, class: "fr-input w-full" %>
+    <div>
+      <%= f.label :first_name, "Prénom", class: "block text-sm font-medium text-gray-900" %>
+      <%= f.text_field :first_name,
+            required: true,
+            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
+                    placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
     </div>
 
-    <div class="fr-input-group">
-      <%= f.label :last_name, "Nom", class: "fr-label" %>
-      <%= f.text_field :last_name, required: true, class: "fr-input w-full" %>
+    <div>
+      <%= f.label :last_name, "Nom", class: "block text-sm font-medium text-gray-900" %>
+      <%= f.text_field :last_name,
+            required: true,
+            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
+                    placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
     </div>
   </div>
 
-  <div class="fr-input-group">
-    <%= f.label :email, "Email", class: "fr-label" %>
-    <%= f.email_field :email, required: true, class: "fr-input w-full" %>
+  <!-- Email -->
+  <div>
+    <%= f.label :email, "Email", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.email_field :email,
+          required: true,
+          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
+                  placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
+  <!-- Rôles -->
   <fieldset class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div class="fr-fieldset__element fr-checkbox-group">
-      <%= f.check_box :admin, class: "fr-checkbox checkbox-asmbv-red" %>
-      <%= f.label :admin, "Administrateur", class: "fr-label" %>
+    <div class="flex items-center">
+      <%= f.check_box :admin, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+      <%= f.label :admin, "Administrateur", class: "ml-2 text-sm text-gray-700" %>
     </div>
 
-    <div class="fr-fieldset__element fr-checkbox-group">
-      <%= f.check_box :coach, class: "fr-checkbox checkbox-asmbv-red" %>
-      <%= f.label :coach, "Coach", class: "fr-label" %>
+    <div class="flex items-center">
+      <%= f.check_box :coach, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+      <%= f.label :coach, "Coach", class: "ml-2 text-sm text-gray-700" %>
     </div>
 
-    <div class="fr-fieldset__element fr-checkbox-group">
-      <%= f.check_box :responsable, class: "fr-checkbox checkbox-asmbv-red" %>
-      <%= f.label :responsable, "Responsable", class: "fr-label" %>
+    <div class="flex items-center">
+      <%= f.check_box :responsable, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+      <%= f.label :responsable, "Responsable", class: "ml-2 text-sm text-gray-700" %>
     </div>
   </fieldset>
 
-  <div class="fr-input-group max-w-xs">
-    <%= f.label :level_id, "Niveau", class: "fr-label" %>
-    <%= f.collection_select :level_id, Level.all, :id, :name, { include_blank: "Sélectionner un niveau" }, { class: "fr-select w-full" } %>
+  <!-- Niveau -->
+  <div class="max-w-xs">
+    <%= f.label :level_id, "Niveau", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.collection_select :level_id, Level.all, :id, :name,
+          { include_blank: "Sélectionner un niveau" },
+          { class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
+                    focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" } %>
   </div>
 
-  <%= f.submit class: "fr-btn bg-asmbv-red hover:bg-asmbv-red-dark text-white" do %>
-    <%= lucide_icon("save", size: 16) %> Enregistrer
-  <% end %>
+  <!-- Bouton -->
+  <div>
+    <%= f.submit class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2 
+                        text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark 
+                        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
+                        focus-visible:outline-asmbv-red transition-colors" do %>
+      <%= lucide_icon("save", size: 16) %> Enregistrer
+    <% end %>
+  </div>
 <% end %>

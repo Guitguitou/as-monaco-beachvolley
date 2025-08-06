@@ -12,6 +12,8 @@ module Admin
     end
 
     def show
+      @balance = @user.balance
+      @transactions = @user.credit_transactions.order(created_at: :desc)
     end
 
     def new

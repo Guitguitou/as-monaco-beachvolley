@@ -1,7 +1,7 @@
 <% if session.errors.any? %>
-  <div class="fr-alert fr-alert--error mb-4">
-    <h3 class="fr-alert__title">Erreurs de validation</h3>
-    <ul class="fr-alert__details">
+  <div class="mb-4 rounded-md bg-red-50 border-l-4 border-red-400 p-4">
+    <h3 class="text-sm font-medium text-red-800">Erreurs de validation</h3>
+    <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
       <% session.errors.full_messages.each do |message| %>
         <li><%= message %></li>
       <% end %>
@@ -9,72 +9,116 @@
   </div>
 <% end %>
 
-<%= form_with model: session, url: session.persisted? ? admin_session_path(session) : admin_sessions_path, method: session.persisted? ? :put : :post, data: { controller: "session-form" } do |f| %>
-  <div class="fr-input-group">
-    <%= f.label :title, class: "fr-label" %>
-    <%= f.text_field :title, class: "fr-input", required: true %>
+<%= form_with model: session, 
+              url: session.persisted? ? admin_session_path(session) : admin_sessions_path, 
+              method: session.persisted? ? :put : :post, 
+              data: { controller: "session-form" },
+              class: "space-y-6 bg-white p-6 rounded-lg shadow-md max-w-3xl" do |f| %>
+
+  <!-- Titre -->
+  <div>
+    <%= f.label :title, "Titre", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.text_field :title, required: true,
+          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 
+                  text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 
+                  focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
-  <div class="fr-input-group">
-    <%= f.label :description, class: "fr-label" %>
-    <%= f.text_area :description, class: "fr-input" %>
+  <!-- Description -->
+  <div>
+    <%= f.label :description, "Description", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.text_area :description, rows: 3,
+          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 
+                  text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 
+                  focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
-  <div class="fr-input-group">
-    <%= f.label :session_type, "Type de session", class: "fr-label" %>
-    <%= f.select :session_type, options_for_select(Session.session_types.keys.map { |t| [t.humanize, t] }), {}, class: "fr-select", data: { session_form_target: "type", action: "session-form#updateUserSelect" } %>
+  <!-- Type de session -->
+  <div>
+    <%= f.label :session_type, "Type de session", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.select :session_type, 
+          options_for_select(Session.session_types.keys.map { |t| [t.humanize, t] }, session.session_type),
+          {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
+                      text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+             data: { session_form_target: "type", action: "session-form#updateUserSelect" } %>
   </div>
 
-  <div class="fr-input-group">
-    <%= f.label :terrain, "Terrain", class: "fr-label" %>
-    <%= f.select :terrain, options_for_select(Session.terrains.keys.map { |t| ["Terrain #{t.to_s.split('_').last}", t] }), {}, class: "fr-select" %>
+  <!-- Terrain -->
+  <div>
+    <%= f.label :terrain, "Terrain", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.select :terrain,
+          options_for_select(Session.terrains.keys.map { |t| ["Terrain #{t.to_s.split('_').last}", t] }, session.terrain),
+          {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
+                      text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
-  <div class="fr-input-group hidden" data-session-form-target="userGroupCoach">
-    <%= f.label :user_id, "Coach", class: "fr-label" %>
-    <%= f.select :user_id, options_from_collection_for_select(User.coachs, :id, :full_name), {}, class: "fr-select" %>
+  <!-- Coach / Responsable / Organisateur -->
+  <div class="hidden" data-session-form-target="userGroupCoach">
+    <%= f.label :user_id, "Coach", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.select :user_id, options_from_collection_for_select(User.coachs, :id, :full_name, session.user_id),
+          {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
+                      text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
-  <div class="fr-input-group hidden" data-session-form-target="userGroupResponsable">
-    <%= f.label :user_id, "Responsable", class: "fr-label" %>
-    <%= f.select :user_id, options_from_collection_for_select(User.responsables, :id, :full_name), {}, class: "fr-select" %>
+  <div class="hidden" data-session-form-target="userGroupResponsable">
+    <%= f.label :user_id, "Responsable", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.select :user_id, options_from_collection_for_select(User.responsables, :id, :full_name, session.user_id),
+          {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
+                      text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
-  <div class="fr-input-group hidden" data-session-form-target="userGroupAll">
-    <%= f.label :user_id, "Organisateur", class: "fr-label" %>
-    <%= f.select :user_id, options_from_collection_for_select(User.all, :id, :full_name), {}, class: "fr-select" %>
+  <div class="hidden" data-session-form-target="userGroupAll">
+    <%= f.label :user_id, "Organisateur", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.select :user_id, options_from_collection_for_select(User.all, :id, :full_name, session.user_id),
+          {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
+                      text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
-  <div class="fr-input-group">
-    <%= f.label :start_at, class: "fr-label" %>
-    <%= f.datetime_local_field :start_at, class: "fr-input" %>
+  <!-- Dates -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <%= f.label :start_at, "Début", class: "block text-sm font-medium text-gray-900" %>
+      <%= f.datetime_local_field :start_at,
+            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
+                    text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+    </div>
+
+    <div>
+      <%= f.label :end_at, "Fin", class: "block text-sm font-medium text-gray-900" %>
+      <%= f.datetime_local_field :end_at,
+            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
+                    text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+    </div>
   </div>
 
-  <div class="fr-input-group">
-    <%= f.label :end_at, class: "fr-label" %>
-    <%= f.datetime_local_field :end_at, class: "fr-input" %>
+  <!-- Nombre de joueurs -->
+  <div>
+    <%= f.label :max_players, "Nombre maximum de joueurs", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.number_field :max_players,
+          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
+                  text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
-  <div class="fr-input-group">
-    <%= f.label :max_players, class: "fr-label" %>
-    <%= f.number_field :max_players, class: "fr-input" %>
-  </div>
-
-  <div class="fr-input-group">
-    <%= f.label :level_ids, "Niveaux", class: "fr-label" %>
-    <div class="fr-checkbox-group flex flex-col gap-2">
+  <!-- Niveaux -->
+  <div>
+    <%= f.label :level_ids, "Niveaux", class: "block text-sm font-medium text-gray-900 mb-2" %>
+    <div class="flex flex-col gap-2">
       <%= f.collection_check_boxes :level_ids, (@levels || Level.all), :id, :name do |b| %>
-        <div class="fr-checkbox">
-          <%= b.check_box(class: "fr-checkbox__input") %>
-          <%= b.label(class: "fr-checkbox__label") do %>
-            <%= "#{b.object.name} - #{b.object.gender.humanize}" %>
-          <% end %>
-        </div>
+        <label class="flex items-center gap-2">
+          <%= b.check_box(class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red") %>
+          <span class="text-sm text-gray-700"><%= "#{b.object.name} - #{b.object.gender.humanize}" %></span>
+        </label>
       <% end %>
     </div>
   </div>
 
-  <%= f.submit class: "fr-btn bg-asmbv-red hover:bg-asmbv-red-dark text-white" do %>
-    <%= lucide_icon("save", size: 16) %> Enregistrer
-  <% end %>
+  <!-- Bouton -->
+  <div>
+    <%= f.submit class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2 
+                        text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark 
+                        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
+                        focus-visible:outline-asmbv-red transition-colors" do %>
+      <%= lucide_icon("save", size: 16) %> Enregistrer
+    <% end %>
+  </div>
 <% end %>

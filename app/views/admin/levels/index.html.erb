@@ -1,9 +1,10 @@
 <div class="flex items-center justify-between mb-6">
-  <h1 class="text-2xl font-bold flex items-center gap-2">
+  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
     <%= lucide_icon("layers") %> Groupes de niveau
   </h1>
 
-  <%= link_to new_admin_level_path, class: "fr-btn bg-asmbv-red text-white hover:bg-asmbv-red-dark inline-flex items-center gap-2" do %>
+  <%= link_to new_admin_level_path,
+        class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
     <%= lucide_icon("plus", size: 18) %> Nouveau groupe
   <% end %>
 </div>
@@ -20,17 +21,31 @@
     </thead>
     <tbody class="divide-y divide-gray-100">
       <% @levels.each do |level| %>
-        <tr class="hover:bg-gray-50">
-          <td class="px-6 py-4 font-medium text-gray-800"><%= level.name %></td>
-          <td class="px-6 py-4 font-medium text-gray-800"><%= level.gender %></td>
+        <tr class="hover:bg-gray-50 transition-colors">
+          <!-- Nom -->
           <td class="px-6 py-4 font-medium text-gray-800">
-            <div class="h-6 w-6 rounded border border-gray-300" style="background-color: <%= level.color %>"></div>
+            <%= level.name %>
           </td>
+
+          <!-- Genre -->
+          <td class="px-6 py-4 text-gray-700 capitalize">
+            <%= level.gender %>
+          </td>
+
+          <!-- Couleur -->
+          <td class="px-6 py-4">
+            <div class="h-6 w-6 rounded border border-gray-300 shadow-sm" style="background-color: <%= level.color %>"></div>
+          </td>
+
+          <!-- Actions -->
           <td class="px-6 py-4 text-right space-x-2">
-            <%= link_to admin_level_path(level), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red" do %>
+            <%= link_to admin_level_path(level),
+                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red transition-colors" do %>
               <%= lucide_icon("eye", size: 16) %> Voir
             <% end %>
-            <%= link_to edit_admin_level_path(level), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red-dark" do %>
+
+            <%= link_to edit_admin_level_path(level),
+                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red-dark transition-colors" do %>
               <%= lucide_icon("edit", size: 16) %> Modifier
             <% end %>
           </td>

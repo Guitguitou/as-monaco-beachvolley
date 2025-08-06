@@ -1,24 +1,105 @@
-<!-- app/views/admin/sessions/show.html.erb -->
-<h1 class="text-2xl font-bold mb-6"><%= @session.title %></h1>
+<div class="max-w-5xl mx-auto space-y-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between border-b pb-4">
+    <div class="flex items-center gap-2">
+      <%= lucide_icon("calendar", class: "w-6 h-6 text-asmbv-red") %>
+      <h1 class="text-2xl font-bold text-gray-900"><%= @session.title.presence || "(Sans titre)" %></h1>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to edit_admin_session_path(@session),
+            class: "inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
+        <%= lucide_icon("edit", size: 16) %> Modifier
+      <% end %>
+      <%= link_to admin_session_path(@session),
+            data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ?" },
+            class: "inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100" do %>
+        <%= lucide_icon("trash", size: 16) %> Supprimer
+      <% end %>
+    </div>
+  </div>
 
-<ul class="space-y-2">
-  <li><strong>Type :</strong> <%= @session.session_type.humanize %></li>
-  <li><strong>Terrain :</strong> Terrain <%= @session.terrain.to_s.split('_').last %></li>
-  <li><strong>Date :</strong> <%= l @session.start_at %> → <%= l @session.end_at %></li>
-  <li><strong>Max joueurs :</strong> <%= @session.max_players %></li>
-  <li><strong>Coach / Responsable :</strong> <%= @session.user&.full_name %></li>
-  <li><strong>Description :</strong> <%= simple_format(@session.description) %></li>
-  <li><strong>Niveaux :</strong> 
-    <% if @session.levels.any? %>
-      <%= @session.levels.map(&:name).join(", ") %>
-    <% else %>
-      <span class="text-gray-500">Aucun niveau spécifié</span>
-    <% end %>
-  </li>
-</ul>
+  <!-- Infos principales -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Informations de la session</h2>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Type</dt>
+        <dd class="mt-1">
+          <% case @session.session_type %>
+          <% when "entrainement" %>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+              <%= lucide_icon("dumbbell", size: 14) %> Entraînement
+            </span>
+          <% when "coaching_prive" %>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs font-semibold">
+              <%= lucide_icon("user-cog", size: 14) %> Coaching privé
+            </span>
+          <% when "jeu_libre" %>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
+              <%= lucide_icon("volleyball", size: 14) %> Jeu libre
+            </span>
+          <% when "tournoi" %>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-semibold">
+              <%= lucide_icon("trophy", size: 14) %> Tournoi
+            </span>
+          <% end %>
+        </dd>
+      </div>
 
-<div class="mt-8 flex gap-4">
-  <%= link_to "Retour à l'index", admin_sessions_path, class: "px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors" %>
-  <%= link_to "Modifier", edit_admin_session_path(@session), class: "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors" %>
-  <%= link_to "Supprimer", admin_session_path(@session), data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ?" }, class: "px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors" %>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Terrain</dt>
+        <dd class="mt-1">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
+            <%= lucide_icon("map-pin", size: 14) %> <%= @session.terrain.to_s.split('_').last %>
+          </span>
+        </dd>
+      </div>
+
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Date</dt>
+        <dd class="mt-1 text-gray-900"><%= l @session.start_at %> → <%= l @session.end_at, format: :time %></dd>
+      </div>
+
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Max joueurs</dt>
+        <dd class="mt-1 text-gray-900"><%= @session.max_players || "–" %></dd>
+      </div>
+
+      <div class="sm:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Coach / Responsable</dt>
+        <dd class="mt-1 text-gray-900"><%= @session.user&.full_name || "–" %></dd>
+      </div>
+
+      <div class="sm:col-span-2">
+        <dt class="text-sm font-medium text-gray-500">Niveaux</dt>
+        <dd class="mt-1 flex flex-wrap gap-2">
+          <% if @session.levels.any? %>
+            <% @session.levels.each do |level| %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+                    style="background-color: <%= level.color %>22; color: <%= level.color %>;">
+                <%= level.name %>
+              </span>
+            <% end %>
+          <% else %>
+            <span class="text-gray-500 text-sm">Aucun niveau spécifié</span>
+          <% end %>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <!-- Description -->
+  <% if @session.description.present? %>
+    <div class="bg-white shadow rounded-lg p-6">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Description</h2>
+      <p class="text-gray-700 whitespace-pre-line"><%= @session.description %></p>
+    </div>
+  <% end %>
+
+  <!-- Retour -->
+  <div>
+    <%= link_to "← Retour aux sessions",
+          admin_sessions_path,
+          class: "text-sm font-medium text-asmbv-red hover:text-asmbv-red-dark" %>
+  </div>
 </div>
