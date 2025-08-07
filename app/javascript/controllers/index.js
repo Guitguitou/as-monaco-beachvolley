@@ -9,4 +9,6 @@ import AdminSidebarController from "controllers/admin_sidebar_controller"
 application.register("admin-sidebar", AdminSidebarController)
 import SessionModalController from "controllers/session_modal_controller"
 application.register("session-modal", SessionModalController)
+import SidebarController from "controllers/sidebar_controller"
+application.register("sidebar", SidebarController)
 eagerLoadControllersFrom("controllers", application)

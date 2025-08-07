@@ -23,9 +23,14 @@
     <%= yield :head if content_for?(:head) %>
   </head>
 
-  <body class="bg-gray-50 min-h-screen text-gray-900">
+  <body class="bg-gray-50 min-h-screen text-gray-900" data-controller="sidebar">
     <% if user_signed_in? %>
       <div class="flex min-h-screen">
+        <div class="lg:hidden p-4">
+          <button data-action="click->sidebar#toggle" class="text-asmbv-red hover:text-asmbv-red-dark">
+            <%= lucide_icon("menu", class: "w-6 h-6") %>
+          </button>
+        </div>
         <!-- Sidebar -->
         <%= render "layouts/sidebar" %>
 

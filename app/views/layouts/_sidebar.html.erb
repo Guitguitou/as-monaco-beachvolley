@@ -2,7 +2,13 @@
 <aside
   class="fixed z-50 inset-y-0 left-0 w-48 bg-asmbv-light border-r border-gray-200 transform -translate-x-full transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:z-auto lg:block"
   data-admin-sidebar-target="sidebar"
+  data-sidebar-target="sidebar"
 >
+  <div class="flex justify-end lg:hidden">
+    <button data-action="click->sidebar#toggle" class="p-2 text-asmbv-red">
+      <%= lucide_icon("x", class: "w-5 h-5") %>
+    </button>
+  </div>
   <div class="p-4 flex flex-col h-full space-y-6">
     <div class="flex items-center gap-2 text-asmbv-red text-xl font-semibold justify-center">
       <%= image_tag "logo.png", class: "w-20 h-20" %>
