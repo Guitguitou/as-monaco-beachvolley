@@ -18,11 +18,11 @@ module ApplicationHelper
   def session_type_icon(session_type)
     icons = {
       'entrainement' => 'dumbbell',
-      'jeu_libre' => 'game',
+      'jeu_libre' => 'volleyball',
       'tournoi' => 'trophy',
       'coaching_prive' => 'shield-user'
     }
-    icons[session_type] || 'game'
+    icons[session_type] || 'volleyball'
   end
 
   def get_session_type_classes(session_type)
