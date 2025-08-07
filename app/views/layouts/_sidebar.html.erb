@@ -19,7 +19,9 @@
     </nav>
 
     <div class="border-t border-gray-200 pt-4 mt-auto">
-      <%= link_to destroy_user_session_path, method: :delete, class: "flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium" do %>
+      <%= link_to destroy_user_session_path,
+            data: { turbo_method: :delete },
+            class: "flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium" do %>
         <%= lucide_icon('log-out', class: 'w-5 h-5 text-asmbv-red') %>
         <span>Déconnexion</span>
       <% end %>
