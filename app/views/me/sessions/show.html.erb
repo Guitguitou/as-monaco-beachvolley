@@ -1,0 +1,62 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-3xl mx-auto">
+    <nav class="mb-6">
+      <%= link_to "← Retour à mes sessions", me_sessions_path, class: "text-asmbv-red hover:text-asmbv-red-dark" %>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow-sm p-6 space-y-6">
+      <div class="flex items-start justify-between gap-4 flex-col sm:flex-row">
+        <div class="min-w-0">
+          <h1 class="text-2xl font-bold text-gray-900"><%= @session.title.presence || @session.display_name %></h1>
+          <div class="mt-2 flex items-center gap-2 flex-wrap text-sm">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 font-semibold">
+              <%= lucide_icon('map-pin', class: 'w-4 h-4') %> <%= @session.terrain.to_s.split('_').last %>
+            </span>
+            <% if @session.levels.any? %>
+              <% @session.levels.each do |level| %>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold" style="background-color: <%= level.color %>22; color: <%= level.color %>">
+                  <%= level.name %>
+                </span>
+              <% end %>
+            <% else %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">Tous niveaux</span>
+            <% end %>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-sm text-gray-600"><%= @session.user&.full_name || 'Organisateur' %></div>
+          <div class="text-lg font-semibold text-asmbv-red"><%= @session.price.to_i %> crédits</div>
+        </div>
+      </div>
+
+      <% if @session.description.present? %>
+        <div>
+          <h2 class="text-lg font-semibold text-gray-800 mb-2">Description</h2>
+          <p class="text-gray-700 whitespace-pre-line"><%= @session.description %></p>
+        </div>
+      <% end %>
+
+      <div>
+        <h2 class="text-lg font-semibold text-gray-800 mb-2">Détails</h2>
+        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          <div>
+            <dt class="text-gray-500">Début</dt>
+            <dd class="text-gray-900"><%= l @session.start_at, format: :short %></dd>
+          </div>
+          <div>
+            <dt class="text-gray-500">Fin</dt>
+            <dd class="text-gray-900"><%= l @session.end_at, format: :short %></dd>
+          </div>
+          <div class="sm:col-span-2">
+            <dt class="text-gray-500">Participants</dt>
+            <dd class="mt-1 flex flex-wrap gap-2">
+              <% @session.participants.each do |u| %>
+                <span class="px-2 py-0.5 rounded bg-gray-50 text-gray-800"><%= u.full_name %></span>
+              <% end %>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>

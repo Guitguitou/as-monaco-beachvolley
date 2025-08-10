@@ -9,6 +9,10 @@ Rails.application.routes.draw do
 
   resource :profile, only: [:show], controller: 'users'
 
+  namespace :me do
+    resources :sessions, only: [:index, :show]
+  end
+
   namespace :admin do
     root to: "dashboard#index"
 
