@@ -25,11 +25,11 @@ export default class extends Controller {
     // Responsive header & view
     const isMobile = window.matchMedia('(max-width: 640px)').matches
     const headerToolbar = isMobile
-      ? { left: 'prev,next', center: 'title', right: 'today' }
+      ? { left: 'prev,next today', center: 'title', right: 'timeGridDay,timeGridWeek,dayGridMonth' }
       : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }
 
     const calendar = new window.FullCalendar.Calendar(calendarEl, {
-      initialView: isMobile ? 'dayGridMonth' : 'timeGridWeek',
+      initialView: 'timeGridWeek',
       firstDay: 1,
       headerToolbar,
       locale: 'fr',
@@ -111,6 +111,12 @@ export default class extends Controller {
         'font-semibold'
       )
     })
+
+    // Resize title
+    const titleEl = calendarEl.querySelector('.fc-toolbar-title')
+    if (titleEl) {
+      titleEl.classList.add('text-base', 'sm:text-lg')
+    }
 
     const todayBtn = calendarEl.querySelector('.fc-today-button')
     if (todayBtn) {
