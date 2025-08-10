@@ -1,4 +1,12 @@
 class Session < ApplicationRecord
+  TRAINING_PRICE = 350
+  FREE_PLAY_PRICE = 300
+  PRIVATE_COACHING_PRICE = 1500
+  PRICE_BY_TYPE = {
+    "entrainement" => TRAINING_PRICE,
+    "jeu_libre" => FREE_PLAY_PRICE,
+    "coaching_prive" => PRIVATE_COACHING_PRICE
+  }.freeze
   belongs_to :user
   has_many :session_levels, dependent: :destroy
   has_many :levels, through: :session_levels
@@ -59,12 +67,7 @@ class Session < ApplicationRecord
   end
 
   def default_price
-    case session_type
-    when "entrainement" then 350
-    when "jeu_libre" then 300
-    when "coaching_prive" then 1500
-    else 0
-    end
+    PRICE_BY_TYPE[session_type] || 0
   end
 
   def end_at_after_start_at

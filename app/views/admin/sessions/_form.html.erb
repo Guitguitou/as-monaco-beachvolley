@@ -102,8 +102,8 @@
   <!-- Prix (crédits) -->
   <div>
     <%= f.label :price, "Prix (crédits)", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.number_field :price, min: 0, step: 1,
-          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
+    <%= f.number_field :price, min: 0, step: 1, readonly: true,
+          class: "mt-1 block w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2
                   text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
