@@ -111,7 +111,7 @@ class Session < ApplicationRecord
   end
 
   def coach_has_enough_credits_for_private_coaching
-    return if user&.balance&.amount.to_i >= default_price
+    return if user&.balance&.amount >= default_price
 
     errors.add(:base, "Le coach n'a pas assez de crédits pour créer un coaching privé (#{default_price} requis)")
   end
