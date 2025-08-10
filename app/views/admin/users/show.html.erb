@@ -75,7 +75,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-900">Motif</label>
-            <%= text_field_tag "adjustment[reason]", nil, placeholder: "Ex: geste commercial", class: "mt-1 block w-56 rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+            <%= text_field_tag "adjustment[reason]", "Ajustement manuel", placeholder: "Ex: geste commercial", class: "mt-1 block w-56 rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
           </div>
           <div class="flex gap-2 w-full sm:w-auto">
             <%= submit_tag "Ajuster", class: "w-full sm:w-auto inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red" %>
@@ -90,24 +90,26 @@
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Historique des crédits</h2>
     <% if @transactions.any? %>
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <table class="min-w-full divide-y divide-gray-200 text-sm table-fixed">
           <thead class="bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
             <tr>
-              <th class="px-4 py-2 text-left">Date</th>
-              <th class="px-4 py-2 text-left">Type</th>
-              <th class="px-4 py-2 text-left">Montant</th>
-              <th class="px-4 py-2 text-left">Session</th>
+              <th class="px-3 sm:px-4 py-2 text-left">Date</th>
+              <th class="px-3 sm:px-4 py-2 text-left">Type</th>
+              <th class="px-3 sm:px-4 py-2 text-left">Montant</th>
+              <th class="px-3 sm:px-4 py-2 text-left hidden md:table-cell">Motif</th>
+              <th class="px-3 sm:px-4 py-2 text-left hidden sm:table-cell">Session</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             <% @transactions.each do |t| %>
               <tr class="hover:bg-gray-50">
-                <td class="px-4 py-2"><%= l(t.created_at, format: :short) %></td>
-                <td class="px-4 py-2"><%= t.transaction_type.humanize %></td>
-                <td class="px-4 py-2 font-medium <%= t.amount.negative? ? 'text-red-600' : 'text-green-600' %>">
+                <td class="px-3 sm:px-4 py-2"><%= l(t.created_at, format: :short) %></td>
+                <td class="px-3 sm:px-4 py-2"><%= t.transaction_type.humanize %></td>
+                <td class="px-3 sm:px-4 py-2 font-medium <%= t.amount.negative? ? 'text-red-600' : 'text-green-600' %>">
                   <%= t.amount > 0 ? "+#{t.amount}" : t.amount %>
                 </td>
-                <td class="px-4 py-2"><%= t.session&.title || "-" %></td>
+                <td class="px-3 sm:px-4 py-2 hidden md:table-cell"><%= t.reason.presence || "-" %></td>
+                <td class="px-3 sm:px-4 py-2 hidden sm:table-cell"><%= t.session&.title || "-" %></td>
               </tr>
             <% end %>
           </tbody>

@@ -54,11 +54,11 @@ module Admin
         user: @user,
         session: nil,
         transaction_type: :manual_adjustment,
-        amount: amount
+        amount: amount,
+        reason: reason
       )
 
-      # Met à jour le solde
-      @user.balance.update!(amount: @user.credit_transactions.sum(:amount))
+      # Le solde est recalculé automatiquement par le callback after_commit
 
       notice = amount.positive? ? "Crédits ajoutés avec succès" : "Crédits déduits avec succès"
       redirect_to admin_user_path(@user), notice: notice

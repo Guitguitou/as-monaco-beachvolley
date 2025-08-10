@@ -12,6 +12,7 @@ class CreditTransaction < ApplicationRecord
   }
 
   validates :amount, presence: true
+  validates :reason, length: { maximum: 255 }, allow_nil: true
   after_commit :refresh_balance_amount, on: [:create, :update, :destroy]
 
   private
