@@ -10,7 +10,7 @@ class Registration < ApplicationRecord
       errors.add(:base, "Les coachings privés ne sont pas ouverts à l’inscription.")
     end
 
-    if session.entrainement? && !session.levels.include?(user.level)
+    unless level_allowed?
       errors.add(:base, "Ce n’est pas ton niveau d'entrainement.")
     end
 
@@ -26,7 +26,7 @@ class Registration < ApplicationRecord
   def can_register_with_reason
     return [false, "Les coachings privés ne sont pas ouverts à l’inscription."] if session.coaching_prive?
 
-    unless session.entrainement? && session.levels.include?(user.level)
+    unless level_allowed?
       return [false, "Ce n’est pas ton niveau d'entrainement."]
     end
 
@@ -46,5 +46,17 @@ class Registration < ApplicationRecord
   def required_credits_for(user)
     return 0 if session.coaching_prive?
     session.price.to_i
+  end
+
+  def level_allowed?
+    # Only enforce levels for training sessions
+    return true unless session.entrainement?
+
+    # If the session accepts all levels (no level specified), allow anyone
+    return true if session.levels.empty?
+
+    # Otherwise, user must have a level matching the session
+    return false if user.level.nil?
+    session.levels.include?(user.level)
   end
 end
