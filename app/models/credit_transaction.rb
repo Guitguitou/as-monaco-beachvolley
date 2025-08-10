@@ -12,9 +12,7 @@ class CreditTransaction < ApplicationRecord
   }
 
   validates :amount, presence: true
-  validates :reason, length: { maximum: 255 }, allow_nil: true
   after_commit :refresh_balance_amount, on: [:create, :update, :destroy]
-  before_validation :default_reason
 
   private
 
@@ -22,7 +20,4 @@ class CreditTransaction < ApplicationRecord
     user.balance.update_amount!
   end
 
-  def default_reason
-    self.reason = "manual" if reason.blank? && manual_adjustment?
-  end
 end

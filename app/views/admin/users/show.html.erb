@@ -92,7 +92,6 @@
               <th class="px-3 sm:px-4 py-2 text-left">Date</th>
               <th class="px-3 sm:px-4 py-2 text-left">Type</th>
               <th class="px-3 sm:px-4 py-2 text-left">Montant</th>
-              <th class="px-3 sm:px-4 py-2 text-left hidden md:table-cell">Motif</th>
               <th class="px-3 sm:px-4 py-2 text-left hidden sm:table-cell">Session</th>
             </tr>
           </thead>
@@ -104,7 +103,6 @@
                 <td class="px-3 sm:px-4 py-2 font-medium <%= t.amount.negative? ? 'text-red-600' : 'text-green-600' %>">
                   <%= t.amount > 0 ? "+#{t.amount}" : t.amount %>
                 </td>
-                <td class="px-3 sm:px-4 py-2 hidden md:table-cell"><%= t.reason.presence || "-" %></td>
                 <td class="px-3 sm:px-4 py-2 hidden sm:table-cell"><%= t.session&.title || "-" %></td>
               </tr>
             <% end %>

@@ -29,7 +29,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_123000) do
     t.integer "amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "reason"
     t.index ["session_id"], name: "index_credit_transactions_on_session_id"
     t.index ["user_id"], name: "index_credit_transactions_on_user_id"
   end

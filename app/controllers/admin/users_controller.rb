@@ -43,8 +43,7 @@ module Admin
     end
 
     def adjust_credits
-      amount = params.require(:adjustment).permit(:amount, :reason)[:amount].to_i
-      reason = params[:adjustment][:reason].presence || "manual"
+      amount = params.require(:adjustment).permit(:amount)[:amount].to_i
 
       if amount == 0
         redirect_to admin_user_path(@user), alert: "Montant invalide" and return
@@ -54,8 +53,7 @@ module Admin
         user: @user,
         session: nil,
         transaction_type: :manual_adjustment,
-        amount: amount,
-        reason: reason
+        amount: amount
       )
 
       # Le solde est recalculé automatiquement par le callback after_commit

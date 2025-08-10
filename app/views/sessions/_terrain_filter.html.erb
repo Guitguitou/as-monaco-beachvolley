@@ -1,6 +1,5 @@
 <div class="flex gap-3 sm:gap-4 mb-6 border-b border-gray-200 overflow-x-auto whitespace-nowrap">
-  <% terrains = Session.distinct(:terrain).pluck(:terrain).compact.sort %>
-  <% all_terrains = [""] + terrains %>
+  <% all_terrains = ["", "Terrain 1", "Terrain 2", "Terrain 3"] %>
 
   <% all_terrains.each do |terrain| %>
     <% label = terrain.presence || "Tous" %>
