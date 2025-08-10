@@ -40,6 +40,19 @@
         </div>
       <% end %>
       <div class="flex items-center gap-3">
+        <%= lucide_icon('layers', class: 'w-5 h-5 text-gray-400') %>
+        <div>
+          <div class="font-medium text-gray-900">Niveaux</div>
+          <div class="text-gray-600">
+            <% if @session.levels.any? %>
+              <%= @session.levels.map(&:name).join(', ') %>
+            <% else %>
+              Tous niveaux
+            <% end %>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
           <%= lucide_icon('banknote-arrow-down', class: 'w-5 h-5 text-gray-400') %>
           <div>
             <div class="font-medium text-gray-900">Prix</div>
