@@ -44,7 +44,7 @@ module Admin
 
     def adjust_credits
       amount = params.require(:adjustment).permit(:amount, :reason)[:amount].to_i
-      reason = params[:adjustment][:reason].presence || "Ajustement manuel"
+      reason = params[:adjustment][:reason].presence || "manual"
 
       if amount == 0
         redirect_to admin_user_path(@user), alert: "Montant invalide" and return
