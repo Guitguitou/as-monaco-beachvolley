@@ -13,4 +13,6 @@ import SidebarController from "controllers/sidebar_controller"
 application.register("sidebar", SidebarController)
 import RegistrationsFormController from "controllers/registrations_form_controller"
 application.register("registrations-form", RegistrationsFormController)
+import SelectController from "controllers/select_controller"
+application.register("select", SelectController)
 eagerLoadControllersFrom("controllers", application)

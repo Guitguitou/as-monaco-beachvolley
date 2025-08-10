@@ -1,12 +1,13 @@
-<div class="flex items-center gap-4 mb-4">
+<div class="flex items-center gap-4 mb-4" data-registration-form-target="participant">
   <div class="flex-1">
-    <%= f.label :user_id, "Participant", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.label :user_id, "Participant(s)", class: "block text-sm font-medium text-gray-900" %>
     <%= f.select :user_id, options_for_select(
-      User.with_enough_credits(session).map { |u| ["#{u.full_name} (#{u.balance&.amount} crédits)", u.id] },
+      User.with_enough_credits(session).map { |u| ["#{u.full_name} (#{u.balance&.amount} cr)", u.id] },
       f.object.user_id
     ), {}, class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
         focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm", 
-        data: { action: "change->registrations-form#checkCredits" } %>
+        multiple: false,
+        data: { controller: "select", action: "change->registrations-form#checkCredits" } %>
   </div>
 
   <%= f.hidden_field :_destroy %>

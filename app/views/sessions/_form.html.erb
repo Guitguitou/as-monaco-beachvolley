@@ -178,25 +178,19 @@
       </div>
     </div>
 
-    <!-- Participants dynamiques -->
-    <div class="sm:col-span-2" data-controller="registrations-form">
+    <!-- Participants (multi-sélection avec recherche) -->
+    <div class="sm:col-span-2">
       <h3 class="text-sm font-medium text-gray-900 mb-2">Participants</h3>
-
-      <div data-registrations-form-target="container">
-        <%= f.fields_for :registrations do |reg| %>
-          <%= render "registrations/fields", f: reg, session: session %>
-        <% end %>
-      </div>
-
-      <template data-registrations-form-target="template">
-        <%= f.fields_for :registrations, f.object.registrations.build, child_index: "NEW_RECORD" do |reg| %>
-          <%= render "registrations/fields", f: reg, session: session %>
-        <% end %>
-      </template>
-
-      <div class="mt-4">
-        <%= link_to "Ajouter un participant", "#", class: "text-sm text-asmbv-red font-medium", data: { action: "click->registrations-form#addParticipant" } %>
-      </div>
+      <%= select_tag "session[participant_ids][]",
+          options_for_select(
+            User.with_enough_credits(session).map { |u| ["#{u.full_name} (#{u.balance&.amount} cr)", u.id] },
+            session.participants.pluck(:id)
+          ),
+          multiple: true,
+          class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+          data: { controller: "select", select_placeholder_value: "Rechercher des participants..." }
+      %>
+      <p class="mt-1 text-xs text-gray-500">Seuls les membres avec suffisamment de crédits pour cette session sont affichés.</p>
     </div>
 
     <!-- Bouton -->
