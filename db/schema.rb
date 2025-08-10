@@ -24,7 +24,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_123000) do
 
   create_table "credit_transactions", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "session_id", null: false
+    t.bigint "session_id"
     t.integer "transaction_type"
     t.integer "amount"
     t.datetime "created_at", null: false
