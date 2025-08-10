@@ -19,31 +19,36 @@ export default class extends Controller {
     console.log("Initialisation du calendrier ✅")
     const calendarEl = this.element
 
+    // Sessions data
+    const sessions = JSON.parse(calendarEl.dataset.sessions)
+
+    // Responsive header & view
+    const isMobile = window.matchMedia('(max-width: 640px)').matches
+    const headerToolbar = isMobile
+      ? { left: 'prev,next', center: 'title', right: 'today' }
+      : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }
+
     const calendar = new window.FullCalendar.Calendar(calendarEl, {
-      initialView: "timeGridWeek",
+      initialView: isMobile ? 'dayGridMonth' : 'timeGridWeek',
       firstDay: 1,
-      headerToolbar: {
-        left: "prev,next today",
-        center: "title",
-        right: "dayGridMonth,timeGridWeek,timeGridDay"
-      },
-      locale: "fr",
+      headerToolbar,
+      locale: 'fr',
       allDaySlot: false,
-      slotMinTime: "08:00:00",
-      slotMaxTime: "23:00:00",
+      slotMinTime: '08:00:00',
+      slotMaxTime: '23:00:00',
       slotLabelFormat: {
         hour: 'numeric',
         minute: '2-digit',
         meridiem: false,
         hour12: false
       },
-      height: "100%",
-      contentHeight: "auto",
+      height: '100%',
+      contentHeight: 'auto',
       expandRows: true,
-      // slotDuration: "00:30:00",
-      slotLabelClassNames: ["text-xs", "text-gray-400"],
-      eventDisplay: "block",
-      events: JSON.parse(calendarEl.dataset.sessions),
+      dayMaxEvents: true,
+      slotLabelClassNames: ['text-xs', 'text-gray-400'],
+      eventDisplay: 'block',
+      events: sessions,
       dayHeaderContent: function(arg) {
         const isToday = arg.date.toDateString() === new Date().toDateString()
         return {
@@ -63,30 +68,53 @@ export default class extends Controller {
         hour12: false
       },
       eventDidMount: function(info) {
-        info.el.style.backgroundColor = '#fee2e2'; // rouge très clair
-        info.el.style.borderColor = '#ef4444';     // rouge principal
-        info.el.style.color = '#991b1b';           // rouge foncé pour texte
-        info.el.style.borderRadius = '6px';
-        info.el.style.fontWeight = '500';
-        info.el.style.padding = '4px';
-      }
+        info.el.style.backgroundColor = '#fee2e2'
+        info.el.style.borderColor = '#ef4444'
+        info.el.style.color = '#991b1b'
+        info.el.style.borderRadius = '6px'
+        info.el.style.fontWeight = '500'
+        info.el.style.padding = '4px'
+      },
+      datesSet: () => this.styleHeaderButtons(calendarEl),
+      viewDidMount: () => this.styleHeaderButtons(calendarEl)
     });
 
-    
-const filterSelect = document.getElementById("terrain-filter")
-if (filterSelect) {
-  filterSelect.addEventListener("change", (event) => {
-    const selectedTerrain = event.target.value
-    calendar.removeAllEvents()
-
-    const filteredEvents = selectedTerrain
-      ? sessions.filter(e => e.terrain === selectedTerrain)
-      : sessions
-
-    calendar.addEventSource(filteredEvents)
-  })
-}
+    // Terrain filtering (if present)
+    const filterSelect = document.getElementById('terrain-filter')
+    if (filterSelect) {
+      filterSelect.addEventListener('change', (event) => {
+        const selectedTerrain = event.target.value
+        calendar.removeAllEvents()
+        const filteredEvents = selectedTerrain
+          ? sessions.filter(e => e.terrain === selectedTerrain)
+          : sessions
+        calendar.addEventSource(filteredEvents)
+      })
+    }
 
     calendar.render()
+    this.styleHeaderButtons(calendarEl)
+  }
+
+  styleHeaderButtons(calendarEl) {
+    const buttons = calendarEl.querySelectorAll('.fc .fc-toolbar-chunk .fc-button')
+    buttons.forEach(btn => {
+      btn.classList.add(
+        'bg-asmbv-red',
+        'text-white',
+        'hover:bg-asmbv-red-dark',
+        'border-0',
+        'rounded-md',
+        'px-3',
+        'py-1.5',
+        'text-sm',
+        'font-semibold'
+      )
+    })
+
+    const todayBtn = calendarEl.querySelector('.fc-today-button')
+    if (todayBtn) {
+      todayBtn.classList.add('bg-asmbv-red')
+    }
   }
 }
