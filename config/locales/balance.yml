@@ -1,0 +1,37 @@
+fr:
+  activerecord:
+    models:
+      balance:
+        one: "Solde"
+        other: "Soldes"
+    attributes:
+      balance:
+        user_id: "Utilisateur"
+        amount: "Montant"
+        user: "Utilisateur"
+        created_at: "Date de création"
+        updated_at: "Date de mise à jour"
+    errors:
+      models:
+        balance:
+          attributes:
+            user_id:
+              blank: "L'utilisateur est obligatoire"
+            amount:
+              blank: "Le montant est obligatoire"
+              not_a_number: "Le montant doit être un nombre"
+  balances:
+    messages:
+      created: "Solde créé avec succès"
+      updated: "Solde mis à jour avec succès"
+      destroyed: "Solde supprimé avec succès"
+      updated_amount: "Solde recalculé avec succès"
+    actions:
+      new: "Nouveau solde"
+      edit: "Modifier le solde"
+      show: "Voir le solde"
+      index: "Liste des soldes"
+      create: "Créer le solde"
+      update: "Mettre à jour le solde"
+      destroy: "Supprimer le solde"
+      update_amount: "Recalculer le solde" 

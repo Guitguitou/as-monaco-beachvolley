@@ -1,0 +1,67 @@
+fr:
+  activerecord:
+    models:
+      user:
+        one: "Utilisateur"
+        other: "Utilisateurs"
+    attributes:
+      user:
+        email: "Email"
+        password: "Mot de passe"
+        password_confirmation: "Confirmation du mot de passe"
+        current_password: "Mot de passe actuel"
+        first_name: "Prénom"
+        last_name: "Nom"
+        admin: "Administrateur"
+        coach: "Coach"
+        responsable: "Responsable"
+        level_id: "Niveau"
+        level: "Niveau"
+        balance: "Solde"
+        credit_transactions: "Transactions"
+        registrations: "Inscriptions"
+        sessions_registered: "Sessions inscrites"
+        full_name: "Nom complet"
+        credit_balance: "Solde de crédits"
+    errors:
+      models:
+        user:
+          attributes:
+            email:
+              blank: "L'email est obligatoire"
+              invalid: "Format d'email invalide"
+              taken: "Cet email est déjà utilisé"
+            password:
+              blank: "Le mot de passe est obligatoire"
+              too_short: "Le mot de passe doit contenir au moins %{count} caractères"
+            password_confirmation:
+              confirmation: "La confirmation du mot de passe ne correspond pas"
+            first_name:
+              blank: "Le prénom est obligatoire"
+            last_name:
+              blank: "Le nom est obligatoire"
+            current_password:
+              blank: "Le mot de passe actuel est obligatoire"
+              invalid: "Le mot de passe actuel est incorrect"
+  users:
+    roles:
+      admin: "Administrateur"
+      coach: "Coach"
+      responsable: "Responsable"
+      player: "Joueur"
+    messages:
+      created: "Utilisateur créé avec succès"
+      updated: "Utilisateur mis à jour avec succès"
+      destroyed: "Utilisateur supprimé avec succès"
+      profile_updated: "Profil mis à jour avec succès"
+      password_changed: "Mot de passe modifié avec succès"
+    actions:
+      new: "Nouvel utilisateur"
+      edit: "Modifier l'utilisateur"
+      show: "Voir l'utilisateur"
+      index: "Liste des utilisateurs"
+      create: "Créer l'utilisateur"
+      update: "Mettre à jour l'utilisateur"
+      destroy: "Supprimer l'utilisateur"
+      edit_profile: "Modifier le profil"
+      change_password: "Changer le mot de passe" 

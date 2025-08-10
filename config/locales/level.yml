@@ -1,0 +1,43 @@
+fr:
+  activerecord:
+    models:
+      level:
+        one: "Niveau"
+        other: "Niveaux"
+    attributes:
+      level:
+        name: "Nom"
+        gender: "Genre"
+        color: "Couleur"
+        users: "Utilisateurs"
+        session_levels: "Niveaux de session"
+        sessions: "Sessions"
+        display_name: "Nom d'affichage"
+    errors:
+      models:
+        level:
+          attributes:
+            name:
+              blank: "Le nom est obligatoire"
+            gender:
+              blank: "Le genre est obligatoire"
+              inclusion: "Le genre doit être male, female ou mixed"
+            color:
+              blank: "La couleur est obligatoire"
+  levels:
+    genders:
+      male: "Masculin"
+      female: "Féminin"
+      mixed: "Mixte"
+    messages:
+      created: "Niveau créé avec succès"
+      updated: "Niveau mis à jour avec succès"
+      destroyed: "Niveau supprimé avec succès"
+    actions:
+      new: "Nouveau niveau"
+      edit: "Modifier le niveau"
+      show: "Voir le niveau"
+      index: "Liste des niveaux"
+      create: "Créer le niveau"
+      update: "Mettre à jour le niveau"
+      destroy: "Supprimer le niveau" 

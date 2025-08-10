@@ -1,0 +1,41 @@
+fr:
+  activerecord:
+    models:
+      session_level:
+        one: "Niveau de session"
+        other: "Niveaux de session"
+    attributes:
+      session_level:
+        session_id: "Session"
+        level_id: "Niveau"
+        session: "Session"
+        level: "Niveau"
+        created_at: "Date de création"
+        updated_at: "Date de mise à jour"
+    errors:
+      models:
+        session_level:
+          attributes:
+            session_id:
+              blank: "La session est obligatoire"
+            level_id:
+              blank: "Le niveau est obligatoire"
+            base:
+              duplicate_level: "Ce niveau est déjà associé à cette session"
+  session_levels:
+    messages:
+      created: "Niveau de session créé avec succès"
+      updated: "Niveau de session mis à jour avec succès"
+      destroyed: "Niveau de session supprimé avec succès"
+      level_added: "Niveau ajouté à la session avec succès"
+      level_removed: "Niveau retiré de la session avec succès"
+    actions:
+      new: "Nouveau niveau de session"
+      edit: "Modifier le niveau de session"
+      show: "Voir le niveau de session"
+      index: "Liste des niveaux de session"
+      create: "Créer le niveau de session"
+      update: "Mettre à jour le niveau de session"
+      destroy: "Supprimer le niveau de session"
+      add_level: "Ajouter un niveau"
+      remove_level: "Retirer un niveau" 

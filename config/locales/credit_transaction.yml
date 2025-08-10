@@ -1,0 +1,58 @@
+fr:
+  activerecord:
+    models:
+      credit_transaction:
+        one: "Transaction de crédits"
+        other: "Transactions de crédits"
+    attributes:
+      credit_transaction:
+        user_id: "Utilisateur"
+        session_id: "Session"
+        transaction_type: "Type de transaction"
+        amount: "Montant"
+        user: "Utilisateur"
+        session: "Session"
+        created_at: "Date de transaction"
+        updated_at: "Date de mise à jour"
+    errors:
+      models:
+        credit_transaction:
+          attributes:
+            user_id:
+              blank: "L'utilisateur est obligatoire"
+            session_id:
+              blank: "La session est obligatoire"
+            transaction_type:
+              blank: "Le type de transaction est obligatoire"
+              inclusion: "Le type de transaction doit être valide"
+            amount:
+              blank: "Le montant est obligatoire"
+              not_a_number: "Le montant doit être un nombre"
+  credit_transactions:
+    types:
+      purchase: "Achat"
+      training_payment: "Paiement entraînement"
+      free_play_payment: "Paiement jeu libre"
+      private_coaching_payment: "Paiement coaching privé"
+      refund: "Remboursement"
+      manual_adjustment: "Ajustement manuel"
+    messages:
+      created: "Transaction créée avec succès"
+      updated: "Transaction mise à jour avec succès"
+      destroyed: "Transaction supprimée avec succès"
+      credit_added: "Crédits ajoutés avec succès"
+      credit_deducted: "Crédits déduits avec succès"
+      payment_processed: "Paiement traité avec succès"
+      refund_processed: "Remboursement traité avec succès"
+    actions:
+      new: "Nouvelle transaction"
+      edit: "Modifier la transaction"
+      show: "Voir la transaction"
+      index: "Liste des transactions"
+      create: "Créer la transaction"
+      update: "Mettre à jour la transaction"
+      destroy: "Supprimer la transaction"
+      add_credits: "Ajouter des crédits"
+      deduct_credits: "Déduire des crédits"
+      process_payment: "Traiter le paiement"
+      process_refund: "Traiter le remboursement" 

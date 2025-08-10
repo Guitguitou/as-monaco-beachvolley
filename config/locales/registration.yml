@@ -1,0 +1,52 @@
+fr:
+  activerecord:
+    models:
+      registration:
+        one: "Inscription"
+        other: "Inscriptions"
+    attributes:
+      registration:
+        user_id: "Utilisateur"
+        session_id: "Session"
+        user: "Utilisateur"
+        session: "Session"
+        created_at: "Date d'inscription"
+    errors:
+      models:
+        registration:
+          attributes:
+            user_id:
+              blank: "L'utilisateur est obligatoire"
+            session_id:
+              blank: "La session est obligatoire"
+            base:
+              coaching_private_closed: "Les coachings privés ne sont pas ouverts à l'inscription"
+              wrong_level: "Ce n'est pas ton niveau d'entrainement"
+              session_full: "Session complète"
+              not_enough_credits: "Pas assez de crédits"
+              duplicate_registration: "Tu es déjà inscrit à cette session"
+  registrations:
+    prices:
+      training: "350 crédits"
+      free_play: "300 crédits"
+      private_coaching: "500 crédits"
+    messages:
+      created: "Inscription effectuée avec succès"
+      destroyed: "Inscription annulée avec succès"
+      already_registered: "Tu es déjà inscrit à cette session"
+      not_registered: "Tu n'es pas inscrit à cette session"
+      registration_closed: "Les inscriptions sont fermées"
+      not_enough_credits: "Tu n'as pas assez de crédits"
+      wrong_level: "Ce n'est pas ton niveau d'entrainement"
+      session_full: "Session complète"
+      coaching_private_closed: "Les coachings privés ne sont pas ouverts à l'inscription"
+    actions:
+      register: "S'inscrire"
+      unregister: "Se désinscrire"
+      new: "Nouvelle inscription"
+      edit: "Modifier l'inscription"
+      show: "Voir l'inscription"
+      index: "Liste des inscriptions"
+      create: "Créer l'inscription"
+      update: "Mettre à jour l'inscription"
+      destroy: "Supprimer l'inscription" 

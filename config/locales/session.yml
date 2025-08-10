@@ -1,0 +1,69 @@
+fr:
+  activerecord:
+    models:
+      session:
+        one: "Session"
+        other: "Sessions"
+    attributes:
+      session:
+        title: "Titre"
+        description: "Description"
+        start_at: "Date et heure de début"
+        end_at: "Date et heure de fin"
+        session_type: "Type de session"
+        user_id: "Organisateur"
+        max_players: "Nombre maximum de joueurs"
+        terrain: "Terrain"
+        user: "Organisateur"
+        participants: "Participants"
+        registrations: "Inscriptions"
+        levels: "Niveaux"
+        session_levels: "Niveaux de session"
+    errors:
+      models:
+        session:
+          attributes:
+            title:
+              blank: "Le titre est obligatoire"
+            description:
+              blank: "La description est obligatoire"
+            start_at:
+              blank: "La date de début est obligatoire"
+            end_at:
+              blank: "La date de fin est obligatoire"
+              must_be_after_start: "doit être après la date de début"
+            session_type:
+              blank: "Le type de session est obligatoire"
+            user_id:
+              blank: "L'organisateur est obligatoire"
+            terrain:
+              blank: "Le terrain est obligatoire"
+            registrations:
+              too_many_participants: "le nombre de participants ne peut pas dépasser %{max_players}"
+              duplicate_participant: "ne peut participer qu'une seule fois à une session"
+            base:
+              overlapping_session: "Une session existe déjà sur ce terrain pendant ces horaires"
+  sessions:
+    types:
+      entrainement: "Entraînement"
+      jeu_libre: "Jeu libre"
+      tournoi: "Tournoi"
+      coaching_prive: "Coaching privé"
+    terrains:
+      "1": "Terrain 1"
+      "2": "Terrain 2"
+      "3": "Terrain 3"
+    messages:
+      created: "Session créée avec succès"
+      updated: "Session mise à jour avec succès"
+      destroyed: "Session supprimée avec succès"
+      full: "Session complète"
+      not_full: "Places disponibles"
+    actions:
+      new: "Nouvelle session"
+      edit: "Modifier la session"
+      show: "Voir la session"
+      index: "Liste des sessions"
+      create: "Créer la session"
+      update: "Mettre à jour la session"
+      destroy: "Supprimer la session" 
