@@ -38,6 +38,9 @@ class TransactionService
   end
 
   def transaction_type
+    # For private coaching when amount debits the coach on session creation
+    return :private_coaching_payment if @session.coaching_prive? && @user == @session.user
+
     case @session.session_type
     when "entrainement" then :training_payment
     when "jeu_libre"    then :free_play_payment

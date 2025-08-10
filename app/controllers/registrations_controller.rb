@@ -6,11 +6,14 @@ class RegistrationsController < ApplicationController
     registration = Registration.new(user: current_user, session: @session)
 
     if registration.save
-      TransactionService.new(
-        current_user,
-        @session,
-        @session.price
-      ).create_transaction
+      amount = registration.required_credits_for(current_user)
+      if amount.positive?
+        TransactionService.new(
+          current_user,
+          @session,
+          amount
+        ).create_transaction
+      end
 
       redirect_to session_path(@session), notice: "Inscription réussie ✅"
     else
@@ -22,7 +25,7 @@ class RegistrationsController < ApplicationController
     registration = current_user.registrations.find_by(session: @session)
 
     if registration
-      amount = @session.price
+      amount = registration.required_credits_for(current_user)
 
       registration.destroy
 

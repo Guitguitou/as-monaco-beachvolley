@@ -40,6 +40,11 @@ class Registration < ApplicationRecord
   end
 
   def enough_credits?
-    user.balance.amount >= session.price
+    user.balance.amount >= required_credits_for(user)
+  end
+
+  def required_credits_for(user)
+    return 0 if session.coaching_prive?
+    session.price.to_i
   end
 end
