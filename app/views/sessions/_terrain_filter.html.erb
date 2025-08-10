@@ -1,4 +1,4 @@
-<div class="flex gap-4 mb-6 border-b border-gray-200">
+<div class="flex gap-3 sm:gap-4 mb-6 border-b border-gray-200 overflow-x-auto whitespace-nowrap">
   <% terrains = Session.distinct(:terrain).pluck(:terrain).compact.sort %>
   <% all_terrains = [""] + terrains %>
 

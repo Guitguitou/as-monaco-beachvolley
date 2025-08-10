@@ -30,7 +30,7 @@
   <body class="bg-gray-50 min-h-screen text-gray-900" data-controller="sidebar">
     <% if user_signed_in? %>
       <div class="flex min-h-screen">
-        <div class="lg:hidden p-4">
+        <div class="lg:hidden p-4 fixed top-4 left-4 z-50">
           <button data-action="click->sidebar#toggle" class="text-asmbv-red hover:text-asmbv-red-dark">
             <%= lucide_icon("menu", class: "w-6 h-6") %>
           </button>
@@ -39,7 +39,7 @@
         <%= render "layouts/sidebar" %>
 
         <!-- Main content -->
-        <main class="flex-1 p-8">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
           <%= yield %>
         </main>
       </div>

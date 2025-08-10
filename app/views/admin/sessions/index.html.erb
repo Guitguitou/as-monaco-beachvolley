@@ -1,4 +1,4 @@
-<div class="flex items-center justify-between mb-6">
+<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
   <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
     <%= lucide_icon("calendar-clock") %>
     Sessions
@@ -12,29 +12,29 @@
 </div>
 
 <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
+  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
-        <th class="px-6 py-3 text-left">Titre</th>
-        <th class="px-6 py-3 text-left">Type</th>
-        <th class="px-6 py-3 text-left">Terrain</th>
-        <th class="px-6 py-3 text-left">Niveau</th>
-        <th class="px-6 py-3 text-left">Date</th>
-        <th class="px-6 py-3 text-left">Coach / Responsable</th>
-        <th class="px-6 py-3 text-right">Actions</th>
+        <th class="px-4 sm:px-6 py-3 text-left w-2/5">Titre</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden md:table-cell w-1/6">Type</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden lg:table-cell w-1/12">Terrain</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden lg:table-cell w-1/6">Niveau</th>
+        <th class="px-4 sm:px-6 py-3 text-left w-1/5">Date</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden md:table-cell w-1/6">Coach / Responsable</th>
+        <th class="px-4 sm:px-6 py-3 text-right w-16 sm:w-24">Actions</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-100">
       <% @sessions.each do |session| %>
         <tr class="hover:bg-gray-50 transition-colors">
           <!-- Titre -->
-          <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-800 flex items-center gap-2">
+          <td class="px-4 sm:px-6 py-4 whitespace-nowrap font-medium text-gray-800 flex items-center gap-2">
             <%= lucide_icon("calendar", size: 16, class: "text-gray-500") %>
             <%= session.title.presence || "(Sans titre)" %>
           </td>
 
           <!-- Type -->
-          <td class="px-6 py-4 text-gray-700">
+          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden md:table-cell">
             <% case session.session_type %>
             <% when "entrainement" %>
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
@@ -56,14 +56,14 @@
           </td>
 
           <!-- Terrain -->
-          <td class="px-6 py-4 text-gray-700">
+          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden lg:table-cell">
             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
               <%= lucide_icon("map-pin", size: 14) %> <%= session.terrain.to_s.split('_').last %>
             </span>
           </td>
 
           <!-- Niveaux -->
-          <td class="px-6 py-4 text-gray-700 space-x-1">
+          <td class="px-4 sm:px-6 py-4 text-gray-700 space-x-1 hidden lg:table-cell">
             <% session.levels.each do |level| %>
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
                     style="background-color: <%= level.color %>22; color: <%= level.color %>;">
@@ -73,17 +73,17 @@
           </td>
 
           <!-- Date -->
-          <td class="px-6 py-4 text-gray-700">
+          <td class="px-4 sm:px-6 py-4 text-gray-700">
             <%= l session.start_at, format: :short %> — <%= l session.end_at, format: :short %>
           </td>
 
           <!-- Organisateur -->
-          <td class="px-6 py-4 text-gray-700">
+          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden md:table-cell">
             <%= session.user&.full_name || "-" %>
           </td>
 
           <!-- Actions -->
-          <td class="px-6 py-4 text-right space-x-2">
+          <td class="px-4 sm:px-6 py-4 text-right space-x-2">
             <%= link_to admin_session_path(session),
                   class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red transition-colors" do %>
               <%= lucide_icon("eye", size: 16) %>

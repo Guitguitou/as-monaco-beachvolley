@@ -1,4 +1,4 @@
-<div class="flex items-center justify-between mb-6">
+<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
   <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
     <%= lucide_icon("layers") %> Groupes de niveau
   </h1>
@@ -10,35 +10,35 @@
 </div>
 
 <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
+  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
-        <th class="px-6 py-3 text-left">Nom</th>
-        <th class="px-6 py-3 text-left">Genre</th>
-        <th class="px-6 py-3 text-left">Couleur</th>
-        <th class="px-6 py-3 text-right">Actions</th>
+        <th class="px-4 sm:px-6 py-3 text-left">Nom</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden sm:table-cell">Genre</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden md:table-cell">Couleur</th>
+        <th class="px-4 sm:px-6 py-3 text-right w-16 sm:w-24">Actions</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-100">
       <% @levels.each do |level| %>
         <tr class="hover:bg-gray-50 transition-colors">
           <!-- Nom -->
-          <td class="px-6 py-4 font-medium text-gray-800">
+          <td class="px-4 sm:px-6 py-4 font-medium text-gray-800">
             <%= level.name %>
           </td>
 
           <!-- Genre -->
-          <td class="px-6 py-4 text-gray-700 capitalize">
+          <td class="px-4 sm:px-6 py-4 text-gray-700 capitalize hidden sm:table-cell">
             <%= level.gender %>
           </td>
 
           <!-- Couleur -->
-          <td class="px-6 py-4">
+          <td class="px-4 sm:px-6 py-4 hidden md:table-cell">
             <div class="h-6 w-6 rounded border border-gray-300 shadow-sm" style="background-color: <%= level.color %>"></div>
           </td>
 
           <!-- Actions -->
-          <td class="px-6 py-4 text-right space-x-2">
+          <td class="px-4 sm:px-6 py-4 text-right space-x-2">
             <%= link_to admin_level_path(level),
                   class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red transition-colors" do %>
               <%= lucide_icon("eye", size: 16) %> Voir
@@ -46,7 +46,7 @@
 
             <%= link_to edit_admin_level_path(level),
                   class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red-dark transition-colors" do %>
-              <%= lucide_icon("edit", size: 16) %> Modifier
+              <%= lucide_icon("edit", size: 16) %>
             <% end %>
           </td>
         </tr>
