@@ -49,7 +49,7 @@
           <% @transactions.each do |t| %>
             <tr>
               <td class="px-4 py-2"><%= l(t.created_at, format: :short) %></td>
-              <td class="px-4 py-2"><%= t.transaction_type.humanize %></td>
+              <td class="px-4 py-2"><%= humanize_credit_transaction_type(t.transaction_type) %></td>
               <td class="px-4 py-2 <%= t.amount.negative? ? 'text-red-600' : 'text-green-600' %>">
                 <%= t.amount > 0 ? "+#{t.amount}" : t.amount %>
               </td>

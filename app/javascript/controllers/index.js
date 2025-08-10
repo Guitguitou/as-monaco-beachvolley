@@ -11,4 +11,6 @@ import SessionModalController from "controllers/session_modal_controller"
 application.register("session-modal", SessionModalController)
 import SidebarController from "controllers/sidebar_controller"
 application.register("sidebar", SidebarController)
+import RegistrationsFormController from "controllers/registrations_form_controller"
+application.register("registrations-form", RegistrationsFormController)
 eagerLoadControllersFrom("controllers", application)

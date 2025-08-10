@@ -52,7 +52,12 @@ class SessionsController < ApplicationController
   end
 
   def session_params
-    params.require(:session).permit(:title, :description, :start_at, :end_at, :session_type, :max_players, :terrain, :user_id, level_ids: [])
+    params.require(:session).permit(
+      :title, :description, :start_at, :end_at, 
+      :session_type, :max_players, :terrain, :user_id, :price,
+      registrations_attributes: [:id, :user_id, :_destroy],
+      level_ids: []
+    )
   end
 
   def ensure_admin!

@@ -9,7 +9,7 @@ class RegistrationsController < ApplicationController
       TransactionService.new(
         current_user,
         @session,
-        registration.session_price_for(current_user)
+        @session.price
       ).create_transaction
 
       redirect_to session_path(@session), notice: "Inscription réussie ✅"
@@ -22,7 +22,7 @@ class RegistrationsController < ApplicationController
     registration = current_user.registrations.find_by(session: @session)
 
     if registration
-      amount = registration.session_price_for(current_user)
+      amount = @session.price
 
       registration.destroy
 

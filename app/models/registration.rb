@@ -2,6 +2,7 @@ class Registration < ApplicationRecord
   belongs_to :user
   belongs_to :session
 
+  validate :enough_credits?
   validate :can_register?
 
   def can_register?
@@ -17,7 +18,7 @@ class Registration < ApplicationRecord
       errors.add(:base, "Session complète.")
     end
 
-    if user.balance.amount < session_price_for(user)
+    if !enough_credits?
       errors.add(:base, "Pas assez de crédits.")
     end
   end
@@ -31,25 +32,14 @@ class Registration < ApplicationRecord
 
     return [false, "Session complète."] if session.full?
 
-    if user.balance.amount < session_price_for(user)
+    if !enough_credits?
       return [false, "Tu n'as pas assez de crédits."]
     end
 
     [true, nil]
   end
 
-  TRAINING_PRICE = 350
-  FREE_PLAY_PRICE = 300
-  PRIVATE_COACHING_PRICE = 500
-
-  def session_price_for(user)
-    case session.session_type
-    when "entrainement" then 350
-    when "jeu_libre"    then 300
-    when "coaching_prive"
-      user == session.user ? 500 : 0
-    else
-      0
-    end
+  def enough_credits?
+    user.balance.amount >= session.price
   end
 end

@@ -43,7 +43,7 @@
           <%= lucide_icon('banknote-arrow-down', class: 'w-5 h-5 text-gray-400') %>
           <div>
             <div class="font-medium text-gray-900">Prix</div>
-            <div class="text-gray-600">350 crédits</div>
+            <div class="text-gray-600"><%= @session.price.to_i %> crédits</div>
           </div>
         </div>
     </div>

@@ -1,15 +1,4 @@
 <div class="max-w-4xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
-  <% if session.errors.any? %>
-    <div class="mb-6 rounded-md bg-red-50 p-4 border border-red-200">
-      <h3 class="text-sm font-semibold text-red-800">Erreurs de validation</h3>
-      <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
-        <% session.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
   <%= form_with model: session, 
                 url: session.persisted? ? session_path(session) : sessions_path, 
                 method: session.persisted? ? :put : :post, 
@@ -28,6 +17,9 @@
                 class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
                         placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
           </div>
+          <% if session.errors[:title].any? %>
+            <p class="mt-1 text-sm text-red-600"><%= session.errors[:title].first %></p>
+          <% end %>
         </div>
 
         <!-- Description -->
@@ -38,6 +30,9 @@
                 class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
                         placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
           </div>
+          <% if session.errors[:description].any? %>
+            <p class="mt-1 text-sm text-red-600"><%= session.errors[:description].first %></p>
+          <% end %>
         </div>
 
         <!-- Type -->
@@ -46,9 +41,12 @@
           <div class="mt-2">
             <%= f.select :session_type, 
                   options_for_select(Session.session_types.keys.map { |t| [t.humanize, t] }, session.session_type),
-                  {}, class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
+                  { required: true }, class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
                               focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
           </div>
+          <% if session.errors[:session_type].any? %>
+            <p class="mt-1 text-sm text-red-600"><%= session.errors[:session_type].first %></p>
+          <% end %>
         </div>
 
         <!-- Terrain -->
@@ -57,9 +55,12 @@
           <div class="mt-2">
             <%= f.select :terrain, 
                   options_for_select(Session.terrains.keys, session.terrain),
-                  {}, class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
+                  { required: true }, class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
                               focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
           </div>
+          <% if session.errors[:terrain].any? %>
+            <p class="mt-1 text-sm text-red-600"><%= session.errors[:terrain].first %></p>
+          <% end %>
         </div>
 
         <!-- Coach -->
@@ -68,28 +69,37 @@
           <div class="mt-2">
             <%= f.select :user_id, 
                   options_from_collection_for_select(User.all, :id, :full_name, session.user_id),
-                  {}, class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
+                  { required: true }, class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
                               focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
           </div>
+          <% if session.errors[:user_id].any? %>
+            <p class="mt-1 text-sm text-red-600"><%= session.errors[:user_id].first %></p>
+          <% end %>
         </div>
 
         <!-- Dates -->
         <div>
           <%= f.label :start_at, "Date de début", class: "block text-sm font-medium text-gray-900" %>
           <div class="mt-2">
-            <%= f.datetime_local_field :start_at, 
+            <%= f.datetime_local_field :start_at, required: true,
                   class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
                           focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
           </div>
+          <% if session.errors[:start_at].any? %>
+            <p class="mt-1 text-sm text-red-600"><%= session.errors[:start_at].first %></p>
+          <% end %>
         </div>
 
         <div>
           <%= f.label :end_at, "Date de fin", class: "block text-sm font-medium text-gray-900" %>
           <div class="mt-2">
-            <%= f.datetime_local_field :end_at, 
+            <%= f.datetime_local_field :end_at, required: true,
                   class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
                           focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
           </div>
+          <% if session.errors[:end_at].any? %>
+            <p class="mt-1 text-sm text-red-600"><%= session.errors[:end_at].first %></p>
+          <% end %>
         </div>
 
         <!-- Max joueurs -->
@@ -100,6 +110,22 @@
                   class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
                           focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
           </div>
+          <% if session.errors[:max_players].any? %>
+            <p class="mt-1 text-sm text-red-600"><%= session.errors[:max_players].first %></p>
+          <% end %>
+        </div>
+
+        <!-- Prix (crédits) -->
+        <div>
+          <%= f.label :price, "Prix (crédits)", class: "block text-sm font-medium text-gray-900" %>
+          <div class="mt-2">
+            <%= f.number_field :price, min: 0, step: 1,
+                  class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
+                          focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+          </div>
+          <% if session.errors[:price].any? %>
+            <p class="mt-1 text-sm text-red-600"><%= session.errors[:price].first %></p>
+          <% end %>
         </div>
 
         <!-- Niveaux -->
@@ -115,8 +141,32 @@
               </div>
             <% end %>
           </div>
+          <% if session.errors[:level_ids].any? %>
+            <p class="mt-1 text-sm text-red-600"><%= session.errors[:level_ids].first %></p>
+          <% end %>
         </div>
 
+      </div>
+    </div>
+
+    <!-- Participants dynamiques -->
+    <div class="sm:col-span-2" data-controller="registrations-form">
+      <h3 class="text-sm font-medium text-gray-900 mb-2">Participants</h3>
+
+      <div data-registrations-form-target="container">
+        <%= f.fields_for :registrations do |reg| %>
+          <%= render "registrations/fields", f: reg, session: session %>
+        <% end %>
+      </div>
+
+      <template data-registrations-form-target="template">
+        <%= f.fields_for :registrations, f.object.registrations.build, child_index: "NEW_RECORD" do |reg| %>
+          <%= render "registrations/fields", f: reg, session: session %>
+        <% end %>
+      </template>
+
+      <div class="mt-4">
+        <%= link_to "Ajouter un participant", "#", class: "text-sm text-asmbv-red font-medium", data: { action: "click->registrations-form#addParticipant" } %>
       </div>
     </div>
 

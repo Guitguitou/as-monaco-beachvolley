@@ -50,4 +50,23 @@ module ApplicationHelper
       end
     end
   end
+
+  def humanize_credit_transaction_type(transaction_type)
+    case transaction_type
+    when "purchase"
+      "Achat"
+    when "training_payment"
+      "Paiement d'entraînement"
+    when "free_play_payment"
+      "Paiement de jeu libre"
+    when "private_coaching_payment"
+      "Paiement de coaching privé"
+    when "refund"
+      "Remboursement"
+    when "manual_adjustment"
+      "Ajustement de l'admin"
+    else
+      "Transaction"
+    end
+  end
 end

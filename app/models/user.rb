@@ -14,6 +14,9 @@ class User < ApplicationRecord
   scope :coachs, -> { where(coach: true) }
   scope :responsables, -> { where(responsable: true) }
   scope :admins, -> { where(admin: true) }
+  scope :with_enough_credits, ->(session_record) {
+    joins(:balance).where("balances.amount >= ?", session_record.price)
+  }
 
   def full_name
     "#{first_name} #{last_name}"

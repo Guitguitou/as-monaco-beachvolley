@@ -65,6 +65,11 @@
         <dd class="mt-1 text-gray-900"><%= @session.max_players || "–" %></dd>
       </div>
 
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Prix (crédits)</dt>
+        <dd class="mt-1 text-gray-900"><%= @session.price.to_i %></dd>
+      </div>
+
       <div class="sm:col-span-2">
         <dt class="text-sm font-medium text-gray-500">Coach / Responsable</dt>
         <dd class="mt-1 text-gray-900"><%= @session.user&.full_name || "–" %></dd>
