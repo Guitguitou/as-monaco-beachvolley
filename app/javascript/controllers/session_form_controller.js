@@ -2,11 +2,17 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["type", "userGroupCoach", "userGroupResponsable", "userGroupAll"]
+  static targets = ["type", "price", "userGroupCoach", "userGroupResponsable", "userGroupAll"]
+  static values = { prices: Object }
 
   connect() {
-    console.log("✅ SessionFormController mounted");
-    this.updateUserSelect();
+    this.updateUserSelect()
+    this.updatePrice()
+  }
+
+  onTypeChange() {
+    this.updateUserSelect()
+    this.updatePrice()
   }
 
   updateUserSelect() {
@@ -32,6 +38,18 @@ export default class extends Controller {
     } else if (value === "tournoi") {
       this.userGroupAllTarget.classList.remove("hidden")
       this.userGroupAllTarget.querySelector("select").disabled = false
+    }
+  }
+
+  updatePrice() {
+    if (!this.hasPriceTarget) return
+    try {
+      const type = this.typeTarget.value
+      const mapping = this.pricesValue || {}
+      const price = mapping[type] ?? 0
+      this.priceTarget.value = price
+    } catch (_) {
+      // noop
     }
   }
 }

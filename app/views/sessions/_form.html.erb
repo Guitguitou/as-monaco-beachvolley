@@ -2,6 +2,7 @@
   <%= form_with model: session, 
                 url: session.persisted? ? session_path(session) : sessions_path, 
                 method: session.persisted? ? :put : :post, 
+                data: { controller: "session-form", session_form_prices_value: Session::PRICE_BY_TYPE },
                 class: "space-y-12" do |f| %>
 
     <div class="border-b border-gray-200 pb-8">
@@ -42,7 +43,8 @@
             <%= f.select :session_type, 
                   options_for_select(Session.session_types.keys.map { |t| [t.humanize, t] }, session.session_type),
                   { required: true }, class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
-                              focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+                              focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+                              data: { session_form_target: "type", action: "session-form#onTypeChange" } %>
           </div>
           <% if session.errors[:session_type].any? %>
             <p class="mt-1 text-sm text-red-600"><%= session.errors[:session_type].first %></p>
@@ -121,7 +123,8 @@
           <div class="mt-2">
             <%= f.number_field :price, min: 0, step: 1, readonly: true,
                   class: "block w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 
-                          focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+                          focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+                          data: { session_form_target: "price" } %>
           </div>
           <% if session.errors[:price].any? %>
             <p class="mt-1 text-sm text-red-600"><%= session.errors[:price].first %></p>
