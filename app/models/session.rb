@@ -21,10 +21,15 @@ class Session < ApplicationRecord
     "Terrain 3": 3
   }
 
+  before_validation :set_price_from_type
+
   validate :end_at_after_start_at
   validate :no_overlapping_sessions_on_same_terrain
   validate :validate_unique_participants
   validate :validate_max_registrations
+  validate :coach_has_enough_credits_for_private_coaching, if: :coaching_prive?
+
+  after_create :charge_coach_for_private_coaching, if: :coaching_prive?
 
   scope :terrain, ->(terrain) { where(terrain: terrain) }
 
@@ -48,6 +53,19 @@ class Session < ApplicationRecord
   end
 
   private
+
+  def set_price_from_type
+    self.price = default_price
+  end
+
+  def default_price
+    case session_type
+    when "entrainement" then 350
+    when "jeu_libre" then 300
+    when "coaching_prive" then 1500
+    else 0
+    end
+  end
 
   def end_at_after_start_at
     return if end_at.blank? || start_at.blank?
@@ -87,5 +105,15 @@ class Session < ApplicationRecord
     if max_players.present? && registrations.count > max_players
       errors.add(:registrations, "le nombre de participants ne peut pas dépasser #{max_players}")
     end
+  end
+
+  def coach_has_enough_credits_for_private_coaching
+    return if user&.balance&.amount.to_i >= default_price
+
+    errors.add(:base, "Le coach n'a pas assez de crédits pour créer un coaching privé (#{default_price} requis)")
+  end
+
+  def charge_coach_for_private_coaching
+    TransactionService.new(user, self, default_price).create_transaction
   end
 end
