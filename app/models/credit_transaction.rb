@@ -12,4 +12,11 @@ class CreditTransaction < ApplicationRecord
   }
 
   validates :amount, presence: true
+  after_commit :refresh_balance_amount, on: [:create, :update, :destroy]
+
+  private
+
+  def refresh_balance_amount
+    user.balance.update_amount!
+  end
 end

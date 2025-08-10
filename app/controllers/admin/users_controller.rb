@@ -5,7 +5,7 @@ module Admin
     layout "dashboard"
     before_action :authenticate_user!
     before_action :require_admin!
-    before_action :set_user, only: [:show, :edit, :update]
+    before_action :set_user, only: [:show, :edit, :update, :adjust_credits]
 
     def index
       @users = User.order(:last_name, :first_name)
@@ -40,6 +40,28 @@ module Admin
       else
         render :edit, status: :unprocessable_entity
       end
+    end
+
+    def adjust_credits
+      amount = params.require(:adjustment).permit(:amount, :reason)[:amount].to_i
+      reason = params[:adjustment][:reason].presence || "Ajustement manuel"
+
+      if amount == 0
+        redirect_to admin_user_path(@user), alert: "Montant invalide" and return
+      end
+
+      CreditTransaction.create!(
+        user: @user,
+        session: nil,
+        transaction_type: :manual_adjustment,
+        amount: amount
+      )
+
+      # Met à jour le solde
+      @user.balance.update!(amount: @user.credit_transactions.sum(:amount))
+
+      notice = amount.positive? ? "Crédits ajoutés avec succès" : "Crédits déduits avec succès"
+      redirect_to admin_user_path(@user), notice: notice
     end
 
     private
