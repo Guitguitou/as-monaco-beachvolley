@@ -22,7 +22,8 @@ module Admin
 
     def create
       @user = User.new(user_params)
-      @user.password = SecureRandom.hex(8)
+      # If no password provided, generate a secure random one
+      @user.password = SecureRandom.hex(8) if @user.password.blank?
 
       if @user.save
         redirect_to admin_user_path(@user), notice: "Utilisateur créé avec succès"
@@ -72,7 +73,8 @@ module Admin
       params.require(:user).permit(
         :email, :first_name, :last_name,
         :admin, :coach, :responsable,
-        :level_id
+        :level_id,
+        :password, :password_confirmation
       )
     end
 
