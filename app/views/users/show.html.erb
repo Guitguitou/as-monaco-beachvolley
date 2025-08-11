@@ -3,11 +3,18 @@
     <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
       <%= lucide_icon("user") %> Mon profil
     </h1>
-    <%= link_to edit_user_registration_path,
-          class: "inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
-      <%= lucide_icon("key-round", size: 16) %>
-      Changer mon mot de passe
-    <% end %>
+    <div class="flex items-center gap-2">
+      <%= link_to edit_user_registration_path,
+            class: "inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
+        <%= lucide_icon("key-round", size: 16) %>
+        Changer mon mot de passe
+      <% end %>
+      <%= link_to edit_user_registration_path,
+            class: "inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
+        <%= lucide_icon("mail", size: 16) %>
+        Changer mon email
+      <% end %>
+    </div>
   </div>
 
   <!-- Infos utilisateur -->
