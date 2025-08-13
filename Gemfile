@@ -46,6 +46,7 @@ gem "view_component", "~> 3.9"
 gem "view_component-contrib"
 gem "devise"
 gem 'lucide-rails'
+gem 'cancancan'
 
 
 group :development, :test do

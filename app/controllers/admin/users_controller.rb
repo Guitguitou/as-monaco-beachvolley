@@ -4,11 +4,11 @@ module Admin
   class UsersController < ApplicationController
     layout "dashboard"
     before_action :authenticate_user!
-    before_action :require_admin!
+    load_and_authorize_resource
     before_action :set_user, only: [:show, :edit, :update, :adjust_credits]
 
     def index
-      @users = User.order(:last_name, :first_name)
+      @users = @users.order(:last_name, :first_name)
     end
 
     def show
@@ -32,8 +32,7 @@ module Admin
       end
     end
 
-    def edit
-    end
+    def edit; end
 
     def update
       if @user.update(user_params)
@@ -78,8 +77,6 @@ module Admin
       )
     end
 
-    def require_admin!
-      redirect_to root_path, alert: "Accès réservé" unless current_user.admin?
-    end
+    # Authorization handled by CanCanCan
   end
 end

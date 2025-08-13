@@ -4,11 +4,11 @@ module Admin
   class SessionsController < ApplicationController
     layout "dashboard"
     before_action :authenticate_user!
-    before_action :ensure_admin!
+    load_and_authorize_resource
     before_action :set_session, only: [:show, :edit, :update, :destroy]
 
     def index
-      @sessions = Session.order(start_at: :desc)
+      @sessions = @sessions.order(start_at: :desc)
     end
 
     def show
@@ -57,8 +57,6 @@ module Admin
       params.require(:session).permit(:title, :description, :start_at, :end_at, :session_type, :max_players, :terrain, :user_id, :price, level_ids: [])
     end
 
-    def ensure_admin!
-      redirect_to root_path, alert: "Accès refusé" unless current_user.admin?
-    end
+    # Authorization handled by CanCanCan
   end
 end

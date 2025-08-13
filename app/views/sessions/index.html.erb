@@ -5,7 +5,7 @@
       <%= lucide_icon("calendar") %> Mon calendrier
     </h1>
     
-    <% if current_user.admin? %>
+    <% if can?(:create, Session) %>
       <%= link_to new_session_path, class: "bg-asmbv-red hover:bg-asmbv-red-dark text-asmbv-red-light font-semibold rounded-md px-4 py-2 transition inline-flex items-center gap-2 w-full sm:w-auto justify-center" do %>
         <%= lucide_icon("plus-circle", class: "w-5 h-5") %> Nouvelle session
       <% end %>

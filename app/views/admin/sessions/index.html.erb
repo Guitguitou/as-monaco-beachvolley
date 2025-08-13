@@ -4,10 +4,12 @@
     Sessions
   </h1>
 
+  <% if can?(:create, Session) %>
   <%= link_to new_admin_session_path,
         class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
     <%= lucide_icon("plus", size: 18) %>
     Nouvelle session
+  <% end %>
   <% end %>
 </div>
 

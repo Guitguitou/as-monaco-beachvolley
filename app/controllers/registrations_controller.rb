@@ -3,6 +3,7 @@ class RegistrationsController < ApplicationController
   before_action :set_session, only: [:create, :destroy]
 
   def create
+    authorize! :create, Registration
     registration = Registration.new(user: current_user, session: @session)
 
     if registration.save
@@ -22,6 +23,7 @@ class RegistrationsController < ApplicationController
   end
 
   def destroy
+    authorize! :destroy, Registration
     registration = current_user.registrations.find_by(session: @session)
 
     if registration
