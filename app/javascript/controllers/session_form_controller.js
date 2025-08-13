@@ -2,17 +2,23 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["type", "price", "userGroupCoach", "userGroupResponsable", "userGroupAll"]
+  static targets = ["type", "price", "userGroupCoach", "userGroupResponsable", "userGroupAll", "start", "end"]
   static values = { prices: Object }
 
   connect() {
     this.updateUserSelect()
     this.updatePrice()
+    this.updateEndTime()
   }
 
   onTypeChange() {
     this.updateUserSelect()
     this.updatePrice()
+    this.updateEndTime()
+  }
+
+  onStartChange() {
+    this.updateEndTime()
   }
 
   updateUserSelect() {
@@ -50,6 +56,34 @@ export default class extends Controller {
       this.priceTarget.value = price
     } catch (_) {
       // noop
+    }
+  }
+
+  updateEndTime() {
+    if (!this.hasStartTarget || !this.hasEndTarget) return
+
+    const type = this.typeTarget.value
+    const lockTypes = ["entrainement", "jeu_libre", "coaching_prive"]
+    const shouldLock = lockTypes.includes(type)
+
+    if (!this.startTarget.value) return
+
+    if (shouldLock) {
+      try {
+        const startDate = new Date(this.startTarget.value)
+        if (isNaN(startDate.getTime())) return
+        const endDate = new Date(startDate.getTime() + 90 * 60 * 1000)
+
+        // Format to yyyy-MM-ddTHH:mm for datetime-local
+        const pad = (n) => String(n).padStart(2, '0')
+        const formatted = `${endDate.getFullYear()}-${pad(endDate.getMonth()+1)}-${pad(endDate.getDate())}T${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
+        this.endTarget.value = formatted
+        this.endTarget.readOnly = true
+        this.endTarget.classList.add('bg-gray-100')
+      } catch (_) { /* noop */ }
+    } else {
+      this.endTarget.readOnly = false
+      this.endTarget.classList.remove('bg-gray-100')
     }
   }
 }

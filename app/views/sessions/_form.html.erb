@@ -111,7 +111,8 @@
           <div class="mt-2">
             <%= f.datetime_local_field :start_at, required: true,
                   class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
-                          focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+                          focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+                  data: { session_form_target: "start", action: "change->session-form#onStartChange" } %>
           </div>
           <% if session.errors[:start_at].any? %>
             <p class="mt-1 text-sm text-red-600"><%= session.errors[:start_at].first %></p>
@@ -123,7 +124,8 @@
           <div class="mt-2">
             <%= f.datetime_local_field :end_at, required: true,
                   class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
-                          focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+                          focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+                  data: { session_form_target: "end" } %>
           </div>
           <% if session.errors[:end_at].any? %>
             <p class="mt-1 text-sm text-red-600"><%= session.errors[:end_at].first %></p>
