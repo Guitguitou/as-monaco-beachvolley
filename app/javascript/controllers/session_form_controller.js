@@ -2,19 +2,38 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["type", "price", "userGroupCoach", "userGroupResponsable", "userGroupAll", "start", "end"]
+  static targets = [
+    "type", "price", "userGroupCoach", "userGroupResponsable", "userGroupAll",
+    "startAt", "endAt"
+  ]
   static values = { prices: Object }
 
   connect() {
     this.updateUserSelect()
     this.updatePrice()
-    this.updateEndTime()
+    this.updateEndTime() // si la session est déjà partiellement remplie
   }
 
   onTypeChange() {
     this.updateUserSelect()
     this.updatePrice()
-    this.updateEndTime()
+
+    const lockTypes = ["entrainement", "jeu_libre", "coaching_prive"]
+    const shouldLock = lockTypes.includes(this.typeTarget.value)
+
+    if (shouldLock) {
+      // Recalcule et désactive immédiatement si on a déjà un start
+      this.updateEndTime()
+    } else {
+      // On quitte un type “locké” → redonne la main
+      if (this.hasEndAtTarget) {
+        this.endAtTarget.disabled = false
+        this.endAtTarget.classList.remove("bg-gray-100")
+        this.endAtTarget.readOnly = false
+        // Optionnel : vider pour éviter une valeur figée trompeuse
+        this.endAtTarget.value = ""
+      }
+    }
   }
 
   onStartChange() {
@@ -23,18 +42,14 @@ export default class extends Controller {
 
   updateUserSelect() {
     const value = this.typeTarget.value
-    
-    // Cacher et désactiver tous les groupes
     this.userGroupCoachTarget.classList.add("hidden")
     this.userGroupResponsableTarget.classList.add("hidden")
     this.userGroupAllTarget.classList.add("hidden")
-    
-    // Désactiver tous les selects
+
     this.userGroupCoachTarget.querySelector("select").disabled = true
     this.userGroupResponsableTarget.querySelector("select").disabled = true
     this.userGroupAllTarget.querySelector("select").disabled = true
 
-    // Afficher et activer le bon groupe selon le type
     if (value === "entrainement" || value === "coaching_prive") {
       this.userGroupCoachTarget.classList.remove("hidden")
       this.userGroupCoachTarget.querySelector("select").disabled = false
@@ -49,41 +64,51 @@ export default class extends Controller {
 
   updatePrice() {
     if (!this.hasPriceTarget) return
-    try {
-      const type = this.typeTarget.value
-      const mapping = this.pricesValue || {}
-      const price = mapping[type] ?? 0
-      this.priceTarget.value = price
-    } catch (_) {
-      // noop
-    }
+    const type = this.typeTarget.value
+    const mapping = this.pricesValue || {}
+    this.priceTarget.value = mapping[type] ?? 0
   }
 
   updateEndTime() {
-    if (!this.hasStartTarget || !this.hasEndTarget) return
+    if (!this.hasStartAtTarget || !this.hasEndAtTarget) return
 
     const type = this.typeTarget.value
     const lockTypes = ["entrainement", "jeu_libre", "coaching_prive"]
     const shouldLock = lockTypes.includes(type)
 
-    if (!this.startTarget.value) return
+    if (!this.startAtTarget.value) {
+      // Pas de start → si on est locké, on grise quand même endAt
+      if (shouldLock) {
+        this.endAtTarget.disabled = true
+        this.endAtTarget.classList.add("bg-gray-100")
+        this.endAtTarget.readOnly = true
+      }
+      return
+    }
 
     if (shouldLock) {
-      try {
-        const startDate = new Date(this.startTarget.value)
-        if (isNaN(startDate.getTime())) return
-        const endDate = new Date(startDate.getTime() + 90 * 60 * 1000)
+      const parsedDate = this.#parseDatetimeLocal(this.startAtTarget.value)
+      if (!parsedDate) return
+      const endDate = new Date(parsedDate.getTime() + 90 * 60 * 1000)
+      const pad = (n) => String(n).padStart(2, "0")
+      const formatted = `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())}T${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
 
-        // Format to yyyy-MM-ddTHH:mm for datetime-local
-        const pad = (n) => String(n).padStart(2, '0')
-        const formatted = `${endDate.getFullYear()}-${pad(endDate.getMonth()+1)}-${pad(endDate.getDate())}T${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
-        this.endTarget.value = formatted
-        this.endTarget.readOnly = true
-        this.endTarget.classList.add('bg-gray-100')
-      } catch (_) { /* noop */ }
+      this.endAtTarget.value = formatted
+      this.endAtTarget.disabled = true
+      this.endAtTarget.readOnly = true
+      this.endAtTarget.classList.add("bg-gray-100")
     } else {
-      this.endTarget.readOnly = false
-      this.endTarget.classList.remove('bg-gray-100')
+      this.endAtTarget.disabled = false
+      this.endAtTarget.readOnly = false
+      this.endAtTarget.classList.remove("bg-gray-100")
     }
+  }
+
+  #parseDatetimeLocal(value) {
+    if (!value) return null
+    const m = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/)
+    if (!m) return null
+    const [_, y, mo, d, h, mi] = m
+    return new Date(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi))
   }
 }
