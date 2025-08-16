@@ -81,16 +81,11 @@ class Session < ApplicationRecord
   def no_overlapping_sessions_on_same_terrain
     return if start_at.blank? || end_at.blank? || terrain.blank?
 
+    # Overlap rule: existing.start < new_end AND existing.end > new_start
+    # This allows back-to-back sessions (end == start) and forbids any true overlap
     overlapping_sessions = Session.where(terrain: terrain)
-                                .where.not(id: id)
-                                .where(
-                                  "(start_at < ? AND end_at > ?) OR " \
-                                  "(start_at < ? AND end_at > ?) OR " \
-                                  "(start_at >= ? AND end_at <= ?)",
-                                  end_at, start_at,
-                                  end_at, start_at,
-                                  start_at, end_at
-                                )
+                                  .where.not(id: id)
+                                  .where("start_at < ? AND end_at > ?", end_at, start_at)
 
     if overlapping_sessions.exists?
       errors.add(:base, "Une session existe déjà sur ce terrain pendant ces horaires")

@@ -44,6 +44,17 @@
           <span>Je me désinscris</span>
         <% end %>
       <% end %>
+
+      <% if can?(:cancel, @session) || current_user.admin? || current_user == @session.user %>
+        <div class="mt-3">
+          <%= button_to cancel_session_path(@session), method: :post,
+                        data: { turbo_confirm: "Confirmer l'annulation de la session ? Tous les crédits seront remboursés." },
+                        class: "w-full sm:w-auto inline-flex items-center justify-center gap-x-1.5 rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800" do %>
+            <%= lucide_icon("ban", class: "-ml-0.5 size-5", aria: { hidden: true }) %>
+            <span>Annuler la session</span>
+          <% end %>
+        </div>
+      <% end %>
     </div>
   <% end %>
 </div>

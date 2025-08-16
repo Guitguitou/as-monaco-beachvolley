@@ -4,6 +4,7 @@ class SessionsController < ApplicationController
   before_action :authenticate_user!
   load_and_authorize_resource
   before_action :set_session, only: [:show, :edit, :update, :destroy]
+  before_action :set_session_for_cancel, only: [:cancel]
 
   def index
     @sessions = Session.order(start_at: :desc)
@@ -48,9 +49,40 @@ class SessionsController < ApplicationController
     redirect_to admin_sessions_path, notice: "Session supprimée avec succès."
   end
 
+  def cancel
+    authorize! :cancel, @session
+
+    ActiveRecord::Base.transaction do
+      # Refund all participants for non-private sessions
+      @session.registrations.includes(:user).find_each do |registration|
+        amount = registration.required_credits_for(registration.user)
+        if amount.positive?
+          TransactionService.new(registration.user, @session, amount).refund_transaction
+        end
+        registration.destroy!
+      end
+
+      # If it's a private coaching, refund the coach for the debit done at creation
+      if @session.coaching_prive?
+        coach_amount = @session.send(:default_price)
+        TransactionService.new(@session.user, @session, coach_amount).refund_transaction if coach_amount.positive?
+      end
+
+      @session.destroy!
+    end
+
+    redirect_to sessions_path, notice: "Session annulée et remboursée ✅"
+  rescue StandardError => e
+    redirect_to session_path(@session), alert: "Erreur lors de l'annulation: #{e.message}"
+  end
+
   private
 
   def set_session
+    @session = Session.find(params[:id])
+  end
+
+  def set_session_for_cancel
     @session = Session.find(params[:id])
   end
 

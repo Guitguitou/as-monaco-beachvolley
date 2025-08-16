@@ -1,3 +1,14 @@
+<% if session.errors.any? %>
+  <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+    <strong class="font-bold">Erreurs:</strong>
+    <ul class="mt-1 ml-4 list-disc list-inside">
+      <% session.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
 <div class="max-w-4xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
   <%= form_with model: session, 
                 url: session.persisted? ? session_path(session) : sessions_path, 

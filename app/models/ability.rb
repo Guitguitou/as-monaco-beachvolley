@@ -27,6 +27,7 @@ class Ability
     # Elevated roles
     if user.coach? || user.responsable?
       can :manage, Session
+      can :cancel, Session
       can :manage, Registration
     end
   end
