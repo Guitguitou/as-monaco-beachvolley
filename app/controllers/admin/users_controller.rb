@@ -35,7 +35,14 @@ module Admin
     def edit; end
 
     def update
-      if @user.update(user_params)
+      # Remove blank password fields so Devise doesn't try to reset it
+      sanitized_params = user_params.dup
+      if sanitized_params[:password].blank?
+        sanitized_params.delete(:password)
+        sanitized_params.delete(:password_confirmation)
+      end
+
+      if @user.update(sanitized_params)
         redirect_to admin_user_path(@user), notice: "Utilisateur mis à jour"
       else
         render :edit, status: :unprocessable_entity
