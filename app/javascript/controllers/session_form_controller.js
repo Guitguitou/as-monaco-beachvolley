@@ -78,7 +78,7 @@ export default class extends Controller {
     if (!this.startAtTarget.value) {
       // Pas de start → si on est locké, on grise quand même endAt (lecture seule)
       if (shouldLock) {
-        this.endAtTarget.classList.add("bg-gray-100")
+        this.endAtTarget.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed")
         this.endAtTarget.readOnly = true
       }
       return
@@ -93,10 +93,10 @@ export default class extends Controller {
 
       this.endAtTarget.value = formatted
       this.endAtTarget.readOnly = true
-      this.endAtTarget.classList.add("bg-gray-100")
+      this.endAtTarget.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed")
     } else {
       this.endAtTarget.readOnly = false
-      this.endAtTarget.classList.remove("bg-gray-100")
+      this.endAtTarget.classList.remove("bg-gray-100", "text-gray-500", "cursor-not-allowed")
     }
   }
 
