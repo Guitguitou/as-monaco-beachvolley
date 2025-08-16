@@ -6,36 +6,32 @@ class TransactionService
   end
 
   def create_transaction
+    # Store payments as negative amounts so balance = sum(transactions)
+    recorded_amount = -@amount.to_i
+
     CreditTransaction.create!(
       user: @user,
       session: @session,
       transaction_type: transaction_type,
-      amount: @amount
+      amount: recorded_amount
     )
-
-    create_balance_transaction(@amount)
   end
 
   def refund_transaction
+    # Avoid no-op refund entries
+    return if @amount.to_i <= 0
+
     CreditTransaction.create!(
       user: @user,
       session: @session,
       transaction_type: :refund,
-      amount: @amount
+      amount: @amount.to_i
     )
-
-    create_balance_refund(@amount)
   end
 
   private
 
-  def create_balance_transaction(amount)
-    @user.balance.decrement!(:amount, amount)
-  end
-
-  def create_balance_refund(amount)
-    @user.balance.increment!(:amount, amount)
-  end
+  # Balance is recomputed from transactions via CreditTransaction callback
 
   def transaction_type
     # For private coaching when amount debits the coach on session creation
