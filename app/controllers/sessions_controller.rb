@@ -56,9 +56,7 @@ class SessionsController < ApplicationController
       # Refund all participants for non-private sessions
       @session.registrations.includes(:user).find_each do |registration|
         amount = registration.required_credits_for(registration.user)
-        if amount.positive?
-          TransactionService.new(registration.user, @session, amount).refund_transaction
-        end
+        TransactionService.new(registration.user, @session, amount).refund_transaction if amount.positive?
         registration.destroy!
       end
 
@@ -68,6 +66,8 @@ class SessionsController < ApplicationController
         TransactionService.new(@session.user, @session, coach_amount).refund_transaction if coach_amount.positive?
       end
 
+      # Detach transactions from this session to avoid FK issues, then destroy
+      CreditTransaction.where(session_id: @session.id).update_all(session_id: nil)
       @session.destroy!
     end
 
