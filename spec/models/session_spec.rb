@@ -13,37 +13,37 @@ RSpec.describe Session, type: :model do
     it 'requires title' do
       session = build(:session, title: nil, user: user, levels: [level])
       expect(session).not_to be_valid
-      expect(session.errors[:title]).to include("can't be blank")
+      expect(session.errors[:title]).to include("Le titre est obligatoire")
     end
 
     it 'requires start_at' do
       session = build(:session, start_at: nil, user: user, levels: [level])
       expect(session).not_to be_valid
-      expect(session.errors[:start_at]).to include("can't be blank")
+      expect(session.errors[:start_at]).to include("La date de début est obligatoire")
     end
 
     it 'requires end_at' do
       session = build(:session, end_at: nil, user: user, levels: [level])
       expect(session).not_to be_valid
-      expect(session.errors[:end_at]).to include("can't be blank")
+      expect(session.errors[:end_at]).to include("La date de fin est obligatoire")
     end
 
     it 'requires session_type' do
       session = build(:session, session_type: nil, user: user, levels: [level])
       expect(session).not_to be_valid
-      expect(session.errors[:session_type]).to include("can't be blank")
+      expect(session.errors[:session_type]).to include("Le type de session est obligatoire")
     end
 
     it 'requires terrain' do
       session = build(:session, terrain: nil, user: user, levels: [level])
       expect(session).not_to be_valid
-      expect(session.errors[:terrain]).to include("can't be blank")
+      expect(session.errors[:terrain]).to include("Le terrain est obligatoire")
     end
 
     it 'requires user_id' do
       session = build(:session, user: nil, levels: [level])
       expect(session).not_to be_valid
-      expect(session.errors[:user_id]).to include("can't be blank")
+      expect(session.errors[:user_id]).to include("L'organisateur est obligatoire")
     end
 
     it 'validates end_at is after start_at' do
@@ -65,9 +65,9 @@ RSpec.describe Session, type: :model do
 
     it 'defines terrain enum' do
       expect(Session.terrains).to include(
-        'terrain_1' => 1,
-        'terrain_2' => 2,
-        'terrain_3' => 3
+        'Terrain 1' => 1,
+        'Terrain 2' => 2,
+        'Terrain 3' => 3
       )
     end
   end
@@ -77,7 +77,7 @@ RSpec.describe Session, type: :model do
       create(:session, 
         user: user, 
         levels: [level],
-        terrain: :terrain_1,
+        terrain: 'Terrain 1',
         start_at: 2.hours.from_now,
         end_at: 4.hours.from_now
       )
@@ -87,7 +87,7 @@ RSpec.describe Session, type: :model do
       overlapping_session = build(:session,
         user: user,
         levels: [level],
-        terrain: :terrain_1,
+        terrain: 'Terrain 1',
         start_at: 3.hours.from_now,
         end_at: 5.hours.from_now
       )
@@ -100,7 +100,7 @@ RSpec.describe Session, type: :model do
       different_terrain_session = build(:session,
         user: user,
         levels: [level],
-        terrain: :terrain_2,
+        terrain: 'Terrain 2',
         start_at: 3.hours.from_now,
         end_at: 5.hours.from_now
       )
@@ -112,7 +112,7 @@ RSpec.describe Session, type: :model do
       non_overlapping_session = build(:session,
         user: user,
         levels: [level],
-        terrain: :terrain_1,
+        terrain: 'Terrain 1',
         start_at: 5.hours.from_now,
         end_at: 7.hours.from_now
       )
@@ -175,6 +175,8 @@ RSpec.describe Session, type: :model do
     end
 
     it 'returns title for coaching_prive' do
+      # Ensure coach has enough credits to pass validation
+      create(:credit_transaction, user: user, amount: 2_000)
       session = create(:session, 
         session_type: :coaching_prive, 
         title: "Coaching", 

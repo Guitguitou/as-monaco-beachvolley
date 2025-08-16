@@ -5,7 +5,7 @@ FactoryBot.define do
     start_at { 1.hour.from_now }
     end_at { 2.hours.from_now }
     session_type { "entrainement" }
-    terrain { "terrain_1" }
+    terrain { "Terrain 1" }
     user
     max_players { 12 }
 
@@ -25,11 +25,11 @@ FactoryBot.define do
     end
 
     trait :terrain_2 do
-      terrain { "terrain_2" }
+      terrain { "Terrain 2" }
     end
 
     trait :terrain_3 do
-      terrain { "terrain_3" }
+      terrain { "Terrain 3" }
     end
   end
 end
