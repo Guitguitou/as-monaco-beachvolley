@@ -75,13 +75,16 @@ class SessionsController < ApplicationController
 
     ids_to_add.each do |uid|
       registration = Registration.new(user_id: uid, session: session_record)
-      if registration.save
-        amount = registration.required_credits_for(registration.user)
-        if amount.positive?
-          TransactionService.new(registration.user, session_record, amount).create_transaction
+      begin
+        ActiveRecord::Base.transaction do
+          registration.save!
+          amount = registration.required_credits_for(registration.user)
+          if amount.positive?
+            TransactionService.new(registration.user, session_record, amount).create_transaction
+          end
         end
-      else
-        errors << "#{User.find(uid).full_name}: #{registration.errors.full_messages.to_sentence}"
+      rescue StandardError => e
+        errors << "#{User.find(uid).full_name}: #{registration.errors.full_messages.presence || e.message}"
       end
     end
 
@@ -89,9 +92,11 @@ class SessionsController < ApplicationController
       registration = session_record.registrations.find_by(user_id: uid)
       next unless registration
       amount = registration.required_credits_for(registration.user)
-      registration.destroy
-      if amount.positive?
-        TransactionService.new(User.find(uid), session_record, amount).refund_transaction
+      ActiveRecord::Base.transaction do
+        registration.destroy!
+        if amount.positive?
+          TransactionService.new(User.find(uid), session_record, amount).refund_transaction
+        end
       end
     end
 
