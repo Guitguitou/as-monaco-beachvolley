@@ -22,12 +22,11 @@ export default class extends Controller {
     const shouldLock = lockTypes.includes(this.typeTarget.value)
 
     if (shouldLock) {
-      // Recalcule et désactive immédiatement si on a déjà un start
+      // Recalcule et rend le champ en lecture seule si on a déjà un start
       this.updateEndTime()
     } else {
       // On quitte un type “locké” → redonne la main
       if (this.hasEndAtTarget) {
-        this.endAtTarget.disabled = false
         this.endAtTarget.classList.remove("bg-gray-100")
         this.endAtTarget.readOnly = false
         // Optionnel : vider pour éviter une valeur figée trompeuse
@@ -77,9 +76,8 @@ export default class extends Controller {
     const shouldLock = lockTypes.includes(type)
 
     if (!this.startAtTarget.value) {
-      // Pas de start → si on est locké, on grise quand même endAt
+      // Pas de start → si on est locké, on grise quand même endAt (lecture seule)
       if (shouldLock) {
-        this.endAtTarget.disabled = true
         this.endAtTarget.classList.add("bg-gray-100")
         this.endAtTarget.readOnly = true
       }
@@ -94,11 +92,9 @@ export default class extends Controller {
       const formatted = `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())}T${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
 
       this.endAtTarget.value = formatted
-      this.endAtTarget.disabled = true
       this.endAtTarget.readOnly = true
       this.endAtTarget.classList.add("bg-gray-100")
     } else {
-      this.endAtTarget.disabled = false
       this.endAtTarget.readOnly = false
       this.endAtTarget.classList.remove("bg-gray-100")
     }
