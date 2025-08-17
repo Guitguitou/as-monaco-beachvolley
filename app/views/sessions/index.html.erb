@@ -16,18 +16,32 @@
   <%= render "terrain_filter" %>
 </div>
 
-<% sessions_json = @sessions.map { |s|
-  {
-    id: s.id,
-    title: "#{s.display_name} - #{s.user&.full_name || '-'}",
-    start: s.start_at.iso8601,
-    end: s.end_at.iso8601,
-    url: session_path(s),
-    backgroundColor: null,
-    textColor: null,
-    terrain: s.terrain
-  }
-}.to_json %>
+<%
+  sessions_json = @sessions.map do |s|
+    bg, border, text = case s.terrain
+    when 'Terrain 1'
+      ['#ef4444', '#b91c1c', '#ffffff'] # red
+    when 'Terrain 2'
+      ['#111827', '#0b1220', '#ffffff'] # black
+    when 'Terrain 3'
+      ['#D4AF37', '#b08e2d', '#111827'] # gold
+    else
+      ['#e5e7eb', '#d1d5db', '#111827'] # gray fallback
+    end
+
+    {
+      id: s.id,
+      title: "#{s.display_name} - #{s.user&.full_name || '-'}",
+      start: s.start_at.iso8601,
+      end: s.end_at.iso8601,
+      url: session_path(s),
+      backgroundColor: bg,
+      borderColor: border,
+      textColor: text,
+      terrain: s.terrain
+    }
+  end.to_json
+%>
 
 <div
   id="calendar"

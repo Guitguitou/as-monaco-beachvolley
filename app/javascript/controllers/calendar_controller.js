@@ -68,22 +68,10 @@ export default class extends Controller {
         hour12: false
       },
       eventDidMount: function(info) {
-        const terrain = info.event.extendedProps.terrain
-        let bg = '#eee', border = '#ccc', text = '#111827'
-        if (terrain === 'Terrain 1') {
-          bg = '#ef4444' // red 500
-          border = '#b91c1c' // red 700
-          text = '#ffffff'
-        } else if (terrain === 'Terrain 2') {
-          bg = '#111827' // near-black
-          border = '#0b1220'
-          text = '#ffffff'
-        } else if (terrain === 'Terrain 3') {
-          bg = '#D4AF37' // gold
-          border = '#b08e2d'
-          text = '#111827'
-        }
-
+        // Use colors provided by event source (from Rails), fallback if missing
+        const bg = info.event.backgroundColor || '#e5e7eb'
+        const border = info.event.borderColor || '#d1d5db'
+        const text = info.event.textColor || '#111827'
         info.el.style.backgroundColor = bg
         info.el.style.borderColor = border
         info.el.style.color = text
