@@ -19,7 +19,7 @@ class SessionsController < ApplicationController
   end
 
   def create
-    @session = Session.new(session_params)
+    @session = Session.new(normalized_session_params)
 
     if @session.save
       sync_participants(@session)
@@ -34,7 +34,7 @@ class SessionsController < ApplicationController
   end
 
   def update
-    @session.assign_attributes(session_params)
+    @session.assign_attributes(normalized_session_params)
     if @session.save
       sync_participants(@session)
       redirect_to sessions_path, notice: "Session mise à jour avec succès."
@@ -94,6 +94,22 @@ class SessionsController < ApplicationController
       registrations_attributes: [:id, :user_id, :_destroy],
       level_ids: []
     )
+  end
+
+  def normalized_session_params
+    sp = session_params.dup
+    if sp[:end_at].blank? && sp[:start_at].present?
+      type = sp[:session_type]
+      if ["entrainement", "jeu_libre", "coaching_prive"].include?(type)
+        begin
+          start_time = Time.zone.parse(sp[:start_at].to_s)
+          sp[:end_at] = start_time + 90.minutes if start_time
+        rescue ArgumentError
+          # leave end_at blank if parse fails
+        end
+      end
+    end
+    sp
   end
 
   def sync_participants(session_record)
