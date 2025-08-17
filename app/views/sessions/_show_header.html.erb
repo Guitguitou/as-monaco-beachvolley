@@ -35,7 +35,7 @@
         <% if can_register %>
           <%= button_to session_registrations_path(@session),
                         method: :post,
-                        class: "w-full sm:w-auto inline-flex items-center justify-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 bg-asmbv-red text-white hover:bg-asmbv-red-dark focus-visible:outline-asmbv-red" do %>
+                        class: "w-full sm:w-auto inline-flex items-center justify-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold shadow-xs bg-gray-800 text-white hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800" do %>
             <%= lucide_icon("check-circle", class: "-ml-0.5 size-5", aria: { hidden: true }) %>
             <span>Je m’inscris</span>
           <% end %>
@@ -44,8 +44,8 @@
                         method: :post,
                         params: { waitlist: true },
                         disabled: !can_waitlist,
-                        class: "w-full sm:w-auto inline-flex items-center justify-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 " +
-                              (can_waitlist ? "bg-gray-800 text-white hover:bg-gray-700 focus-visible:outline-gray-800" : "bg-gray-300 text-gray-600 cursor-not-allowed") do %>
+                        class: "w-full sm:w-auto inline-flex items-center justify-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold shadow-xs " +
+                              (can_waitlist ? "bg-gray-800 text-white hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800" : "bg-gray-300 text-gray-600 cursor-not-allowed") do %>
             <%= lucide_icon("clock", class: "-ml-0.5 size-5", aria: { hidden: true }) %>
             <span><%= can_waitlist ? "M’inscrire en liste d’attente" : waitlist_reason %></span>
           <% end %>
@@ -60,7 +60,7 @@
         <% end %>
       <% else %>
         <%= button_to session_registration_path(@session), method: :delete,
-                      class: "w-full sm:w-auto inline-flex items-center justify-center gap-x-1.5 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600" do %>
+                      class: "w-full sm:w-auto inline-flex items-center justify-center gap-x-1.5 rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800" do %>
           <%= lucide_icon("x-circle", class: "-ml-0.5 size-5", aria: { hidden: true }) %>
           <span><%= existing_registration.waitlisted? ? "Quitter la liste d’attente" : "Je me désinscris" %></span>
         <% end %>
