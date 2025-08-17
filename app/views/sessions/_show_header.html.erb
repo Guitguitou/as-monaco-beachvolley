@@ -64,6 +64,17 @@
           <%= lucide_icon("x-circle", class: "-ml-0.5 size-5", aria: { hidden: true }) %>
           <span><%= existing_registration.waitlisted? ? "Quitter la liste d’attente" : "Je me désinscris" %></span>
         <% end %>
+
+        <% if existing_registration.waitlisted? %>
+          <% waitlisted_ids = @session.registrations.waitlisted.order(:created_at).pluck(:user_id) %>
+          <% my_index = waitlisted_ids.index(current_user.id) %>
+          <% if my_index %>
+            <div class="mt-2 text-sm text-yellow-800 bg-yellow-50 inline-flex items-center gap-2 px-2 py-1 rounded">
+              <%= lucide_icon("clock", class: "w-4 h-4") %>
+              <span>Ta position en liste d’attente: <strong>#<%= my_index + 1 %></strong></span>
+            </div>
+          <% end %>
+        <% end %>
       <% end %>
 
       <% if can?(:cancel, @session) || current_user.admin? || current_user == @session.user %>
