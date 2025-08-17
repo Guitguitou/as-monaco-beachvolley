@@ -106,7 +106,7 @@ class SessionsController < ApplicationController
     errors = []
 
     ids_to_add.each do |uid|
-      registration = Registration.new(user_id: uid, session: session_record)
+      registration = Registration.new(user_id: uid, session: session_record, status: :confirmed)
       begin
         ActiveRecord::Base.transaction do
           registration.save!
@@ -129,6 +129,8 @@ class SessionsController < ApplicationController
         if amount.positive?
           TransactionService.new(User.find(uid), session_record, amount).refund_transaction
         end
+        # After freeing up a spot, promote the first in waitlist if any
+        session_record.promote_from_waitlist!
       end
     end
 

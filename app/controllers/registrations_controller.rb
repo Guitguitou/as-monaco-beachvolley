@@ -6,11 +6,19 @@ class RegistrationsController < ApplicationController
     authorize! :create, Registration
     registration = Registration.new(user: current_user, session: @session)
 
+    # If session is full and user explicitly opts in, create a waitlisted registration
+    requested_waitlist = ActiveModel::Type::Boolean.new.cast(params[:waitlist])
+    if @session.full? && requested_waitlist
+      registration.status = :waitlisted
+    else
+      registration.status = :confirmed
+    end
+
     begin
       ActiveRecord::Base.transaction do
         registration.save!
         amount = registration.required_credits_for(current_user)
-        if amount.positive?
+        if amount.positive? && registration.confirmed?
           TransactionService.new(
             current_user,
             @session,
@@ -41,6 +49,8 @@ class RegistrationsController < ApplicationController
               amount
             ).refund_transaction
           end
+          # After freeing up a spot, promote the first in waitlist if any
+          @session.promote_from_waitlist!
         end
         redirect_to session_path(params[:session_id]), notice: "Désinscription réussie ✅"
       rescue StandardError => e

@@ -1,8 +1,24 @@
 <h3 class="text-lg font-semibold text-gray-900 mb-3 mt-4">Liste des participants</h3>
 <div class="flex flex-wrap gap-2">
-  <% @session.registrations.each do |registration| %>
+  <% @session.registrations.confirmed.each do |registration| %>
     <div class="flex items-center gap-2 px-2 py-1 bg-gray-50 rounded">
       <%= registration.user.full_name %>
     </div>
   <% end %>
 </div>
+
+<% waitlisted = @session.registrations.waitlisted.order(:created_at) %>
+<% if waitlisted.any? %>
+  <h3 class="text-lg font-semibold text-gray-900 mb-3 mt-6">Liste d’attente</h3>
+  <div class="flex flex-col gap-2">
+    <% waitlisted.each_with_index do |registration, index| %>
+      <div class="flex items-center justify-between px-3 py-2 bg-yellow-50 text-yellow-800 rounded">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center justify-center w-6 h-6 text-xs font-bold bg-yellow-200 text-yellow-800 rounded-full"><%= index + 1 %></span>
+          <span><%= registration.user.full_name %></span>
+        </div>
+        <span class="text-xs">Inscrit·e en attente</span>
+      </div>
+    <% end %>
+  </div>
+<% end %>

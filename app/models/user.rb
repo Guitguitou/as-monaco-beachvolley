@@ -8,7 +8,8 @@ class User < ApplicationRecord
   has_one :balance, dependent: :destroy
   has_many :credit_transactions, dependent: :destroy
   has_many :registrations, dependent: :destroy
-  has_many :sessions_registered, through: :registrations, source: :session
+  has_many :confirmed_registrations, -> { where(status: Registration.statuses[:confirmed]) }, class_name: 'Registration'
+  has_many :sessions_registered, through: :confirmed_registrations, source: :session
   after_create :init_balance
 
   scope :coachs, -> { where(coach: true) }

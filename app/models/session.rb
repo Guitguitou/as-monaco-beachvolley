@@ -57,7 +57,30 @@ class Session < ApplicationRecord
   end
 
   def full?
-    registrations.count >= max_players if max_players.present?
+    return false unless max_players.present?
+    registrations.confirmed.count >= max_players
+  end
+
+  # Promote the earliest waitlisted user to confirmed if a spot is available
+  def promote_from_waitlist!
+    return unless max_players.present?
+    return if registrations.confirmed.count >= max_players
+
+    waitlisted_queue = registrations.waitlisted.order(:created_at)
+    waitlisted_queue.find_each do |reg|
+      amount = reg.required_credits_for(reg.user)
+      # Skip if user cannot pay now
+      next unless amount.positive?
+      next unless reg.user.balance.amount >= amount
+
+      ActiveRecord::Base.transaction do
+        reg.status = :confirmed
+        reg.save!
+        TransactionService.new(reg.user, self, amount).create_transaction
+      end
+
+      break
+    end
   end
 
   private
@@ -100,7 +123,8 @@ class Session < ApplicationRecord
   end
 
   def validate_max_registrations
-    if max_players.present? && registrations.count > max_players
+    return unless max_players.present?
+    if registrations.select { |r| r.status_before_type_cast == Registration.statuses[:confirmed] }.count > max_players
       errors.add(:registrations, "le nombre de participants ne peut pas dépasser #{max_players}")
     end
   end

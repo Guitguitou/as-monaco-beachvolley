@@ -2,6 +2,14 @@ class Registration < ApplicationRecord
   belongs_to :user
   belongs_to :session
 
+  enum :status, { confirmed: 0, waitlisted: 1 }
+
+  after_initialize do
+    self.status ||= :confirmed if has_attribute?(:status)
+  end
+
+  validates :user_id, uniqueness: { scope: :session_id }
+
   validate :enough_credits?
   validate :can_register?
 
@@ -14,7 +22,8 @@ class Registration < ApplicationRecord
       errors.add(:base, "Ce n’est pas ton niveau d'entrainement.")
     end
 
-    if session.full?
+    # Only block on full if trying to confirm, not when waitlisting
+    if confirmed? && session.full?
       errors.add(:base, "Session complète.")
     end
 
@@ -30,7 +39,8 @@ class Registration < ApplicationRecord
       return [false, "Ce n’est pas ton niveau d'entrainement."]
     end
 
-    return [false, "Session complète."] if session.full?
+    # Only show full message for confirmed registrations
+    return [false, "Session complète."] if confirmed? && session.full?
 
     if !enough_credits?
       return [false, "Tu n'as pas assez de crédits."]
@@ -44,7 +54,8 @@ class Registration < ApplicationRecord
   end
 
   def required_credits_for(user)
-    return 0 if session.coaching_prive?
+    # Waitlisted users have not paid yet; do not require/refund credits
+    return 0 if session.coaching_prive? || waitlisted?
     session.price.to_i
   end
 
