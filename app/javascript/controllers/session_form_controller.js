@@ -4,7 +4,7 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "type", "price", "userGroupCoach", "userGroupResponsable", "userGroupAll",
-    "startAt", "endAt"
+    "startAt", "endAt", "endAtHidden"
   ]
   static values = { prices: Object }
 
@@ -37,6 +37,12 @@ export default class extends Controller {
 
   onStartChange() {
     this.updateEndTime()
+  }
+
+  onEndChange() {
+    if (this.hasEndAtHiddenTarget && this.hasEndAtTarget) {
+      this.endAtHiddenTarget.value = this.endAtTarget.value
+    }
   }
 
   updateUserSelect() {
@@ -92,6 +98,7 @@ export default class extends Controller {
       const formatted = `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())}T${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`
 
       this.endAtTarget.value = formatted
+      if (this.hasEndAtHiddenTarget) this.endAtHiddenTarget.value = formatted
       this.endAtTarget.readOnly = true
       this.endAtTarget.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed")
     } else {

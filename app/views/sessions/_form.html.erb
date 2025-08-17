@@ -137,7 +137,9 @@
             <%= f.datetime_local_field :end_at, required: true, step: 900,
                   class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
                           focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
-                  data: { session_form_target: "endAt" } %>
+                  data: { session_form_target: "endAt", action: "input->session-form#onEndChange change->session-form#onEndChange" } %>
+            <!-- Hidden mirror to ensure value is submitted even if readOnly/disabled quirks occur -->
+            <%= hidden_field_tag "session[end_at]", session.end_at&.strftime('%Y-%m-%dT%H:%M'), data: { session_form_target: "endAtHidden" } %>
           </div>
           <% if session.errors[:end_at].any? %>
             <p class="mt-1 text-sm text-red-600"><%= session.errors[:end_at].first %></p>
