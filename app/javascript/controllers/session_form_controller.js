@@ -29,6 +29,7 @@ export default class extends Controller {
       if (this.hasEndAtTarget) {
         this.endAtTarget.classList.remove("bg-gray-100")
         this.endAtTarget.readOnly = false
+        this.endAtTarget.disabled = false
         // Optionnel : vider pour éviter une valeur figée trompeuse
         this.endAtTarget.value = ""
       }
@@ -86,6 +87,7 @@ export default class extends Controller {
       if (shouldLock) {
         this.endAtTarget.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed")
         this.endAtTarget.readOnly = true
+        this.endAtTarget.disabled = true
       }
       return
     }
@@ -100,9 +102,11 @@ export default class extends Controller {
       this.endAtTarget.value = formatted
       if (this.hasEndAtHiddenTarget) this.endAtHiddenTarget.value = formatted
       this.endAtTarget.readOnly = true
+      this.endAtTarget.disabled = true
       this.endAtTarget.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed")
     } else {
       this.endAtTarget.readOnly = false
+      this.endAtTarget.disabled = false
       this.endAtTarget.classList.remove("bg-gray-100", "text-gray-500", "cursor-not-allowed")
     }
   }
