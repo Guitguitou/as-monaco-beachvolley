@@ -68,9 +68,25 @@ export default class extends Controller {
         hour12: false
       },
       eventDidMount: function(info) {
-        info.el.style.backgroundColor = '#fee2e2'
-        info.el.style.borderColor = '#ef4444'
-        info.el.style.color = '#991b1b'
+        const terrain = info.event.extendedProps.terrain
+        let bg = '#eee', border = '#ccc', text = '#111827'
+        if (terrain === 'Terrain 1') {
+          bg = '#ef4444' // red 500
+          border = '#b91c1c' // red 700
+          text = '#ffffff'
+        } else if (terrain === 'Terrain 2') {
+          bg = '#111827' // near-black
+          border = '#0b1220'
+          text = '#ffffff'
+        } else if (terrain === 'Terrain 3') {
+          bg = '#D4AF37' // gold
+          border = '#b08e2d'
+          text = '#111827'
+        }
+
+        info.el.style.backgroundColor = bg
+        info.el.style.borderColor = border
+        info.el.style.color = text
         info.el.style.borderRadius = '6px'
         info.el.style.fontWeight = '500'
         info.el.style.padding = '4px'
