@@ -31,7 +31,13 @@ class RegistrationsController < ApplicationController
       begin
         ActiveRecord::Base.transaction do
           registration.destroy!
-          if amount.positive?
+          # Refund only if before deadline or if no deadline defined
+          refundable = amount.positive? && (
+            # Apply deadline rule only for trainings
+            !@session.entrainement? ||
+            @session.cancellation_deadline_at.blank? || Time.current <= @session.cancellation_deadline_at
+          )
+          if refundable
             TransactionService.new(
               current_user,
               @session,
@@ -41,7 +47,12 @@ class RegistrationsController < ApplicationController
           # After freeing up a spot, promote the first in waitlist if any
           @session.promote_from_waitlist!
         end
-        redirect_to session_path(params[:session_id]), notice: "Désinscription réussie ✅"
+        notice_msg = if amount.positive? && !refundable
+                        "Désinscription réussie, mais délai dépassé — pas de remboursement."
+                      else
+                        "Désinscription réussie ✅"
+                      end
+        redirect_to session_path(params[:session_id]), notice: notice_msg
       rescue StandardError => e
         redirect_to session_path(params[:session_id]), alert: "Erreur lors de la désinscription: #{e.message}"
       end

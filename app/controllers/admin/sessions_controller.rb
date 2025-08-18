@@ -8,6 +8,35 @@ module Admin
     before_action :set_session, only: [:show, :edit, :update, :destroy]
 
     def index
+      # Optional filters
+      if params[:coach_id].present?
+        @sessions = @sessions.where(user_id: params[:coach_id])
+      end
+
+      if params[:period].present?
+        range = case params[:period]
+                when 'week'
+                  Time.zone.today.beginning_of_week..(Time.zone.today.beginning_of_week + 7.days)
+                when 'month'
+                  Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
+                when 'year'
+                  Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
+                else
+                  nil
+                end
+        @sessions = @sessions.where(start_at: range) if range
+      else
+        from = params[:start_at_from].presence && Time.zone.parse(params[:start_at_from]) rescue nil
+        to   = params[:start_at_to].presence && Time.zone.parse(params[:start_at_to]) rescue nil
+        if from && to
+          @sessions = @sessions.where(start_at: from..to)
+        elsif from
+          @sessions = @sessions.where('start_at >= ?', from)
+        elsif to
+          @sessions = @sessions.where('start_at <= ?', to)
+        end
+      end
+
       @sessions = @sessions.order(start_at: :desc)
     end
 
@@ -56,7 +85,7 @@ module Admin
     end
 
     def session_params
-      params.require(:session).permit(:title, :description, :start_at, :end_at, :session_type, :max_players, :terrain, :user_id, :price, level_ids: [], participant_ids: [])
+      params.require(:session).permit(:title, :description, :start_at, :end_at, :session_type, :max_players, :terrain, :user_id, :price, :cancellation_deadline_at, level_ids: [], participant_ids: [])
     end
 
     # Authorization handled by CanCanCan

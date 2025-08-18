@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_17_120000) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_18_081742) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -74,6 +74,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_17_120000) do
     t.datetime "updated_at", null: false
     t.integer "terrain"
     t.integer "price", default: 0, null: false
+    t.datetime "cancellation_deadline_at"
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
@@ -91,6 +92,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_17_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "level_id"
+    t.integer "salary_per_training_cents", default: 0, null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["level_id"], name: "index_users_on_level_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true

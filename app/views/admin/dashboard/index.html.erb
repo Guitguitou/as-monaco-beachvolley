@@ -38,6 +38,51 @@
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Détail salaires par coach -->
+    <div class="bg-white shadow rounded-lg overflow-hidden lg:col-span-2">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">Récap salaires par coach</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full table-fixed">
+          <thead class="bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
+            <tr>
+              <th class="px-3 sm:px-4 py-2 w-64 text-left">Coach</th>
+              <th class="px-3 sm:px-4 py-2 w-40 text-right">Semaine (€)</th>
+              <th class="px-3 sm:px-4 py-2 w-40 text-right">Mois (€)</th>
+              <th class="px-3 sm:px-4 py-2 w-40 text-right">Année (€)</th>
+              <th class="px-3 sm:px-4 py-2 w-40 text-right">Entraînements (mois)</th>
+              <th class="px-3 sm:px-4 py-2 w-40 text-right">€ / entraînement</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @coach_breakdown.each do |row| %>
+              <tr>
+                <td class="px-3 sm:px-4 py-2 text-sm">
+                  <%= link_to row[:user]&.full_name, admin_user_path(row[:user]), class: "text-asmbv-red hover:underline" %>
+                </td>
+                <td class="px-3 sm:px-4 py-2 text-sm text-right"><%= number_with_precision(row[:week_amount], precision: 2) %></td>
+                <td class="px-3 sm:px-4 py-2 text-sm text-right font-semibold">
+                  <%= link_to number_with_precision(row[:month_amount], precision: 2),
+                              admin_sessions_path(coach_id: row[:user]&.id, period: 'month'),
+                              class: "text-asmbv-red hover:underline" %>
+                </td>
+                <td class="px-3 sm:px-4 py-2 text-sm text-right"><%= number_with_precision(row[:year_amount], precision: 2) %></td>
+                <td class="px-3 sm:px-4 py-2 text-sm text-right">
+                  <%= link_to row[:month_count], admin_sessions_path(coach_id: row[:user]&.id, period: 'month'), class: "hover:underline" %>
+                </td>
+                <td class="px-3 sm:px-4 py-2 text-sm text-right"><%= number_with_precision(row[:user]&.salary_per_training, precision: 2) %></td>
+              </tr>
+            <% end %>
+            <% if @coach_breakdown.empty? %>
+              <tr>
+                <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Aucun entraînement planifié sur les périodes.</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
     <!-- Entraînements de la semaine à venir -->
     <div class="bg-white shadow rounded-lg overflow-hidden">
       <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">

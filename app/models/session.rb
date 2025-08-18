@@ -30,6 +30,7 @@ class Session < ApplicationRecord
   }
 
   before_validation :set_price_from_type
+  before_validation :set_default_cancellation_deadline
 
   validate :end_at_after_start_at
   validate :no_overlapping_sessions_on_same_terrain
@@ -94,6 +95,14 @@ class Session < ApplicationRecord
 
   def set_price_from_type
     self.price = default_price
+  end
+
+  def set_default_cancellation_deadline
+    return unless session_type == 'entrainement'
+    return if cancellation_deadline_at.present?
+    return if start_at.blank?
+    # Default: noon on the training day
+    self.cancellation_deadline_at = start_at.change(hour: 12, min: 0)
   end
 
   def default_price

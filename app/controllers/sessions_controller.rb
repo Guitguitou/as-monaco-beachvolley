@@ -89,7 +89,7 @@ class SessionsController < ApplicationController
   def session_params
     params.require(:session).permit(
       :title, :description, :start_at, :end_at, 
-      :session_type, :max_players, :terrain, :user_id, :price,
+      :session_type, :max_players, :terrain, :user_id, :price, :cancellation_deadline_at,
       participant_ids: [],
       registrations_attributes: [:id, :user_id, :_destroy],
       level_ids: []

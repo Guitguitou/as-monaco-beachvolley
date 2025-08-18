@@ -87,4 +87,28 @@
       </table>
     </div>
   </div>
+
+  <% if @user.coach? %>
+    <!-- Coach salary summary -->
+    <div class="bg-white shadow rounded-lg p-4 sm:p-6 mt-8">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Mes revenus coach</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <div class="text-xs text-gray-500">Semaine (€)</div>
+          <div class="mt-1 text-2xl font-bold text-gray-900"><%= number_with_precision(@my_salary_week, precision: 2) %></div>
+          <div class="text-xs text-gray-500">Entraînements: <%= @my_trainings_week_count %></div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500">Mois (€)</div>
+          <div class="mt-1 text-2xl font-bold text-gray-900"><%= number_with_precision(@my_salary_month, precision: 2) %></div>
+          <div class="text-xs text-gray-500">Entraînements: <%= @my_trainings_month_count %></div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500">Année (€)</div>
+          <div class="mt-1 text-2xl font-bold text-gray-900"><%= number_with_precision(@my_salary_year, precision: 2) %></div>
+          <div class="text-xs text-gray-500">Entraînements: <%= @my_trainings_year_count %></div>
+        </div>
+      </div>
+    </div>
+  <% end %>
 </div>

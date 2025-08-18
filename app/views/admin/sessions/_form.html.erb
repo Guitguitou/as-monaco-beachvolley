@@ -95,6 +95,14 @@
     </div>
   </div>
 
+  <!-- Deadline de désinscription (optionnel, défaut midi le jour J pour entraînements) -->
+  <div>
+    <%= f.label :cancellation_deadline_at, "Date limite de désinscription", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.datetime_local_field :cancellation_deadline_at,
+          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+    <p class="text-xs text-gray-500 mt-1">Après cette date/heure, la désinscription ne rembourse pas automatiquement.</p>
+  </div>
+
   <!-- Nombre de joueurs -->
   <div>
     <%= f.label :max_players, "Nombre maximum de joueurs", class: "block text-sm font-medium text-gray-900" %>

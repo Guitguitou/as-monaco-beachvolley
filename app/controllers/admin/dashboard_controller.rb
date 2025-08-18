@@ -42,6 +42,12 @@ module Admin
       @coach_salary_week = coach_salary_between(starting..ending)
       @coach_salary_month = coach_salary_between(Time.zone.now.beginning_of_month..Time.zone.now.end_of_month)
       @coach_salary_year = coach_salary_between(Time.zone.now.beginning_of_year..Time.zone.now.end_of_year)
+
+      @coach_breakdown = coach_salary_breakdown(
+        week_range: starting..ending,
+        month_range: Time.zone.now.beginning_of_month..Time.zone.now.end_of_month,
+        year_range: Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
+      )
     end
 
     private
@@ -59,6 +65,35 @@ module Admin
         (users[user_id]&.salary_per_training_cents || 0) * count
       end
       total_cents / 100
+    end
+
+    def coach_salary_breakdown(week_range:, month_range:, year_range:)
+      trainings = Session.where(session_type: 'entrainement')
+      week_counts  = trainings.where(start_at: week_range).group(:user_id).count
+      month_counts = trainings.where(start_at: month_range).group(:user_id).count
+      year_counts  = trainings.where(start_at: year_range).group(:user_id).count
+
+      user_ids = (week_counts.keys + month_counts.keys + year_counts.keys).uniq
+      users = User.where(id: user_ids).index_by(&:id)
+
+      breakdown = user_ids.map do |uid|
+        user = users[uid]
+        spt = user&.salary_per_training_cents.to_i
+        wc = week_counts[uid].to_i
+        mc = month_counts[uid].to_i
+        yc = year_counts[uid].to_i
+        {
+          user: user,
+          week_count: wc,
+          week_amount: (spt * wc) / 100.0,
+          month_count: mc,
+          month_amount: (spt * mc) / 100.0,
+          year_count: yc,
+          year_amount: (spt * yc) / 100.0
+        }
+      end
+
+      breakdown.sort_by { |h| -h[:month_amount] }
     end
   end
 end

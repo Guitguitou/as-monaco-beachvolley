@@ -65,6 +65,20 @@
           <span><%= existing_registration.waitlisted? ? "Quitter la liste d’attente" : "Je me désinscris" %></span>
         <% end %>
 
+        <% if !existing_registration.waitlisted? && @session.entrainement? && @session.cancellation_deadline_at.present? %>
+          <% if Time.current > @session.cancellation_deadline_at %>
+            <div class="mt-2 text-xs text-red-800 bg-red-50 inline-flex items-center gap-2 px-2 py-1 rounded">
+              <%= lucide_icon("alert-triangle", class: "w-4 h-4") %>
+              <span>Aucun remboursement automatique (délai dépassé).</span>
+            </div>
+          <% else %>
+            <div class="mt-2 text-xs text-yellow-800 bg-yellow-50 inline-flex items-center gap-2 px-2 py-1 rounded">
+              <%= lucide_icon("info", class: "w-4 h-4") %>
+              <span>Remboursement automatique si désinscription avant <strong><%= l(@session.cancellation_deadline_at, format: :long) %></strong>.</span>
+            </div>
+          <% end %>
+        <% end %>
+
         <% if existing_registration.waitlisted? %>
           <% waitlisted_ids = @session.registrations.waitlisted.order(:created_at).pluck(:user_id) %>
           <% my_index = waitlisted_ids.index(current_user.id) %>
