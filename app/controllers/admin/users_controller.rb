@@ -80,6 +80,7 @@ module Admin
         :email, :first_name, :last_name,
         :admin, :coach, :responsable,
         :level_id,
+        :salary_per_training,
         :password, :password_confirmation
       )
     end

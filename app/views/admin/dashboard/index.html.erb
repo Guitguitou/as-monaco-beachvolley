@@ -21,6 +21,22 @@
     </div>
   </div>
 
+  <!-- Coach salary summary -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white shadow rounded-lg p-4">
+      <div class="text-xs text-gray-500">Salaire coach (semaine) €</div>
+      <div class="mt-1 text-2xl font-bold text-gray-900"><%= @coach_salary_week %></div>
+    </div>
+    <div class="bg-white shadow rounded-lg p-4">
+      <div class="text-xs text-gray-500">Salaire coach (mois) €</div>
+      <div class="mt-1 text-2xl font-bold text-gray-900"><%= @coach_salary_month %></div>
+    </div>
+    <div class="bg-white shadow rounded-lg p-4">
+      <div class="text-xs text-gray-500">Salaire coach (année) €</div>
+      <div class="mt-1 text-2xl font-bold text-gray-900"><%= @coach_salary_year %></div>
+    </div>
+  </div>
+
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- Entraînements de la semaine à venir -->
     <div class="bg-white shadow rounded-lg overflow-hidden">

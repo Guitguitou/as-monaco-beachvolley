@@ -37,12 +37,28 @@ module Admin
         .sum(:amount)
       # amounts are negative for payments, make revenue positive
       @current_month_revenue = -monthly_sum
+
+      # Coach salaries (expected) for periods
+      @coach_salary_week = coach_salary_between(starting..ending)
+      @coach_salary_month = coach_salary_between(Time.zone.now.beginning_of_month..Time.zone.now.end_of_month)
+      @coach_salary_year = coach_salary_between(Time.zone.now.beginning_of_year..Time.zone.now.end_of_year)
     end
 
     private
 
     def require_admin!
       redirect_to root_path, alert: "Accès non autorisé" unless current_user.admin?
+    end
+
+    def coach_salary_between(range)
+      # Count trainings in range grouped by coach, multiply by salary_per_training_cents
+      trainings = Session.where(session_type: 'entrainement', start_at: range)
+      by_coach_counts = trainings.group(:user_id).count
+      users = User.where(id: by_coach_counts.keys).index_by(&:id)
+      total_cents = by_coach_counts.sum do |user_id, count|
+        (users[user_id]&.salary_per_training_cents || 0) * count
+      end
+      total_cents / 100
     end
   end
 end

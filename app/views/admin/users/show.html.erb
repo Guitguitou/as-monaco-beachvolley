@@ -31,6 +31,10 @@
         <dt class="text-sm font-medium text-gray-500">Niveau</dt>
         <dd class="mt-1 text-gray-900"><%= @user.level&.name || "–" %></dd>
       </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Rémunération par entraînement</dt>
+        <dd class="mt-1 text-gray-900"><%= number_to_currency(@user.salary_per_training, unit: "€", separator: ",", delimiter: " ") %></dd>
+      </div>
       <div class="sm:col-span-2">
         <dt class="text-sm font-medium text-gray-500 mb-2">Rôles</dt>
         <dd class="flex flex-wrap gap-2">

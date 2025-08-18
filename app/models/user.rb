@@ -27,6 +27,15 @@ class User < ApplicationRecord
     credit_transactions.sum(:amount)
   end
 
+  # Salary helpers
+  def salary_per_training
+    (salary_per_training_cents || 0) / 100.0
+  end
+
+  def salary_per_training=(euros)
+    self.salary_per_training_cents = (euros.to_f * 100).round
+  end
+
   private
 
   def init_balance
