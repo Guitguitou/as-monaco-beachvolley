@@ -11,6 +11,22 @@
   <% end %>
 </div>
 
+<div class="mb-4">
+  <%= form_with url: admin_users_path, method: :get, local: true, class: "flex flex-wrap items-end gap-3" do %>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Genre</label>
+      <%= select_tag :gender, options_for_select([["Tous", ""], ["Féminin", "female"], ["Masculin", "male"], ["Mixte", "mixed"]], params[:gender]), class: "border rounded px-2 py-1" %>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Type de licence</label>
+      <%= select_tag :license_type, options_for_select([["Toutes", ""], ["Club", "club"], ["Compétition", "competition"]], params[:license_type]), class: "border rounded px-2 py-1" %>
+    </div>
+    <div>
+      <%= submit_tag "Filtrer", class: "inline-flex items-center gap-1 rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-700" %>
+    </div>
+  <% end %>
+</div>
+
 <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
   <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
@@ -48,6 +64,11 @@
             <% if user.responsable? %>
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
                 <%= lucide_icon("key-round", size: 14) %> Responsable
+              </span>
+            <% end %>
+            <% if user.license_type.present? %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
+                <%= lucide_icon("id-card", size: 14) %> <%= user.license_type == 'club' ? 'Club' : 'Compétition' %>
               </span>
             <% end %>
           </td>

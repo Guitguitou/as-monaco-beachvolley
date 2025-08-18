@@ -54,6 +54,15 @@
                     focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" } %>
   </div>
 
+  <!-- Type de licence -->
+  <div class="max-w-xs">
+    <%= f.label :license_type, "Type de licence", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.select :license_type,
+          options_for_select([["—", nil], ["Club", "club"], ["Compétition", "competition"]], @user.license_type),
+          {},
+          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+  </div>
+
   <!-- Rémunération (coach) -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>

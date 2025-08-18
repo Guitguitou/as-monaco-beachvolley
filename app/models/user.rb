@@ -15,6 +15,8 @@ class User < ApplicationRecord
   scope :coachs, -> { where(coach: true) }
   scope :responsables, -> { where(responsable: true) }
   scope :admins, -> { where(admin: true) }
+  scope :gender, ->(g) { joins(:level).where(levels: { gender: g }) }
+  scope :with_license, ->(lic) { where(license_type: lic) }
   scope :with_enough_credits, ->(session_record) {
     joins(:balance).where("balances.amount >= ?", session_record.price)
   }

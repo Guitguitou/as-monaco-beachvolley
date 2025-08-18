@@ -8,6 +8,13 @@ module Admin
     before_action :set_user, only: [:show, :edit, :update, :adjust_credits]
 
     def index
+      @users = @users.includes(:level)
+      if params[:gender].present?
+        @users = @users.joins(:level).where(levels: { gender: params[:gender] })
+      end
+      if params[:license_type].present?
+        @users = @users.where(license_type: params[:license_type])
+      end
       @users = @users.order(:last_name, :first_name)
     end
 
@@ -79,7 +86,7 @@ module Admin
       params.require(:user).permit(
         :email, :first_name, :last_name,
         :admin, :coach, :responsable,
-        :level_id,
+        :level_id, :license_type,
         :salary_per_training,
         :password, :password_confirmation
       )
