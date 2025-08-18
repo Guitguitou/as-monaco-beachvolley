@@ -67,24 +67,26 @@ class Session < ApplicationRecord
     return if registrations.confirmed.count >= max_players
 
     waitlisted_queue = registrations.waitlisted.order(:created_at)
-    waitlisted_queue.find_each do |reg|
-      amount = reg.required_credits_for(reg.user)
+    waitlisted_queue.each do |reg|
+      # Compute amount as if confirming (waitlisted required_credits returns 0)
+      amount = coaching_prive? ? 0 : price.to_i
       # Skip if user cannot pay now
       next unless amount.positive?
       next unless reg.user.balance.amount >= amount
 
-      ActiveRecord::Base.transaction do
-        reg.status = :confirmed
-        begin
+      promotion_succeeded = false
+      begin
+        ActiveRecord::Base.transaction do
+          reg.status = :confirmed
           reg.save!
-        rescue ActiveRecord::RecordInvalid
-          # Skip this user (e.g., schedule conflict) and continue with next
-          raise ActiveRecord::Rollback
+          TransactionService.new(reg.user, self, amount).create_transaction if amount.positive?
+          promotion_succeeded = true
         end
-        TransactionService.new(reg.user, self, amount).create_transaction
+      rescue ActiveRecord::RecordInvalid
+        promotion_succeeded = false
       end
 
-      break
+      break if promotion_succeeded
     end
   end
 

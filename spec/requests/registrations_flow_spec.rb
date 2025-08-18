@@ -35,4 +35,29 @@ RSpec.describe "Registrations flow", type: :request do
     follow_redirect!
     expect(response.body).to include('même créneau')
   end
+
+  it 'promotes the first waitlisted user when a confirmed user unregisters' do
+    login_as player, scope: :user
+    session_record.update!(max_players: 1)
+
+    # First player registers and takes the only slot
+    post session_registrations_path(session_record)
+    expect(session_record.reload.registrations.confirmed.count).to eq(1)
+
+    # Second player with enough credits joins waitlist
+    second = create(:user, level: level)
+    create(:credit_transaction, user: second, amount: 1_000)
+    login_as second, scope: :user
+    post session_registrations_path(session_record), params: { waitlist: true }
+    expect(session_record.reload.registrations.waitlisted.count).to eq(1)
+
+    # First player unregisters, second should be promoted automatically
+    login_as player, scope: :user
+    expect {
+      delete session_registration_path(session_record, id: 'current')
+    }.to change { session_record.reload.registrations.confirmed.count }.by(0) # remains 1, different user
+
+    expect(session_record.registrations.confirmed.first.user).to eq(second)
+    expect(second.reload.balance.amount).to be <= 1000 - session_record.price
+  end
 end
