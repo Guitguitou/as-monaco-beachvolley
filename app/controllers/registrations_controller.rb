@@ -4,15 +4,21 @@ class RegistrationsController < ApplicationController
 
   def create
     authorize! :create, Registration
+    # Allow privileged users (admin/coach/responsable) to register someone else via user_id
+    target_user = if can?(:manage, Registration) && params[:user_id].present?
+                    User.find(params[:user_id])
+                  else
+                    current_user
+                  end
     requested_waitlist = ActiveModel::Type::Boolean.new.cast(params[:waitlist])
-    registration = Registration.new(user: current_user, session: @session, status: requested_waitlist ? :waitlisted : :confirmed)
+    registration = Registration.new(user: target_user, session: @session, status: requested_waitlist ? :waitlisted : :confirmed)
 
     begin
       ActiveRecord::Base.transaction do
         registration.save!
-        amount = registration.required_credits_for(current_user)
+        amount = registration.required_credits_for(registration.user)
         if amount.positive? && registration.confirmed?
-          TransactionService.new(current_user, @session, amount).create_transaction
+          TransactionService.new(registration.user, @session, amount).create_transaction
         end
       end
       redirect_to session_path(@session), notice: "Inscription réussie ✅"
@@ -24,10 +30,15 @@ class RegistrationsController < ApplicationController
 
   def destroy
     authorize! :destroy, Registration
-    registration = current_user.registrations.find_by(session: @session)
+    # Allow privileged users (admin/coach/responsable) to unregister someone else via user_id
+    registration = if can?(:manage, Registration) && params[:user_id].present?
+                     @session.registrations.find_by(user_id: params[:user_id])
+                   else
+                     current_user.registrations.find_by(session: @session)
+                   end
 
     if registration
-      amount = registration.required_credits_for(current_user)
+      amount = registration.required_credits_for(registration.user)
       begin
         ActiveRecord::Base.transaction do
           registration.destroy!
@@ -39,7 +50,7 @@ class RegistrationsController < ApplicationController
           )
           if refundable
             TransactionService.new(
-              current_user,
+              registration.user,
               @session,
               amount
             ).refund_transaction

@@ -12,6 +12,10 @@ class SessionsController < ApplicationController
   end
 
   def show
+    if can?(:manage, Registration)
+      registered_ids = @session.registrations.pluck(:user_id)
+      @candidate_users = User.where.not(id: registered_ids).order(:first_name, :last_name)
+    end
   end
 
   def new
