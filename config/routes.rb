@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   root "sessions#index"
   resources :sessions do
     post :cancel, on: :member
+    post :duplicate, on: :member
     resources :registrations, only: [:create, :destroy]
   end
 
