@@ -17,10 +17,12 @@ RSpec.describe "Registrations flow", type: :request do
       post session_registrations_path(session_record)
     }.to change { player.reload.balance.amount }.by(-session_record.price)
 
+    # Unregister and assert refund behavior based on cancellation deadline
+    refundable = !session_record.entrainement? || session_record.cancellation_deadline_at.blank? || Time.current <= session_record.cancellation_deadline_at
     # Nested singular resource requires an id; controller finds by current user
     expect {
       delete session_registration_path(session_record, id: 'current')
-    }.to change { player.reload.balance.amount }.by(session_record.price)
+    }.to change { player.reload.balance.amount }.by(refundable ? session_record.price : 0)
   end
 
   it 'prevents registration if overlapping with another confirmed session' do

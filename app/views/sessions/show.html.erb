@@ -1,14 +1,44 @@
 <div class="container mx-auto px-4 py-8">
-  <div class="max-w-4xl mx-auto">
+  <div class="max-w-6xl mx-auto">
     <!-- Breadcrumb -->
     <nav class="mb-6">
       <%= link_to "← Retour au calendrier", sessions_path, class: "text-asmbv-red hover:text-asmbv-red-dark" %>
     </nav>
 
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-      <%= render 'show_header' %>
-      <%= render 'informations' %>
-      <%= render 'participants' %>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <%= render 'show_header' %>
+          <%= render 'informations' %>
+          <%= render 'participants' %>
+        </div>
+      </div>
+      <% if can?(:manage, Registration) %>
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Ajouter un·e inscrit·e</h3>
+            <%= form_with url: session_registrations_path(@session), method: :post, local: true, class: "space-y-3" do |f| %>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Utilisateur·ice</label>
+                <%= select_tag :user_id,
+                               options_from_collection_for_select(@candidate_users || [], :id, :full_name),
+                               include_blank: "Choisir...",
+                               class: "w-full border rounded px-2 py-2",
+                               data: { controller: "select", "select-placeholder-value": "Rechercher un·e joueur·se..." } %>
+              </div>
+              <% if @session.full? %>
+                <%= hidden_field_tag :waitlist, true %>
+                <div class="text-xs text-yellow-800 bg-yellow-50 inline-flex items-center gap-1 px-2 py-1 rounded">
+                  <%= lucide_icon("alert-circle", class: "w-3 h-3") %>
+                  Session complète: ajout en liste d’attente.
+                </div>
+              <% end %>
+              <%= f.submit(@session.full? ? "Ajouter en attente" : "Ajouter",
+                          class: "w-full inline-flex items-center justify-center gap-1 px-3 py-2 text-sm text-white bg-asmbv-red hover:bg-asmbv-red-dark rounded") %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>

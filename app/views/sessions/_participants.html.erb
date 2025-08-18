@@ -44,27 +44,4 @@
   </div>
 <% end %>
 
-<% if can?(:manage, Registration) %>
-  <div class="mt-6">
-    <h3 class="text-lg font-semibold text-gray-900 mb-3">Ajouter un·e inscrit·e</h3>
-    <div class="flex items-center gap-2">
-      <%= form_with url: session_registrations_path(@session), method: :post, local: true, class: "flex items-center gap-2" do |f| %>
-        <%= select_tag :user_id,
-                       options_from_collection_for_select(@candidate_users || [], :id, :full_name),
-                       include_blank: "Choisir un·e utilisateur·ice",
-                       class: "border rounded px-2 py-1" %>
-        <%# If the session is full, allow quick waitlist add %>
-        <% if @session.full? %>
-          <%= hidden_field_tag :waitlist, true %>
-        <% end %>
-        <%= f.submit(@session.full? ? "Ajouter en attente" : "Ajouter", class: "inline-flex items-center gap-1 px-3 py-2 text-sm text-white bg-gray-800 hover:bg-gray-700 rounded") %>
-      <% end %>
-    </div>
-    <% if @session.full? %>
-      <p class="mt-2 text-xs text-yellow-800 bg-yellow-50 inline-flex items-center gap-1 px-2 py-1 rounded">
-        <%= lucide_icon("alert-circle", class: "w-3 h-3") %>
-        Session complète: les ajouts seront placés en liste d’attente.
-      </p>
-    <% end %>
-  </div>
-<% end %>
+<%# Inline add form moved to a side card on show page %>
