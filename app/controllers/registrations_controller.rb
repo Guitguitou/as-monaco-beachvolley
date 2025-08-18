@@ -4,26 +4,15 @@ class RegistrationsController < ApplicationController
 
   def create
     authorize! :create, Registration
-    registration = Registration.new(user: current_user, session: @session)
-
-    # If session is full and user explicitly opts in, create a waitlisted registration
     requested_waitlist = ActiveModel::Type::Boolean.new.cast(params[:waitlist])
-    if @session.full? && requested_waitlist
-      registration.status = :waitlisted
-    else
-      registration.status = :confirmed
-    end
+    registration = Registration.new(user: current_user, session: @session, status: requested_waitlist ? :waitlisted : :confirmed)
 
     begin
       ActiveRecord::Base.transaction do
         registration.save!
         amount = registration.required_credits_for(current_user)
         if amount.positive? && registration.confirmed?
-          TransactionService.new(
-            current_user,
-            @session,
-            amount
-          ).create_transaction
+          TransactionService.new(current_user, @session, amount).create_transaction
         end
       end
       redirect_to session_path(@session), notice: "Inscription réussie ✅"

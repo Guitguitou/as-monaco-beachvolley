@@ -31,7 +31,6 @@ export default class extends Controller {
         this.endAtTarget.readOnly = false
         this.endAtTarget.disabled = false
         // Optionnel : vider pour éviter une valeur figée trompeuse
-        this.endAtTarget.value = ""
       }
     }
   }

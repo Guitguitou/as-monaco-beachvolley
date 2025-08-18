@@ -75,7 +75,12 @@ class Session < ApplicationRecord
 
       ActiveRecord::Base.transaction do
         reg.status = :confirmed
-        reg.save!
+        begin
+          reg.save!
+        rescue ActiveRecord::RecordInvalid
+          # Skip this user (e.g., schedule conflict) and continue with next
+          raise ActiveRecord::Rollback
+        end
         TransactionService.new(reg.user, self, amount).create_transaction
       end
 

@@ -18,15 +18,15 @@
 
 <%
   sessions_json = @sessions.map do |s|
-    bg, border, text = case s.terrain
+    case s.terrain
     when 'Terrain 1'
-      ['#ef4444', '#b91c1c', '#ffffff'] # red
+      bg, border, text = ['#ef4444', '#b91c1c', '#ffffff'] # rouge
     when 'Terrain 2'
-      ['#111827', '#0b1220', '#ffffff'] # black
+      bg, border, text = ['#111827', '#0b1220', '#ffffff'] # noir
     when 'Terrain 3'
-      ['#D4AF37', '#b08e2d', '#111827'] # gold
+      bg, border, text = ['#D4AF37', '#b08e2d', '#111827'] # doré
     else
-      ['#e5e7eb', '#d1d5db', '#111827'] # gray fallback
+      bg, border, text = ['#e5e7eb', '#d1d5db', '#111827'] # gris par défaut
     end
 
     {

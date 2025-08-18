@@ -35,6 +35,21 @@ RSpec.describe Registration, type: :model do
       expect(reg).not_to be_valid
       expect(reg.errors[:base]).to include("Pas assez de crédits.")
     end
+
+    it 'disallows confirmed registration when overlapping with another confirmed session' do
+      other_session = create(:session, session_type: 'entrainement', levels: [level], terrain: 'Terrain 2', start_at: session.start_at + 10.minutes, end_at: session.end_at + 10.minutes)
+      create(:registration, user: user, session: session, status: :confirmed)
+      reg = build(:registration, user: user, session: other_session, status: :confirmed)
+      expect(reg).not_to be_valid
+      expect(reg.errors[:base]).to include("Tu es déjà inscrit à une autre session sur le même créneau.")
+    end
+
+    it 'allows waitlisted registration even if overlapping' do
+      other_session = create(:session, session_type: 'entrainement', levels: [level], terrain: 'Terrain 2', start_at: session.start_at + 10.minutes, end_at: session.end_at + 10.minutes)
+      create(:registration, user: user, session: session, status: :confirmed)
+      reg = build(:registration, user: user, session: other_session, status: :waitlisted)
+      expect(reg).to be_valid
+    end
   end
 
   describe '#required_credits_for' do

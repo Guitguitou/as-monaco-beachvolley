@@ -12,6 +12,7 @@ class Registration < ApplicationRecord
 
   validate :enough_credits?
   validate :can_register?
+  validate :no_schedule_conflict
 
   def can_register?
     if session.coaching_prive?
@@ -42,6 +43,16 @@ class Registration < ApplicationRecord
     # Only show full message for confirmed registrations
     return [false, "Session complète."] if confirmed? && session.full?
 
+    # Schedule conflict only for confirmed
+    if confirmed?
+      overlap_exists = user
+        .sessions_registered
+        .where("start_at < ? AND end_at > ?", session.end_at, session.start_at)
+        .where.not(id: session.id)
+        .exists?
+      return [false, "Tu es déjà inscrit à une autre session sur le même créneau."] if overlap_exists
+    end
+
     if !enough_credits?
       return [false, "Tu n'as pas assez de crédits."]
     end
@@ -69,5 +80,21 @@ class Registration < ApplicationRecord
     # Otherwise, user must have a level matching the session
     return false if user.level.nil?
     session.levels.include?(user.level)
+  end
+
+  def no_schedule_conflict
+    # Only applies to confirmed registrations; waitlisted users can queue
+    return if waitlisted?
+
+    # Overlap: existing.start < new_end AND existing.end > new_start
+    overlap_exists = user
+      .sessions_registered
+      .where("start_at < ? AND end_at > ?", session.end_at, session.start_at)
+      .where.not(id: session.id)
+      .exists?
+
+    if overlap_exists
+      errors.add(:base, "Tu es déjà inscrit à une autre session sur le même créneau.")
+    end
   end
 end

@@ -12,12 +12,27 @@ class CreditTransaction < ApplicationRecord
   }
 
   validates :amount, presence: true
-  after_commit :refresh_balance_amount, on: [:create, :update, :destroy]
+  after_create_commit :apply_amount_delta
+  after_update_commit :apply_amount_update_delta
+  after_destroy_commit :apply_amount_destroy_delta
 
   private
 
-  def refresh_balance_amount
-    user.balance.update_amount!
+  def apply_amount_delta
+    # Incremental update preserves any pre-existing balance baseline
+    user.balance.update!(amount: (user.balance.amount || 0) + amount)
+  end
+
+  def apply_amount_update_delta
+    previous = saved_change_to_amount? ? saved_change_to_amount.first : amount
+    delta = amount - previous
+    return if delta.zero?
+
+    user.balance.update!(amount: (user.balance.amount || 0) + delta)
+  end
+
+  def apply_amount_destroy_delta
+    user.balance.update!(amount: (user.balance.amount || 0) - amount)
   end
 
 end
