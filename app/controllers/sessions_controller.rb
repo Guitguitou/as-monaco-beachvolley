@@ -98,6 +98,9 @@ class SessionsController < ApplicationController
 
   def normalized_session_params
     sp = session_params.dup
+    # Avoid implicit creation of registrations via has_many :participants setter.
+    # We handle participant syncing (with debit/refund) explicitly in sync_participants.
+    sp.delete(:participant_ids)
     if sp[:end_at].blank? && sp[:start_at].present?
       type = sp[:session_type]
       if ["entrainement", "jeu_libre", "coaching_prive"].include?(type)
