@@ -7,7 +7,6 @@ Rails.application.routes.draw do
   root "sessions#index"
   resources :sessions do
     post :cancel, on: :member
-    post :duplicate, on: :member
     resources :registrations, only: [:create, :destroy]
   end
 
@@ -23,7 +22,9 @@ Rails.application.routes.draw do
     resources :users do
       post :adjust_credits, on: :member
     end
-    resources :sessions
+    resources :sessions do
+      post :duplicate, on: :member
+    end
     resources :levels
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

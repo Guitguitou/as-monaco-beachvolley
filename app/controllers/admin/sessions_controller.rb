@@ -5,7 +5,7 @@ module Admin
     layout "dashboard"
     before_action :authenticate_user!
     load_and_authorize_resource
-    before_action :set_session, only: [:show, :edit, :update, :destroy]
+    before_action :set_session, only: [:show, :edit, :update, :destroy, :duplicate]
 
     def index
       # Optional filters
@@ -76,6 +76,44 @@ module Admin
     def destroy
       @session.destroy
       redirect_to admin_sessions_path, notice: "Session supprimée avec succès."
+    end
+
+    # Duplicate a session weekly for N weeks (admin only)
+    def duplicate
+      authorize! :manage, Session
+      weeks = params[:weeks].to_i
+      weeks = 1 if weeks < 1
+      weeks = 20 if weeks > 20
+
+      created = []
+      errors = []
+
+      (1..weeks).each do |w|
+        dup = @session.dup
+        shift = w.weeks
+        dup.start_at = @session.start_at + shift
+        dup.end_at   = @session.end_at + shift if @session.end_at.present?
+        dup.registrations = []
+        dup.level_ids = @session.level_ids
+        dup.user_id = @session.user_id
+        dup.price = @session.price
+        dup.cancellation_deadline_at = nil
+        begin
+          if dup.save
+            created << dup
+          else
+            errors << "Semaine #{w}: #{dup.errors.full_messages.to_sentence}"
+          end
+        rescue StandardError => e
+          errors << "Semaine #{w}: #{e.message}"
+        end
+      end
+
+      if errors.any?
+        redirect_to admin_session_path(@session), alert: ["Certaines duplications ont échoué:", *errors].join("\n")
+      else
+        redirect_to admin_sessions_path, notice: "#{created.count} session(s) créée(s) ✅"
+      end
     end
 
     private

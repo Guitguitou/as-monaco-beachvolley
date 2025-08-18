@@ -5,7 +5,7 @@ class SessionsController < ApplicationController
   load_and_authorize_resource
   before_action :set_session, only: [:show, :edit, :update, :destroy]
   before_action :set_session_for_cancel, only: [:cancel]
-  before_action :set_session_for_duplicate, only: [:duplicate]
+  before_action :set_session_for_duplicate, only: []
 
   def index
     @sessions = Session.order(start_at: :desc)
@@ -101,43 +101,7 @@ class SessionsController < ApplicationController
     redirect_to session_path(@session), alert: "Erreur lors de l'annulation: #{e.message}"
   end
 
-  # Duplicate a session weekly for N weeks, preserving settings
-  def duplicate
-    authorize! :manage, Session
-    weeks = params[:weeks].to_i
-    weeks = 1 if weeks < 1
-    weeks = 20 if weeks > 20 # safety cap
-
-    created = []
-    errors = []
-
-    (1..weeks).each do |w|
-      dup = @session.dup
-      shift = w.weeks
-      dup.start_at = @session.start_at + shift
-      dup.end_at   = @session.end_at + shift if @session.end_at.present?
-      dup.registrations = [] # do not carry over participants
-      dup.level_ids = @session.level_ids
-      dup.user_id = @session.user_id
-      dup.price = @session.price
-      dup.cancellation_deadline_at = nil # will be recomputed by callback
-      begin
-        if dup.save
-          created << dup
-        else
-          errors << "Semaine #{w}: #{dup.errors.full_messages.to_sentence}"
-        end
-      rescue StandardError => e
-        errors << "Semaine #{w}: #{e.message}"
-      end
-    end
-
-    if errors.any?
-      redirect_to session_path(@session), alert: ["Certaines duplications ont échoué:", *errors].join("\n")
-    else
-      redirect_to sessions_path, notice: "#{created.count} session(s) créée(s) ✅"
-    end
-  end
+  # Duplicate moved to admin area
 
   private
 
