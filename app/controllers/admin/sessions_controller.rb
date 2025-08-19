@@ -69,7 +69,6 @@ module Admin
         redirect_to admin_session_path(@session), notice: "Session mise à jour avec succès."
       else
         render :edit, status: :unprocessable_entity
-        flash.now[:alert] = "Erreur lors de la mise à jour de la session: #{@session.errors.full_messages.join(', ')}"
       end
     end
 

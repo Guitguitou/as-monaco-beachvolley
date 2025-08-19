@@ -165,7 +165,9 @@ class Session < ApplicationRecord
                                   .where("start_at < ? AND end_at > ?", end_at, start_at)
 
     if overlapping_sessions.exists?
-      errors.add(:base, "Une session existe déjà sur ce terrain pendant ces horaires")
+      errors.add(:terrain, "est déjà pris sur ce créneau")
+      errors.add(:start_at, "chevauche une autre session sur ce terrain")
+      errors.add(:end_at, "chevauche une autre session sur ce terrain")
     end
   end
 

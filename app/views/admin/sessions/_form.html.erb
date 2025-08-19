@@ -1,13 +1,4 @@
-<% if session.errors.any? %>
-  <div class="mb-4 rounded-md bg-red-50 border-l-4 border-red-400 p-4">
-    <h3 class="text-sm font-medium text-red-800">Erreurs de validation</h3>
-    <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
-      <% session.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-    </ul>
-  </div>
-<% end %>
+<%# Inline errors shown under fields; no global block %>
 
 <%= form_with model: session, 
               url: session.persisted? ? admin_session_path(session) : admin_sessions_path, 
@@ -22,6 +13,9 @@
           class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 
                   text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 
                   focus:ring-asmbv-red sm:text-sm" %>
+    <% if session.errors[:title].any? %>
+      <p class="mt-1 text-sm text-red-600"><%= session.errors[:title].first %></p>
+    <% end %>
   </div>
 
   <!-- Description -->
@@ -31,6 +25,9 @@
           class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 
                   text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 
                   focus:ring-asmbv-red sm:text-sm" %>
+    <% if session.errors[:description].any? %>
+      <p class="mt-1 text-sm text-red-600"><%= session.errors[:description].first %></p>
+    <% end %>
   </div>
 
   <!-- Notes entraîneur (entrainement uniquement, privé coach/admin) -->
@@ -51,6 +48,9 @@
           {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
                       text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
              data: { session_form_target: "type", action: "session-form#onTypeChange" } %>
+    <% if session.errors[:session_type].any? %>
+      <p class="mt-1 text-sm text-red-600"><%= session.errors[:session_type].first %></p>
+    <% end %>
   </div>
 
   <!-- Terrain -->
@@ -60,6 +60,9 @@
           options_for_select(Session.terrains.keys.map { |t| ["Terrain #{t.to_s.split('_').last}", t] }, session.terrain),
           {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
                       text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+    <% if session.errors[:terrain].any? %>
+      <p class="mt-1 text-sm text-red-600"><%= session.errors[:terrain].first %></p>
+    <% end %>
   </div>
 
   <!-- Coach / Responsable / Organisateur -->
@@ -68,6 +71,9 @@
     <%= f.select :user_id, options_from_collection_for_select(User.coachs, :id, :full_name, session.user_id),
           {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
                       text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+    <% if session.errors[:user_id].any? %>
+      <p class="mt-1 text-sm text-red-600"><%= session.errors[:user_id].first %></p>
+    <% end %>
   </div>
 
   <div class="hidden" data-session-form-target="userGroupResponsable">
@@ -114,6 +120,9 @@
             class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
             step: 900 %>
       <p class="text-xs text-gray-500 mt-1">Par défaut: 7 jours avant le début. Priorité compétition pendant 24h après l’ouverture.</p>
+    <% if session.errors[:registration_opens_at].any? %>
+      <p class="mt-1 text-sm text-red-600"><%= session.errors[:registration_opens_at].first %></p>
+    <% end %>
     </div>
   </div>
 
@@ -123,6 +132,9 @@
     <%= f.datetime_local_field :cancellation_deadline_at,
           class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
     <p class="text-xs text-gray-500 mt-1">Après cette date/heure, la désinscription ne rembourse pas automatiquement.</p>
+    <% if session.errors[:cancellation_deadline_at].any? %>
+      <p class="mt-1 text-sm text-red-600"><%= session.errors[:cancellation_deadline_at].first %></p>
+    <% end %>
   </div>
 
   <!-- Nombre de joueurs -->
@@ -131,6 +143,9 @@
     <%= f.number_field :max_players,
           class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
                   text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+    <% if session.errors[:max_players].any? %>
+      <p class="mt-1 text-sm text-red-600"><%= session.errors[:max_players].first %></p>
+    <% end %>
   </div>
 
   <!-- Prix (crédits) -->
@@ -140,6 +155,9 @@
           class: "mt-1 block w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2
                   text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
           data: { session_form_target: "price" } %>
+    <% if session.errors[:price].any? %>
+      <p class="mt-1 text-sm text-red-600"><%= session.errors[:price].first %></p>
+    <% end %>
   </div>
 
   <!-- Niveaux -->
@@ -153,6 +171,9 @@
         </label>
       <% end %>
     </div>
+    <% if session.errors[:level_ids].any? %>
+      <p class="mt-1 text-sm text-red-600"><%= session.errors[:level_ids].first %></p>
+    <% end %>
   </div>
 
   <!-- Bouton -->
