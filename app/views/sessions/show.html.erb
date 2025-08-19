@@ -11,6 +11,28 @@
           <%= render 'show_header' %>
           <%= render 'informations' %>
           <%= render 'participants' %>
+          <% if user_signed_in? && (current_user.admin? || current_user.coach?) && @session.entrainement? %>
+            <hr class="my-6" />
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-3">Notes entraîneur</h3>
+              <div class="mb-3 text-sm text-gray-600">Thème, retours, informations utiles (visible uniquement par les coachs et admins)</div>
+              <%= form_with model: @session, url: session_path(@session), method: :put, local: true do |f| %>
+                <%= f.text_area :coach_notes, rows: 6, class: "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+                <div class="mt-3 flex items-center gap-2">
+                  <%= f.submit "Enregistrer les notes", class: "inline-flex items-center gap-1 rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-700" %>
+                  <% if @session.coach_notes.present? %>
+                    <span class="text-xs text-gray-500">Dernière mise à jour: <%= l(@session.updated_at, format: :short) %></span>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% elsif user_signed_in? && (current_user.admin? || current_user.coach?) && @session.coach_notes.present? && @session.entrainement? %>
+            <hr class="my-6" />
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-3">Notes entraîneur</h3>
+              <div class="prose prose-sm max-w-none whitespace-pre-line text-gray-800"><%= @session.coach_notes %></div>
+            </div>
+          <% end %>
         </div>
       </div>
       <% if can?(:manage, Registration) %>

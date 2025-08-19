@@ -125,7 +125,7 @@ module Admin
     def session_params
       params.require(:session).permit(
         :title, :description, :start_at, :end_at, :session_type, :max_players, :terrain, :user_id, :price,
-        :cancellation_deadline_at, :registration_opens_at,
+        :cancellation_deadline_at, :registration_opens_at, :coach_notes,
         level_ids: [], participant_ids: []
       )
     end

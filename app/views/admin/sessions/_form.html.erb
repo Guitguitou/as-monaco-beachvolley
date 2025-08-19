@@ -33,6 +33,16 @@
                   focus:ring-asmbv-red sm:text-sm" %>
   </div>
 
+  <!-- Notes entraîneur (entrainement uniquement, privé coach/admin) -->
+  <div>
+    <%= f.label :coach_notes, "Notes entraîneur (privé)", class: "block text-sm font-medium text-gray-900" %>
+    <%= f.text_area :coach_notes, rows: 4,
+          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 
+                  text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 
+                  focus:ring-asmbv-red sm:text-sm" %>
+    <p class="text-xs text-gray-500 mt-1">Visible uniquement par les coachs et les admins. Utilisez-le pour le thème, les retours, etc.</p>
+  </div>
+
   <!-- Type de session -->
   <div>
     <%= f.label :session_type, "Type de session", class: "block text-sm font-medium text-gray-900" %>

@@ -61,7 +61,8 @@ class SessionsController < ApplicationController
   def update
     @session.assign_attributes(normalized_session_params)
     if @session.save
-      sync_participants(@session)
+      # Only sync participants if the form included participant_ids
+      sync_participants(@session) if params.dig(:session, :participant_ids).present?
       redirect_to sessions_path, notice: "Session mise à jour avec succès."
     else
       render :edit, status: :unprocessable_entity
@@ -120,7 +121,7 @@ class SessionsController < ApplicationController
   def session_params
     params.require(:session).permit(
       :title, :description, :start_at, :end_at, 
-      :session_type, :max_players, :terrain, :user_id, :price, :cancellation_deadline_at,
+      :session_type, :max_players, :terrain, :user_id, :price, :cancellation_deadline_at, :coach_notes,
       participant_ids: [],
       registrations_attributes: [:id, :user_id, :_destroy],
       level_ids: []
