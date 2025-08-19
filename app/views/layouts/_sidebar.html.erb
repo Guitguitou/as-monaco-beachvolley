@@ -17,6 +17,9 @@
     <nav class="flex-1 space-y-2 text-sm">
       <%= nav_link "Calendrier", sessions_path, icon: "calendar" %>
       <%= nav_link "Mes sessions", me_sessions_path, icon: "volleyball" %>
+      <% if current_user.coach? || current_user.admin? %>
+        <%= nav_link "Entraînements (coach)", coach_trainings_path, icon: "book-open" %>
+      <% end %>
       <%= nav_link "Mon profil", profile_path, icon: "user" %>
 
       <% if current_user.admin? %>

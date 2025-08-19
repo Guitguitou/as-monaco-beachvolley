@@ -59,7 +59,13 @@ class SessionsController < ApplicationController
   end
 
   def update
-    @session.assign_attributes(normalized_session_params)
+    update_params = normalized_session_params
+    # Restrict coach_notes editing to admins or the coach responsible for the session
+    if update_params.key?(:coach_notes)
+      allowed = current_user.admin? || current_user == @session.user
+      update_params.delete(:coach_notes) unless allowed
+    end
+    @session.assign_attributes(update_params)
     if @session.save
       # Only sync participants if the form included participant_ids
       sync_participants(@session) if params.dig(:session, :participant_ids).present?

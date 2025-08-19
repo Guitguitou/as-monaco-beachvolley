@@ -11,7 +11,7 @@
           <%= render 'show_header' %>
           <%= render 'informations' %>
           <%= render 'participants' %>
-          <% if user_signed_in? && (current_user.admin? || current_user.coach?) && @session.entrainement? %>
+          <% if user_signed_in? && @session.entrainement? && (current_user.admin? || current_user == @session.user) %>
             <hr class="my-6" />
             <div>
               <h3 class="text-lg font-semibold text-gray-900 mb-3">Notes entraîneur</h3>
@@ -26,7 +26,7 @@
                 </div>
               <% end %>
             </div>
-          <% elsif user_signed_in? && (current_user.admin? || current_user.coach?) && @session.coach_notes.present? && @session.entrainement? %>
+          <% elsif user_signed_in? && @session.entrainement? && (current_user.admin? || current_user.coach?) && @session.coach_notes.present? %>
             <hr class="my-6" />
             <div>
               <h3 class="text-lg font-semibold text-gray-900 mb-3">Notes entraîneur</h3>

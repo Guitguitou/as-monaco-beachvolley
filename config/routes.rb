@@ -16,6 +16,10 @@ Rails.application.routes.draw do
     resources :sessions, only: [:index, :show]
   end
 
+  namespace :coach do
+    resources :trainings, only: [:index]
+  end
+
   namespace :admin do
     root to: "dashboard#index"
 

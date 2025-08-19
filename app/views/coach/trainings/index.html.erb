@@ -1,0 +1,51 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-5xl mx-auto space-y-6">
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <%= lucide_icon("book-open", class: "w-6 h-6 text-asmbv-red") %>
+        Carnet d'entraînements
+      </h1>
+      <div>
+        <%= form_with url: coach_trainings_path, method: :get, local: true, class: "flex items-center gap-2" do %>
+          <label class="text-sm text-gray-700">Mes sessions</label>
+          <%= check_box_tag :only_mine, 1, params[:only_mine].present?, class: "h-4 w-4" %>
+          <%= submit_tag "Filtrer", class: "ml-2 inline-flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-white bg-gray-800 hover:bg-gray-700 rounded" %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @by_level_id.empty? %>
+      <div class="bg-white rounded-lg shadow p-6 text-gray-600">Aucune note pour le moment.</div>
+    <% else %>
+      <% @by_level_id.each do |level_id, sessions| %>
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold text-gray-900">
+              <% if level = @levels[level_id] %>
+                <span class="inline-flex items-center gap-2" style="color: <%= level.color %>">
+                  <span class="w-2 h-2 rounded-full" style="background-color: <%= level.color %>"></span>
+                  <%= level.name %> - <%= level.gender.humanize %>
+                </span>
+              <% else %>
+                Tous niveaux
+              <% end %>
+            </h2>
+          </div>
+          <div class="divide-y divide-gray-200">
+            <% sessions.each do |s| %>
+              <div class="py-4">
+                <div class="flex items-center justify-between">
+                  <div class="text-sm text-gray-600">
+                    <strong><%= l s.start_at, format: :short %></strong> — <%= s.title.presence || s.display_name %>
+                  </div>
+                  <%= link_to "Voir la session", session_path(s), class: "text-sm text-asmbv-red hover:text-asmbv-red-dark" %>
+                </div>
+                <div class="mt-2 whitespace-pre-line text-gray-800 text-sm"><%= s.coach_notes %></div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
