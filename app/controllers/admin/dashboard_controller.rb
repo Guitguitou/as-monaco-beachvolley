@@ -49,9 +49,18 @@ module Admin
         year_range: Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
       )
 
-      # Late cancellations (recent)
-      @late_cancellations = LateCancellation.includes(:user, :session).order(created_at: :desc).limit(50)
-      @late_cancellation_counts = LateCancellation.group(:user_id).count
+      # Late cancellations (recent) - trainings only
+      @late_cancellations = LateCancellation
+        .joins(:session)
+        .where(sessions: { session_type: 'entrainement' })
+        .includes(:user, :session)
+        .order(created_at: :desc)
+        .limit(50)
+      @late_cancellation_counts = LateCancellation
+        .joins(:session)
+        .where(sessions: { session_type: 'entrainement' })
+        .group(:user_id)
+        .count
     end
 
     private
