@@ -31,6 +31,7 @@ class Session < ApplicationRecord
 
   before_validation :set_price_from_type
   before_validation :set_default_cancellation_deadline
+  before_validation :set_default_registration_opens_at
 
   validate :end_at_after_start_at
   validate :no_overlapping_sessions_on_same_terrain
@@ -120,6 +121,18 @@ class Session < ApplicationRecord
 
   def set_price_from_type
     self.price = default_price
+  end
+
+  def set_default_registration_opens_at
+    # Only trainings use registration opening rules
+    if session_type == 'entrainement'
+      if registration_opens_at.blank? && start_at.present?
+        self.registration_opens_at = start_at - 7.days
+      end
+    else
+      # For non-trainings, ensure field does not affect anything
+      self.registration_opens_at = nil
+    end
   end
 
   def set_default_cancellation_deadline

@@ -4,7 +4,7 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "type", "price", "userGroupCoach", "userGroupResponsable", "userGroupAll",
-    "startAt", "endAt", "endAtHidden"
+    "startAt", "endAt", "endAtHidden", "registrationOpensWrapper"
   ]
   static values = { prices: Object }
 
@@ -12,11 +12,13 @@ export default class extends Controller {
     this.updateUserSelect()
     this.updatePrice()
     this.updateEndTime() // si la session est déjà partiellement remplie
+    this.updateRegistrationOpensVisibility()
   }
 
   onTypeChange() {
     this.updateUserSelect()
     this.updatePrice()
+    this.updateRegistrationOpensVisibility()
 
     const lockTypes = ["entrainement", "jeu_libre", "coaching_prive"]
     const shouldLock = lockTypes.includes(this.typeTarget.value)
@@ -108,6 +110,12 @@ export default class extends Controller {
       this.endAtTarget.disabled = false
       this.endAtTarget.classList.remove("bg-gray-100", "text-gray-500", "cursor-not-allowed")
     }
+  }
+
+  updateRegistrationOpensVisibility() {
+    if (!this.hasRegistrationOpensWrapperTarget) return
+    const isTraining = this.typeTarget.value === "entrainement"
+    this.registrationOpensWrapperTarget.style.display = isTraining ? "block" : "none"
   }
 
   #parseDatetimeLocal(value) {

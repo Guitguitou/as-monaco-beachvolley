@@ -95,6 +95,18 @@
     </div>
   </div>
 
+  <!-- Ouverture des inscriptions (entraîne­ment uniquement) -->
+  <div>
+    <%# Affiché seulement si type = entrainement %>
+    <div class="mt-4" data-session-form-target="registrationOpensWrapper" <%= session.session_type == 'entrainement' ? '' : 'style="display:none"' %>>
+      <%= f.label :registration_opens_at, "Ouverture des inscriptions", class: "block text-sm font-medium text-gray-900" %>
+      <%= f.datetime_local_field :registration_opens_at,
+            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+            step: 900 %>
+      <p class="text-xs text-gray-500 mt-1">Par défaut: 7 jours avant le début. Priorité compétition pendant 24h après l’ouverture.</p>
+    </div>
+  </div>
+
   <!-- Deadline de désinscription (optionnel, défaut midi le jour J pour entraînements) -->
   <div>
     <%= f.label :cancellation_deadline_at, "Date limite de désinscription", class: "block text-sm font-medium text-gray-900" %>
