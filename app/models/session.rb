@@ -42,6 +42,31 @@ class Session < ApplicationRecord
 
   scope :terrain, ->(terrain) { where(terrain: terrain) }
 
+  PRIORITY_WINDOW_HOURS = 24
+
+  # Returns [boolean, reason]
+  # Enforces registration opening rules for trainings with a 24h priority
+  # window for users with competition license.
+  def registration_open_state_for(user)
+    # Only trainings are constrained by opening rules
+    return [true, nil] unless entrainement?
+
+    # If no opening date is set, registrations are open for everyone
+    return [true, nil] if registration_opens_at.blank?
+
+    now = Time.current
+    if now < registration_opens_at
+      return [false, "Les inscriptions ouvrent le #{I18n.l(registration_opens_at, format: :long)}."]
+    end
+
+    within_priority_window = now < (registration_opens_at + PRIORITY_WINDOW_HOURS.hours)
+    if within_priority_window && user&.license_type != 'competition'
+      return [false, "Priorité licence compétition pendant 24h après l’ouverture."]
+    end
+
+    [true, nil]
+  end
+
   def display_name
     case session_type
     when "entrainement"

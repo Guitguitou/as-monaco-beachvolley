@@ -15,6 +15,12 @@ class Registration < ApplicationRecord
   validate :no_schedule_conflict
 
   def can_register?
+    # Opening rules with 24h priority for competition license
+    open_ok, open_reason = session.registration_open_state_for(user)
+    unless open_ok
+      errors.add(:base, open_reason)
+    end
+
     if session.coaching_prive?
       errors.add(:base, "Les coachings privés ne sont pas ouverts à l’inscription.")
     end
@@ -34,6 +40,9 @@ class Registration < ApplicationRecord
   end
 
   def can_register_with_reason
+    open_ok, open_reason = session.registration_open_state_for(user)
+    return [false, open_reason] unless open_ok
+
     return [false, "Les coachings privés ne sont pas ouverts à l’inscription."] if session.coaching_prive?
 
     unless level_allowed?

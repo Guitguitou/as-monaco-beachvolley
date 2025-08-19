@@ -59,6 +59,23 @@
             <div class="text-gray-600"><%= @session.price.to_i %> crédits</div>
           </div>
         </div>
+      <% if @session.entrainement? && @session.registration_opens_at.present? %>
+        <div class="flex items-center gap-3">
+          <%= lucide_icon('door-open', class: 'w-5 h-5 text-gray-400') %>
+          <div>
+            <div class="font-medium text-gray-900">Ouverture des inscriptions</div>
+            <div class="text-gray-600">
+              <%= l @session.registration_opens_at, format: :long %>
+              <% within_priority = Time.current < (@session.registration_opens_at + Session::PRIORITY_WINDOW_HOURS.hours) %>
+              <% if Time.current < @session.registration_opens_at %>
+                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Pas encore ouvert</span>
+              <% elsif within_priority %>
+                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Priorité compétition (24h)</span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
       <% if @session.entrainement? && @session.cancellation_deadline_at.present? %>
         <div class="flex items-center gap-3">
           <%= lucide_icon('alarm-clock', class: 'w-5 h-5 text-gray-400') %>
