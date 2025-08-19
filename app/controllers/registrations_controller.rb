@@ -61,6 +61,10 @@ class RegistrationsController < ApplicationController
               amount
             ).refund_transaction
           end
+          # Log late cancellation when past refund deadline
+          if amount.positive? && !refundable
+            LateCancellation.create!(user: registration.user, session: @session)
+          end
           # After freeing up a spot, promote the first in waitlist if any
           @session.promote_from_waitlist!
         end

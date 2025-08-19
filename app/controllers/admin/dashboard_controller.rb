@@ -48,6 +48,10 @@ module Admin
         month_range: Time.zone.now.beginning_of_month..Time.zone.now.end_of_month,
         year_range: Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
       )
+
+      # Late cancellations (recent)
+      @late_cancellations = LateCancellation.includes(:user, :session).order(created_at: :desc).limit(50)
+      @late_cancellation_counts = LateCancellation.group(:user_id).count
     end
 
     private
