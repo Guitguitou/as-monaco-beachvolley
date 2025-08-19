@@ -38,6 +38,12 @@ class RegistrationsController < ApplicationController
                    end
 
     if registration
+      # Forbid self/unprivileged unregistration after the session has ended.
+      # After the session, only admins can remove players to handle refunds manually.
+      if Time.current > @session.end_at && !current_user.admin?
+        redirect_to session_path(@session), alert: "La session est passée. Seul un administrateur peut retirer des joueurs." and return
+      end
+
       amount = registration.required_credits_for(registration.user)
       begin
         ActiveRecord::Base.transaction do

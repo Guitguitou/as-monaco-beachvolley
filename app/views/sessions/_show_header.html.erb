@@ -59,11 +59,13 @@
           <% end %>
         <% end %>
       <% else %>
-        <%= button_to session_registration_path(@session), method: :delete,
+        <% can_self_unsubscribe = Time.current <= @session.end_at || current_user.admin? %>
+        <% if can_self_unsubscribe %>
+          <%= button_to session_registration_path(@session), method: :delete,
                       class: "w-full sm:w-auto inline-flex items-center justify-center gap-x-1.5 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-xs hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600" do %>
-          <%= lucide_icon("x-circle", class: "-ml-0.5 size-5", aria: { hidden: true }) %>
-          <span><%= existing_registration.waitlisted? ? "Quitter la liste d’attente" : "Je me désinscris" %></span>
-        <% end %>
+            <%= lucide_icon("x-circle", class: "-ml-0.5 size-5", aria: { hidden: true }) %>
+            <span><%= existing_registration.waitlisted? ? "Quitter la liste d’attente" : "Je me désinscris" %></span>
+          <% end %>
 
         <% if !existing_registration.waitlisted? && @session.entrainement? && @session.cancellation_deadline_at.present? %>
           <% if Time.current > @session.cancellation_deadline_at %>
@@ -88,6 +90,7 @@
               <span>Ta position en liste d’attente: <strong>#<%= my_index + 1 %></strong></span>
             </div>
           <% end %>
+        <% end %>
         <% end %>
       <% end %>
 
