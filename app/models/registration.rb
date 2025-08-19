@@ -27,15 +27,18 @@ class Registration < ApplicationRecord
 
     unless level_allowed?
       errors.add(:user, "n’a pas le bon niveau pour cet entraînement")
+      errors.add(:base, "Ce n’est pas ton niveau d'entrainement.")
     end
 
     # Only block on full if trying to confirm, not when waitlisting
     if confirmed? && session.full?
       errors.add(:status, "impossible: session complète")
+      errors.add(:base, "Session complète.")
     end
 
     if !enough_credits?
       errors.add(:user, "n’a pas assez de crédits")
+      errors.add(:base, "Pas assez de crédits.")
     end
   end
 
@@ -104,6 +107,7 @@ class Registration < ApplicationRecord
 
     if overlap_exists
       errors.add(:session, "chevauche une autre session à laquelle tu es inscrit")
+      errors.add(:base, "Tu es déjà inscrit à une autre session sur le même créneau.")
     end
   end
 end

@@ -168,6 +168,7 @@ class Session < ApplicationRecord
       errors.add(:terrain, "est déjà pris sur ce créneau")
       errors.add(:start_at, "chevauche une autre session sur ce terrain")
       errors.add(:end_at, "chevauche une autre session sur ce terrain")
+      errors.add(:base, "Une session existe déjà sur ce terrain pendant ces horaires")
     end
   end
 
