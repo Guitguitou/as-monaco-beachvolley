@@ -12,7 +12,7 @@ class Ability
     end
 
     # Base permissions for all authenticated users
-    if user.id.present?
+    if user.id.present? && !user.disabled?
       can :read, Session
       can :read, User, id: user.id
 
@@ -25,7 +25,7 @@ class Ability
     end
 
     # Elevated roles
-    if user.coach? || user.responsable?
+    if (user.coach? || user.responsable?) && !user.disabled?
       can :manage, Session
       can :cancel, Session
       can :manage, Registration

@@ -21,6 +21,8 @@ Rails.application.routes.draw do
 
     resources :users do
       post :adjust_credits, on: :member
+      post :disable, on: :member
+      post :enable, on: :member
     end
     resources :sessions do
       post :duplicate, on: :member

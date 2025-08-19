@@ -5,7 +5,7 @@ module Admin
     layout "dashboard"
     before_action :authenticate_user!
     load_and_authorize_resource
-    before_action :set_user, only: [:show, :edit, :update, :adjust_credits]
+    before_action :set_user, only: [:show, :edit, :update, :adjust_credits, :disable, :enable]
 
     def index
       @users = @users.includes(:level)
@@ -74,6 +74,16 @@ module Admin
 
       notice = amount.positive? ? "Crédits ajoutés avec succès" : "Crédits déduits avec succès"
       redirect_to admin_user_path(@user), notice: notice
+    end
+
+    def disable
+      @user.update!(disabled_at: Time.current)
+      redirect_to admin_user_path(@user), notice: "Compte désactivé"
+    end
+
+    def enable
+      @user.update!(disabled_at: nil)
+      redirect_to admin_user_path(@user), notice: "Compte réactivé"
     end
 
     private

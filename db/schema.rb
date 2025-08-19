@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_18_081742) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_18_121000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -93,8 +93,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_18_081742) do
     t.datetime "updated_at", null: false
     t.bigint "level_id"
     t.integer "salary_per_training_cents", default: 0, null: false
+    t.string "license_type"
+    t.datetime "disabled_at"
+    t.index ["disabled_at"], name: "index_users_on_disabled_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["level_id"], name: "index_users_on_level_id"
+    t.index ["license_type"], name: "index_users_on_license_type"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 

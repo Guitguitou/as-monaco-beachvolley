@@ -4,6 +4,19 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  # Soft-disable accounts: when disabled, login is prevented and no actions allowed
+  def active_for_authentication?
+    super && !disabled?
+  end
+
+  def disabled?
+    self.disabled_at.present?
+  end
+
+  def inactive_message
+    disabled? ? :locked : super
+  end
+
   belongs_to :level, optional: true
   has_one :balance, dependent: :destroy
   has_many :credit_transactions, dependent: :destroy

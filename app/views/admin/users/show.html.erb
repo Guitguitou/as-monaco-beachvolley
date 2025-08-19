@@ -4,11 +4,30 @@
     <div class="flex items-center gap-2">
       <%= lucide_icon("user", class: "w-6 h-6 text-asmbv-red") %>
       <h1 class="text-2xl font-bold text-gray-900">Fiche joueur</h1>
+      <% if @user.disabled? %>
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-xs font-semibold">
+          <%= lucide_icon('lock', size: 14) %> Désactivé
+        </span>
+      <% end %>
     </div>
-    <%= link_to edit_admin_user_path(@user),
-          class: "inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red" do %>
-      <%= lucide_icon("edit", size: 16) %> Modifier
-    <% end %>
+    <div class="flex items-center gap-2">
+      <% if @user.disabled? %>
+        <%= button_to enable_admin_user_path(@user), method: :post,
+              class: "inline-flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-green-500" do %>
+          <%= lucide_icon('unlock', size: 16) %> Réactiver
+        <% end %>
+      <% else %>
+        <%= button_to disable_admin_user_path(@user), method: :post,
+              data: { turbo_confirm: "Désactiver ce compte ?" },
+              class: "inline-flex items-center gap-1 rounded-md bg-red-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-500" do %>
+          <%= lucide_icon('lock', size: 16) %> Désactiver
+        <% end %>
+      <% end %>
+      <%= link_to edit_admin_user_path(@user),
+            class: "inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red" do %>
+        <%= lucide_icon("edit", size: 16) %> Modifier
+      <% end %>
+    </div>
   </div>
 
   <!-- Infos personnelles -->
