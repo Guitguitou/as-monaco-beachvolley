@@ -2,12 +2,14 @@
   <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Renvoyer les instructions de confirmation</h2>
 
   <%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post, class: "space-y-5" }) do |f| %>
-    <%= render "devise/shared/error_messages", resource: resource %>
 
     <div>
       <%= f.label :email, "Adresse email", class: "block text-sm font-medium text-gray-900" %>
       <%= f.email_field :email, autofocus: true, autocomplete: "email", value: (resource.pending_reconfirmation? ? resource.unconfirmed_email : resource.email),
             class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+      <% if resource.errors[:email].any? %>
+        <p class="mt-1 text-sm text-red-600"><%= resource.errors[:email].first %></p>
+      <% end %>
     </div>
 
     <div>

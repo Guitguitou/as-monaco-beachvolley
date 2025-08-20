@@ -2,7 +2,6 @@
   <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Changer votre mot de passe</h2>
 
   <%= form_for(resource, as: resource_name, url: user_password_path(resource_name), html: { method: :put, class: "space-y-6" }) do |f| %>
-    <%= render "devise/shared/error_messages", resource: resource %>
     <%= f.hidden_field :reset_password_token %>
 
     <!-- Nouveau mot de passe -->
@@ -18,6 +17,9 @@
               class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
                       placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
       </div>
+      <% if resource.errors[:password].any? %>
+        <p class="mt-1 text-sm text-red-600"><%= resource.errors[:password].first %></p>
+      <% end %>
     </div>
 
     <!-- Confirmation -->
@@ -29,6 +31,9 @@
               class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
                       placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
       </div>
+      <% if resource.errors[:password_confirmation].any? %>
+        <p class="mt-1 text-sm text-red-600"><%= resource.errors[:password_confirmation].first %></p>
+      <% end %>
     </div>
 
     <!-- Bouton -->
