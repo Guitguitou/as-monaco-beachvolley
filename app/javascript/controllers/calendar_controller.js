@@ -18,7 +18,7 @@ export default class extends Controller {
 
     const isMobile = window.matchMedia('(max-width: 640px)').matches
     const headerToolbar = isMobile
-      ? { left: 'prev,next today', center: 'title', right: 'timeGridDay,timeGridThreeDay,dayGridMonth' }
+      ? { left: 'prev,next today', center: 'title', right: 'timeGridThreeDay,timeGridDay,dayGridMonth' }
       : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridThreeDay,timeGridDay' }
 
     const calendar = new window.FullCalendar.Calendar(calendarEl, {
