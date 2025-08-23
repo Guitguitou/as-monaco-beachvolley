@@ -18,11 +18,11 @@ export default class extends Controller {
 
     const isMobile = window.matchMedia('(max-width: 640px)').matches
     const headerToolbar = isMobile
-      ? { left: 'prev,next today', center: 'title', right: 'timeGridThreeDay,timeGridDay,dayGridMonth' }
+      ? { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }
       : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridThreeDay,timeGridDay' }
 
     const calendar = new window.FullCalendar.Calendar(calendarEl, {
-      initialView: isMobile ? 'timeGridThreeDay' : 'timeGridWeek',
+      initialView: isMobile ? 'timeGridWeek' : 'timeGridWeek',
       firstDay: 1,
       headerToolbar,
       locale: 'fr',
@@ -37,7 +37,7 @@ export default class extends Controller {
       height: isMobile ? 'auto' : '100%',
       nowIndicator: true,
       stickyHeaderDates: true,
-      scrollTime: '08:00:00',
+      scrollTime: isMobile ? '07:30:00' : '08:00:00',
       expandRows: true,
       dayMaxEvents: true,
       slotLabelClassNames: ['text-xs', 'text-gray-400'],
@@ -53,7 +53,8 @@ export default class extends Controller {
         info.el.style.color           = info.event.extendedProps.textColor
         info.el.style.borderRadius    = '6px'
         info.el.style.fontWeight      = '500'
-        info.el.style.padding         = '4px'
+        info.el.style.padding         = isMobile ? '2px' : '4px'
+        info.el.style.fontSize        = isMobile ? '0.75rem' : '0.875rem'
       },
 
       datesSet: () => this.styleHeaderButtons(calendarEl),

@@ -192,6 +192,8 @@
 }
 
 @media (max-width: 640px) {
-  .fc .fc-col-header-cell-cushion { font-size: 0.75rem !important; }
-  .fc .fc-toolbar-title { font-size: 1rem !important; }
+  .fc .fc-col-header-cell-cushion { font-size: 0.7rem !important; }
+  .fc .fc-toolbar-title { font-size: 0.95rem !important; }
+  .fc .fc-button { font-size: 0.75rem !important; padding: 0.25rem 0.5rem !important; }
+  .fc .fc-timegrid-slot-label-cushion, .fc .fc-timegrid-axis-cushion { font-size: 9px !important; }
 }
