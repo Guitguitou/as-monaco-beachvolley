@@ -18,23 +18,28 @@ export default class extends Controller {
 
     const isMobile = window.matchMedia('(max-width: 640px)').matches
     const headerToolbar = isMobile
-      ? { left: 'prev,next today', center: 'title', right: 'timeGridDay,timeGridWeek,dayGridMonth' }
+      ? { left: 'prev,next today', center: 'title', right: 'timeGridDay,dayGridMonth' }
       : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }
 
     const calendar = new window.FullCalendar.Calendar(calendarEl, {
-      initialView: 'timeGridWeek',
+      initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
       firstDay: 1,
       headerToolbar,
       locale: 'fr',
+      buttonText: { today: "Aujourd'hui", month: 'Mois', week: 'Semaine', day: 'Jour' },
       allDaySlot: false,
       slotMinTime: '08:00:00',
       slotMaxTime: '23:00:00',
       slotLabelFormat: { hour: 'numeric', minute: '2-digit', meridiem: false, hour12: false },
-      height: '100%',
+      height: isMobile ? 'auto' : '100%',
+      nowIndicator: true,
+      stickyHeaderDates: true,
+      scrollTime: '08:00:00',
       expandRows: true,
       dayMaxEvents: true,
       slotLabelClassNames: ['text-xs', 'text-gray-400'],
       eventDisplay: 'block',
+      dayHeaderFormat: isMobile ? { weekday: 'short', day: 'numeric', month: 'numeric' } : undefined,
       events: sessions,
       eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false },
 
@@ -70,12 +75,25 @@ export default class extends Controller {
   }
 
   styleHeaderButtons(calendarEl) {
+    const isMobile = window.matchMedia('(max-width: 640px)').matches
     const buttons = calendarEl.querySelectorAll('.fc .fc-toolbar-chunk .fc-button')
     buttons.forEach(btn => {
       btn.classList.add(
         'bg-asmbv-red', 'text-white', 'hover:bg-asmbv-red-dark',
-        'border-0', 'rounded-md', 'px-3', 'py-1.5', 'text-sm', 'font-semibold'
+        'border-0', 'rounded-md', 'font-semibold'
       )
+      btn.classList.remove('fc-button-primary')
+      // size adjustments
+      btn.classList.add(isMobile ? 'px-2' : 'px-3')
+      btn.classList.add(isMobile ? 'py-2' : 'py-1.5')
+      btn.classList.add(isMobile ? 'text-sm' : 'text-sm')
     })
+
+    // tighten toolbar spacing on mobile
+    if (isMobile) {
+      calendarEl.querySelectorAll('.fc .fc-toolbar-chunk').forEach(chunk => {
+        chunk.classList.add('space-x-1')
+      })
+    }
   }
 }

@@ -183,3 +183,15 @@
     font-weight: 600 !important;
   }
 }
+
+/* FullCalendar mobile tweaks */
+@layer components {
+  .fc .fc-toolbar.fc-header-toolbar { margin-bottom: 0.5rem !important; }
+  .fc .fc-timegrid-slot-label-cushion { font-size: 10px !important; }
+  .fc .fc-timegrid-axis-cushion { font-size: 10px !important; }
+}
+
+@media (max-width: 640px) {
+  .fc .fc-col-header-cell-cushion { font-size: 0.75rem !important; }
+  .fc .fc-toolbar-title { font-size: 1rem !important; }
+}

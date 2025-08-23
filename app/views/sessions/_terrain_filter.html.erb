@@ -1,4 +1,4 @@
-<div class="flex gap-3 sm:gap-4 mb-6 border-b border-gray-200 overflow-x-auto whitespace-nowrap">
+<div class="flex gap-2 sm:gap-4 mb-4 sm:mb-6 border-b border-gray-200 overflow-x-auto whitespace-nowrap px-1">
   <% all_terrains = ["", "Terrain 1", "Terrain 2", "Terrain 3"] %>
 
   <% all_terrains.each do |terrain| %>
@@ -6,7 +6,7 @@
     <% active = params[:terrain].to_s == terrain.to_s %>
 
     <%= link_to sessions_path(terrain: terrain.presence),
-        class: "px-4 py-2 text-sm font-medium border-b-2 #{active ? 'text-asmbv-red border-asmbv-red' : 'text-gray-500 border-transparent hover:text-asmbv-red hover:border-asmbv-red'}" do %>
+        class: "px-3 sm:px-4 py-2 text-sm font-medium border-b-2 #{active ? 'text-asmbv-red border-asmbv-red' : 'text-gray-500 border-transparent hover:text-asmbv-red hover:border-asmbv-red'}" do %>
       <%= label %>
     <% end %>
   <% end %>
