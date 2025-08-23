@@ -31,16 +31,26 @@
   <body class="bg-gray-50 min-h-screen text-gray-900" data-controller="sidebar">
     <% if user_signed_in? %>
       <div class="flex min-h-screen">
-        <div class="lg:hidden p-4 fixed top-4 left-4 z-50">
-          <button data-action="click->sidebar#toggle" class="text-asmbv-red hover:text-asmbv-red-dark">
-            <%= lucide_icon("menu", class: "w-6 h-6") %>
+        <!-- Mobile top navbar -->
+        <header class="bg-white border-b border-gray-200 p-4 flex items-center justify-between lg:hidden fixed top-0 inset-x-0 z-40">
+          <button type="button" class="text-asmbv-red" data-action="click->sidebar#toggle">
+            <%= lucide_icon('menu', class: 'w-6 h-6') %>
           </button>
-        </div>
+          <div class="flex items-center gap-2">
+            <%= image_tag "logo.png", class: "w-8 h-8" %>
+            <span class="text-base font-semibold">AS Monaco Beach Volley</span>
+          </div>
+          <div class="w-6"></div>
+        </header>
+
         <!-- Sidebar -->
         <%= render "layouts/sidebar" %>
 
+        <!-- Overlay mobile -->
+        <div data-sidebar-target="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden" data-action="click->sidebar#close"></div>
+
         <!-- Main content -->
-        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8">
           <%= yield %>
         </main>
       </div>
