@@ -45,6 +45,33 @@ export default class extends Controller {
       dayHeaderFormat: isMobile ? { weekday: 'short', day: 'numeric', month: 'numeric' } : undefined,
       events: sessions,
       eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false },
+      eventContent: function(arg) {
+        const isMobile = window.matchMedia('(max-width: 640px)').matches
+        const timeText = arg.timeText
+        const title = arg.event.title || ''
+        const coach = arg.event.extendedProps.coachName || ''
+
+        const container = document.createElement('div')
+        container.className = 'fc-asmbv-event'
+
+        const timeEl = document.createElement('div')
+        timeEl.className = isMobile ? 'text-[11px] leading-4 opacity-90' : 'text-xs leading-4 opacity-90'
+        timeEl.textContent = timeText
+
+        const titleEl = document.createElement('div')
+        titleEl.className = isMobile ? 'text-[12px] font-semibold leading-4 break-words' : 'text-sm font-semibold leading-4 break-words'
+        titleEl.textContent = title
+
+        const coachEl = document.createElement('div')
+        coachEl.className = isMobile ? 'text-[11px] leading-4 opacity-90' : 'text-xs leading-4 opacity-90'
+        coachEl.textContent = coach
+
+        container.appendChild(timeEl)
+        container.appendChild(titleEl)
+        container.appendChild(coachEl)
+
+        return { domNodes: [container] }
+      },
 
       eventDidMount: function(info) {
         // couleurs injectées depuis Rails
@@ -55,6 +82,9 @@ export default class extends Controller {
         info.el.style.fontWeight      = '500'
         info.el.style.padding         = isMobile ? '2px' : '4px'
         info.el.style.fontSize        = isMobile ? '0.75rem' : '0.875rem'
+        info.el.style.whiteSpace      = 'normal'
+        info.el.style.overflow        = 'visible'
+        info.el.style.display         = 'block'
       },
 
       datesSet: () => this.styleHeaderButtons(calendarEl),

@@ -31,14 +31,15 @@
 
     {
       id: s.id,
-      title: "#{s.display_name} - #{s.user&.full_name || '-'}",
+      title: "#{s.display_name }",
       start: s.start_at.iso8601,
       end: s.end_at.iso8601,
       url: session_path(s),
       backgroundColor: bg,
       borderColor: border,
       textColor: text,
-      terrain: s.terrain
+      terrain: s.terrain,
+      coachName: "#{s.user&.full_name || '-'}"
     }
   end.to_json
 %>

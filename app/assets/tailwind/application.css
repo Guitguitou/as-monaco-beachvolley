@@ -189,6 +189,8 @@
   .fc .fc-toolbar.fc-header-toolbar { margin-bottom: 0.5rem !important; }
   .fc .fc-timegrid-slot-label-cushion { font-size: 10px !important; }
   .fc .fc-timegrid-axis-cushion { font-size: 10px !important; }
+  .fc-asmbv-event { line-height: 1.1 !important; }
+  .fc-asmbv-event div { overflow: visible !important; white-space: normal !important; }
 }
 
 @media (max-width: 640px) {
