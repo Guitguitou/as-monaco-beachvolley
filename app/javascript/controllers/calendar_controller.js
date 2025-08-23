@@ -18,15 +18,18 @@ export default class extends Controller {
 
     const isMobile = window.matchMedia('(max-width: 640px)').matches
     const headerToolbar = isMobile
-      ? { left: 'prev,next today', center: 'title', right: 'timeGridDay,dayGridMonth' }
-      : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }
+      ? { left: 'prev,next today', center: 'title', right: 'timeGridDay,timeGridThreeDay,dayGridMonth' }
+      : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridThreeDay,timeGridDay' }
 
     const calendar = new window.FullCalendar.Calendar(calendarEl, {
-      initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
+      initialView: isMobile ? 'timeGridThreeDay' : 'timeGridWeek',
       firstDay: 1,
       headerToolbar,
       locale: 'fr',
-      buttonText: { today: "Aujourd'hui", month: 'Mois', week: 'Semaine', day: 'Jour' },
+      buttonText: { today: "Aujourd'hui", month: 'Mois', week: 'Semaine', day: 'Jour', timeGridThreeDay: '3 jours' },
+      views: {
+        timeGridThreeDay: { type: 'timeGrid', duration: { days: 3 } }
+      },
       allDaySlot: false,
       slotMinTime: '08:00:00',
       slotMaxTime: '23:00:00',
