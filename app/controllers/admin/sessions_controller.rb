@@ -142,6 +142,8 @@ module Admin
 
       ids_to_add.each do |uid|
         registration = Registration.new(user_id: uid, session: session_record, status: :confirmed)
+        # Allow privileged add for private coachings
+        registration.allow_private_coaching_registration = true if session_record.coaching_prive?
         begin
           ActiveRecord::Base.transaction do
             registration.save!

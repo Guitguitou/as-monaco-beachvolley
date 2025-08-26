@@ -190,16 +190,25 @@
     <!-- Participants (multi-sélection avec recherche) -->
     <div class="sm:col-span-2">
       <h3 class="text-sm font-medium text-gray-900 mb-2">Participants</h3>
+      <% candidate_users = if session.coaching_prive? 
+                             User.all
+                           else
+                             User.with_enough_credits(session)
+                           end %>
       <%= select_tag "session[participant_ids][]",
           options_for_select(
-            User.with_enough_credits(session).map { |u| ["#{u.full_name} (#{u.balance&.amount} cr)", u.id] },
+            candidate_users.map { |u| ["#{u.full_name}#{session.coaching_prive? ? '' : " (#{u.balance&.amount} cr)"}", u.id] },
             session.participants.pluck(:id)
           ),
           multiple: true,
           class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
           data: { controller: "select", select_placeholder_value: "Rechercher des participants..." }
       %>
-      <p class="mt-1 text-xs text-gray-500">Seuls les membres avec suffisamment de crédits pour cette session sont affichés.</p>
+      <% unless session.coaching_prive? %>
+        <p class="mt-1 text-xs text-gray-500">Seuls les membres avec suffisamment de crédits pour cette session sont affichés.</p>
+      <% else %>
+        <p class="mt-1 text-xs text-gray-500">Coaching privé: les participants ne sont pas débités.</p>
+      <% end %>
     </div>
 
     <!-- Bouton -->

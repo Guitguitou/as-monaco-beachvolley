@@ -12,6 +12,8 @@ class RegistrationsController < ApplicationController
                   end
     requested_waitlist = ActiveModel::Type::Boolean.new.cast(params[:waitlist])
     registration = Registration.new(user: target_user, session: @session, status: requested_waitlist ? :waitlisted : :confirmed)
+    # Allow coach/admin to add participants to private coachings
+    registration.allow_private_coaching_registration = true if @session.coaching_prive? && can?(:manage, Registration)
 
     begin
       ActiveRecord::Base.transaction do

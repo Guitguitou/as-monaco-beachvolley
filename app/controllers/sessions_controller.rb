@@ -13,7 +13,7 @@ class SessionsController < ApplicationController
   end
 
   def show
-    if can?(:manage, Registration) && !@session.coaching_prive?
+    if can?(:manage, Registration)
       registered_ids = @session.registrations.pluck(:user_id)
       base = User.where.not(id: registered_ids)
 
@@ -22,8 +22,10 @@ class SessionsController < ApplicationController
         base = base.where(level_id: @session.level_ids)
       end
 
-      # Credits filter: always require enough credits
-      base = base.joins(:balance).where("balances.amount >= ?", @session.price)
+      # Credits filter only for non-private sessions
+      unless @session.coaching_prive?
+        base = base.joins(:balance).where("balances.amount >= ?", @session.price)
+      end
 
       # Avoid schedule conflicts for confirmed adds
       if !@session.full?
@@ -164,6 +166,8 @@ class SessionsController < ApplicationController
 
     ids_to_add.each do |uid|
       registration = Registration.new(user_id: uid, session: session_record, status: :confirmed)
+      # Allow privileged add for private coachings
+      registration.allow_private_coaching_registration = true if session_record.coaching_prive? && can?(:manage, Registration)
       begin
         ActiveRecord::Base.transaction do
           registration.save!

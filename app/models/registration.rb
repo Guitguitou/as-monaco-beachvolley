@@ -4,6 +4,10 @@ class Registration < ApplicationRecord
 
   enum :status, { confirmed: 0, waitlisted: 1 }
 
+  # When true, allows creating registrations for private coachings
+  # even though public registrations are closed for that session type.
+  attr_accessor :allow_private_coaching_registration
+
   after_initialize do
     self.status ||= :confirmed if has_attribute?(:status)
   end
@@ -21,7 +25,7 @@ class Registration < ApplicationRecord
       errors.add(:base, open_reason)
     end
 
-    if session.coaching_prive?
+    if session.coaching_prive? && !allow_private_coaching_registration
       errors.add(:base, "Les coachings privés ne sont pas ouverts à l’inscription.")
     end
 
@@ -46,7 +50,7 @@ class Registration < ApplicationRecord
     open_ok, open_reason = session.registration_open_state_for(user)
     return [false, open_reason] unless open_ok
 
-    return [false, "Les coachings privés ne sont pas ouverts à l’inscription."] if session.coaching_prive?
+    return [false, "Les coachings privés ne sont pas ouverts à l’inscription."] if session.coaching_prive? && !allow_private_coaching_registration
 
     unless level_allowed?
       return [false, "Ce n’est pas ton niveau d'entrainement."]
