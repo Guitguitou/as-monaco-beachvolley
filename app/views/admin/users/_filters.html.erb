@@ -1,0 +1,15 @@
+<div class="mb-4">
+  <%= form_with url: admin_users_path, method: :get, local: true, class: "flex flex-wrap items-end gap-3" do %>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Genre</label>
+      <%= select_tag :gender, options_for_select([["Tous", ""], ["Féminin", "female"], ["Masculin", "male"], ["Mixte", "mixed"]], params[:gender]), class: "border rounded px-2 py-1" %>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-gray-600 mb-1">Type de licence</label>
+      <%= select_tag :license_type, options_for_select([["Toutes", ""], ["Club", "club"], ["Compétition", "competition"]], params[:license_type]), class: "border rounded px-2 py-1" %>
+    </div>
+    <div>
+      <%= submit_tag "Filtrer", class: "inline-flex items-center gap-1 rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-700" %>
+    </div>
+  <% end %>
+</div>

@@ -27,7 +27,7 @@
                 </span>
                 <span class="inline-flex items-center gap-1 text-xs text-gray-600">
                   <%= lucide_icon("clock", class: "w-3 h-3") %>
-                  <%= l s.start_at, format: :short %> — <%= l s.end_at, format: :short %>
+                  <%= l s.start_at, format: :default %> — <%= l s.end_at, format: :time %>
                 </span>
               </div>
             </div>
@@ -64,7 +64,7 @@
                 </span>
                 <span class="inline-flex items-center gap-1 text-xs text-gray-600">
                   <%= lucide_icon("clock", class: "w-3 h-3") %>
-                  <%= l s.start_at, format: :short %> — <%= l s.end_at, format: :short %>
+                  <%= l s.start_at, format: :default %> — <%= l s.end_at, format: :time %>
                 </span>
               </div>
             </div>
