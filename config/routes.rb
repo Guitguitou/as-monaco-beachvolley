@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   }
 
   # Routes publiques pour les joueurs
-  root "sessions#index"
+  root "application#accueil"
   resources :sessions do
     post :cancel, on: :member
     resources :registrations, only: [:create, :destroy]
