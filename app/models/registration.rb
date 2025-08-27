@@ -93,9 +93,19 @@ class Registration < ApplicationRecord
     # If the session accepts all levels (no level specified), allow anyone
     return true if session.levels.empty?
 
-    # Otherwise, user must have a level matching the session
-    return false if user.level.nil?
-    session.levels.include?(user.level)
+    # Otherwise, user must have at least one level matching the session
+    user_level_ids = if user.respond_to?(:levels)
+                       user.levels.pluck(:id)
+                     else
+                       []
+                     end
+    # Backward-compat: consider legacy single level if present
+    if user_level_ids.empty? && user.respond_to?(:level_id)
+      user_level_ids = [user.level_id].compact
+    end
+
+    return false if user_level_ids.empty?
+    (user_level_ids & session.level_ids).any?
   end
 
   def no_schedule_conflict

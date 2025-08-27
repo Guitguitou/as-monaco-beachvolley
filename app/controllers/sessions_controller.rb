@@ -17,9 +17,13 @@ class SessionsController < ApplicationController
       registered_ids = @session.registrations.pluck(:user_id)
       base = User.where.not(id: registered_ids)
 
-      # Level filter for trainings with specific levels
+      # Level filter for trainings with specific levels: allow users with any matching level
       if @session.entrainement? && @session.levels.any?
-        base = base.where(level_id: @session.level_ids)
+        base = base.left_joins(:user_levels)
+                   .where(
+                     "users.level_id IN (:ids) OR user_levels.level_id IN (:ids)",
+                     ids: @session.level_ids
+                   )
       end
 
       # Credits filter only for non-private sessions
