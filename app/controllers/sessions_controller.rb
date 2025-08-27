@@ -19,11 +19,7 @@ class SessionsController < ApplicationController
 
       # Level filter for trainings with specific levels: allow users with any matching level
       if @session.entrainement? && @session.levels.any?
-        base = base.left_joins(:user_levels)
-                   .where(
-                     "users.level_id IN (:ids) OR user_levels.level_id IN (:ids)",
-                     ids: @session.level_ids
-                   )
+        base = base.joins(:user_levels).where(user_levels: { level_id: @session.level_ids }).distinct
       end
 
       # Credits filter only for non-private sessions

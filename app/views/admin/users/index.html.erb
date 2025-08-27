@@ -59,9 +59,9 @@
           <!-- Type de licence -->
           <td class="px-4 sm:px-6 py-4">
             <% if user.license_type.present? %>
-              <% if user.license_type == 'club' %>
+              <% if user.license_type == 'libre' %>
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-asmbv-red-light text-black text-xs font-semibold">
-                  <%= lucide_icon("shield-half", size: 14) %> Club
+                  <%= lucide_icon("shield-half", size: 14) %> Libre
                 </span>
               <% else %>
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-asmbv-red-light text-asmbv-red text-xs font-semibold">

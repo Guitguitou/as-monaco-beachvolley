@@ -17,7 +17,16 @@ class User < ApplicationRecord
     disabled? ? :locked : super
   end
 
-  belongs_to :level, optional: true
+  # Backward-compat virtual association for specs/legacy code
+  # Allows create(:user, level: some_level) to assign a primary level
+  def level=(level_obj)
+    @legacy_level_to_assign = level_obj
+  end
+
+  def level
+    levels.first
+  end
+
   has_many :user_levels, dependent: :destroy
   has_many :levels, through: :user_levels
   has_one :balance, dependent: :destroy
@@ -26,11 +35,12 @@ class User < ApplicationRecord
   has_many :confirmed_registrations, -> { where(status: Registration.statuses[:confirmed]) }, class_name: 'Registration'
   has_many :sessions_registered, through: :confirmed_registrations, source: :session
   after_create :init_balance
+  after_create :apply_legacy_level_assignment
 
   scope :coachs, -> { where(coach: true) }
   scope :responsables, -> { where(responsable: true) }
   scope :admins, -> { where(admin: true) }
-  scope :gender, ->(g) { joins(:level).where(levels: { gender: g }) }
+  scope :gender, ->(g) { joins(:levels).where(levels: { gender: g }) }
   scope :with_license, ->(lic) { where(license_type: lic) }
   scope :with_enough_credits, ->(session_record) {
     joins(:balance).where("balances.amount >= ?", session_record.price)
@@ -57,5 +67,10 @@ class User < ApplicationRecord
 
   def init_balance
     create_balance(amount: 0)
+  end
+
+  def apply_legacy_level_assignment
+    return unless @legacy_level_to_assign.present?
+    user_levels.find_or_create_by!(level: @legacy_level_to_assign)
   end
 end
