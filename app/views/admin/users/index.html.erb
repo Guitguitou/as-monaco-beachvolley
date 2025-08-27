@@ -77,7 +77,12 @@
 
           <!-- Groupe -->
           <td class="px-4 sm:px-6 py-4">
-            <%= user.level.display_name %>
+            <% levels = user.levels.presence || [user.level].compact %>
+            <% if levels.any? %>
+              <%= levels.map { |l| l.respond_to?(:display_name) ? l.display_name : l.name }.join(', ') %>
+            <% else %>
+              –
+            <% end %>
           </td>
 
           <!-- Actions -->

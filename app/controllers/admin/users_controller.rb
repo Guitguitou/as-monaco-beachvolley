@@ -98,7 +98,8 @@ module Admin
         :admin, :coach, :responsable,
         :level_id, :license_type,
         :salary_per_training,
-        :password, :password_confirmation
+        :password, :password_confirmation,
+        level_ids: []
       )
     end
 

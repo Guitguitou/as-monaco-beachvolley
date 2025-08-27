@@ -54,16 +54,17 @@
     </div>
   </fieldset>
 
-  <!-- Niveau -->
-  <div class="max-w-xs">
-    <%= f.label :level_id, "Niveau", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.collection_select :level_id, Level.all, :id, :name,
-          { include_blank: "Sélectionner un niveau" },
-          { class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
-                    focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" } %>
-    <% if @user.errors[:level].any? || @user.errors[:level_id].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= (@user.errors[:level] + @user.errors[:level_id]).first %></p>
-    <% end %>
+  <!-- Niveaux (multi) -->
+  <div>
+    <%= f.label :level_ids, "Niveaux", class: "block text-sm font-medium text-gray-900" %>
+    <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <%= f.collection_check_boxes :level_ids, Level.all, :id, :name do |b| %>
+        <label class="flex items-center gap-2">
+          <%= b.check_box(class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red") %>
+          <span class="text-sm text-gray-700"><%= b.text %></span>
+        </label>
+      <% end %>
+    </div>
   </div>
 
   <!-- Type de licence -->

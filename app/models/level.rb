@@ -1,5 +1,7 @@
 class Level < ApplicationRecord
   has_many :users
+  has_many :user_levels, dependent: :destroy
+  has_many :users_with_level, through: :user_levels, source: :user
   has_many :session_levels
   has_many :sessions, through: :session_levels
 

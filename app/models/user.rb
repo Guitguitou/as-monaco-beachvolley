@@ -18,6 +18,8 @@ class User < ApplicationRecord
   end
 
   belongs_to :level, optional: true
+  has_many :user_levels, dependent: :destroy
+  has_many :levels, through: :user_levels
   has_one :balance, dependent: :destroy
   has_many :credit_transactions, dependent: :destroy
   has_many :registrations, dependent: :destroy

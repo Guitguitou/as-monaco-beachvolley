@@ -47,8 +47,14 @@
         <dd class="mt-1 text-gray-900"><%= @user.email %></dd>
       </div>
       <div>
-        <dt class="text-sm font-medium text-gray-500">Niveau</dt>
-        <dd class="mt-1 text-gray-900"><%= @user.level&.name || "–" %></dd>
+        <dt class="text-sm font-medium text-gray-500">Niveaux</dt>
+        <dd class="mt-1 text-gray-900">
+          <% if @user.levels.any? %>
+            <%= @user.levels.map(&:name).join(', ') %>
+          <% else %>
+            –
+          <% end %>
+        </dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Rémunération par entraînement</dt>
