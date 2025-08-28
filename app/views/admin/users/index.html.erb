@@ -105,10 +105,9 @@
   </table>
 </div>
 
-<%# Pagination controls %>
+<%# Pagination controls (numbered) %>
 <% if @total_pages && @total_pages > 1 %>
-  <div class="mt-4 flex items-center justify-between text-sm text-gray-700">
-    <%# Prev link %>
+  <nav class="mt-4 flex items-center justify-between text-sm text-gray-700" aria-label="Pagination">
     <div>
       <% if @current_page > 1 %>
         <%= link_to({ action: :index, page: @current_page - 1, gender: params[:gender], license_type: params[:license_type] },
@@ -117,20 +116,40 @@
           Précédent
         <% end %>
       <% else %>
-        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-200 text-gray-400"> 
+        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-200 text-gray-400">
           <%= lucide_icon("chevron-left", size: 16) %>
           Précédent
         </span>
       <% end %>
     </div>
 
-    <%# Page indicator %>
-    <div>
-      Page <span class="font-semibold"><%= @current_page %></span> / <span class="font-semibold"><%= @total_pages %></span>
-      • <span class="text-gray-500"><%= @total_users_count %> utilisateurs</span>
-    </div>
+    <ol class="flex items-center gap-1">
+      <%# Build a compact page list: first, last, and a window around current %>
+      <% window = 2
+         pages = [1, @total_pages]
+         range_start = [@current_page - window, 1].max
+         range_end = [@current_page + window, @total_pages].min
+         pages += (range_start..range_end).to_a
+         pages = pages.uniq.sort
+      %>
+      <% pages.each_with_index do |page, idx| %>
+        <% if idx > 0 && page - pages[idx - 1] > 1 %>
+          <li class="px-2 text-gray-400">…</li>
+        <% end %>
+        <% if page == @current_page %>
+          <li>
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-asmbv-red text-white font-semibold"><%= page %></span>
+          </li>
+        <% else %>
+          <li>
+            <%= link_to page,
+                        { action: :index, page: page, gender: params[:gender], license_type: params[:license_type] },
+                        class: "inline-flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 bg-white hover:bg-gray-50" %>
+          </li>
+        <% end %>
+      <% end %>
+    </ol>
 
-    <%# Next link %>
     <div>
       <% if @current_page < @total_pages %>
         <%= link_to({ action: :index, page: @current_page + 1, gender: params[:gender], license_type: params[:license_type] },
@@ -139,11 +158,11 @@
           <%= lucide_icon("chevron-right", size: 16) %>
         <% end %>
       <% else %>
-        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-200 text-gray-400"> 
+        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-200 text-gray-400">
           Suivant
           <%= lucide_icon("chevron-right", size: 16) %>
         </span>
       <% end %>
     </div>
-  </div>
+  </nav>
 <% end %>
