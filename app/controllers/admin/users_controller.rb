@@ -12,6 +12,16 @@ module Admin
     def index
       @users = @users
 
+      # Search by name or email
+      if params[:q].present?
+        query = "%#{params[:q].strip}%"
+        @users = @users.where(
+          User.arel_table[:first_name].matches(query)
+          .or(User.arel_table[:last_name].matches(query))
+          .or(User.arel_table[:email].matches(query))
+        )
+      end
+
       if params[:gender].present?
         @users = @users.joins(:levels).where(levels: { gender: params[:gender] }).distinct
       end
@@ -20,8 +30,20 @@ module Admin
         @users = @users.where(license_type: params[:license_type])
       end
 
-      # Always apply a stable ordering for pagination
-      @users = @users.order(:last_name, :first_name)
+      # Sorting
+      allowed_sorts = {
+        'name' => ["last_name ASC, first_name ASC", "last_name DESC, first_name DESC"],
+        'email' => ["email ASC", "email DESC"],
+        'license_type' => ["license_type ASC", "license_type DESC"]
+      }
+      sort_key = params[:sort].to_s
+      direction = params[:direction] == 'desc' ? 1 : 0
+      if allowed_sorts.key?(sort_key)
+        @users = @users.order(Arel.sql(allowed_sorts[sort_key][direction]))
+      else
+        # Default stable ordering for pagination
+        @users = @users.order(:last_name, :first_name)
+      end
 
       # Pagination (25 per page)
       @per_page = PER_PAGE

@@ -17,10 +17,16 @@
   <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
-        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">Nom</th>
-        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium hidden sm:table-cell">Email</th>
+        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">
+          <%= sortable_link_to "Nom", :name, preserve: { q: params[:q], gender: params[:gender], license_type: params[:license_type] } %>
+        </th>
+        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium hidden sm:table-cell">
+          <%= sortable_link_to "Email", :email, preserve: { q: params[:q], gender: params[:gender], license_type: params[:license_type] } %>
+        </th>
         <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">Rôles</th>
-        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">Type de licence</th>
+        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">
+          <%= sortable_link_to "Type de licence", :license_type, preserve: { q: params[:q], gender: params[:gender], license_type: params[:license_type] } %>
+        </th>
         <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">Groupe</th>
         <th scope="col" class="px-4 sm:px-6 py-3 text-right font-medium w-16 sm:w-24">Actions</th>
       </tr>
@@ -110,7 +116,7 @@
   <nav class="mt-4 flex items-center justify-between text-sm text-gray-700" aria-label="Pagination">
     <div>
       <% if @current_page > 1 %>
-        <%= link_to({ action: :index, page: @current_page - 1, gender: params[:gender], license_type: params[:license_type] },
+        <%= link_to({ action: :index, page: @current_page - 1, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
                     class: "inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50") do %>
           <%= lucide_icon("chevron-left", size: 16) %>
           Précédent
@@ -143,7 +149,7 @@
         <% else %>
           <li>
             <%= link_to page,
-                        { action: :index, page: page, gender: params[:gender], license_type: params[:license_type] },
+                        { action: :index, page: page, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
                         class: "inline-flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 bg-white hover:bg-gray-50" %>
           </li>
         <% end %>
@@ -152,7 +158,7 @@
 
     <div>
       <% if @current_page < @total_pages %>
-        <%= link_to({ action: :index, page: @current_page + 1, gender: params[:gender], license_type: params[:license_type] },
+        <%= link_to({ action: :index, page: @current_page + 1, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
                     class: "inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50") do %>
           Suivant
           <%= lucide_icon("chevron-right", size: 16) %>

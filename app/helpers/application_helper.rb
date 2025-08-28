@@ -69,4 +69,22 @@ module ApplicationHelper
       "Transaction"
     end
   end
+
+  # Builds a sortable link for table headers, preserving current filters.
+  # Usage: sortable_link_to("Nom", :name, preserve: { gender: params[:gender], ... })
+  def sortable_link_to(title, key, preserve: {})
+    current_sort = params[:sort].to_s
+    current_direction = params[:direction] == 'desc' ? 'desc' : 'asc'
+    next_direction = (current_sort == key.to_s && current_direction == 'asc') ? 'desc' : 'asc'
+
+    url_params = preserve.merge(action: :index, sort: key, direction: next_direction, page: 1)
+
+    link_to url_params, class: "inline-flex items-center gap-1 hover:text-asmbv-red" do
+      concat content_tag(:span, title)
+      if current_sort == key.to_s
+        icon_name = current_direction == 'asc' ? 'chevron-up' : 'chevron-down'
+        concat lucide_icon(icon_name, size: 14, class: 'text-gray-600')
+      end
+    end
+  end
 end
