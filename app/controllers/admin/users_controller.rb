@@ -7,15 +7,35 @@ module Admin
     load_and_authorize_resource
     before_action :set_user, only: [:show, :edit, :update, :adjust_credits, :disable, :enable]
 
+    PER_PAGE = 25
+
     def index
       @users = @users
+
       if params[:gender].present?
-        @users = @users.joins(:levels).where(levels: { gender: params[:gender] })
+        @users = @users.joins(:levels).where(levels: { gender: params[:gender] }).distinct
       end
+
       if params[:license_type].present?
         @users = @users.where(license_type: params[:license_type])
       end
+
+      # Always apply a stable ordering for pagination
       @users = @users.order(:last_name, :first_name)
+
+      # Pagination (25 per page)
+      @per_page = PER_PAGE
+      @total_users_count = @users.count
+      @total_pages = (@total_users_count.to_f / @per_page).ceil
+
+      requested_page = params.fetch(:page, 1).to_i
+      @current_page = [requested_page, 1].max
+      # Ensure current page stays within bounds (handle empty collections too)
+      upper_bound = [@total_pages, 1].max
+      @current_page = [@current_page, upper_bound].min
+
+      offset = (@current_page - 1) * @per_page
+      @users = @users.limit(@per_page).offset(offset).includes(:levels)
     end
 
     def show

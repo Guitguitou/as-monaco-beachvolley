@@ -104,3 +104,46 @@
     </tbody>
   </table>
 </div>
+
+<%# Pagination controls %>
+<% if @total_pages && @total_pages > 1 %>
+  <div class="mt-4 flex items-center justify-between text-sm text-gray-700">
+    <%# Prev link %>
+    <div>
+      <% if @current_page > 1 %>
+        <%= link_to({ action: :index, page: @current_page - 1, gender: params[:gender], license_type: params[:license_type] },
+                    class: "inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50") do %>
+          <%= lucide_icon("chevron-left", size: 16) %>
+          Précédent
+        <% end %>
+      <% else %>
+        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-200 text-gray-400"> 
+          <%= lucide_icon("chevron-left", size: 16) %>
+          Précédent
+        </span>
+      <% end %>
+    </div>
+
+    <%# Page indicator %>
+    <div>
+      Page <span class="font-semibold"><%= @current_page %></span> / <span class="font-semibold"><%= @total_pages %></span>
+      • <span class="text-gray-500"><%= @total_users_count %> utilisateurs</span>
+    </div>
+
+    <%# Next link %>
+    <div>
+      <% if @current_page < @total_pages %>
+        <%= link_to({ action: :index, page: @current_page + 1, gender: params[:gender], license_type: params[:license_type] },
+                    class: "inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50") do %>
+          Suivant
+          <%= lucide_icon("chevron-right", size: 16) %>
+        <% end %>
+      <% else %>
+        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-200 text-gray-400"> 
+          Suivant
+          <%= lucide_icon("chevron-right", size: 16) %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+<% end %>
