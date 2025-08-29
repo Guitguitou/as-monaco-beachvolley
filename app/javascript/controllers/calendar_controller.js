@@ -33,10 +33,12 @@ export default class extends Controller {
       allDaySlot: false,
       slotMinTime: '08:00:00',
       slotMaxTime: '23:00:00',
+      slotDuration: '00:30:00',
       slotLabelFormat: { hour: 'numeric', minute: '2-digit', meridiem: false, hour12: false },
       height: isMobile ? 'auto' : '100%',
       nowIndicator: true,
       stickyHeaderDates: true,
+      eventOverlap: true,
       scrollTime: isMobile ? '07:30:00' : '08:00:00',
       expandRows: true,
       dayMaxEvents: true,
@@ -45,46 +47,72 @@ export default class extends Controller {
       dayHeaderFormat: isMobile ? { weekday: 'short', day: 'numeric', month: 'numeric' } : undefined,
       events: sessions,
       eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false },
-      eventContent: function(arg) {
+      eventContent(arg) {
         const isMobile = window.matchMedia('(max-width: 640px)').matches
         const timeText = arg.timeText
-        const title = arg.event.title || ''
+        const title = (isMobile ? (arg.event.extendedProps.shortTitle || arg.event.title) : arg.event.title) || ''
         const coach = arg.event.extendedProps.coachName || ''
 
-        const container = document.createElement('div')
-        container.className = 'fc-asmbv-event'
+        const root = document.createElement('div')
+        root.className = 'fc-asmbv-card'
 
-        const timeEl = document.createElement('div')
-        timeEl.className = isMobile ? 'text-[11px] leading-4 opacity-90' : 'text-xs leading-4 opacity-90'
-        timeEl.textContent = timeText
+        const time = document.createElement('div')
+        time.className = 'fc-asmbv-time'
+        time.textContent = timeText
 
         const titleEl = document.createElement('div')
-        titleEl.className = isMobile ? 'text-[12px] font-semibold leading-4 break-words' : 'text-sm font-semibold leading-4 break-words'
+        titleEl.className = 'fc-asmbv-title'
         titleEl.textContent = title
 
         const coachEl = document.createElement('div')
-        coachEl.className = isMobile ? 'text-[11px] leading-4 opacity-90' : 'text-xs leading-4 opacity-90'
+        coachEl.className = 'fc-asmbv-coach'
         coachEl.textContent = coach
 
-        container.appendChild(timeEl)
-        container.appendChild(titleEl)
-        container.appendChild(coachEl)
-
-        return { domNodes: [container] }
+        root.appendChild(time)
+        root.appendChild(titleEl)
+        root.appendChild(coachEl)
+        return { domNodes: [root] }
       },
-
-      eventDidMount: function(info) {
-        // couleurs injectées depuis Rails
+      eventDidMount(info) {
+        const isMobile = window.matchMedia('(max-width: 640px)').matches
         info.el.style.backgroundColor = info.event.extendedProps.backgroundColor
-        info.el.style.borderColor     = info.event.extendedProps.borderColor
-        info.el.style.color           = info.event.extendedProps.textColor
-        info.el.style.borderRadius    = '6px'
-        info.el.style.fontWeight      = '500'
-        info.el.style.padding         = isMobile ? '2px' : '4px'
-        info.el.style.fontSize        = isMobile ? '0.75rem' : '0.875rem'
-        info.el.style.whiteSpace      = 'normal'
-        info.el.style.overflow        = 'visible'
-        info.el.style.display         = 'block'
+        info.el.style.borderColor = info.event.extendedProps.borderColor
+        info.el.style.color = info.event.extendedProps.textColor
+
+        // style "carte"
+        info.el.style.borderRadius = '10px'
+        info.el.style.padding = isMobile ? '6px' : '8px'
+        info.el.style.boxShadow = '0 1px 0 rgba(0,0,0,0.06)'
+        info.el.style.fontWeight = '500'
+        info.el.style.whiteSpace = 'normal'
+        info.el.style.overflow = 'visible'
+        info.el.style.display = 'block'
+
+        // typographies fines via classes utilitaires
+        const card = info.el.querySelector('.fc-asmbv-card')
+        const time = info.el.querySelector('.fc-asmbv-time')
+        const title = info.el.querySelector('.fc-asmbv-title')
+        const coach = info.el.querySelector('.fc-asmbv-coach')
+
+        time.style.fontSize = isMobile ? '11px' : '12px'
+        time.style.opacity = '0.9'
+        time.style.lineHeight = '1.1'
+
+        title.style.fontSize = isMobile ? '12px' : '13px'
+        title.style.fontWeight = '600'
+        title.style.lineHeight = '1.2'
+        // line-clamp 2
+        title.style.display = '-webkit-box'
+        title.style.webkitLineClamp = '2'
+        title.style.webkitBoxOrient = 'vertical'
+        title.style.overflow = 'hidden'
+
+        coach.style.fontSize = isMobile ? '11px' : '12px'
+        coach.style.opacity = '0.9'
+        coach.style.lineHeight = '1.1'
+
+        // min height douce pour les events courts
+        info.el.style.minHeight = isMobile ? '44px' : '48px'
       },
 
       datesSet: () => this.styleHeaderButtons(calendarEl),
