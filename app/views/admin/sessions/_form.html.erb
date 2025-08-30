@@ -65,6 +65,15 @@
     <% end %>
   </div>
 
+  <!-- Option admin: créer sur les 3 terrains -->
+  <div class="flex items-start gap-2">
+    <%= check_box_tag 'session[create_on_all_terrains]', '1', false, id: 'session_create_on_all_terrains', class: "mt-1 h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+    <div>
+      <label for="session_create_on_all_terrains" class="text-sm font-medium text-gray-900">Créer la même session sur les 3 terrains</label>
+      <p class="text-xs text-gray-500">Cree 3 sessions identiques, une par terrain (1, 2 et 3).</p>
+    </div>
+  </div>
+
   <!-- Coach / Responsable / Organisateur -->
   <div class="hidden" data-session-form-target="userGroupCoach">
     <%= f.label :user_id, "Coach", class: "block text-sm font-medium text-gray-900" %>

@@ -50,11 +50,15 @@ module Admin
     def create
       @session = Session.new(session_params)
 
-      if @session.save
-        sync_participants(@session)
-        redirect_to admin_session_path(@session), notice: "Session créée avec succès."
+      if params.dig(:session, :create_on_all_terrains) == '1'
+        create_on_all_terrains
       else
-        render :new, status: :unprocessable_entity
+        if @session.save
+          sync_participants(@session)
+          redirect_to admin_session_path(@session), notice: "Session créée avec succès."
+        else
+          render :new, status: :unprocessable_entity
+        end
       end
     end
 
@@ -149,6 +153,38 @@ module Admin
       end
 
       flash[:alert] = [flash[:alert], errors.join("; ")].compact.reject(&:blank?).join("; ") if errors.any?
+    end
+
+    def create_on_all_terrains
+      authorize! :manage, Session
+
+      base_attrs = session_params.to_h
+      base_attrs.delete("terrain")
+
+      created = []
+      errors = []
+
+      ActiveRecord::Base.transaction do
+        %w[Terrain\ 1 Terrain\ 2 Terrain\ 3].each do |terrain_label|
+          s = Session.new(base_attrs)
+          s.terrain = terrain_label
+          unless s.save
+            errors << s.errors.full_messages.to_sentence
+            raise ActiveRecord::Rollback
+          end
+          created << s
+          sync_participants(s)
+        end
+      end
+
+      if errors.empty?
+        redirect_to admin_sessions_path, notice: "3 sessions créées (terrains 1, 2, 3)."
+      else
+        # Re-render with errors on the main @session instance for feedback
+        @session.assign_attributes(session_params)
+        @session.errors.add(:base, errors.join("; "))
+        render :new, status: :unprocessable_entity
+      end
     end
   end
 end
