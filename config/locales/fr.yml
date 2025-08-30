@@ -18,3 +18,7 @@ fr:
     abbr_day_names_short_2: "%a"
     abbr_month_names_short_3: "%b"
     abbr_day_names_short_3: "%a"
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "Validation échouée: %{errors}"
