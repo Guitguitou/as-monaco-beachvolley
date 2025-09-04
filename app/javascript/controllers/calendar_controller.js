@@ -124,21 +124,14 @@ export default class extends Controller {
       viewDidMount: () => this.styleHeaderButtons(calendarEl)
     })
 
-    // Filtrage terrain
-    const filterSelect = document.getElementById('terrain-filter')
-    if (filterSelect) {
-      filterSelect.addEventListener('change', (event) => {
-        const selectedTerrain = event.target.value
-        calendar.removeAllEvents()
-        const filteredEvents = selectedTerrain
-          ? sessions.filter(e => e.terrain === selectedTerrain)
-          : sessions
-        calendar.addEventSource(filteredEvents)
-      })
-    }
+    // Expose for later filtering
+    this.calendar = calendar
+    this.sessions = sessions
 
     calendar.render()
     this.styleHeaderButtons(calendarEl)
+    this.setupTerrainTabsInteraction()
+    this.applyTerrainFromUrl()
   }
 
   styleHeaderButtons(calendarEl) {
@@ -196,5 +189,73 @@ export default class extends Controller {
     } catch (_) {
       // ignore
     }
+  }
+
+  setupTerrainTabsInteraction() {
+    const container = document.getElementById('terrain-tabs')
+    if (!container) return
+
+    // Intercept clicks to avoid full page reload and keep calendar week
+    container.addEventListener('click', (event) => {
+      const anchor = event.target.closest('a')
+      if (!anchor) return
+      event.preventDefault()
+      try {
+        const url = new URL(anchor.href, window.location.origin)
+        const selectedTerrain = url.searchParams.get('terrain') || ''
+        this.applyTerrain(selectedTerrain)
+
+        // Update URL (preserve date param already set by datesSet)
+        const currentUrl = new URL(window.location.href)
+        if (selectedTerrain) {
+          currentUrl.searchParams.set('terrain', selectedTerrain)
+        } else {
+          currentUrl.searchParams.delete('terrain')
+        }
+        window.history.replaceState({}, '', currentUrl.toString())
+      } catch (_) {
+        // ignore
+      }
+    })
+
+    // Keep in sync when navigating browser history
+    window.addEventListener('popstate', () => this.applyTerrainFromUrl())
+  }
+
+  applyTerrainFromUrl() {
+    try {
+      const url = new URL(window.location.href)
+      const selectedTerrain = url.searchParams.get('terrain') || ''
+      this.applyTerrain(selectedTerrain)
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  applyTerrain(selectedTerrain) {
+    if (!this.calendar || !this.sessions) return
+
+    // Update active tab classes
+    const container = document.getElementById('terrain-tabs')
+    if (container) {
+      const anchors = Array.from(container.querySelectorAll('a'))
+      anchors.forEach((a) => {
+        const url = new URL(a.href, window.location.origin)
+        const terrain = url.searchParams.get('terrain') || ''
+        const isActive = terrain === (selectedTerrain || '')
+
+        a.classList.toggle('text-asmbv-red', isActive)
+        a.classList.toggle('border-asmbv-red', isActive)
+        a.classList.toggle('text-gray-500', !isActive)
+        a.classList.toggle('border-transparent', !isActive)
+      })
+    }
+
+    // Filter events
+    const filteredEvents = selectedTerrain
+      ? this.sessions.filter(e => e.terrain === selectedTerrain)
+      : this.sessions
+    this.calendar.removeAllEvents()
+    this.calendar.addEventSource(filteredEvents)
   }
 }
