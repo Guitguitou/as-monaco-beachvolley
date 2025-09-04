@@ -52,6 +52,50 @@ RSpec.describe Registration, type: :model do
     end
   end
 
+  describe 'weekly training limit' do
+    let(:monday) { Time.zone.parse('2025-10-06 10:00:00') } # Monday
+    let(:next_week_monday) { monday + 7.days }
+
+    around do |example|
+      travel_to monday do
+        example.run
+      end
+    end
+
+    it 'allows multiple training registrations in the current week' do
+      s1 = create(:session, session_type: 'entrainement', start_at: monday.change(hour: 10), end_at: monday.change(hour: 11), terrain: 'Terrain 1', levels: [level])
+      s2 = create(:session, session_type: 'entrainement', start_at: monday.change(hour: 18), end_at: monday.change(hour: 19), terrain: 'Terrain 2', levels: [level])
+
+      create(:registration, user: user, session: s1, status: :confirmed)
+      reg = build(:registration, user: user, session: s2, status: :confirmed)
+
+      expect(reg).to be_valid
+    end
+
+    it 'disallows a second training in a non-current week' do
+      # Current week: 2025-10-06 .. 2025-10-12
+      # Target week for rule: next week
+      s1 = create(:session, session_type: 'entrainement', start_at: next_week_monday.change(hour: 10), end_at: next_week_monday.change(hour: 11), terrain: 'Terrain 1', levels: [level], registration_opens_at: next_week_monday.change(hour: 0) - 8.days)
+      s2 = create(:session, session_type: 'entrainement', start_at: next_week_monday.change(hour: 18), end_at: next_week_monday.change(hour: 19), terrain: 'Terrain 2', levels: [level], registration_opens_at: next_week_monday.change(hour: 0) - 8.days)
+
+      create(:registration, user: user, session: s1, status: :confirmed)
+      reg = build(:registration, user: user, session: s2, status: :confirmed)
+
+      expect(reg).not_to be_valid
+      expect(reg.errors[:base].join).to include("Tu as déjà un entraînement sur cette semaine")
+    end
+
+    it 'does not affect non-training sessions' do
+      s1 = create(:session, session_type: 'jeu_libre', start_at: next_week_monday.change(hour: 10), end_at: next_week_monday.change(hour: 11), terrain: 'Terrain 1')
+      s2 = create(:session, session_type: 'jeu_libre', start_at: next_week_monday.change(hour: 18), end_at: next_week_monday.change(hour: 19), terrain: 'Terrain 2')
+
+      create(:registration, user: user, session: s1, status: :confirmed)
+      reg = build(:registration, user: user, session: s2, status: :confirmed)
+
+      expect(reg).to be_valid
+    end
+  end
+
   describe '#required_credits_for' do
     it 'returns 0 for coaching_prive' do
       coach = create(:user)
