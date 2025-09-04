@@ -69,7 +69,8 @@ module Admin
     def update
       @session.assign_attributes(session_params)
       if @session.save
-        sync_participants(@session)
+        # Only sync participants if the form included participant_ids to avoid unintended removals
+        sync_participants(@session) if params.dig(:session, :participant_ids).present?
         redirect_to admin_session_path(@session), notice: "Session mise à jour avec succès."
       else
         render :edit, status: :unprocessable_entity
