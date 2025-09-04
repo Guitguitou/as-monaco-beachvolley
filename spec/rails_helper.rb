@@ -8,6 +8,7 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 # that will avoid rails generators crashing because migrations haven't been run yet
 # return unless Rails.env.test?
 require 'rspec/rails'
+require 'capybara/rspec'
 require 'devise'
 require 'warden'
 # Add additional requires below this line. Rails is not loaded until this point!
@@ -77,8 +78,21 @@ RSpec.configure do |config|
   # Devise helpers for request specs (sign_in, sign_out)
   config.include Devise::Test::IntegrationHelpers, type: :request
   config.include Warden::Test::Helpers, type: :request
+  config.include Warden::Test::Helpers, type: :system
 
   config.after(type: :request) do
     Warden.test_reset!
   end
+
+  config.after(type: :system) do
+    Warden.test_reset!
+  end
+
+  # Run JS-enabled browser for system tests
+  config.before(:each, type: :system) do
+    driven_by :selenium, using: :headless_chrome, screen_size: [1400, 1400]
+  end
 end
+
+# Increase Capybara wait time for JS to settle a bit
+Capybara.default_max_wait_time = 5
