@@ -15,6 +15,7 @@ export default class extends Controller {
   initializeCalendar() {
     const calendarEl = this.element
     const sessions = JSON.parse(calendarEl.dataset.sessions)
+    const initialDate = calendarEl.dataset.initialDate
 
     const isMobile = window.matchMedia('(max-width: 640px)').matches
     const headerToolbar = isMobile
@@ -23,6 +24,7 @@ export default class extends Controller {
 
     const calendar = new window.FullCalendar.Calendar(calendarEl, {
       initialView: isMobile ? 'timeGridWeek' : 'timeGridWeek',
+      ...(initialDate ? { initialDate } : {}),
       firstDay: 1,
       headerToolbar,
       locale: 'fr',
@@ -115,7 +117,10 @@ export default class extends Controller {
         info.el.style.minHeight = isMobile ? '44px' : '48px'
       },
 
-      datesSet: () => this.styleHeaderButtons(calendarEl),
+      datesSet: (info) => {
+        this.updateDateQueryParamAndLinks(info.start)
+        this.styleHeaderButtons(calendarEl)
+      },
       viewDidMount: () => this.styleHeaderButtons(calendarEl)
     })
 
@@ -156,6 +161,40 @@ export default class extends Controller {
       calendarEl.querySelectorAll('.fc .fc-toolbar-chunk').forEach(chunk => {
         chunk.classList.add('space-x-1')
       })
+    }
+  }
+
+  updateDateQueryParamAndLinks(dateObj) {
+    try {
+      const ymd = this.formatDateToYMD(dateObj)
+      const url = new URL(window.location.href)
+      url.searchParams.set('date', ymd)
+      window.history.replaceState({}, '', url.toString())
+      this.syncTerrainLinksDate(ymd)
+    } catch (_) {
+      // noop if URL API not available
+    }
+  }
+
+  formatDateToYMD(date) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  syncTerrainLinksDate(ymd) {
+    try {
+      const container = document.getElementById('terrain-tabs')
+      if (!container) return
+      const anchors = container.querySelectorAll('a[href]')
+      anchors.forEach((a) => {
+        const url = new URL(a.href, window.location.origin)
+        url.searchParams.set('date', ymd)
+        a.href = url.toString()
+      })
+    } catch (_) {
+      // ignore
     }
   }
 }
