@@ -4,16 +4,17 @@ class RegistrationsController < ApplicationController
 
   def create
     authorize! :create, Registration
-    # Allow privileged users (admin/coach/responsable) to register someone else via user_id
-    target_user = if can?(:manage, Registration) && params[:user_id].present?
+    # Only admins or the session owner (coach/responsable assigned to the session)
+    # can register someone else via user_id. Otherwise, register current_user.
+    target_user = if params[:user_id].present? && (current_user.admin? || current_user == @session.user)
                     User.find(params[:user_id])
                   else
                     current_user
                   end
     requested_waitlist = ActiveModel::Type::Boolean.new.cast(params[:waitlist])
     registration = Registration.new(user: target_user, session: @session, status: requested_waitlist ? :waitlisted : :confirmed)
-    # Allow coach/admin to add participants to private coachings
-    registration.allow_private_coaching_registration = true if @session.coaching_prive? && can?(:manage, Registration)
+    # Allow admin or session owner to add participants to private coachings
+    registration.allow_private_coaching_registration = true if @session.coaching_prive? && (current_user.admin? || current_user == @session.user)
 
     begin
       ActiveRecord::Base.transaction do
