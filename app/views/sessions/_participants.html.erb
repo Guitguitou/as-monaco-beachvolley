@@ -6,7 +6,11 @@
         <%= lucide_icon("user", class: "w-4 h-4 text-gray-500") %>
         <span><%= registration.user.full_name %></span>
       </div>
-      <% can_remove = (Time.current <= @session.end_at) ? can?(:manage, Registration) : current_user&.admin? %>
+      <% can_remove = if Time.current <= @session.end_at
+        current_user&.admin? || current_user == @session.user
+      else
+        current_user&.admin?
+      end %>
       <% if can_remove %>
         <%= button_to session_registration_path(@session, user_id: registration.user_id), method: :delete,
                       form: { data: { turbo_confirm: "Retirer #{registration.user.full_name} ?" } },
@@ -31,7 +35,11 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs">En attente</span>
-          <% can_remove = (Time.current <= @session.end_at) ? can?(:manage, Registration) : current_user&.admin? %>
+          <% can_remove = if Time.current <= @session.end_at
+            current_user&.admin? || current_user == @session.user
+          else
+            current_user&.admin?
+          end %>
           <% if can_remove %>
             <%= button_to session_registration_path(@session, user_id: registration.user_id), method: :delete,
                           form: { data: { turbo_confirm: "Retirer #{registration.user.full_name} de la liste d'attente ?" } },

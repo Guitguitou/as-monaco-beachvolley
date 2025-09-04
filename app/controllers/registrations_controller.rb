@@ -32,8 +32,9 @@ class RegistrationsController < ApplicationController
 
   def destroy
     authorize! :destroy, Registration
-    # Allow privileged users (admin/coach/responsable) to unregister someone else via user_id
-    registration = if can?(:manage, Registration) && params[:user_id].present?
+    # Only admins or the session owner (coach/responsable assigned to the session)
+    # can remove someone else. Otherwise, users can remove themselves only.
+    registration = if params[:user_id].present? && (current_user.admin? || current_user == @session.user)
                      @session.registrations.find_by(user_id: params[:user_id])
                    else
                      current_user.registrations.find_by(session: @session)
