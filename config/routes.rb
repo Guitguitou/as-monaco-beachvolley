@@ -5,6 +5,16 @@ Rails.application.routes.draw do
 
   # Routes publiques pour les joueurs
   root "application#accueil"
+  # Section Règles & informations
+  scope :infos, controller: :infos do
+    get '/', action: :index, as: :infos_root
+    get '/videos', action: :videos, as: :infos_videos
+    get '/planning-entrainements', action: :planning_trainings, as: :infos_planning_trainings
+    get '/planning-saison', action: :planning_season, as: :infos_planning_season
+    get '/reglement-interieur', action: :internal_rules, as: :infos_internal_rules
+    get '/responsables-reservations', action: :reservations_leads, as: :infos_reservations_leads
+    get '/plaquette-presentation', action: :brochure, as: :infos_brochure
+  end
   resources :sessions do
     post :cancel, on: :member
     resources :registrations, only: [:create, :destroy]

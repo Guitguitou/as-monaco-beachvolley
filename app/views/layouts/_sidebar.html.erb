@@ -24,6 +24,18 @@
       <% end %>
       <%= nav_link "Mon profil", profile_path, icon: "user" %>
 
+      <div class="pt-2">
+        <div class="px-3 text-[11px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Règles & informations</div>
+        <div class="space-y-1">
+          <%= nav_link "Vidéos tutos", infos_videos_path, icon: "play" %>
+          <%= nav_link "Planning des entraînements", infos_planning_trainings_path, icon: "calendar" %>
+          <%= nav_link "Planning de la saison", infos_planning_season_path, icon: "calendar" %>
+          <%= nav_link "Règlement intérieur", infos_internal_rules_path, icon: "file-text" %>
+          <%= nav_link "Responsables réservations", infos_reservations_leads_path, icon: "users" %>
+          <%= nav_link "Plaquette de présentation", infos_brochure_path, icon: "book-open" %>
+        </div>
+      </div>
+
       <% if current_user.admin? %>
         <%= nav_link "Admin", admin_root_path, icon: "shield-check" %>
       <% end %>

@@ -1,0 +1,64 @@
+<div class="max-w-5xl mx-auto">
+  <h1 class="text-2xl font-semibold mb-6">Règles & informations</h1>
+  <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
+    <%= link_to infos_videos_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
+      <div class="mb-2 flex items-center gap-2">
+        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
+          <%= lucide_icon 'play', class: 'h-5 w-5 text-asmbv-red' %>
+        </div>
+        <h3 class="font-medium">Vidéos tutos</h3>
+      </div>
+      <p class="text-sm text-gray-600">Liens vers les tutos de Cham.</p>
+    <% end %>
+
+    <%= link_to infos_planning_trainings_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
+      <div class="mb-2 flex items-center gap-2">
+        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
+          <%= lucide_icon 'calendar', class: 'h-5 w-5 text-asmbv-red' %>
+        </div>
+        <h3 class="font-medium">Planning des entraînements</h3>
+      </div>
+      <p class="text-sm text-gray-600">Créneaux et niveaux.</p>
+    <% end %>
+
+    <%= link_to infos_planning_season_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
+      <div class="mb-2 flex items-center gap-2">
+        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
+          <%= lucide_icon 'calendar', class: 'h-5 w-5 text-asmbv-red' %>
+        </div>
+        <h3 class="font-medium">Planning de la saison</h3>
+      </div>
+      <p class="text-sm text-gray-600">Dates clés de l'année.</p>
+    <% end %>
+
+    <%= link_to infos_internal_rules_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
+      <div class="mb-2 flex items-center gap-2">
+        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
+          <%= lucide_icon 'file-text', class: 'h-5 w-5 text-asmbv-red' %>
+        </div>
+        <h3 class="font-medium">Règlement intérieur</h3>
+      </div>
+      <p class="text-sm text-gray-600">Les règles de la section.</p>
+    <% end %>
+
+    <%= link_to infos_reservations_leads_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
+      <div class="mb-2 flex items-center gap-2">
+        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
+          <%= lucide_icon 'users', class: 'h-5 w-5 text-asmbv-red' %>
+        </div>
+        <h3 class="font-medium">Responsables de réservations</h3>
+      </div>
+      <p class="text-sm text-gray-600">Contacts par créneau.</p>
+    <% end %>
+
+    <%= link_to infos_brochure_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
+      <div class="mb-2 flex items-center gap-2">
+        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
+          <%= lucide_icon 'book-open', class: 'h-5 w-5 text-asmbv-red' %>
+        </div>
+        <h3 class="font-medium">Plaquette de présentation</h3>
+      </div>
+      <p class="text-sm text-gray-600">Google Slides intégré.</p>
+    <% end %>
+  </div>
+</div>
