@@ -38,9 +38,9 @@
           <h3 class="font-medium">Vidéos tutos</h3>
         </div>
         <p class="text-sm text-gray-600 mb-3">Consulte les tutos de Cham.</p>
-        <a href="https://drive.google.com/file/d/1LxG3uMb8bBt_y2VR3IDjOIFDIedY4vHt/view?usp=drive_link" class="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100">
+        <%= link_to infos_videos_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
           Ouvrir les vidéos
-        </a>
+        <% end %>
       </article>
 
       <!-- Planning des entraînements -->
@@ -52,9 +52,9 @@
           <h3 class="font-medium">Planning des entraînements</h3>
         </div>
         <p class="text-sm text-gray-600 mb-3">Consulte le tableau des créneaux et niveaux.</p>
-        <a href="https://docs.google.com/spreadsheets/d/1GgK8oh3UL4PQ_5ykD9a3cRr29mzoVxte6BMZqy7Z-Wg/edit?usp=sharing" class="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100">
+        <%= link_to infos_planning_trainings_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
           Ouvrir le planning
-        </a>
+        <% end %>
       </article>
 
       <!-- Planning de la saison -->
@@ -66,9 +66,9 @@
           <h3 class="font-medium">Planning de la saison</h3>
         </div>
         <p class="text-sm text-gray-600 mb-3">Toutes les dates clés de l'année sportive.</p>
-        <a href="https://docs.google.com/spreadsheets/d/1t-fxkse9DWQp7SSWtNY5quTaahZHQV5pRAoO6gOWuSg/edit?usp=sharing" class="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100">
+        <%= link_to infos_planning_season_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
           Voir le calendrier
-        </a>
+        <% end %>
       </article>
 
       <!-- Règlement intérieur -->
@@ -80,9 +80,9 @@
           <h3 class="font-medium">Règlement intérieur</h3>
         </div>
         <p class="text-sm text-gray-600 mb-3">Les règles de la section beach‑volley.</p>
-        <a href="https://docs.google.com/document/d/1SjfvxY9b0gZqkt9mHMsPNRQFG8krSaBZF_Ev-JGUPJw/edit?usp=sharing" class="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100">
+        <%= link_to infos_internal_rules_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
           Lire le document
-        </a>
+        <% end %>
       </article>
 
       <!-- Responsables des réservations -->
@@ -94,9 +94,9 @@
           <h3 class="font-medium">Responsables réservations</h3>
         </div>
         <p class="text-sm text-gray-600 mb-3">Contacts par créneau pour l'accès aux terrains.</p>
-        <a href="https://docs.google.com/spreadsheets/d/1BpHXmKKgNQNe6Dir58-76Gd95snAYi9EaZpCfpj-te4/edit?usp=sharing" class="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100">
+        <%= link_to infos_reservations_leads_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
           Ouvrir le listing
-        </a>
+        <% end %>
       </article>
 
       <!-- Plaquette de présentation (à venir) -->
@@ -107,7 +107,10 @@
           </div>
           <h3 class="font-medium">Plaquette de présentation</h3>
         </div>
-        <p class="text-sm text-gray-600">Version 4 — à venir.</p>
+        <p class="text-sm text-gray-600 mb-3">Version 4 — à venir.</p>
+        <%= link_to infos_brochure_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
+          Voir la plaquette
+        <% end %>
       </article>
 
       <!-- WhatsApp + Email -->
