@@ -15,4 +15,6 @@ import RegistrationsFormController from "controllers/registrations_form_controll
 application.register("registrations-form", RegistrationsFormController)
 import SelectController from "controllers/select_controller"
 application.register("select", SelectController)
+import CollapseController from "controllers/collapse_controller"
+application.register("collapse", CollapseController)
 eagerLoadControllersFrom("controllers", application)

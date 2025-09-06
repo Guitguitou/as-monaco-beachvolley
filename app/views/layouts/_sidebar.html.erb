@@ -17,22 +17,28 @@
     </div>
 
     <nav class="flex-1 space-y-2 text-sm">
-      <%= nav_link "Calendrier", sessions_path, icon: "calendar" %>
-      <%= nav_link "Mes sessions", me_sessions_path, icon: "volleyball" %>
+      <%= nav_link "Calendrier", sessions_path, icon: "calendar", extra_classes: 'sidebar-link' %>
+      <%= nav_link "Mes sessions", me_sessions_path, icon: "volleyball", extra_classes: 'sidebar-link' %>
       <% if current_user.coach? || current_user.admin? %>
-        <%= nav_link "Entraînements (coach)", coach_trainings_path, icon: "book-open" %>
+        <%= nav_link "Entraînements (coach)", coach_trainings_path, icon: "book-open", extra_classes: 'sidebar-link' %>
       <% end %>
-      <%= nav_link "Mon profil", profile_path, icon: "user" %>
+      <%= nav_link "Mon profil", profile_path, icon: "user", extra_classes: 'sidebar-link' %>
 
-      <div class="pt-2">
-        <div class="px-3 text-[11px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Règles & informations</div>
-        <div class="space-y-1">
-          <%= nav_link "Vidéos tutos", infos_videos_path, icon: "play" %>
-          <%= nav_link "Planning des entraînements", infos_planning_trainings_path, icon: "calendar" %>
-          <%= nav_link "Planning de la saison", infos_planning_season_path, icon: "calendar" %>
-          <%= nav_link "Règlement intérieur", infos_internal_rules_path, icon: "file-text" %>
-          <%= nav_link "Responsables réservations", infos_reservations_leads_path, icon: "users" %>
-          <%= nav_link "Plaquette de présentation", infos_brochure_path, icon: "book-open" %>
+      <div class="pt-2" data-controller="collapse" data-open="false">
+        <button type="button" data-action="click->collapse#toggle" class="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium text-sm sidebar-link">
+          <%= lucide_icon 'info', class: 'w-6 h-6 text-gray-500' %>
+          <span>Règles & informations</span>
+          <span class="ml-auto text-gray-500 transition-transform" data-collapse-target="chevron">
+            <%= lucide_icon 'chevron-down', class: 'w-6 h-6' %>
+          </span>
+        </button>
+        <div class="space-y-1 pl-6 mt-1" data-collapse-target="content" class="hidden">
+          <%= nav_link "Vidéos tutos", infos_videos_path, icon: "play", extra_classes: 'sidebar-link' %>
+          <%= nav_link "Planning des entraînements", infos_planning_trainings_path, icon: "calendar", extra_classes: 'sidebar-link' %>
+          <%= nav_link "Planning de la saison", infos_planning_season_path, icon: "calendar", extra_classes: 'sidebar-link' %>
+          <%= nav_link "Règlement intérieur", infos_internal_rules_path, icon: "file-text", extra_classes: 'sidebar-link' %>
+          <%= nav_link "Responsables réservations", infos_reservations_leads_path, icon: "users", extra_classes: 'sidebar-link' %>
+          <%= nav_link "Plaquette de présentation", infos_brochure_path, icon: "book-open", extra_classes: 'sidebar-link' %>
         </div>
       </div>
 

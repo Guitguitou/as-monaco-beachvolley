@@ -35,17 +35,20 @@ module ApplicationHelper
     classes[session_type] || 'bg-gray-100 text-gray-800'
   end
 
-  def nav_link(name, path, icon:)
+  def nav_link(name, path, icon:, extra_classes: nil)
     active = current_page?(path)
     classes = [
       "flex items-center gap-2 px-3 py-2 rounded-md",
-      "hover:bg-gray-100 text-gray-800 font-medium",
+      "hover:bg-gray-100 text-gray-800 font-medium text-sm",
       active ? "border-l-4 border-asmbv-red bg-asmbv-red-light text-asmbv-red font-semibold" : ""
-    ].join(" ")
+    ]
+
+    classes << extra_classes if extra_classes.present?
+    classes = classes.join(" ")
 
     content_tag :div do
       link_to path, class: classes do
-        concat lucide_icon(icon, class: "w-5 h-5 #{active ? 'text-asmbv-red' : 'text-gray-500'}")
+        concat lucide_icon(icon, class: "w-6 h-6 #{active ? 'text-asmbv-red' : 'text-gray-500'}")
         concat content_tag(:span, name)
       end
     end

@@ -182,6 +182,10 @@
     color: #e60012 !important;
     font-weight: 600 !important;
   }
+
+  /* Sidebar uniform sizing */
+  .sidebar-link { @apply text-sm; }
+  .sidebar-link svg { @apply w-6 h-6; }
 }
 
 /* FullCalendar mobile tweaks */
