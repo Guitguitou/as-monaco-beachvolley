@@ -37,20 +37,18 @@ module ApplicationHelper
 
   def nav_link(name, path, icon:, extra_classes: nil)
     active = current_page?(path)
-    classes = [
-      "flex items-center gap-2 px-3 py-2 rounded-md",
-      "hover:bg-gray-100 text-gray-800 font-medium text-sm",
-      active ? "border-l-4 border-asmbv-red bg-asmbv-red-light text-asmbv-red font-semibold" : ""
+
+    base_classes = [
+      "flex items-center gap-3 px-3 py-2 rounded-md",
+      "hover:bg-gray-100 font-medium",
+      "text-[14px] leading-5",            # 👈 taille uniforme
+      (active ? "border-l-4 border-asmbv-red bg-asmbv-red-light text-asmbv-red font-semibold" : "text-gray-900")
     ]
+    base_classes << extra_classes if extra_classes.present?
 
-    classes << extra_classes if extra_classes.present?
-    classes = classes.join(" ")
-
-    content_tag :div do
-      link_to path, class: classes do
-        concat lucide_icon(icon, class: "w-6 h-6 #{active ? 'text-asmbv-red' : 'text-gray-500'}")
-        concat content_tag(:span, name)
-      end
+    link_to path, class: base_classes.join(" ") do
+      concat lucide_icon(icon, class: "w-4 h-4 shrink-0 #{active ? 'text-asmbv-red' : 'text-gray-500'}") # 👈 icône uniforme
+      concat content_tag(:span, name) # pas de classe spéciale -> hérite de text-[15px]/leading-5
     end
   end
 

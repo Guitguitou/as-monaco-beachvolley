@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     get '/reglement-interieur', action: :internal_rules, as: :infos_internal_rules
     get '/responsables-reservations', action: :reservations_leads, as: :infos_reservations_leads
     get '/plaquette-presentation', action: :brochure, as: :infos_brochure
+    get '/regles-inscription', action: :registration_rules, as: :infos_registration_rules
   end
   resources :sessions do
     post :cancel, on: :member

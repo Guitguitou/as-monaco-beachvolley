@@ -15,4 +15,6 @@ class InfosController < ApplicationController
   def reservations_leads; end
 
   def brochure; end
+
+  def registration_rules; end
 end

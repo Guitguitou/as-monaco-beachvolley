@@ -60,5 +60,15 @@
       </div>
       <p class="text-sm text-gray-600">Google Slides intégré.</p>
     <% end %>
+
+    <%= link_to infos_registration_rules_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
+      <div class="mb-2 flex items-center gap-2">
+        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
+          <%= lucide_icon 'scale', class: 'h-5 w-5 text-asmbv-red' %>
+        </div>
+        <h3 class="font-medium">Règles d'inscription</h3>
+      </div>
+      <p class="text-sm text-gray-600">Les règles de l'inscription.</p>
+    <% end %>
   </div>
 </div>
