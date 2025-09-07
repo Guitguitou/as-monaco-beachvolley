@@ -59,11 +59,11 @@
       <header class="bg-white shadow-sm border-b">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-asmbv-red rounded-lg flex items-center justify-center">
-              <%= lucide_icon('volleyball', class: 'w-6 h-6 text-white') %>
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center">
+              <%= image_tag "logo.png", class: "w-6 h-6" %>
             </div>
             <div>
-              <h1 class="text-xl font-bold text-gray-900">AS Monaco Beach Volley</h1>
+              <h1 class="text-xl font-bold text-gray-900">ASM Beach Volley</h1>
               <p class="text-sm text-gray-600">Calendrier des sessions</p>
             </div>
           </div>
@@ -74,6 +74,10 @@
               <%= link_to "Déconnexion", destroy_user_session_path, method: :delete,
                     class: "text-sm px-4 py-2 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium" %>
             <% end %>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <%= link_to "Connexion", new_user_session_path, class: "text-sm px-4 py-2 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium" %>
           </div>
         </div>
       </header>
