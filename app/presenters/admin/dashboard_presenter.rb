@@ -25,8 +25,9 @@ module Admin
     
     # Calculate net revenue: payments (negative amounts) - refunds (positive amounts)
     # Payments are negative, refunds are positive, so we negate the sum to get positive revenue
+    # Convert credits to euros (100 credits = 1€)
     monthly_sum = revenue_transactions.sum(:amount)
-    -monthly_sum
+    -monthly_sum / 100.0
   end
 
   def coach_salary_for_period(range)
@@ -106,13 +107,15 @@ module Admin
   def weekly_revenue
     week_range = week_start..(week_start + 7.days)
     weekly_payments = CreditTransaction.payments.in_period(week_range.first, week_range.last).sum(:amount)
-    -weekly_payments # payments are negative, make revenue positive
+    # Convert credits to euros (100 credits = 1€) and make revenue positive
+    -weekly_payments / 100.0
   end
 
   def monthly_revenue
     month_range = month_start..month_start.end_of_month
     monthly_payments = CreditTransaction.payments.in_period(month_range.first, month_range.last).sum(:amount)
-    -monthly_payments # payments are negative, make revenue positive
+    # Convert credits to euros (100 credits = 1€) and make revenue positive
+    -monthly_payments / 100.0
   end
 
   def weekly_net_profit
@@ -136,7 +139,8 @@ module Admin
 
   def revenue_breakdown(period_range)
     payments = CreditTransaction.payments.in_period(period_range.first, period_range.last).sum(:amount)
-    -payments # payments are negative, make revenue positive
+    # Convert credits to euros (100 credits = 1€) and make revenue positive
+    -payments / 100.0
   end
 
   private
