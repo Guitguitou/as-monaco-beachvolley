@@ -1,0 +1,77 @@
+<!-- Library Tab Content -->
+<div class="space-y-6">
+  <!-- Filter Section -->
+  <div class="bg-white rounded-lg shadow p-4">
+    <%= form_with url: coach_trainings_path(tab: 'library'), method: :get, local: true, class: "flex items-center gap-4" do %>
+      <%= hidden_field_tag :tab, 'library' %>
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium text-gray-700">Mes sessions uniquement</label>
+        <%= check_box_tag :only_mine, 1, params[:only_mine].present?, class: "h-4 w-4 text-asmbv-red focus:ring-asmbv-red border-gray-300 rounded" %>
+      </div>
+      <%= submit_tag "Filtrer", class: "inline-flex items-center gap-1 px-4 py-2 text-sm font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark rounded-lg" %>
+    <% end %>
+  </div>
+
+  <!-- Training Cards Grid -->
+  <% if @by_level_id.empty? %>
+    <div class="bg-white rounded-lg shadow p-8 text-center">
+      <div class="text-gray-400 mb-4">
+        <%= lucide_icon("book-open", class: "w-16 h-16 mx-auto") %>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune note d'entraînement</h3>
+      <p class="text-gray-600">Aucune note d'entraînement n'a été trouvée pour le moment.</p>
+    </div>
+  <% else %>
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <% @by_level_id.each do |level_id, sessions| %>
+        <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+          <!-- Card Header -->
+          <div class="p-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">
+              <% if level = @levels[level_id] %>
+                <span class="inline-flex items-center gap-2" style="color: <%= level.color %>">
+                  <span class="w-3 h-3 rounded-full" style="background-color: <%= level.color %>"></span>
+                  <%= level.name %> - <%= level.gender.humanize %>
+                </span>
+              <% else %>
+                <span class="inline-flex items-center gap-2 text-gray-600">
+                  <span class="w-3 h-3 rounded-full bg-gray-400"></span>
+                  Tous niveaux
+                </span>
+              <% end %>
+            </h3>
+            <p class="text-sm text-gray-500 mt-1"><%= pluralize(sessions.count, 'entraînement') %></p>
+          </div>
+
+          <!-- Card Content -->
+          <div class="p-4 space-y-3 max-h-96 overflow-y-auto">
+            <% sessions.each do |session| %>
+              <div class="border-l-4 border-gray-200 pl-3 py-2 hover:border-asmbv-red transition-colors duration-200">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium text-gray-900 truncate">
+                      <%= session.title.presence || session.display_name %>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">
+                      <%= l session.start_at, format: :short %>
+                    </div>
+                    <div class="text-xs text-gray-600 mt-2 line-clamp-3">
+                      <%= truncate(session.coach_notes, length: 120) %>
+                    </div>
+                  </div>
+                  <div class="ml-2 flex-shrink-0">
+                    <%= link_to session_path(session), 
+                        class: "inline-flex items-center text-xs text-asmbv-red hover:text-asmbv-red-dark font-medium" do %>
+                      Voir
+                      <%= lucide_icon("external-link", class: "w-3 h-3 ml-1") %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

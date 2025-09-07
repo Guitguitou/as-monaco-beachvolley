@@ -30,118 +30,30 @@
     </div>
   </div>
 
-  <!-- Infos personnelles -->
-  <div class="bg-white shadow rounded-lg p-6">
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Informations personnelles</h2>
-    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-      <div>
-        <dt class="text-sm font-medium text-gray-500">Prénom</dt>
-        <dd class="mt-1 text-gray-900"><%= @user.first_name.presence || "–" %></dd>
-      </div>
-      <div>
-        <dt class="text-sm font-medium text-gray-500">Nom</dt>
-        <dd class="mt-1 text-gray-900"><%= @user.last_name.presence || "–" %></dd>
-      </div>
-      <div>
-        <dt class="text-sm font-medium text-gray-500">Email</dt>
-        <dd class="mt-1 text-gray-900"><%= @user.email %></dd>
-      </div>
-      <div>
-        <dt class="text-sm font-medium text-gray-500">Niveaux</dt>
-        <dd class="mt-1 text-gray-900">
-          <% if @user.levels.any? %>
-            <%= @user.levels.map(&:name).join(', ') %>
-          <% else %>
-            –
-          <% end %>
-        </dd>
-      </div>
-      <div>
-        <dt class="text-sm font-medium text-gray-500">Rémunération par entraînement</dt>
-        <dd class="mt-1 text-gray-900"><%= number_to_currency(@user.salary_per_training, unit: "€", separator: ",", delimiter: " ") %></dd>
-      </div>
-      <div class="sm:col-span-2">
-        <dt class="text-sm font-medium text-gray-500 mb-2">Rôles</dt>
-        <dd class="flex flex-wrap gap-2">
-          <% if @user.admin? %>
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
-              <%= lucide_icon("shield-user", size: 14) %> Admin
-            </span>
-          <% end %>
-          <% if @user.coach? %>
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
-              <%= lucide_icon("dumbbell", size: 14) %> Coach
-            </span>
-          <% end %>
-          <% if @user.responsable? %>
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-              <%= lucide_icon("key-round", size: 14) %> Responsable
-            </span>
-          <% end %>
-          <% unless @user.admin? || @user.coach? || @user.responsable? %>
-            <span class="text-sm text-gray-500">Aucun rôle défini</span>
-          <% end %>
-        </dd>
-      </div>
-    </dl>
-  </div>
-
-  <!-- Solde de crédits -->
-  <div class="bg-white shadow rounded-lg p-6">
-    <div class="flex items-center justify-between gap-4 flex-col sm:flex-row">
-      <div>
-        <h2 class="text-lg font-semibold text-gray-800 mb-1">Solde de crédits</h2>
-        <p class="text-3xl font-bold text-asmbv-red">
-          <%= @balance&.amount.to_i || 0 %> crédits
-        </p>
-      </div>
-
-      <div class="w-full sm:w-auto">
-        <%= form_with url: adjust_credits_admin_user_path(@user), method: :post, local: true, class: "flex items-end gap-3 flex-col sm:flex-row" do |f| %>
-          <div>
-            <label class="block text-sm font-medium text-gray-900">Montant (+/-)</label>
-            <%= number_field_tag "adjustment[amount]", 0, step: 1, class: "mt-1 block w-40 rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-          </div>
-          <div class="flex gap-2 w-full sm:w-auto">
-            <%= submit_tag "Ajuster", class: "w-full sm:w-auto inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red" %>
-          </div>
+  <!-- Tabs Navigation -->
+  <div class="border-b border-gray-200 mb-6">
+    <nav class="-mb-px flex space-x-8">
+      <%= link_to admin_user_path(@user, tab: 'profile'), 
+          class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-asmbv-red text-asmbv-red' if @active_tab == 'profile'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'profile'}" do %>
+        <%= lucide_icon("user", class: "w-4 h-4 inline mr-2") %>
+        Profil
+      <% end %>
+      <% if @user.coach? %>
+        <%= link_to admin_user_path(@user, tab: 'trainings'), 
+            class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-asmbv-red text-asmbv-red' if @active_tab == 'trainings'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'trainings'}" do %>
+          <%= lucide_icon("users", class: "w-4 h-4 inline mr-2") %>
+          Entraînements
         <% end %>
-      </div>
-    </div>
+      <% end %>
+    </nav>
   </div>
 
-  <!-- Historique des crédits -->
-  <div class="bg-white shadow rounded-lg p-6">
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Historique des crédits</h2>
-    <% if @transactions.any? %>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 text-sm table-fixed">
-          <thead class="bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
-            <tr>
-              <th class="px-3 sm:px-4 py-2 text-left">Date</th>
-              <th class="px-3 sm:px-4 py-2 text-left">Type</th>
-              <th class="px-3 sm:px-4 py-2 text-left">Montant</th>
-              <th class="px-3 sm:px-4 py-2 text-left hidden sm:table-cell">Session</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <% @transactions.each do |t| %>
-              <tr class="hover:bg-gray-50">
-                <td class="px-3 sm:px-4 py-2"><%= l(t.created_at, format: :short) %></td>
-                <td class="px-3 sm:px-4 py-2"><%= t.transaction_type.humanize %></td>
-                <td class="px-3 sm:px-4 py-2 font-medium <%= t.amount.negative? ? 'text-red-600' : 'text-green-600' %>">
-                  <%= t.amount > 0 ? "+#{t.amount}" : t.amount %>
-                </td>
-                <td class="px-3 sm:px-4 py-2 hidden sm:table-cell"><%= t.session&.title || "-" %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-    <% else %>
-      <p class="text-sm text-gray-500">Aucune transaction enregistrée.</p>
-    <% end %>
-  </div>
+  <!-- Tab Content -->
+  <% if @active_tab == 'profile' %>
+    <%= render 'admin_profile_tab' %>
+  <% elsif @active_tab == 'trainings' && @user.coach? %>
+    <%= render 'coach_trainings_tab' %>
+  <% end %>
 
   <!-- Retour -->
   <div>

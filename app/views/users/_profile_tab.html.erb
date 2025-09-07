@@ -1,0 +1,67 @@
+<!-- Profile Tab Content -->
+<div class="space-y-8">
+  <!-- Infos utilisateur -->
+  <div class="bg-white shadow rounded-lg p-4 sm:p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Informations personnelles</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm text-gray-700">
+      <div>
+        <span class="font-medium">Prénom :</span> <%= @user.first_name %>
+      </div>
+      <div>
+        <span class="font-medium">Nom :</span> <%= @user.last_name %>
+      </div>
+      <div>
+        <span class="font-medium">Email :</span> <%= @user.email %>
+      </div>
+      <div>
+        <span class="font-medium">Niveaux :</span>
+        <% if @user.levels.any? %>
+          <%= @user.levels.map(&:name).join(', ') %>
+        <% else %>
+          -
+        <% end %>
+      </div>
+      <div>
+        <span class="font-medium">Rôles :</span>
+        <%= ["Admin", "Coach", "Responsable"].select { |r| @user.send(r.downcase) }.join(', ') %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Solde -->
+  <div class="bg-white shadow rounded-lg p-4 sm:p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Solde de crédits</h2>
+    <p class="text-3xl font-bold text-asmbv-red">
+      <%= @balance.amount %> crédits
+    </p>
+  </div>
+
+  <!-- Transactions -->
+  <div class="bg-white shadow rounded-lg p-4 sm:p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Historique des crédits</h2>
+    <div class="overflow-x-auto -mx-4 sm:mx-0">
+      <table class="min-w-full text-sm text-left table-fixed">
+        <thead class="bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
+          <tr>
+            <th class="px-3 sm:px-4 py-2">Date</th>
+            <th class="px-3 sm:px-4 py-2">Type</th>
+            <th class="px-3 sm:px-4 py-2">Montant</th>
+            <th class="px-3 sm:px-4 py-2 hidden sm:table-cell">Session</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% @transactions.each do |t| %>
+            <tr>
+              <td class="px-3 sm:px-4 py-2"><%= l(t.created_at, format: :short) %></td>
+              <td class="px-3 sm:px-4 py-2"><%= humanize_credit_transaction_type(t.transaction_type) %></td>
+              <td class="px-3 sm:px-4 py-2 <%= t.amount.negative? ? 'text-red-600' : 'text-green-600' %>">
+                <%= t.amount > 0 ? "+#{t.amount}" : t.amount %>
+              </td>
+              <td class="px-3 sm:px-4 py-2 hidden sm:table-cell"><%= t.session&.title || "-" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
