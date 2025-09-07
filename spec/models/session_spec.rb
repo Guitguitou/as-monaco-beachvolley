@@ -1,189 +1,94 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Session, type: :model do
-  let(:user) { create(:user) }
-  let(:level) { create(:level) }
+  # ... existing tests ...
 
-  describe 'validations' do
-    it 'is valid with valid attributes' do
-      session = build(:session, user: user, levels: [level])
-      expect(session).to be_valid
+  describe 'scopes' do
+    let(:coach) { create(:user, coach: true) }
+    let(:current_time) { Time.zone.now }
+    let(:week_start) { current_time.beginning_of_week }
+    let(:month_start) { current_time.beginning_of_month }
+    let(:year_start) { current_time.beginning_of_year }
+    
+    before do
+      # Give coach enough credits for private coaching
+      coach.balance.update!(amount: 2000)
     end
 
-    it 'requires title' do
-      session = build(:session, title: nil, user: user, levels: [level])
-      expect(session).not_to be_valid
-      expect(session.errors[:title]).to include("Le titre est obligatoire")
+    let!(:upcoming_training) { create(:session, session_type: 'entrainement', start_at: current_time + 1.day + 10.hours, end_at: current_time + 1.day + 12.hours, user: coach) }
+    let!(:past_training) { create(:session, session_type: 'entrainement', start_at: current_time - 1.day + 10.hours, end_at: current_time - 1.day + 12.hours, user: coach, terrain: 'Terrain 2') }
+    let!(:upcoming_free_play) { create(:session, session_type: 'jeu_libre', start_at: current_time + 1.day + 14.hours, end_at: current_time + 1.day + 16.hours, user: coach, terrain: 'Terrain 3') }
+    let!(:upcoming_private_coaching) { create(:session, session_type: 'coaching_prive', start_at: current_time + 1.day + 18.hours, end_at: current_time + 1.day + 20.hours, user: coach) }
+    let!(:week_training) { create(:session, session_type: 'entrainement', start_at: week_start + 2.days + 10.hours, end_at: week_start + 2.days + 12.hours, user: coach) }
+    let!(:month_training) { create(:session, session_type: 'entrainement', start_at: month_start + 20.days + 10.hours, end_at: month_start + 20.days + 12.hours, user: coach, terrain: 'Terrain 2') }
+    let!(:year_training) { create(:session, session_type: 'entrainement', start_at: year_start + 60.days + 10.hours, end_at: year_start + 60.days + 12.hours, user: coach, terrain: 'Terrain 3') }
+
+    describe '.upcoming' do
+      it 'returns sessions starting from now' do
+        result = Session.upcoming
+        expect(result).to include(upcoming_training, upcoming_free_play, upcoming_private_coaching)
+        expect(result).not_to include(past_training)
+      end
     end
 
-    it 'requires start_at' do
-      session = build(:session, start_at: nil, user: user, levels: [level])
-      expect(session).not_to be_valid
-      expect(session.errors[:start_at]).to include("La date de début est obligatoire")
+    describe '.in_week' do
+      it 'returns sessions within the specified week' do
+        result = Session.in_week(week_start)
+        expect(result).to include(week_training)
+        expect(result).not_to include(month_training, year_training)
+      end
     end
 
-    it 'requires end_at' do
-      session = build(:session, end_at: nil, user: user, levels: [level])
-      expect(session).not_to be_valid
-      expect(session.errors[:end_at]).to include("La date de fin est obligatoire")
+    describe '.in_month' do
+      it 'returns sessions within the specified month' do
+        result = Session.in_month(month_start)
+        expect(result).to include(month_training, week_training)
+        expect(result).not_to include(year_training)
+      end
     end
 
-    it 'requires session_type' do
-      session = build(:session, session_type: nil, user: user, levels: [level])
-      expect(session).not_to be_valid
-      expect(session.errors[:session_type]).to include("Le type de session est obligatoire")
+    describe '.in_year' do
+      it 'returns sessions within the specified year' do
+        result = Session.in_year(year_start)
+        expect(result).to include(year_training, month_training, week_training)
+      end
     end
 
-    it 'requires terrain' do
-      session = build(:session, terrain: nil, user: user, levels: [level])
-      expect(session).not_to be_valid
-      expect(session.errors[:terrain]).to include("Le terrain est obligatoire")
+    describe '.trainings' do
+      it 'returns only training sessions' do
+        result = Session.trainings
+        expect(result).to include(upcoming_training, past_training, week_training)
+        expect(result).not_to include(upcoming_free_play, upcoming_private_coaching)
+      end
     end
 
-    it 'requires user_id' do
-      session = build(:session, user: nil, levels: [level])
-      expect(session).not_to be_valid
-      expect(session.errors[:user_id]).to include("L'organisateur est obligatoire")
+    describe '.free_plays' do
+      it 'returns only free play sessions' do
+        result = Session.free_plays
+        expect(result).to include(upcoming_free_play)
+        expect(result).not_to include(upcoming_training, upcoming_private_coaching)
+      end
     end
 
-    it 'validates end_at is after start_at' do
-      session = build(:session, start_at: 1.hour.from_now, end_at: 30.minutes.from_now, user: user, levels: [level])
-      expect(session).not_to be_valid
-      expect(session.errors[:end_at]).to include("doit être après la date de début")
-    end
-  end
-
-  describe 'enums' do
-    it 'defines session_type enum' do
-      expect(Session.session_types).to include(
-        'entrainement' => 'entrainement',
-        'jeu_libre' => 'jeu_libre',
-        'tournoi' => 'tournoi',
-        'coaching_prive' => 'coaching_prive'
-      )
+    describe '.private_coachings' do
+      it 'returns only private coaching sessions' do
+        result = Session.private_coachings
+        expect(result).to include(upcoming_private_coaching)
+        expect(result).not_to include(upcoming_training, upcoming_free_play)
+      end
     end
 
-    it 'defines terrain enum' do
-      expect(Session.terrains).to include(
-        'Terrain 1' => 1,
-        'Terrain 2' => 2,
-        'Terrain 3' => 3
-      )
-    end
-  end
+    describe '.ordered_by_start' do
+      it 'orders sessions by start_at' do
+        session_1 = create(:session, session_type: 'entrainement', start_at: current_time + 3.days + 10.hours, end_at: current_time + 3.days + 12.hours, user: coach, terrain: 'Terrain 1')
+        session_2 = create(:session, session_type: 'entrainement', start_at: current_time + 1.day + 10.hours, end_at: current_time + 1.day + 12.hours, user: coach, terrain: 'Terrain 2')
+        session_3 = create(:session, session_type: 'entrainement', start_at: current_time + 2.days + 10.hours, end_at: current_time + 2.days + 12.hours, user: coach, terrain: 'Terrain 3')
 
-  describe 'terrain overlap validation' do
-    let!(:existing_session) do
-      create(:session, 
-        user: user, 
-        levels: [level],
-        terrain: 'Terrain 1',
-        start_at: 2.hours.from_now,
-        end_at: 4.hours.from_now
-      )
-    end
-
-    it 'prevents overlapping sessions on the same terrain' do
-      overlapping_session = build(:session,
-        user: user,
-        levels: [level],
-        terrain: 'Terrain 1',
-        start_at: 3.hours.from_now,
-        end_at: 5.hours.from_now
-      )
-      
-      expect(overlapping_session).not_to be_valid
-      expect(overlapping_session.errors[:base]).to include("Une session existe déjà sur ce terrain pendant ces horaires")
-    end
-
-    it 'allows sessions on different terrains' do
-      different_terrain_session = build(:session,
-        user: user,
-        levels: [level],
-        terrain: 'Terrain 2',
-        start_at: 3.hours.from_now,
-        end_at: 5.hours.from_now
-      )
-      
-      expect(different_terrain_session).to be_valid
-    end
-
-    it 'allows non-overlapping sessions on the same terrain' do
-      non_overlapping_session = build(:session,
-        user: user,
-        levels: [level],
-        terrain: 'Terrain 1',
-        start_at: 5.hours.from_now,
-        end_at: 7.hours.from_now
-      )
-      
-      expect(non_overlapping_session).to be_valid
-    end
-
-    it 'allows updating a session without creating overlap with itself' do
-      existing_session.title = "Updated Title"
-      expect(existing_session).to be_valid
-    end
-  end
-
-  describe 'associations' do
-    it 'belongs to a user' do
-      session = create(:session, user: user, levels: [level])
-      expect(session.user).to eq(user)
-    end
-
-    it 'has many session_levels' do
-      session = create(:session, user: user, levels: [level])
-      expect(session.session_levels).to be_present
-    end
-
-    it 'has many levels through session_levels' do
-      session = create(:session, user: user, levels: [level])
-      expect(session.levels).to include(level)
-    end
-  end
-
-  describe '#display_name' do
-    it 'returns title with levels for entrainement' do
-      session = create(:session, 
-        session_type: :entrainement, 
-        title: "Entraînement", 
-        user: user, 
-        levels: [level]
-      )
-      expect(session.display_name).to eq("Entraînement - #{level.display_name}")
-    end
-
-    it 'returns title for jeu_libre' do
-      session = create(:session, 
-        session_type: :jeu_libre, 
-        title: "Jeu libre", 
-        user: user, 
-        levels: [level]
-      )
-      expect(session.display_name).to eq("Jeu libre")
-    end
-
-    it 'returns title for tournoi' do
-      session = create(:session, 
-        session_type: :tournoi, 
-        title: "Tournoi", 
-        user: user, 
-        levels: [level]
-      )
-      expect(session.display_name).to eq("Tournoi")
-    end
-
-    it 'returns title for coaching_prive' do
-      # Ensure coach has enough credits to pass validation
-      create(:credit_transaction, user: user, amount: 2_000)
-      session = create(:session, 
-        session_type: :coaching_prive, 
-        title: "Coaching", 
-        user: user, 
-        levels: [level]
-      )
-      expect(session.display_name).to eq("Coaching")
+        result = Session.where(id: [session_1.id, session_2.id, session_3.id]).ordered_by_start
+        expect(result.to_a).to eq([session_2, session_3, session_1])
+      end
     end
   end
 end

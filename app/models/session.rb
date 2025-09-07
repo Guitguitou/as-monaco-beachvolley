@@ -42,6 +42,14 @@ class Session < ApplicationRecord
   after_create :charge_coach_for_private_coaching, if: :coaching_prive?
 
   scope :terrain, ->(terrain) { where(terrain: terrain) }
+  scope :upcoming, -> { where("start_at >= ?", Time.current) }
+  scope :in_week, ->(week_start) { where(start_at: week_start..(week_start + 7.days)) }
+  scope :in_month, ->(month_start) { where(start_at: month_start..month_start.end_of_month) }
+  scope :in_year, ->(year_start) { where(start_at: year_start..year_start.end_of_year) }
+  scope :trainings, -> { where(session_type: 'entrainement') }
+  scope :free_plays, -> { where(session_type: 'jeu_libre') }
+  scope :private_coachings, -> { where(session_type: 'coaching_prive') }
+  scope :ordered_by_start, -> { order(:start_at) }
 
   PRIORITY_WINDOW_HOURS = 24
 

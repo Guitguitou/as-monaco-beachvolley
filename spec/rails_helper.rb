@@ -75,17 +75,25 @@ RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
   config.include ActiveSupport::Testing::TimeHelpers
+  
+  # Configure Devise for tests
+  config.include Devise::Test::ControllerHelpers, type: :controller
 
   # Devise helpers for request specs (sign_in, sign_out)
   config.include Devise::Test::IntegrationHelpers, type: :request
   config.include Warden::Test::Helpers, type: :request
   config.include Warden::Test::Helpers, type: :system
+  config.include Warden::Test::Helpers, type: :controller
 
   config.after(type: :request) do
     Warden.test_reset!
   end
 
   config.after(type: :system) do
+    Warden.test_reset!
+  end
+
+  config.after(type: :controller) do
     Warden.test_reset!
   end
 
