@@ -25,9 +25,8 @@ module Admin
     
     # Calculate net revenue: payments (negative amounts) - refunds (positive amounts)
     # Payments are negative, refunds are positive, so we negate the sum to get positive revenue
-    # Convert credits to euros (100 credits = 1€)
     monthly_sum = revenue_transactions.sum(:amount)
-    -monthly_sum / 100.0
+    -monthly_sum
   end
 
   def coach_salary_for_period(range)
@@ -106,16 +105,17 @@ module Admin
 
   def weekly_revenue
     week_range = week_start..(week_start + 7.days)
-    weekly_payments = CreditTransaction.payments.in_period(week_range.first, week_range.last).sum(:amount)
-    # Convert credits to euros (100 credits = 1€) and make revenue positive
-    -weekly_payments / 100.0
+    # Attribute revenue to the week of the session (not transaction creation)
+    payments_sum = payments_cents_for_sessions_period(week_range)
+    # Make revenue positive
+    -payments_sum
   end
 
   def monthly_revenue
     month_range = month_start..month_start.end_of_month
     monthly_payments = CreditTransaction.payments.in_period(month_range.first, month_range.last).sum(:amount)
-    # Convert credits to euros (100 credits = 1€) and make revenue positive
-    -monthly_payments / 100.0
+    # Make revenue positive
+    -monthly_payments / 100
   end
 
   def weekly_net_profit
@@ -128,7 +128,12 @@ module Admin
 
   def charges_breakdown(period_range)
     coach_salaries = coach_salary_for_period(period_range)
-    refunds = refunds_for_period(period_range)
+    # For the weekly table, attribute refunds to the week of the session
+    refunds = if period_range.first == week_start && period_range.last == (week_start + 7.days)
+                refunds_for_sessions_period(period_range)
+              else
+                refunds_for_period(period_range)
+              end
     
     {
       coach_salaries: coach_salaries,
@@ -138,16 +143,21 @@ module Admin
   end
 
   def revenue_breakdown(period_range)
-    payments = CreditTransaction.payments.in_period(period_range.first, period_range.last).sum(:amount)
-    # Convert credits to euros (100 credits = 1€) and make revenue positive
-    -payments / 100.0
+    # For weekly breakdown, attribute to session period; otherwise fallback to created_at
+    payments = if period_range.first == week_start && period_range.last == (week_start + 7.days)
+                 payments_cents_for_sessions_period(period_range)
+               else
+                 CreditTransaction.payments.in_period(period_range.first, period_range.last).sum(:amount)
+               end
+    # Make revenue positive
+    -payments
   end
 
   private
 
   def weekly_refunds
     week_range = week_start..(week_start + 7.days)
-    refunds_for_period(week_range)
+    refunds_for_sessions_period(week_range)
   end
 
   def monthly_refunds
@@ -159,6 +169,38 @@ module Admin
     # Les remboursements sont en crédits, on les convertit en euros (100 crédits = 1€)
     refunds_cents = CreditTransaction.refunds.in_period(period_range.first, period_range.last).sum(:amount)
     refunds_cents / 100.0
+  end
+
+  # Attribute payments to the period of their sessions; fallback to created_at when no session linked
+  def payments_cents_for_sessions_period(period_range)
+    with_session = CreditTransaction
+      .payments
+      .joins(:session)
+      .where(sessions: { start_at: period_range })
+      .sum(:amount)
+
+    without_session = CreditTransaction
+      .payments
+      .where(session_id: nil, created_at: period_range)
+      .sum(:amount)
+
+    (with_session + without_session) / 100.0
+  end
+
+  # Attribute refunds to the period of their sessions; fallback to created_at when no session linked
+  def refunds_for_sessions_period(period_range)
+    refunds_with_session = CreditTransaction
+      .refunds
+      .joins(:session)
+      .where(sessions: { start_at: period_range })
+      .sum(:amount)
+
+    refunds_without_session = CreditTransaction
+      .refunds
+      .where(session_id: nil, created_at: period_range)
+      .sum(:amount)
+
+    (refunds_with_session + refunds_without_session) / 100.0
   end
 end
 end

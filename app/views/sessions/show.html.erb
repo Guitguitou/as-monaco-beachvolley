@@ -1,8 +1,11 @@
 <div class="container mx-auto px-4 py-8">
   <div class="max-w-6xl mx-auto">
     <!-- Breadcrumb -->
-    <nav class="mb-6">
+    <nav class="flex items-center gap-2 mb-6">
       <%= link_to "← Retour au calendrier", sessions_path, class: "text-asmbv-red hover:text-asmbv-red-dark" %>
+      <% if user_signed_in? && current_user.admin? %>
+        <%= link_to "Modifier", edit_admin_session_path(@session), class: "text-asmbv-red hover:text-asmbv-red-dark" %>
+      <% end %>
     </nav>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
