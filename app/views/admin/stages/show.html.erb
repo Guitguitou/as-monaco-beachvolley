@@ -22,7 +22,7 @@
       <div>
         <div class="text-sm text-gray-500">Dates</div>
         <div class="font-medium text-gray-900">
-          <%= l @stage.starts_on, format: :long %> — <%= l @stage.ends_on, format: :long %>
+          <%= l @stage.starts_on, format: :default %> — <%= l @stage.ends_on, format: :default %>
         </div>
       </div>
       <div>
@@ -31,6 +31,23 @@
           <%= @stage.main_coach&.full_name || "-" %>
           <% if @stage.assistant_coach %>
             / <%= @stage.assistant_coach.full_name %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+      <div>
+        <div class="text-sm text-gray-500">Prix</div>
+        <div class="font-medium text-gray-900"><%= number_to_currency(@stage.price, unit: "€", format: "%n %u") %></div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">Inscription</div>
+        <div class="font-medium text-asmbv-red">
+          <% if @stage.registration_link.present? %>
+            <%= link_to "Formulaire", @stage.registration_link, target: "_blank", rel: "noopener" %>
+          <% else %>
+            —
           <% end %>
         </div>
       </div>

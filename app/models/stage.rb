@@ -10,6 +10,7 @@ class Stage < ApplicationRecord
   validates :title, presence: true
   validates :starts_on, presence: true
   validates :ends_on, presence: true
+  validates :price_cents, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validate :ends_on_after_starts_on
 
   # Scopes
@@ -23,6 +24,14 @@ class Stage < ApplicationRecord
 
   def current_or_upcoming?
     Date.current <= ends_on
+  end
+
+  def price
+    (price_cents || 0) / 100.0
+  end
+
+  def price=(euros)
+    self.price_cents = (euros.to_f * 100).round
   end
 
   private

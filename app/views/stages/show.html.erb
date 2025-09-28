@@ -1,0 +1,48 @@
+<div class="max-w-4xl mx-auto">
+  <div class="mb-6">
+    <%= link_to stages_path, class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red" do %>
+      <%= lucide_icon("arrow-left", class: "w-4 h-4") %>
+      <span>Retour aux stages</span>
+    <% end %>
+  </div>
+
+  <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+    <% if @stage.image.attached? %>
+      <%= image_tag @stage.image, class: "w-full h-64 object-cover" %>
+    <% end %>
+
+    <div class="p-6">
+      <h1 class="text-2xl font-bold text-gray-900 mb-2"><%= @stage.title %></h1>
+      <div class="text-gray-700"><%= l @stage.starts_on, format: :long %> — <%= l @stage.ends_on, format: :long %></div>
+      <% if @stage.main_coach || @stage.assistant_coach %>
+        <div class="text-gray-700 text-sm mt-1">
+          <%= [@stage.main_coach&.full_name, @stage.assistant_coach&.full_name].compact.join(" / ") %>
+        </div>
+      <% end %>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <div>
+          <div class="text-sm text-gray-500">Prix</div>
+          <div class="font-medium text-gray-900"><%= number_to_currency(@stage.price, unit: "€", format: "%n %u") %></div>
+        </div>
+        <div>
+          <div class="text-sm text-gray-500">Inscription</div>
+          <% if @stage.registration_link.present? %>
+            <%= link_to "S'inscrire", @stage.registration_link, target: "_blank", rel: "noopener", class: "inline-flex items-center gap-1 text-asmbv-red font-medium" do %>
+              <%= lucide_icon("external-link") %>
+              <span>Formulaire</span>
+            <% end %>
+          <% else %>
+            <div class="text-gray-600">—</div>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @stage.description.present? %>
+        <div class="prose max-w-none mt-6">
+          <%= simple_format(@stage.description) %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

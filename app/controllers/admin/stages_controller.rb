@@ -43,7 +43,7 @@ module Admin
     end
 
     def stage_params
-      params.require(:stage).permit(:title, :description, :starts_on, :ends_on, :image, :main_coach_id, :assistant_coach_id)
+      params.require(:stage).permit(:title, :description, :starts_on, :ends_on, :image, :main_coach_id, :assistant_coach_id, :price, :registration_link)
     end
   end
 end

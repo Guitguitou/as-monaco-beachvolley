@@ -13,7 +13,9 @@
         <% end %>
         <div class="flex-1">
           <div class="text-sm text-gray-500">À l'affiche</div>
-          <h2 class="text-xl font-semibold text-gray-900"><%= @current_or_next.title %></h2>
+          <h2 class="text-xl font-semibold text-gray-900">
+            <%= link_to @current_or_next.title, stage_path(@current_or_next), class: "hover:underline" %>
+          </h2>
           <div class="text-gray-700 mt-1"><%= l @current_or_next.starts_on, format: :long %> — <%= l @current_or_next.ends_on, format: :long %></div>
           <% if @current_or_next.main_coach || @current_or_next.assistant_coach %>
             <div class="text-gray-700 text-sm mt-1">
@@ -41,7 +43,9 @@
               </div>
             <% end %>
             <div class="flex-1">
-              <h3 class="text-lg font-semibold text-gray-900"><%= stage.title %></h3>
+              <h3 class="text-lg font-semibold text-gray-900">
+                <%= link_to stage.title, stage_path(stage), class: "hover:underline" %>
+              </h3>
               <div class="text-gray-700 mt-1 text-sm"><%= l stage.starts_on, format: :long %> — <%= l stage.ends_on, format: :long %></div>
             </div>
           </div>
