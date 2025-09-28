@@ -31,7 +31,7 @@
             <%= stage.title.presence || "(Sans titre)" %>
           </td>
           <td class="px-4 sm:px-6 py-4 text-gray-700">
-            <%= l stage.starts_on, format: :long %> — <%= l stage.ends_on, format: :long %>
+            <%= l stage.starts_on, format: :default %> — <%= l stage.ends_on, format: :default %>
           </td>
           <td class="px-4 sm:px-6 py-4 text-gray-700">
             <%= [stage.main_coach&.full_name, stage.assistant_coach&.full_name].compact.join(" / ") %>

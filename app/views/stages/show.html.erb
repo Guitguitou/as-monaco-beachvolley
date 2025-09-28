@@ -27,6 +27,7 @@
         </div>
         <div>
           <div class="text-sm text-gray-500">Inscription</div>
+          <#%= raise %>
           <% if @stage.registration_link.present? %>
             <%= link_to "S'inscrire", @stage.registration_link, target: "_blank", rel: "noopener", class: "inline-flex items-center gap-1 text-asmbv-red font-medium" do %>
               <%= lucide_icon("external-link") %>

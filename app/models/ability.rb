@@ -14,6 +14,7 @@ class Ability
     # Base permissions for all authenticated users
     if user.id.present? && !user.disabled?
       can :read, Session
+      can :read, Stage
       can :read, User, id: user.id
 
       # Registrations (sign-up to sessions)
