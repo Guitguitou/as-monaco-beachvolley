@@ -83,3 +83,10 @@ end
 gem "tailwindcss-ruby", "~> 4.1"
 
 gem "tailwindcss-rails", "~> 4.2"
+
+# Cloudinary for Active Storage
+gem "cloudinary"
+gem "activestorage-cloudinary-service"
+
+# Load .env in Rails
+gem "dotenv-rails", groups: [:development, :test]
