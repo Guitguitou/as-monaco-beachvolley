@@ -18,6 +18,7 @@
 
     <nav class="flex-1 space-y-2 text-xs">
       <%= nav_link "Calendrier", sessions_path, icon: "calendar", extra_classes: 'sidebar-link' %>
+      <%= nav_link "Stages", stages_path, icon: "flag", extra_classes: 'sidebar-link' %>
       <%= nav_link "Mes sessions", me_sessions_path, icon: "volleyball", extra_classes: 'sidebar-link' %>
       <% if current_user.coach? || current_user.admin? %>
         <%= nav_link "Entraînements (coach)", coach_trainings_path, icon: "book-open", extra_classes: 'sidebar-link' %>

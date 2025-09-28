@@ -1,0 +1,46 @@
+<div class="max-w-4xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
+      <%= lucide_icon("flag") %>
+      <%= @stage.title %>
+    </h1>
+    <div class="space-x-2">
+      <%= link_to edit_admin_stage_path(@stage), class: "inline-flex items-center gap-2 rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-700" do %>
+        <%= lucide_icon("edit", size: 16) %> Éditer
+      <% end %>
+    </div>
+  </div>
+
+  <div class="bg-white shadow-sm rounded-xl border border-gray-200 p-6">
+    <% if @stage.image.attached? %>
+      <div class="mb-4">
+        <%= image_tag @stage.image, class: "w-full h-64 object-cover rounded-lg" %>
+      </div>
+    <% end %>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <div class="text-sm text-gray-500">Dates</div>
+        <div class="font-medium text-gray-900">
+          <%= l @stage.starts_on, format: :long %> — <%= l @stage.ends_on, format: :long %>
+        </div>
+      </div>
+      <div>
+        <div class="text-sm text-gray-500">Coachs</div>
+        <div class="font-medium text-gray-900">
+          <%= @stage.main_coach&.full_name || "-" %>
+          <% if @stage.assistant_coach %>
+            / <%= @stage.assistant_coach.full_name %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <div class="text-sm text-gray-500 mb-1">Description</div>
+      <div class="prose max-w-none">
+        <%= simple_format(@stage.description) %>
+      </div>
+    </div>
+  </div>
+</div>
