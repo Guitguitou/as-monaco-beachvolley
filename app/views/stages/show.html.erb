@@ -1,47 +1,64 @@
-<div class="max-w-4xl mx-auto">
-  <div class="mb-6">
-    <%= link_to stages_path, class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red" do %>
-      <%= lucide_icon("arrow-left", class: "w-4 h-4") %>
-      <span>Retour aux stages</span>
-    <% end %>
-  </div>
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-6xl mx-auto">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center justify-between gap-2 mb-6">
+      <%= link_to stages_path, class: "inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
+        <%= lucide_icon("arrow-left", size: 16) %> Retour aux stages
+      <% end %>
+    </nav>
 
-  <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
-    <% if @stage.image.attached? %>
-      <%= image_tag @stage.image, class: "w-full h-64 object-cover" %>
-    <% end %>
-
-    <div class="p-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-2"><%= @stage.title %></h1>
-      <div class="text-gray-700"><%= l @stage.starts_on, format: :long %> — <%= l @stage.ends_on, format: :long %></div>
-      <% if @stage.main_coach || @stage.assistant_coach %>
-        <div class="text-gray-700 text-sm mt-1">
-          <%= [@stage.main_coach&.full_name, @stage.assistant_coach&.full_name].compact.join(" / ") %>
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <% if @stage.image.attached? %>
+        <div class="mb-4">
+          <%= image_tag @stage.image, class: "w-full h-64 object-cover rounded-lg" %>
         </div>
       <% end %>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-        <div>
-          <div class="text-sm text-gray-500">Prix</div>
-          <div class="font-medium text-gray-900"><%= number_to_currency(@stage.price, unit: "€", format: "%n %u") %></div>
-        </div>
-        <div>
-          <div class="text-sm text-gray-500">Inscription</div>
-          <#%= raise %>
-          <% if @stage.registration_link.present? %>
-            <%= link_to "S'inscrire", @stage.registration_link, target: "_blank", rel: "noopener", class: "inline-flex items-center gap-1 text-asmbv-red font-medium" do %>
-              <%= lucide_icon("external-link") %>
-              <span>Formulaire</span>
-            <% end %>
-          <% else %>
-            <div class="text-gray-600">—</div>
-          <% end %>
-        </div>
+      <div class="flex items-center gap-2 mb-4">
+        <%= lucide_icon("flag", class: "w-6 h-6 text-asmbv-red") %>
+        <h1 class="text-2xl font-bold text-gray-900"><%= @stage.title %></h1>
       </div>
 
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Dates</dt>
+          <dd class="mt-1 text-gray-900"><%= l @stage.starts_on, format: :long %> — <%= l @stage.ends_on, format: :long %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Coachs</dt>
+          <dd class="mt-1 text-gray-900">
+            <%= @stage.main_coach&.full_name || "-" %>
+            <% if @stage.assistant_coach %>
+              / <%= @stage.assistant_coach.full_name %>
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+
+      <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-4">
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Prix</dt>
+          <dd class="mt-1 text-gray-900"><%= number_to_currency(@stage.price, unit: "€", format: "%n %u") %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500">Inscription</dt>
+          <dd class="mt-1">
+            <% if @stage.registration_link.present? %>
+              <%= link_to "S'inscrire", @stage.registration_link, target: "_blank", rel: "noopener", class: "text-asmbv-red hover:text-asmbv-red-dark font-medium inline-flex items-center gap-1" do %>
+                <%= lucide_icon("external-link", size: 16) %>
+                <span>Formulaire</span>
+              <% end %>
+            <% else %>
+              <span class="text-gray-600">—</span>
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+
       <% if @stage.description.present? %>
-        <div class="prose max-w-none mt-6">
-          <%= simple_format(@stage.description) %>
+        <div class="mt-6">
+          <h2 class="text-lg font-semibold text-gray-800 mb-2">Description</h2>
+          <p class="text-gray-700 whitespace-pre-line"><%= @stage.description %></p>
         </div>
       <% end %>
     </div>

@@ -1,40 +1,49 @@
-<%= form_with model: [:admin, stage], local: true, html: { class: "space-y-6" } do |f| %>
+<%= form_with model: stage,
+              url: stage.persisted? ? admin_stage_path(stage) : admin_stages_path,
+              method: stage.persisted? ? :put : :post,
+              class: "space-y-6 bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto" do |f| %>
   <div class="grid grid-cols-1 gap-6">
     <div>
-      <%= f.label :title, "Titre", class: "block text-sm font-medium text-gray-700" %>
-      <%= f.text_field :title, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" %>
+      <%= f.label :title, "Titre", class: "block text-sm font-medium text-gray-900" %>
+      <%= f.text_field :title, required: true,
+            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
     </div>
 
     <div>
-      <%= f.label :description, class: "block text-sm font-medium text-gray-700" %>
-      <%= f.text_area :description, rows: 6, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" %>
+      <%= f.label :description, class: "block text-sm font-medium text-gray-900" %>
+      <%= f.text_area :description, rows: 4,
+            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <div>
-        <%= f.label :starts_on, "Début", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.date_field :starts_on, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" %>
+        <%= f.label :starts_on, "Début", class: "block text-sm font-medium text-gray-900" %>
+        <%= f.date_field :starts_on,
+              class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
       </div>
       <div>
-        <%= f.label :ends_on, "Fin", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.date_field :ends_on, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" %>
+        <%= f.label :ends_on, "Fin", class: "block text-sm font-medium text-gray-900" %>
+        <%= f.date_field :ends_on,
+              class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
       </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <div>
-        <%= f.label :price, "Prix (EUR)", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.number_field :price, step: 0.01, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" %>
+        <%= f.label :price, "Prix (EUR)", class: "block text-sm font-medium text-gray-900" %>
+        <%= f.number_field :price, step: 0.01,
+              class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
       </div>
       <div>
-        <%= f.label :registration_link, "Lien d'inscription", class: "block text-sm font-medium text-gray-700" %>
-        <%= f.url_field :registration_link, placeholder: "https://...", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" %>
+        <%= f.label :registration_link, "Lien d'inscription", class: "block text-sm font-medium text-gray-900" %>
+        <%= f.url_field :registration_link, placeholder: "https://...",
+              class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
       </div>
     </div>
 
     <div>
-      <%= f.label :image, class: "block text-sm font-medium text-gray-700" %>
-      <%= f.file_field :image, class: "mt-1 block w-full text-sm text-gray-700" %>
+      <%= f.label :image, class: "block text-sm font-medium text-gray-900" %>
+      <%= f.file_field :image, class: "mt-1 block w-full text-sm text-gray-900" %>
       <% if stage.image.attached? %>
         <div class="mt-2">
           <%= image_tag stage.image, class: "h-24 rounded-md" %>
@@ -44,20 +53,21 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <div>
-        <%= f.label :main_coach_id, "Coach principal", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.label :main_coach_id, "Coach principal", class: "block text-sm font-medium text-gray-900" %>
         <%= f.collection_select :main_coach_id, User.coachs.order(:first_name, :last_name), :id, :full_name,
               { include_blank: "—" }, { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
       </div>
       <div>
-        <%= f.label :assistant_coach_id, "Coach adjoint", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.label :assistant_coach_id, "Coach adjoint", class: "block text-sm font-medium text-gray-900" %>
         <%= f.collection_select :assistant_coach_id, User.coachs.order(:first_name, :last_name), :id, :full_name,
               { include_blank: "—" }, { class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
       </div>
     </div>
   </div>
 
-  <div class="flex justify-end gap-2">
-    <%= link_to "Annuler", admin_stages_path, class: "inline-flex items-center gap-2 rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200" %>
-    <%= f.submit class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark" %>
+  <div>
+    <%= f.submit class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
+      <%= lucide_icon("save", size: 16) %> Enregistrer
+    <% end %>
   </div>
 <% end %>

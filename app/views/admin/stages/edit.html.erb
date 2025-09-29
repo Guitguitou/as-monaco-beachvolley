@@ -1,4 +1,10 @@
-<div class="max-w-3xl mx-auto">
-  <h1 class="text-2xl font-bold mb-6">Modifier le stage</h1>
+<div class="max-w-5xl mx-auto space-y-6">
+  <div class="flex items-center justify-between border-b pb-4">
+    <div class="flex items-center gap-2">
+      <%= lucide_icon("flag", class: "w-6 h-6 text-asmbv-red") %>
+      <h1 class="text-2xl font-bold text-gray-900">Modifier le stage</h1>
+    </div>
+  </div>
+
   <%= render "form", stage: @stage %>
 </div>
