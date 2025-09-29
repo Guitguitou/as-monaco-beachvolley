@@ -44,9 +44,9 @@
           <dt class="text-sm font-medium text-gray-500">Inscription</dt>
           <dd class="mt-1">
             <% if @stage.registration_link.present? %>
-              <%= link_to "S'inscrire", @stage.registration_link, target: "_blank", rel: "noopener", class: "text-asmbv-red hover:text-asmbv-red-dark font-medium inline-flex items-center gap-1" do %>
+              <%= link_to @stage.registration_link, target: "_blank", rel: "noopener", class: "text-asmbv-red hover:text-asmbv-red-dark font-medium inline-flex items-center gap-1" do %>
                 <%= lucide_icon("external-link", size: 16) %>
-                <span>Formulaire</span>
+                <span>S'inscrire</span>
               <% end %>
             <% else %>
               <span class="text-gray-600">—</span>
