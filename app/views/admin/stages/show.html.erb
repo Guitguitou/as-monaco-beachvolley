@@ -18,7 +18,7 @@
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Informations du stage</h2>
     <% if @stage.image.attached? %>
       <div class="mb-4">
-        <%= image_tag @stage.image, class: "w-full h-64 object-cover rounded-lg" %>
+        <%= image_tag @stage.image, class: "w-full h-full object-cover rounded-lg" %>
       </div>
     <% end %>
 
