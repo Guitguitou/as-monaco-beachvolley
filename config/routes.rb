@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  get "payments/index"
+  get "payments/show"
+  get "payments/new"
+  get "payments/create"
   devise_for :users, controllers: {
     registrations: 'users/registrations'
   }
@@ -22,6 +26,13 @@ Rails.application.routes.draw do
   end
 
   resource :profile, only: [:show], controller: 'users'
+  resources :payments, only: [:index, :show, :new, :create] do
+    member do
+      get :callback
+      get :cancel
+      post :notify
+    end
+  end
 
   namespace :me do
     resources :sessions, only: [:index, :show]
@@ -33,6 +44,7 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root to: "dashboard#index"
+    resources :credit_packages
 
     resources :users do
       post :adjust_credits, on: :member
