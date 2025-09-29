@@ -1,6 +1,7 @@
 class CreditTransaction < ApplicationRecord
   belongs_to :user
   belongs_to :session, optional: true
+  belongs_to :payment, optional: true
 
   enum :transaction_type, {
     purchase: 0,
