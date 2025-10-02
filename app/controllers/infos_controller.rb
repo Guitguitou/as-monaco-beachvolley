@@ -1,6 +1,7 @@
 class InfosController < ApplicationController
   # Pages d'informations publiques (accessibles connecté ou non)
   # Rassemblent les contenus de l'accueil en sous-pages dédiées
+  skip_before_action :authenticate_user!
 
   def index; end
 
