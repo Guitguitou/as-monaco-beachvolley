@@ -42,19 +42,21 @@ class ButtonComponent < ViewComponent::Base
   def variant_classes
     case variant
     when :primary
-      "bg-asmbv-red hover:bg-asmbv-red-dark text-white focus:ring-asmbv-red"
+      "bg-asmbv-red hover:bg-asmbv-red-dark text-white focus:ring-asmbv-red shadow-sm"
     when :secondary
-      "bg-white border border-asmbv-red text-asmbv-red hover:bg-asmbv-red hover:text-white focus:ring-asmbv-red"
+      "bg-white border border-asmbv-red text-asmbv-red hover:bg-asmbv-red hover:text-white focus:ring-asmbv-red shadow-sm"
+    when :tertiary
+      "bg-transparent text-asmbv-red hover:bg-asmbv-red-light hover:text-asmbv-red-dark focus:ring-asmbv-red"
     when :danger
-      "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
+      "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-sm"
     when :success
-      "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
+      "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500 shadow-sm"
     when :warning
-      "bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500"
+      "bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500 shadow-sm"
     when :info
-      "bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500"
+      "bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 shadow-sm"
     else
-      "bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500"
+      "bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500 shadow-sm"
     end
   end
 
@@ -66,6 +68,8 @@ class ButtonComponent < ViewComponent::Base
       "px-4 py-2 text-sm"
     when :large
       "px-6 py-3 text-base"
+    when :xl
+      "px-8 py-4 text-lg"
     else
       "px-4 py-2 text-sm"
     end

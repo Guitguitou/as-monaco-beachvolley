@@ -123,4 +123,18 @@ module ApplicationHelper
       false
     end
   end
+
+  # Helper pour le composant Button
+  def button(label, variant: :primary, size: :medium, href: nil, url: nil, icon: nil, **options)
+    render ButtonComponent.new(
+      variant: variant,
+      size: size,
+      href: href,
+      url: url,
+      icon: icon,
+      **options
+    ) do
+      label
+    end
+  end
 end

@@ -1,154 +1,264 @@
-<div class="min-h-screen bg-white text-gray-900 antialiased flex flex-col">
-  <!-- Header -->
-  <header class="mt-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div>
-        <h1 class="text-xl sm:text-2xl font-semibold tracking-tight">ASM Monaco — Section Beach‑Volley</h1>
-        <p class="text-sm text-gray-600">Infos • Paiement • Plannings • Communauté</p>
+<div class="bg-white dark:bg-gray-900">
+  <!-- Bannière Stage -->
+  <% 
+    # Récupérer le prochain stage
+    next_stage = Stage.ordered_for_players.find { |s| s.current_or_upcoming? }
+  %>
+  <% if next_stage %>
+    <div class="relative isolate flex items-center justify-center gap-x-6 overflow-hidden bg-asmbv-red-light px-6 py-2.5 sm:px-3.5 dark:after:pointer-events-none dark:after:absolute dark:after:inset-x-0 dark:after:bottom-0 dark:after:h-px dark:after:bg-white/10">
+      <!-- Overlay pour la lisibilité -->
+      <div class="absolute inset-0 bg-black/20 dark:bg-black/40"></div>
+      <div aria-hidden="true" class="absolute top-1/2 left-[max(-7rem,calc(50%-52rem))] -z-10 -translate-y-1/2 transform-gpu blur-2xl">
+        <div style="clip-path: polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)" class="aspect-577/310 w-144.25 bg-gradient-to-r from-asmbv-red-light to-asmbv-red opacity-30 dark:opacity-40"></div>
+      </div>
+      <div aria-hidden="true" class="absolute top-1/2 left-[max(45rem,calc(50%+8rem))] -z-10 -translate-y-1/2 transform-gpu blur-2xl">
+        <div style="clip-path: polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)" class="aspect-577/310 w-144.25 bg-gradient-to-r from-asmbv-red-light to-asmbv-red opacity-30 dark:opacity-40"></div>
+      </div>
+      <div class="relative z-10 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+        <p class="text-sm/6 text-gray-900 dark:text-gray-100">
+          <strong class="font-semibold"><%= next_stage.title %></strong><svg viewBox="0 0 2 2" aria-hidden="true" class="mx-2 inline size-0.5 fill-current"><circle r="1" cx="1" cy="1" /></svg>Du <%= l next_stage.starts_on, format: :default %> au <%= l next_stage.ends_on, format: :default %> - Inscriptions ouvertes !
+        </p>
+        <%= link_to stage_path(next_stage), class: "flex-none rounded-full bg-asmbv-red px-3.5 py-1 text-sm font-semibold text-white shadow-xs hover:bg-asmbv-red-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red dark:bg-asmbv-red/20 dark:inset-ring-white/20 dark:hover:bg-asmbv-red/30 dark:focus-visible:outline-white" do %>
+          S'inscrire <span aria-hidden="true">&rarr;</span>
+        <% end %>
       </div>
     </div>
+  <% end %>
+
+  <!-- Navigation -->
+  <header class="absolute inset-x-0 top-0 z-50" style="<%= 'top: 2.5rem;' if next_stage %>">
+    <!-- Fond pour la navigation mobile -->
+    <div class="absolute inset-0 bg-white/95 backdrop-blur-sm dark:bg-gray-900/95 lg:bg-transparent lg:backdrop-blur-none"></div>
+    <nav aria-label="Global" class="relative z-10 flex items-center justify-between p-6 lg:px-8">
+      <div class="flex lg:flex-1">
+        <%= link_to root_path, class: "-m-1.5 p-1.5" do %>
+          <span class="sr-only">AS Monaco Beach-Volley</span>
+          <%= image_tag "logo.png", alt: "AS Monaco Beach-Volley", class: "h-8 w-auto" %>
+        <% end %>
+      </div>
+      <div class="flex lg:hidden">
+        <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white hover:text-gray-200">
+          <span class="sr-only">Open main menu</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-6">
+            <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+             <div class="hidden lg:flex lg:gap-x-12">
+               <%= link_to "Informations", infos_root_path, class: "text-sm/6 font-semibold text-white hover:text-gray-200" %>
+               <%= link_to "Sessions", sessions_path, class: "text-sm/6 font-semibold text-white hover:text-gray-200" %>
+               <%= link_to "Stages", stages_path, class: "text-sm/6 font-semibold text-white hover:text-gray-200" %>
+               <%= link_to "Contact", "mailto:asm.beachvolley@gmail.com", class: "text-sm/6 font-semibold text-white hover:text-gray-200" %>
+             </div>
+      <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+        <% if user_signed_in? %>
+          <%= link_to "Mon espace", me_sessions_path, class: "text-sm/6 font-semibold text-white hover:text-gray-200" %>
+        <% else %>
+          <%= link_to "Se connecter", new_user_session_path, class: "text-sm/6 font-semibold text-white hover:text-gray-200" %>
+        <% end %>
+      </div>
+    </nav>
   </header>
 
-  <main class="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pb-16">
-    <!-- Bandeau info -->
-    <section class="py-2 mt-10">
-      <div class="flex items-start gap-4">
-        <div class="flex-1">
-          <p class="text-gray-700 leading-relaxed">
-            Bonjour à tous ! Pour l’instant, le système de paiement est toujours sur l’ancien modèle HelloAsso.
-          </p>
-          <div class="mt-4 flex flex-wrap items-center gap-3">
-            <a href="https://www.helloasso.com/associations/association-d-aide-a-l-as-monaco-volley-ball/boutiques/as-monaco-beach-volley" class="inline-flex items-center gap-2 rounded-lg border border-asmbv-red px-3 py-2 text-sm font-medium text-asmbv-red hover:bg-asmbv-red hover:text-white transition">
-              Payer sur HelloAsso
-            </a>
-            <span class="text-xs text-gray-500">Nouvelle solution à venir</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Liens rapides -->
-    <section class="mt-6 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-      <!-- Vidéos tutos (à venir) -->
-      <article class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition">
-        <div class="mb-2 flex items-center gap-2">
-          <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5 text-asmbv-red"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 10-4.5 2.598V7.402L15 10Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
-          </div>
-          <h3 class="font-medium">Vidéos tutos</h3>
-        </div>
-        <p class="text-sm text-gray-600 mb-3">Consulte les tutos de Cham.</p>
-        <%= link_to infos_videos_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
-          Ouvrir les vidéos
-        <% end %>
-      </article>
-
-      <!-- Planning des entraînements -->
-      <article class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition">
-        <div class="mb-2 flex items-center gap-2">
-          <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5 text-asmbv-red"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 0 0 2-2v-8H3v8a2 2 0 0 0 2 2Z"/></svg>
-          </div>
-          <h3 class="font-medium">Planning des entraînements</h3>
-        </div>
-        <p class="text-sm text-gray-600 mb-3">Consulte le tableau des créneaux et niveaux.</p>
-        <%= link_to infos_planning_trainings_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
-          Ouvrir le planning
-        <% end %>
-      </article>
-
-      <!-- Planning de la saison -->
-      <article class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition">
-        <div class="mb-2 flex items-center gap-2">
-          <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5 text-asmbv-red"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h18v4H3zM3 12h18v8H3z"/></svg>
-          </div>
-          <h3 class="font-medium">Planning de la saison</h3>
-        </div>
-        <p class="text-sm text-gray-600 mb-3">Toutes les dates clés de l'année sportive.</p>
-        <%= link_to infos_planning_season_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
-          Voir le calendrier
-        <% end %>
-      </article>
-
-      <!-- Règlement intérieur -->
-      <article class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition">
-        <div class="mb-2 flex items-center gap-2">
-          <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5 text-asmbv-red"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 11h10M7 15h6M5 3h14v18l-7-3-7 3V3Z"/></svg>
-          </div>
-          <h3 class="font-medium">Règlement intérieur</h3>
-        </div>
-        <p class="text-sm text-gray-600 mb-3">Les règles de la section beach‑volley.</p>
-        <%= link_to infos_internal_rules_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
-          Lire le document
-        <% end %>
-      </article>
-
-      <!-- Responsables des réservations -->
-      <article class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition">
-        <div class="mb-2 flex items-center gap-2">
-          <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5 text-asmbv-red"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 1 0-8 0v4M5 11h14l-1 9H6l-1-9Z"/></svg>
-          </div>
-          <h3 class="font-medium">Responsables réservations</h3>
-        </div>
-        <p class="text-sm text-gray-600 mb-3">Contacts par créneau pour l'accès aux terrains.</p>
-        <%= link_to infos_reservations_leads_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
-          Ouvrir le listing
-        <% end %>
-      </article>
-
-      <!-- Plaquette de présentation (à venir) -->
-      <article class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition">
-        <div class="mb-2 flex items-center gap-2">
-          <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5 text-asmbv-red"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h10"/></svg>
-          </div>
-          <h3 class="font-medium">Plaquette de présentation</h3>
-        </div>
-        <p class="text-sm text-gray-600 mb-3">Version 4 — à venir.</p>
-        <%= link_to infos_brochure_path, class: "inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100" do %>
-          Voir la plaquette
-        <% end %>
-      </article>
-
-      <!-- WhatsApp + Email -->
-      <article class="group rounded-xl bg-white p-5 ring-1 ring-gray-200 hover:ring-gray-300 hover:bg-gray-50 transition">
-        <div class="mb-2 flex items-center gap-2">
-          <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-5 w-5 text-asmbv-red"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7l-4 4V5Z"/></svg>
-          </div>
-          <h3 class="font-medium">Contact & Communauté</h3>
-        </div>
-        <div class="space-y-2 text-sm">
-          <a href="https://chat.whatsapp.com/J05V2o3sPhdAwoPto5DiVo" class="inline-flex items-center gap-2 rounded-md px-3 py-1.5 bg-asmbv-red/10 hover:bg-asmbv-red/20 transition">
-            Rejoindre la communauté WhatsApp
-          </a>
-          <p>Mail : <a href="mailto:asm.beachvolley@gmail.com" class="text-asmbv-red hover:underline">asm.beachvolley@gmail.com</a></p>
-        </div>
-      </article>
-    </section>
-
-    <!-- Bandeau CTA -->
-    <section class="mt-8">
-      <div class="rounded-lg bg-white px-0 py-0 sm:px-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h3 class="text-base sm:text-lg font-semibold">Besoin d'aide ? Une question ?</h3>
-          <p class="text-sm text-gray-600">Consulte les liens ci‑dessus ou écris‑nous par e‑mail.</p>
-        </div>
-        <a href="mailto:asm.beachvolley@gmail.com" class="inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium hover:bg-gray-50">
-          Contacter la section
-        </a>
-      </div>
-    </section>
-  </main>
-
-  <!-- Footer -->
-  <footer class="mt-auto border-t">
-    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 text-sm text-gray-600 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <p>© <%= Time.current.year %> ASM Monaco — Section Beach‑Volley</p>
-      <p class="text-gray-500">Rouge & Blanc, esprit club, sable & bonnes vibes 🏐</p>
+  <!-- Hero Banner -->
+  <div class="relative isolate px-6 pt-14 bg-cover bg-center bg-no-repeat min-h-screen" style="background-image: url('<%= asset_path('beach-volley-monaco.webp') %>'); background-size: cover; background-position: center; background-attachment: fixed;">
+    <!-- Overlay pour la lisibilité -->
+    <div class="absolute inset-0 bg-black/30 dark:bg-black/50"></div>
+    <!-- Effets visuels de fond -->
+    <div aria-hidden="true" class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
+      <div style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" class="relative left-[calc(50%-11rem)] aspect-1155/678 w-144.5 -translate-x-1/2 rotate-30 bg-gradient-to-tr from-asmbv-red-light to-asmbv-red opacity-30 sm:left-[calc(50%-30rem)] sm:w-288.75"></div>
     </div>
-  </footer>
+    
+    <div class="relative z-10 mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+      <div class="hidden sm:mb-8 sm:flex sm:justify-center">
+        <div class="relative rounded-full px-3 py-1 text-sm/6 text-white ring-1 ring-white/20 hover:ring-white/30 dark:text-white dark:ring-white/10 dark:hover:ring-white/20">
+          Rejoignez la communauté beach-volley de Monaco. 
+          <%= link_to "https://docs.google.com/forms/d/e/1FAIpQLScoKZR2ATXZfDnIqLOnIP90tXB23wtBwsD2yiMSosqrQM6xWA/viewform?usp=sf_link", class: "font-semibold text-white hover:text-gray-200 dark:text-white dark:hover:text-gray-200" do %>
+            <span aria-hidden="true" class="absolute inset-0"></span>M'inscrire <span aria-hidden="true">&rarr;</span>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="text-center">
+        <h1 class="text-5xl font-semibold tracking-tight text-balance text-white sm:text-7xl">
+          AS Monaco Beach-Volley
+        </h1>
+        <p class="mt-8 text-lg font-medium text-pretty text-white/90 sm:text-xl/8">
+          Rejoignez la section beach-volley de l'AS Monaco pour des entraînements, des stages et une communauté passionnée. Que vous soyez débutant ou confirmé, trouvez votre place sur le sable.
+        </p>
+        <div class="mt-10 flex items-center justify-center gap-x-6">
+          <% if user_signed_in? %>
+            <%= button("Mon espace", variant: :primary, size: :large, href: me_sessions_path) %>
+          <% else %>
+            <%= button("Me connecter", variant: :primary, size: :large, href: new_user_session_path) %>
+          <% end %>
+          <%= button("En savoir plus →", variant: :tertiary, size: :large, href: infos_root_path) %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Effet visuel du bas -->
+    <div aria-hidden="true" class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]">
+      <div style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" class="relative left-[calc(50%+3rem)] aspect-1155/678 w-144.5 -translate-x-1/2 bg-gradient-to-tr from-asmbv-red-light to-asmbv-red opacity-30 sm:left-[calc(50%+36rem)] sm:w-288.75"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Section Services -->
+<div class="bg-gray-50 dark:bg-gray-800 py-24 sm:py-32">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+        Nos services
+      </h2>
+      <p class="mt-6 text-lg leading-8 text-gray-600 dark:text-gray-300">
+        Découvrez tous les services proposés par l'AS Monaco Beach-Volley
+      </p>
+    </div>
+    
+    <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+      <dl class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+        <!-- Espace Réservation -->
+        <div class="flex flex-col">
+          <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900 dark:text-white">
+            <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-asmbv-red">
+              <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+              </svg>
+            </div>
+            Espace Réservation
+          </dt>
+          <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600 dark:text-gray-300">
+            <p class="flex-auto">Réservez vos créneaux de jeu en ligne, consultez les disponibilités et gérez vos inscriptions aux sessions.</p>
+            <p class="mt-6">
+              <%= link_to "Réserver maintenant", sessions_path, class: "text-sm font-semibold leading-6 text-asmbv-red hover:text-asmbv-red-dark" %>
+            </p>
+          </dd>
+        </div>
+
+        <!-- Entraînements -->
+        <div class="flex flex-col">
+          <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900 dark:text-white">
+            <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-asmbv-red">
+              <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+              </svg>
+            </div>
+            Entraînements
+          </dt>
+          <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600 dark:text-gray-300">
+            <p class="flex-auto">Participez à nos entraînements réguliers, adaptés à tous les niveaux, encadrés par nos coachs expérimentés.</p>
+            <p class="mt-6">
+              <%= link_to "Voir le planning", infos_planning_trainings_path, class: "text-sm font-semibold leading-6 text-asmbv-red hover:text-asmbv-red-dark" %>
+            </p>
+          </dd>
+        </div>
+
+        <!-- Stages -->
+        <div class="flex flex-col">
+          <dt class="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900 dark:text-white">
+            <div class="h-10 w-10 flex items-center justify-center rounded-lg bg-asmbv-red">
+              <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a12.06 12.06 0 0 0 4.5 0m0 0a12.06 12.06 0 0 0-4.5 0m0 0a12.06 12.06 0 0 1-4.5 0" />
+              </svg>
+            </div>
+            Stages
+          </dt>
+          <dd class="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600 dark:text-gray-300">
+            <p class="flex-auto">Découvrez nos stages intensifs, des week-ends de perfectionnement pour progresser rapidement et se challenger.</p>
+            <p class="mt-6">
+              <%= link_to "Découvrir les stages", stages_path, class: "text-sm font-semibold leading-6 text-asmbv-red hover:text-asmbv-red-dark" %>
+            </p>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<!-- Section Fonctionnalités -->
+<div class="bg-white py-24 sm:py-32 dark:bg-gray-900">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-5">
+      <div class="col-span-2">
+        <h2 class="text-base/7 font-semibold text-asmbv-red dark:text-asmbv-red-light">Tout ce dont vous avez besoin</h2>
+        <p class="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl dark:text-white">Plateforme complète</p>
+        <p class="mt-6 text-base/7 text-gray-700 dark:text-gray-300">Découvrez tous les outils et fonctionnalités mis à votre disposition pour profiter pleinement de votre expérience beach-volley à Monaco.</p>
+      </div>
+      <dl class="col-span-3 grid grid-cols-1 gap-x-8 gap-y-10 text-base/7 text-gray-600 sm:grid-cols-2 lg:gap-y-16 dark:text-gray-400">
+        <div class="relative pl-9">
+          <dt class="font-semibold text-gray-900 dark:text-white">
+            <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="absolute top-1 left-0 size-5 text-asmbv-red dark:text-asmbv-red-light">
+              <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
+            </svg>
+            Calendrier des sessions
+          </dt>
+          <dd class="mt-2">Consultez en temps réel les créneaux disponibles, réservez vos places et gérez vos inscriptions aux entraînements.</dd>
+        </div>
+        <div class="relative pl-9">
+          <dt class="font-semibold text-gray-900 dark:text-white">
+            <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="absolute top-1 left-0 size-5 text-asmbv-red dark:text-asmbv-red-light">
+              <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
+            </svg>
+            Stages intensifs
+          </dt>
+          <dd class="mt-2">Participez à nos stages de perfectionnement, encadrés par des coachs expérimentés pour progresser rapidement.</dd>
+        </div>
+        <div class="relative pl-9">
+          <dt class="font-semibold text-gray-900 dark:text-white">
+            <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="absolute top-1 left-0 size-5 text-asmbv-red dark:text-asmbv-red-light">
+              <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
+            </svg>
+            Système de niveaux
+          </dt>
+          <dd class="mt-2">Évoluez selon votre niveau : débutant, intermédiaire ou expert, avec des entraînements adaptés à chacun.</dd>
+        </div>
+        <div class="relative pl-9">
+          <dt class="font-semibold text-gray-900 dark:text-white">
+            <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="absolute top-1 left-0 size-5 text-asmbv-red dark:text-asmbv-red-light">
+              <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
+            </svg>
+            Gestion des réservations
+          </dt>
+          <dd class="mt-2">Réservez facilement vos créneaux, annulez si nécessaire et consultez l'historique de vos participations.</dd>
+        </div>
+        <div class="relative pl-9">
+          <dt class="font-semibold text-gray-900 dark:text-white">
+            <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="absolute top-1 left-0 size-5 text-asmbv-red dark:text-asmbv-red-light">
+              <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
+            </svg>
+            Vidéos tuto
+          </dt>
+          <dd class="mt-2">Accédez à une bibliothèque de vidéos pédagogiques pour améliorer votre technique et progresser à votre rythme.</dd>
+        </div>
+        <div class="relative pl-9">
+          <dt class="font-semibold text-gray-900 dark:text-white">
+            <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="absolute top-1 left-0 size-5 text-asmbv-red dark:text-asmbv-red-light">
+              <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
+            </svg>
+            Organisation de tournois
+          </dt>
+          <dd class="mt-2">Participez à nos tournois internes et externes, défiez d'autres joueurs et mesurez votre progression dans la compétition.</dd>
+        </div>
+        <div class="relative pl-9">
+          <dt class="font-semibold text-gray-900 dark:text-white">
+            <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="absolute top-1 left-0 size-5 text-asmbv-red dark:text-asmbv-red-light">
+              <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
+            </svg>
+            Informations pratiques
+          </dt>
+          <dd class="mt-2">Accédez à toutes les informations : règlement, planning, contacts et ressources utiles pour votre pratique.</dd>
+        </div>
+        <div class="relative pl-9">
+          <dt class="font-semibold text-gray-900 dark:text-white">
+            <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="absolute top-1 left-0 size-5 text-asmbv-red dark:text-asmbv-red-light">
+              <path d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd" fill-rule="evenodd" />
+            </svg>
+            Application mobile
+          </dt>
+          <dd class="mt-2">Profitez d'une expérience optimisée sur mobile pour réserver et consulter vos informations en déplacement.</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
 </div>
