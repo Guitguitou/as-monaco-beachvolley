@@ -1,6 +1,39 @@
 <div class="max-w-5xl mx-auto">
   <h1 class="text-2xl font-semibold mb-6">Règles & informations</h1>
   <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
+    <!-- Inscription -->
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLScoKZR2ATXZfDnIqLOnIP90tXB23wtBwsD2yiMSosqrQM6xWA/viewform?usp=sf_link" target="_blank" rel="noopener" class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block">
+      <div class="mb-2 flex items-center gap-2">
+        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
+          <%= lucide_icon 'user-plus', class: 'h-5 w-5 text-asmbv-red' %>
+        </div>
+        <h3 class="font-medium">Inscription</h3>
+      </div>
+      <p class="text-sm text-gray-600">Formulaire d'inscription à l'association.</p>
+    </a>
+
+    <!-- Achat de crédits -->
+    <a href="https://www.helloasso.com/associations/association-d-aide-a-l-as-monaco-volley-ball/boutiques/as-monaco-beach-volley" target="_blank" rel="noopener" class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block">
+      <div class="mb-2 flex items-center gap-2">
+        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
+          <%= lucide_icon 'credit-card', class: 'h-5 w-5 text-asmbv-red' %>
+        </div>
+        <h3 class="font-medium">Achat de crédits</h3>
+      </div>
+      <p class="text-sm text-gray-600">Achetez vos crédits via HelloAsso.</p>
+    </a>
+
+    <!-- Communauté WhatsApp -->
+    <a href="https://chat.whatsapp.com/J05V2o3sPhdAwoPto5DiVo" target="_blank" rel="noopener" class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block">
+      <div class="mb-2 flex items-center gap-2">
+        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
+          <%= lucide_icon 'message-circle', class: 'h-5 w-5 text-asmbv-red' %>
+        </div>
+        <h3 class="font-medium">Communauté WhatsApp</h3>
+      </div>
+      <p class="text-sm text-gray-600">Rejoignez le groupe WhatsApp de l'association.</p>
+    </a>
+
     <%= link_to infos_videos_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
       <div class="mb-2 flex items-center gap-2">
         <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
