@@ -1,0 +1,27 @@
+<head>
+  <title><%= content_for(:title) || "AS Monaco Beach Volley App" %></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= favicon_link_tag "logo.png", type: "image/png" %>
+
+  <!-- FullCalendar CSS -->
+  <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.18/index.global.min.css" %>
+  <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.18/index.global.min.css" %>
+  <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/@fullcalendar/resource-timegrid@6.1.18/index.global.min.css" %>
+
+  <!-- FullCalendar JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.18/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.18/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.18/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.18/index.global.min.js"></script>
+
+  <!-- Tom Select for searchable multi-selects -->
+  <%= stylesheet_link_tag "https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" %>
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+  <!-- App styles -->
+  <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+  <%= javascript_importmap_tags %>
+  <%= yield :head if content_for?(:head) %>
+</head>

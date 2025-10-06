@@ -1,0 +1,10 @@
+<!-- Layout pour utilisateurs non connectés -->
+<!-- Header pour les joueurs -->
+<%= render "layouts/public_header" %>
+
+<!-- Main content -->
+<main class="flex-1 overflow-hidden">
+  <div class="h-[calc(100vh-80px)] overflow-y-auto px-6 pt-6">
+    <%= yield %>
+  </div>
+</main>

@@ -1,0 +1,11 @@
+<!-- Mobile top navbar -->
+<header class="bg-white border-b border-gray-200 p-4 flex items-center justify-between lg:hidden fixed top-0 inset-x-0 z-40">
+  <button type="button" class="text-asmbv-red" data-action="click->sidebar#toggle">
+    <%= lucide_icon('menu', class: 'w-6 h-6') %>
+  </button>
+  <div class="flex items-center gap-2">
+    <%= image_tag "logo.png", class: "w-8 h-8" %>
+    <span class="text-base font-semibold">AS Monaco Beach Volley</span>
+  </div>
+  <div class="w-6"></div>
+</header>
