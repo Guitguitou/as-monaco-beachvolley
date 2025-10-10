@@ -1,0 +1,125 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Script de vérification de la configuration LCL
+# Usage: bin/check_lcl_config
+
+require_relative '../config/environment'
+
+puts "🔍 Vérification de la configuration LCL/Sherlock\n\n"
+
+# Vérifier les variables d'environnement
+puts "📋 Variables d'environnement:"
+vars = {
+  'LCL_MERCHANT_ID' => ENV['LCL_MERCHANT_ID'],
+  'LCL_CERTIFICATE_PATH' => ENV['LCL_CERTIFICATE_PATH'],
+  'LCL_PRIVATE_KEY_PATH' => ENV['LCL_PRIVATE_KEY_PATH'],
+  'BASE_URL' => ENV['BASE_URL']
+}
+
+vars.each do |name, value|
+  if value.present?
+    puts "  ✅ #{name}: #{value.length > 30 ? value[0..30] + '...' : value}"
+  else
+    puts "  ❌ #{name}: NON DÉFINIE"
+  end
+end
+
+puts "\n📁 Certificats:"
+
+# Vérifier les certificats
+cert_path = ENV['LCL_CERTIFICATE_PATH']
+key_path = ENV['LCL_PRIVATE_KEY_PATH']
+
+if cert_path.present? && File.exist?(cert_path)
+  puts "  ✅ Certificat trouvé: #{cert_path}"
+  
+  begin
+    cert = OpenSSL::X509::Certificate.new(File.read(cert_path))
+    puts "     Sujet: #{cert.subject}"
+    puts "     Validité: #{cert.not_before} - #{cert.not_after}"
+    
+    if cert.not_after < Time.now
+      puts "     ⚠️  CERTIFICAT EXPIRÉ!"
+    elsif cert.not_after < 30.days.from_now
+      puts "     ⚠️  Certificat expire bientôt: #{cert.not_after}"
+    end
+  rescue OpenSSL::X509::CertificateError => e
+    puts "     ❌ Certificat invalide: #{e.message}"
+  end
+else
+  puts "  ❌ Certificat introuvable: #{cert_path}"
+end
+
+if key_path.present? && File.exist?(key_path)
+  puts "  ✅ Clé privée trouvée: #{key_path}"
+  
+  begin
+    key = OpenSSL::PKey::RSA.new(File.read(key_path))
+    puts "     Taille de clé: #{key.n.num_bits} bits"
+  rescue OpenSSL::PKey::RSAError => e
+    puts "     ❌ Clé privée invalide: #{e.message}"
+  end
+else
+  puts "  ❌ Clé privée introuvable: #{key_path}"
+end
+
+# Tester le client LCL
+puts "\n🔌 Client LCL:"
+
+begin
+  client = Lcl.client
+  
+  if client.configured?
+    puts "  ✅ Client configuré"
+    puts "     Merchant ID: #{client.merchant_id}"
+    puts "     Base URL: #{client.base_url}"
+    
+    # Tester la signature
+    begin
+      test_params = { test: 'data', amount: 1000 }
+      signature = client.signature.generate(test_params)
+      puts "  ✅ Signature générée avec succès"
+      puts "     Test signature: #{signature[0..30]}..."
+      
+      # Vérifier la signature
+      if client.signature.verify(test_params, signature)
+        puts "  ✅ Vérification de signature OK"
+      else
+        puts "  ❌ Vérification de signature ÉCHOUÉE"
+      end
+    rescue StandardError => e
+      puts "  ❌ Erreur lors de la génération de signature: #{e.message}"
+    end
+  else
+    puts "  ❌ Client non configuré"
+  end
+rescue Lcl::Client::ConfigurationError => e
+  puts "  ❌ Erreur de configuration: #{e.message}"
+rescue StandardError => e
+  puts "  ❌ Erreur inattendue: #{e.message}"
+  puts "     #{e.backtrace.first(3).join("\n     ")}"
+end
+
+# Résumé
+puts "\n" + "=" * 60
+puts "📊 RÉSUMÉ\n\n"
+
+if vars.values.all?(&:present?) && 
+   File.exist?(cert_path.to_s) && 
+   File.exist?(key_path.to_s) &&
+   Lcl.client.configured?
+  puts "✅ Configuration LCL complète et fonctionnelle!"
+  puts "\n💡 Vous pouvez maintenant:"
+  puts "   - Tester un paiement en développement"
+  puts "   - Déployer en production avec les bons certificats"
+else
+  puts "❌ Configuration incomplète. Veuillez:"
+  puts "   1. Créer un fichier .env (voir .env.example)"
+  puts "   2. Placer vos certificats dans config/certificates/"
+  puts "   3. Relancer ce script pour vérifier"
+  puts "\n📖 Voir CHANGEMENTS_PAIEMENT.md et lib/lcl/MIGRATION.md"
+end
+
+puts "=" * 60
+

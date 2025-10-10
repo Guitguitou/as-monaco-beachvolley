@@ -362,3 +362,7 @@ junit.xml
 
 # TODO: Utiliser la convention dotenv
 *.env
+
+# LCL/Sherlock certificates - NEVER commit these
+config/certificates/
+config/lcl.yml

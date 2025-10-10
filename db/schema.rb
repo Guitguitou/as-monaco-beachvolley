@@ -50,6 +50,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_29_072341) do
     t.index ["user_id"], name: "index_balances_on_user_id"
   end
 
+  create_table "credit_packages", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.integer "credits"
+    t.integer "price_cents"
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "credit_transactions", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "session_id"
@@ -57,6 +67,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_29_072341) do
     t.integer "amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description"
+    t.bigint "payment_id"
+    t.index ["payment_id"], name: "index_credit_transactions_on_payment_id"
     t.index ["session_id"], name: "index_credit_transactions_on_session_id"
     t.index ["user_id"], name: "index_credit_transactions_on_user_id"
   end
@@ -77,6 +90,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_29_072341) do
     t.string "color"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "payments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "credit_package_id", null: false
+    t.string "status", default: "pending"
+    t.integer "amount_cents"
+    t.string "sherlock_transaction_id"
+    t.text "sherlock_response"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["credit_package_id"], name: "index_payments_on_credit_package_id"
+    t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
   create_table "registrations", force: :cascade do |t|
@@ -169,10 +195,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_29_072341) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "balances", "users"
+  add_foreign_key "credit_transactions", "payments"
   add_foreign_key "credit_transactions", "sessions"
   add_foreign_key "credit_transactions", "users"
   add_foreign_key "late_cancellations", "sessions"
   add_foreign_key "late_cancellations", "users"
+  add_foreign_key "payments", "credit_packages"
+  add_foreign_key "payments", "users"
   add_foreign_key "registrations", "sessions"
   add_foreign_key "registrations", "users"
   add_foreign_key "session_levels", "levels"
