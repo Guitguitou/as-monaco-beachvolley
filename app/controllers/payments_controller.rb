@@ -1,6 +1,6 @@
 class PaymentsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_payment, only: [:show]
+  before_action :set_payment, only: [:show, :callback, :cancel, :notify]
 
   def index
     @payments = current_user.payments.recent
@@ -16,61 +16,40 @@ class PaymentsController < ApplicationController
 
   def create
     @credit_package = CreditPackage.find(params[:credit_package_id])
-    
-    @payment = current_user.payments.build(
-      credit_package: @credit_package,
-      status: 'pending'
-    )
+    @payment = create_payment_for_package(@credit_package)
 
-    if @payment.save
-      # Initier le paiement avec LCL/Sherlock
-      payment_service = LclPaymentService.new(@payment)
-      result = payment_service.initiate_payment
+    if @payment.persisted?
+      result = initiate_lcl_payment(@payment)
       
       if result[:success]
-        redirect_to result[:payment_url]
+        redirect_to result[:payment_url], allow_other_host: true
       else
-        @payment.update!(status: 'failed')
-        @credit_packages = CreditPackage.active.ordered
-        flash.now[:alert] = "Erreur lors de l'initiation du paiement: #{result[:error]}"
-        render :new, status: :unprocessable_entity
+        handle_payment_error(result[:error])
       end
     else
-      @credit_packages = CreditPackage.active.ordered
-      render :new, status: :unprocessable_entity
+      render_new_with_packages
     end
   end
 
   def callback
-    # Callback de retour après paiement réussi
-    payment_service = LclPaymentService.new(@payment)
-    result = payment_service.handle_callback(params)
-    
+    result = process_payment_callback
+
     if result[:success]
-      case result[:status]
-      when 'completed'
-        redirect_to payments_path, notice: 'Paiement effectué avec succès ! Vos crédits ont été ajoutés.'
-      when 'cancelled'
-        redirect_to new_payment_path, alert: 'Paiement annulé.'
-      when 'failed'
-        redirect_to new_payment_path, alert: 'Le paiement a échoué. Veuillez réessayer.'
-      end
+      redirect_with_status_message(result[:status])
     else
-      redirect_to new_payment_path, alert: "Erreur lors du traitement du paiement: #{result[:error]}"
+      redirect_to new_payment_path, alert: "Erreur: #{result[:error]}"
     end
   end
 
   def cancel
-    # Redirection en cas d'annulation
     @payment.update!(status: 'cancelled')
     redirect_to new_payment_path, alert: 'Paiement annulé.'
   end
 
   def notify
-    # Notification asynchrone de LCL (webhook)
-    payment_service = LclPaymentService.new(@payment)
-    result = payment_service.handle_callback(params)
-    
+    # Webhook LCL - Notification asynchrone
+    result = process_payment_callback
+
     if result[:success]
       render json: { status: 'ok' }
     else
@@ -81,6 +60,52 @@ class PaymentsController < ApplicationController
   private
 
   def set_payment
-    @payment = current_user.payments.find(params[:id])
+    @payment = if params[:id]
+      current_user.payments.find(params[:id])
+    elsif params[:order_id]
+      current_user.payments.find_by!(id: params[:order_id])
+    else
+      current_user.payments.find_by!(sherlock_transaction_id: params[:transaction_id])
+    end
+  end
+
+  def create_payment_for_package(credit_package)
+    current_user.payments.create(
+      credit_package: credit_package,
+      status: 'pending'
+    )
+  end
+
+  def initiate_lcl_payment(payment)
+    LclPaymentService.new(payment).initiate_payment
+  end
+
+  def process_payment_callback
+    LclPaymentService.new(@payment).handle_callback(params)
+  end
+
+  def handle_payment_error(error_message)
+    @payment.update!(status: 'failed')
+    @credit_packages = CreditPackage.active.ordered
+    flash.now[:alert] = "Erreur lors de l'initiation du paiement: #{error_message}"
+    render :new, status: :unprocessable_entity
+  end
+
+  def render_new_with_packages
+    @credit_packages = CreditPackage.active.ordered
+    render :new, status: :unprocessable_entity
+  end
+
+  def redirect_with_status_message(status)
+    case status
+    when 'completed'
+      redirect_to payments_path, notice: 'Paiement effectué avec succès ! Vos crédits ont été ajoutés.'
+    when 'cancelled'
+      redirect_to new_payment_path, alert: 'Paiement annulé.'
+    when 'failed'
+      redirect_to new_payment_path, alert: 'Le paiement a échoué. Veuillez réessayer.'
+    else
+      redirect_to new_payment_path, alert: 'Statut de paiement inconnu.'
+    end
   end
 end

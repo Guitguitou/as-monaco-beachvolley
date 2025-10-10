@@ -13,22 +13,21 @@ Ce document explique comment configurer et utiliser le système de paiement int�
 
 ## Configuration
 
-### 1. Credentials LCL
+### 1. Variables d'environnement
 
-Ajoutez vos credentials LCL dans les credentials Rails :
+Créez un fichier `.env` à la racine du projet (utilisez `.env.example` comme modèle) :
 
 ```bash
-rails credentials:edit
+# LCL/Sherlock Payment Gateway
+LCL_MERCHANT_ID=votre_merchant_id
+LCL_CERTIFICATE_PATH=config/certificates/lcl.crt
+LCL_PRIVATE_KEY_PATH=config/certificates/lcl.key
+
+# URL de base de votre application (pour les callbacks)
+BASE_URL=https://votre-domaine.com
 ```
 
-Ajoutez la section suivante :
-
-```yaml
-lcl:
-  merchant_id: "VOTRE_MERCHANT_ID"
-  certificate_path: "config/certificates/lcl.crt"
-  private_key_path: "config/certificates/lcl.key"
-```
+**Note**: Le fichier `.env` ne doit **jamais** être commité dans Git. Il est déjà dans `.gitignore`.
 
 ### 2. Certificats
 
@@ -36,14 +35,14 @@ Placez vos certificats LCL dans le dossier `config/certificates/` :
 - `lcl.crt` : Certificat LCL
 - `lcl.key` : Clé privée
 
-### 3. Variables d'environnement
+**Important**: Ajoutez `config/certificates/` à votre `.gitignore` pour ne pas exposer vos clés privées.
 
-Pour la production, configurez les URLs de callback :
+### 3. URLs selon l'environnement
 
-```bash
-# URLs de base de votre application
-BASE_URL=https://votre-domaine.com
-```
+- **Développement/Recette**: `https://recette.secure.lcl.fr` (automatique)
+- **Production**: `https://secure.lcl.fr` (automatique)
+
+Vous pouvez forcer une URL spécifique avec la variable `LCL_BASE_URL` dans `.env`.
 
 ## Utilisation
 
@@ -85,14 +84,47 @@ BASE_URL=https://votre-domaine.com
 - `sherlock_transaction_id` : ID transaction LCL
 - `sherlock_response` : Réponse LCL
 
-## Services
+## Architecture
 
-### LclPaymentService
-Service principal pour gérer l'intégration LCL :
-- `initiate_payment` : Initie un paiement
-- `handle_callback` : Traite les callbacks
-- `generate_signature` : Génère les signatures
-- `valid_signature?` : Valide les signatures
+### Structure du code
+
+Le système de paiement est organisé en trois couches :
+
+#### 1. Couche API (`lib/lcl/`)
+Gère toutes les interactions avec l'API LCL/Sherlock :
+
+- **`Lcl::Client`** : Client principal, gère la configuration
+- **`Lcl::Signature`** : Gestion des signatures cryptographiques
+- **`Lcl::Api::Payment`** : Méthodes API (create, capture, refund, cancel)
+
+```ruby
+# Utilisation directe de l'API
+client = Lcl.client
+result = client.payment.create(payment_record)
+```
+
+#### 2. Couche Service (`app/services/`)
+Logique métier pour les paiements :
+
+- **`LclPaymentService`** : Service métier qui orchestre les paiements
+  - `initiate_payment` : Crée et initie un paiement
+  - `handle_callback` : Traite les callbacks LCL
+  - `refund` : Rembourse un paiement
+
+```ruby
+# Utilisation dans les controllers
+service = LclPaymentService.new(payment)
+result = service.initiate_payment
+```
+
+#### 3. Couche Controller (`app/controllers/`)
+Logique d'interface utilisateur :
+
+- **`PaymentsController`** : Gère les actions utilisateur
+  - Affichage des formulaires
+  - Création de paiements
+  - Gestion des redirections
+  - Traitement des webhooks
 
 ## Routes
 
@@ -127,17 +159,52 @@ Pour tester le système :
 - ✅ Authentification requise
 - ✅ Logs des transactions
 
+## API LCL - Méthodes disponibles
+
+### Créer un paiement
+```ruby
+client = Lcl.client
+result = client.payment.create(payment_record)
+# => { success: true, payment_url: "https://...", transaction_id: "PAY_123..." }
+```
+
+### Rembourser un paiement
+```ruby
+result = client.payment.refund(payment_record, amount_cents: 1000)
+# => { success: true, refund_id: "REFUND_123...", amount_refunded: 1000 }
+```
+
+### Capturer un paiement pré-autorisé
+```ruby
+result = client.payment.capture(payment_record, amount_cents: 1000)
+# => { success: true, capture_id: "CAPTURE_123...", amount_captured: 1000 }
+```
+
+### Annuler un paiement pré-autorisé
+```ruby
+result = client.payment.cancel(payment_record)
+# => { success: true, cancellation_id: "CANCEL_123..." }
+```
+
 ## Dépannage
 
 ### Erreurs courantes
 
-1. **"Configuration LCL manquante"** : Vérifiez les credentials
-2. **"Signature invalide"** : Vérifiez les certificats
-3. **"Paiement échoué"** : Vérifiez les logs LCL
+1. **"Configuration LCL manquante"** 
+   - Vérifiez votre fichier `.env`
+   - Assurez-vous que toutes les variables sont définies
+
+2. **"Signature invalide"** 
+   - Vérifiez que les certificats sont bien présents
+   - Vérifiez les permissions des fichiers de certificats
+
+3. **"Paiement échoué"** 
+   - Consultez les logs Rails
+   - Vérifiez la configuration LCL (merchant_id)
 
 ### Logs
 
-Les erreurs sont loggées dans `log/development.log` ou `log/production.log`.
+Les erreurs sont loggées dans `log/development.log` ou `log/production.log` avec le préfixe `LCL`.
 
 ## Support
 
