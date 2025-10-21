@@ -1,0 +1,24 @@
+:concurrency: 5
+:max_retries: 3
+
+# Set timeout for jobs to 8 seconds
+:timeout: 8
+
+# Queues
+:queues:
+  - default
+  - mailers
+  - active_storage_analysis
+  - active_storage_purge
+
+production:
+  :concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 10) %>
+
+development:
+  :concurrency: 3
+
+test:
+  :concurrency: 1
+
+
+
