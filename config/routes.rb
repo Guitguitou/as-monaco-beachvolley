@@ -1,4 +1,12 @@
+require 'sidekiq/web'
+require 'sidekiq/cron/web'
+
 Rails.application.routes.draw do
+  # Mount Sidekiq Web UI (protected by authentication in routes)
+  authenticate :user, ->(user) { user.admin? } do
+    mount Sidekiq::Web => '/admin/sidekiq'
+  end
+
   devise_for :users, controllers: {
     registrations: 'users/registrations'
   }
