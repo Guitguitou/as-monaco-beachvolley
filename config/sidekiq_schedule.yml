@@ -1,0 +1,17 @@
+# Example cron jobs configuration for Sidekiq
+# Uncomment and modify as needed
+
+# periodic_cleanup:
+#   cron: "0 * * * *"  # Every hour
+#   class: CleanupJob
+#   queue: default
+#   description: "Clean up old records"
+
+# daily_report:
+#   cron: "0 5 * * *"  # Every day at 5am
+#   class: DailyReportJob
+#   queue: default
+#   description: "Generate daily report"
+
+
+
