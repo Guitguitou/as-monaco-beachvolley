@@ -1,44 +1,114 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold">Gestion des Packs</h1>
-    <%= link_to "Nouveau pack", new_admin_pack_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
-  </div>
+<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
+  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
+    <%= lucide_icon("package") %> Gestion des Packs
+  </h1>
 
-  <div class="bg-white shadow-md rounded-lg overflow-hidden">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Crédits</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-        </tr>
-      </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        <% @packs.each do |pack| %>
-          <tr>
-            <td class="px-6 py-4"><%= pack.name %></td>
-            <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-blue-100"><%= pack.pack_type %></span></td>
-            <td class="px-6 py-4"><%= number_to_currency(pack.amount_eur, unit: "€") %></td>
-            <td class="px-6 py-4"><%= pack.credits || "-" %></td>
-            <td class="px-6 py-4"><%= pack.position %></td>
-            <td class="px-6 py-4">
-              <% if pack.active? %>
-                <span class="px-2 py-1 rounded bg-green-100 text-green-800">Actif</span>
-              <% else %>
-                <span class="px-2 py-1 rounded bg-gray-100 text-gray-800">Inactif</span>
-              <% end %>
-            </td>
-            <td class="px-6 py-4 space-x-2">
-              <%= link_to "Modifier", edit_admin_pack_path(pack), class: "text-blue-600 hover:text-blue-900" %>
-              <%= button_to "Supprimer", admin_pack_path(pack), method: :delete, data: { turbo_confirm: "Êtes-vous sûr ?" }, class: "text-red-600 hover:text-red-900" %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
+  <%= link_to new_admin_pack_path,
+        class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
+    <%= lucide_icon("plus", size: 18) %> Nouveau pack
+  <% end %>
 </div>
+
+<div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
+    <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
+      <tr>
+        <th class="px-4 sm:px-6 py-3 text-left">Nom</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden sm:table-cell">Type</th>
+        <th class="px-4 sm:px-6 py-3 text-left">Montant</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden md:table-cell">Crédits</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden lg:table-cell">Position</th>
+        <th class="px-4 sm:px-6 py-3 text-left">Statut</th>
+        <th class="px-4 sm:px-6 py-3 text-right w-16 sm:w-24">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @packs.each do |pack| %>
+        <tr class="hover:bg-gray-50 transition-colors">
+          <!-- Nom -->
+          <td class="px-4 sm:px-6 py-4 font-medium text-gray-800">
+            <%= pack.name %>
+          </td>
+
+          <!-- Type -->
+          <td class="px-4 sm:px-6 py-4 hidden sm:table-cell">
+            <% if pack.pack_type_credits? %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
+                <%= lucide_icon("coins", size: 14) %> Crédits
+              </span>
+            <% elsif pack.pack_type_licence? %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+                <%= lucide_icon("badge-check", size: 14) %> Licence
+              </span>
+            <% else %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-semibold">
+                <%= lucide_icon("flag", size: 14) %> Stage
+              </span>
+            <% end %>
+          </td>
+
+          <!-- Montant -->
+          <td class="px-4 sm:px-6 py-4 font-semibold text-gray-900">
+            <%= number_to_currency(pack.amount_eur, unit: "€", precision: 2) %>
+          </td>
+
+          <!-- Crédits -->
+          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden md:table-cell">
+            <% if pack.credits.present? %>
+              <%= pack.credits %>
+            <% else %>
+              <span class="text-gray-400">–</span>
+            <% end %>
+          </td>
+
+          <!-- Position -->
+          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden lg:table-cell">
+            <%= pack.position %>
+          </td>
+
+          <!-- Statut -->
+          <td class="px-4 sm:px-6 py-4">
+            <% if pack.active? %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+                <%= lucide_icon("check-circle", size: 14) %> Actif
+              </span>
+            <% else %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
+                <%= lucide_icon("x-circle", size: 14) %> Inactif
+              </span>
+            <% end %>
+          </td>
+
+          <!-- Actions -->
+          <td class="px-4 sm:px-6 py-4 text-right space-x-2">
+            <%= link_to edit_admin_pack_path(pack),
+                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red transition-colors" do %>
+              <%= lucide_icon("edit", size: 16) %>
+              <span class="hidden sm:inline">Modifier</span>
+            <% end %>
+
+            <%= button_to admin_pack_path(pack),
+                  method: :delete,
+                  data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer ce pack ?" },
+                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors" do %>
+              <%= lucide_icon("trash-2", size: 16) %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<% if @packs.empty? %>
+  <div class="text-center py-12 bg-white rounded-xl border border-gray-200 mt-6">
+    <div class="flex flex-col items-center gap-3">
+      <%= lucide_icon("package", size: 48, class: "text-gray-300") %>
+      <p class="text-gray-500 text-lg">Aucun pack pour le moment</p>
+      <%= link_to new_admin_pack_path,
+            class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark transition-colors" do %>
+        <%= lucide_icon("plus", size: 18) %> Créer le premier pack
+      <% end %>
+    </div>
+  </div>
+<% end %>
