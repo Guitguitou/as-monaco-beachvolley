@@ -23,11 +23,11 @@ class PacksController < ApplicationController
       status: :pending
     )
 
-    # Générer l'URL de paiement via la gateway
-    payment_url = Sherlock::CreatePayment.new(@credit_purchase).call
+    # Générer le formulaire HTML de redirection vers la gateway
+    payment_html = Sherlock::CreatePayment.new(@credit_purchase).call
 
-    # Rediriger vers la page de paiement
-    redirect_to payment_url, allow_other_host: true
+    # Rendre le formulaire HTML qui va auto-submit vers Sherlock
+    render html: payment_html.html_safe, layout: false, content_type: "text/html"
   rescue StandardError => e
     Rails.logger.error("Payment creation failed: #{e.message}")
     redirect_to packs_path, alert: "Erreur lors de la création du paiement: #{e.message}"

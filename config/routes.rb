@@ -79,7 +79,7 @@ Rails.application.routes.draw do
   
   # Webhooks
   namespace :webhooks do
-    post 'sherlock', to: 'sherlock#create'
+    post 'sherlock', to: 'sherlock#receive'
   end
   
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
