@@ -31,6 +31,7 @@ class User < ApplicationRecord
   has_many :levels, through: :user_levels
   has_one :balance, dependent: :destroy
   has_many :credit_transactions, dependent: :destroy
+  has_many :credit_purchases, dependent: :destroy
   has_many :registrations, dependent: :destroy
   has_many :confirmed_registrations, -> { where(status: Registration.statuses[:confirmed]) }, class_name: 'Registration'
   has_many :sessions_registered, through: :confirmed_registrations, source: :session
