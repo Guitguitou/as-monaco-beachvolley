@@ -74,12 +74,12 @@ Rails.application.routes.draw do
   end
   
   # Checkout (success/cancel after payment)
-  get 'checkout/success', to: 'checkout#success', as: :checkout_success
-  get 'checkout/cancel', to: 'checkout#cancel', as: :checkout_cancel
+  match 'checkout/success', to: 'checkout#success', via: [:get, :post], as: :checkout_success
+  match 'checkout/cancel',  to: 'checkout#cancel',  via: [:get, :post], as: :checkout_cancel
   
   # Webhooks
   namespace :webhooks do
-    post 'sherlock', to: 'sherlock#create'
+    post 'sherlock', to: 'sherlock#receive'
   end
   
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

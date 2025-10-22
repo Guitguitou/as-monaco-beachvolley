@@ -1,30 +1,36 @@
 class CheckoutController < ApplicationController
-  before_action :authenticate_user!
+  # LCL redirige en POST cross-site (pas de token)
+  skip_before_action :verify_authenticity_token, only: [:success, :cancel]
+  # Ne force pas la connexion, on affiche juste un message/redirect
+  skip_before_action :authenticate_user!, only: [:success, :cancel]
 
   def success
-    @reference = params[:reference]
-    @credit_purchase = current_user.credit_purchases.find_by(sherlock_transaction_reference: @reference) if @reference
-    
-    # En mode fake, on traite immédiatement le paiement
-    if params[:fake] == 'true' && @credit_purchase
-      Sherlock::HandleCallback.new(
-        reference: @reference,
-        status: 'paid',
-        amount: @credit_purchase.amount_cents,
-        currency: @credit_purchase.currency
-      ).call
-      
-      @credit_purchase.reload
-    end
+    # Optionnel: extraire la référence pour log/debug (Data est posté par LCL)
+    ref = extract_reference_from(params)
+    Rails.logger.info("[Sherlock:success] ref=#{ref} keys=#{params.keys}")
+
+    # UX: on ne crédite pas ici (cela se fait via le webhook automatique)
+    flash[:notice] = "Paiement confirmé ✅ Vos crédits arrivent sous peu."
+    redirect_to(user_signed_in? ? admin_payments_path : packs_path)
   end
 
   def cancel
-    @reference = params[:reference]
-    @credit_purchase = current_user.credit_purchases.find_by(sherlock_transaction_reference: @reference) if @reference
-    
-    if @credit_purchase
-      @credit_purchase.update!(status: :cancelled)
+    ref = extract_reference_from(params)
+    Rails.logger.info("[Sherlock:cancel] ref=#{ref} keys=#{params.keys}")
+
+    flash[:alert] = "Paiement annulé."
+    redirect_to(user_signed_in? ? admin_payments_path : packs_path)
+  end
+
+  private
+
+  # "k=v|k=v" -> hash, puis récupère orderId/transactionReference si présent
+  def extract_reference_from(params)
+    if params[:Data].present?
+      h = Sherlock::DataParser.parse(params[:Data])
+      h["orderId"] || h["transactionReference"]
+    else
+      params[:reference] || params[:orderId] || params[:transactionReference]
     end
   end
 end
-

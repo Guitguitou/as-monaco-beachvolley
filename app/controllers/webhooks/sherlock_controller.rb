@@ -1,43 +1,57 @@
-module Webhooks
-  class SherlockController < ApplicationController
-    skip_before_action :verify_authenticity_token
-    before_action :verify_signature!, only: [:create]
+# app/controllers/webhooks/sherlock_controller.rb
+class Webhooks::SherlockController < ActionController::API
+  # POST /webhooks/sherlock
+  def receive
+    data = params[:Data].to_s
+    seal = params[:Seal].to_s
 
-    def create
-      # Enqueue le job pour traiter le callback de manière asynchrone
-      SherlockCallbackJob.perform_later(callback_params.to_h)
-      
-      head :ok
+    unless data.present? && seal.present?
+      Rails.logger.warn("[Sherlock] Missing Data or Seal in webhook")
+      return head :bad_request
     end
 
-    private
-
-    def callback_params
-      params.permit(
-        :reference, :orderId, :status, :transactionStatus,
-        :amount, :currency, :responseCode, :responseMessage,
-        :errorMessage, :transactionId, :threeds_ls_code
-      )
+    unless valid_seal?(data, seal)
+      Rails.logger.warn("[Sherlock] Invalid Seal for webhook")
+      return head :unauthorized
     end
 
-    def verify_signature!
-      # En développement, on skip la vérification
-      return if Rails.env.development? || Rails.env.test?
-      
-      # Vérifier la signature HMAC
-      provided_signature = request.headers['X-Sherlock-Signature'].to_s
-      body = request.raw_post
-      secret = ENV.fetch('SHERLOCK_WEBHOOK_TOKEN', '')
-      
-      return if secret.blank? # Pas de token configuré
-      
-      computed_signature = OpenSSL::HMAC.hexdigest('SHA256', secret, body)
-      
-      unless ActiveSupport::SecurityUtils.secure_compare(provided_signature, computed_signature)
-        Rails.logger.error("Invalid Sherlock webhook signature")
-        head :unauthorized
+    parsed = Sherlock::DataParser.parse(data) # "k=v|k=v" -> hash
+
+    # 🔑 Normalisation : on passe à HandleCallback ce qu'il attend
+    normalized = parsed.merge(
+      "reference" => parsed["orderId"] || parsed["transactionReference"],
+      "status"    => parsed["transactionStatus"] || parsed["responseCode"]
+    )
+
+    Rails.logger.info("[Sherlock:webhook] ref=#{normalized['reference']} rc=#{parsed['responseCode']} ts=#{parsed['transactionStatus']}")
+
+    # Enfile le job (ou appelle HandleCallback.new(normalized).call si tu préfères synchrone)
+    SherlockCallbackJob.perform_later(normalized)
+
+    head :ok
+  rescue => e
+    Rails.logger.error("[Sherlock:webhook] #{e.class}: #{e.message}")
+    head :internal_server_error
+  end
+
+  private
+
+  # Aligne l'algo de vérification du Seal sur celui utilisé à l'init
+  # SEAL_ALGO = "sha256" (Data+secret) OU "HMAC-SHA-256" (HMAC(Data, secret))
+  def valid_seal?(data, seal)
+    secret = ENV.fetch("SHERLOCK_API_KEY")
+    algo   = ENV.fetch("SHERLOCK_SEAL_ALGO", "sha256")
+
+    computed =
+      if algo == "HMAC-SHA-256"
+        OpenSSL::HMAC.hexdigest("SHA256", secret, data)
+      else # "sha256" par défaut
+        Digest::SHA256.hexdigest(data + secret)
       end
-    end
+
+    ActiveSupport::SecurityUtils.secure_compare(computed, seal)
+  rescue => e
+    Rails.logger.error("[Sherlock] Seal verification error: #{e.class} #{e.message}")
+    false
   end
 end
-
