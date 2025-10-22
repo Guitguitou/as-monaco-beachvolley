@@ -1,0 +1,54 @@
+<%= form_with(model: [:admin, pack], class: "space-y-6") do |form| %>
+  <% if pack.errors.any? %>
+    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+      <h2 class="text-red-800 font-semibold"><%= pluralize(pack.errors.count, "erreur") %></h2>
+      <ul class="list-disc list-inside text-red-700">
+        <% pack.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :name, "Nom du pack", class: "block text-sm font-medium text-gray-700" %>
+    <%= form.text_field :name, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :description, "Description", class: "block text-sm font-medium text-gray-700" %>
+    <%= form.text_area :description, rows: 3, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :pack_type, "Type de pack", class: "block text-sm font-medium text-gray-700" %>
+    <%= form.select :pack_type, Pack.pack_types.keys.map { |k| [k.humanize, k] }, {}, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :amount_cents, "Montant (centimes)", class: "block text-sm font-medium text-gray-700" %>
+    <%= form.number_field :amount_cents, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+    <p class="text-sm text-gray-500 mt-1">Ex: 1000 pour 10 EUR</p>
+  </div>
+
+  <div>
+    <%= form.label :credits, "Nombre de crédits", class: "block text-sm font-medium text-gray-700" %>
+    <%= form.number_field :credits, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+  </div>
+
+  <div>
+    <%= form.label :position, "Position (ordre d'affichage)", class: "block text-sm font-medium text-gray-700" %>
+    <%= form.number_field :position, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm" %>
+  </div>
+
+  <div class="flex items-center">
+    <%= form.check_box :active, class: "rounded border-gray-300" %>
+    <%= form.label :active, "Pack actif", class: "ml-2 text-sm font-medium text-gray-700" %>
+  </div>
+
+  <div class="flex gap-2">
+    <%= form.submit class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" %>
+    <%= link_to "Annuler", admin_packs_path, class: "bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded" %>
+  </div>
+<% end %>
+
