@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_22_072902) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_22_090229) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -208,7 +208,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_22_072902) do
     t.datetime "failed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "pack_id"
     t.index ["created_at"], name: "index_credit_purchases_on_created_at"
+    t.index ["pack_id"], name: "index_credit_purchases_on_pack_id"
     t.index ["sherlock_transaction_reference"], name: "index_credit_purchases_on_sherlock_transaction_reference", unique: true, where: "(sherlock_transaction_reference IS NOT NULL)"
     t.index ["status"], name: "index_credit_purchases_on_status"
     t.index ["user_id"], name: "index_credit_purchases_on_user_id"
@@ -323,6 +325,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_22_072902) do
     t.boolean "financeur", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "packs", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "pack_type", default: "credits", null: false
+    t.integer "amount_cents", null: false
+    t.integer "credits"
+    t.boolean "active", default: true, null: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_packs_on_active"
+    t.index ["pack_type"], name: "index_packs_on_pack_type"
+    t.index ["position"], name: "index_packs_on_position"
   end
 
   create_table "parcours_type", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -583,6 +600,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_22_072902) do
   add_foreign_key "choix", "questions", on_delete: :cascade
   add_foreign_key "comptes", "structures"
   add_foreign_key "conditions_passations", "evaluations", on_delete: :cascade
+  add_foreign_key "credit_purchases", "packs"
   add_foreign_key "credit_purchases", "users"
   add_foreign_key "credit_transactions", "sessions"
   add_foreign_key "credit_transactions", "users"

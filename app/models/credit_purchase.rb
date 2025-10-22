@@ -1,5 +1,6 @@
 class CreditPurchase < ApplicationRecord
   belongs_to :user
+  belongs_to :pack, optional: true
 
   # Statuts possibles
   enum :status, {

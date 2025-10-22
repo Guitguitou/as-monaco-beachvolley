@@ -1,0 +1,44 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Packs de crédits</h1>
+
+  <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+    <p class="text-lg">
+      <span class="font-semibold">Votre solde actuel :</span>
+      <span class="text-2xl font-bold text-blue-700"><%= @current_balance %> crédits</span>
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @packs.each do |pack| %>
+      <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
+          <h3 class="text-2xl font-bold"><%= pack.name %></h3>
+          <p class="text-3xl font-bold mt-2"><%= number_to_currency(pack.amount_eur, unit: "€") %></p>
+        </div>
+        <div class="p-6">
+          <% if pack.description.present? %>
+            <p class="text-gray-600 mb-4"><%= pack.description %></p>
+          <% end %>
+          <div class="mb-4">
+            <p class="text-lg font-semibold text-green-600">
+              <%= pack.credits %> crédits
+            </p>
+            <p class="text-sm text-gray-500">
+              <%= pack.credits_per_euro.round %> crédits par euro
+            </p>
+          </div>
+          <%= button_to "Acheter", buy_pack_path(pack), 
+              method: :post,
+              class: "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200",
+              data: { turbo: false } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @packs.empty? %>
+    <div class="text-center py-12">
+      <p class="text-gray-500 text-lg">Aucun pack disponible pour le moment.</p>
+    </div>
+  <% end %>
+</div>
