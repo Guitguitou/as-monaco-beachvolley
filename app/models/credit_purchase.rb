@@ -34,6 +34,9 @@ class CreditPurchase < ApplicationRecord
         session: nil
       )
 
+      # Incrémenter le solde de l'utilisateur
+      balance.increment!(:amount, credits)
+
       # Marquer comme payé
       update!(
         status: :paid,
