@@ -53,7 +53,13 @@ Rails.application.routes.draw do
     resources :levels
     resources :stages, only: [:index, :show, :new, :create, :edit, :update]
     
-    # Payments
+    # Packs management
+    resources :packs
+    
+    # Purchase history
+    resources :purchase_history, only: [:index]
+    
+    # Payments (deprecated - use packs)
     resource :payments, only: [:show] do
       post :buy_10_eur, on: :collection
     end
@@ -61,6 +67,11 @@ Rails.application.routes.draw do
   
   # Public stages
   resources :stages, only: [:index, :show]
+  
+  # Packs (for users to buy)
+  resources :packs, only: [:index] do
+    post :buy, on: :member
+  end
   
   # Checkout (success/cancel after payment)
   get 'checkout/success', to: 'checkout#success', as: :checkout_success
