@@ -1,4 +1,91 @@
-<div>
-  <h1 class="font-bold text-4xl">Admin::PurchaseHistory#index</h1>
-  <p>Find me in app/views/admin/purchase_history/index.html.erb</p>
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Historique des achats</h1>
+
+  <%# Stats %>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <h3 class="text-sm font-medium text-gray-500 uppercase">Chiffre d'affaires total</h3>
+      <p class="text-3xl font-bold text-green-600"><%= number_to_currency(@total_revenue, unit: "€") %></p>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <h3 class="text-sm font-medium text-gray-500 uppercase">Total achats</h3>
+      <p class="text-3xl font-bold text-blue-600"><%= @total_purchases %></p>
+    </div>
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <h3 class="text-sm font-medium text-gray-500 uppercase">En attente</h3>
+      <p class="text-3xl font-bold text-orange-600"><%= @pending_purchases %></p>
+    </div>
+  </div>
+
+  <%# Table %>
+  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Utilisateur</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pack</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Crédits</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Référence</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @credit_purchases.each do |purchase| %>
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <%= l(purchase.created_at, format: :short) %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <%= purchase.user.full_name %><br>
+              <span class="text-gray-500"><%= purchase.user.email %></span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <% if purchase.pack %>
+                <%= purchase.pack.name %>
+              <% else %>
+                <span class="text-gray-400 italic">Achat direct</span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold">
+              <%= number_to_currency(purchase.amount_eur, unit: "€") %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm">
+              <%= purchase.credits %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% case purchase.status %>
+              <% when "paid" %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                  ✓ Payé
+                </span>
+              <% when "pending" %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                  ⏳ En attente
+                </span>
+              <% when "failed" %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                  ✗ Échoué
+                </span>
+              <% when "cancelled" %>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                  ⊘ Annulé
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
+              <%= purchase.sherlock_transaction_reference %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @credit_purchases.empty? %>
+    <div class="text-center py-12">
+      <p class="text-gray-500 text-lg">Aucun achat pour le moment.</p>
+    </div>
+  <% end %>
 </div>
