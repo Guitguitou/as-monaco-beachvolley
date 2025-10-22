@@ -1,12 +1,10 @@
-<div class="flex items-center gap-3 mb-6">
-  <%= link_to admin_packs_path, class: "text-gray-600 hover:text-asmbv-red transition-colors" do %>
-    <%= lucide_icon("arrow-left", size: 24) %>
-  <% end %>
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("package") %> Nouveau pack
-  </h1>
-</div>
+<div class="max-w-5xl mx-auto space-y-6">
+  <div class="flex items-center justify-between border-b pb-4">
+    <div class="flex items-center gap-2">
+      <%= lucide_icon("package", class: "w-6 h-6 text-asmbv-red") %>
+      <h1 class="text-2xl font-bold text-gray-900">Nouveau pack</h1>
+    </div>
+  </div>
 
-<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
   <%= render "form", pack: @pack %>
 </div>

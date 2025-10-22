@@ -1,91 +1,87 @@
-<%= form_with(model: [:admin, pack], class: "space-y-6") do |form| %>
+<%= form_with model: [:admin, pack],
+              class: "space-y-6 bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto" do |f| %>
+  
   <% if pack.errors.any? %>
-    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
-      <div class="flex gap-3">
-        <%= lucide_icon("alert-circle", size: 20, class: "text-red-600 flex-shrink-0 mt-0.5") %>
-        <div>
-          <h3 class="text-sm font-semibold text-red-800 mb-2">
-            <%= pluralize(pack.errors.count, "erreur") %> à corriger :
+    <div class="rounded-md bg-red-50 p-4 border border-red-200">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <%= lucide_icon("alert-circle", size: 20, class: "text-red-600") %>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(pack.errors.count, "erreur") %> empêche(nt) l'enregistrement :
           </h3>
-          <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
-            <% pack.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% pack.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :name, "Nom du pack", class: "block text-sm font-medium text-gray-700 mb-1" %>
-    <%= form.text_field :name, 
-          class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-asmbv-red focus:ring focus:ring-asmbv-red focus:ring-opacity-50",
-          placeholder: "Ex: Pack Premium" %>
-  </div>
-
-  <div>
-    <%= form.label :description, "Description", class: "block text-sm font-medium text-gray-700 mb-1" %>
-    <%= form.text_area :description, 
-          rows: 3, 
-          class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-asmbv-red focus:ring focus:ring-asmbv-red focus:ring-opacity-50",
-          placeholder: "Décrivez les avantages de ce pack..." %>
-  </div>
-
-  <div>
-    <%= form.label :pack_type, "Type de pack", class: "block text-sm font-medium text-gray-700 mb-1" %>
-    <%= form.select :pack_type, 
-          Pack.pack_types.keys.map { |k| [k.humanize, k] }, 
-          {}, 
-          class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-asmbv-red focus:ring focus:ring-asmbv-red focus:ring-opacity-50" %>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="grid grid-cols-1 gap-6">
     <div>
-      <%= form.label :amount_cents, "Montant (centimes)", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.number_field :amount_cents, 
-            class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-asmbv-red focus:ring focus:ring-asmbv-red focus:ring-opacity-50",
-            placeholder: "1000" %>
-      <p class="text-xs text-gray-500 mt-1">
-        <%= lucide_icon("info", size: 12, class: "inline") %>
-        Ex: 1000 pour 10 EUR
-      </p>
+      <%= f.label :name, "Nom du pack", class: "block text-sm font-medium text-gray-900" %>
+      <%= f.text_field :name, required: true,
+            placeholder: "Ex: Pack Premium",
+            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
     </div>
 
     <div>
-      <%= form.label :credits, "Nombre de crédits", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.number_field :credits, 
-            class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-asmbv-red focus:ring focus:ring-asmbv-red focus:ring-opacity-50",
-            placeholder: "1000" %>
-      <p class="text-xs text-gray-500 mt-1">
-        <%= lucide_icon("info", size: 12, class: "inline") %>
-        Pour les packs de type "crédits"
-      </p>
+      <%= f.label :description, "Description", class: "block text-sm font-medium text-gray-900" %>
+      <%= f.text_area :description, rows: 4,
+            placeholder: "Décrivez les avantages de ce pack...",
+            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+    </div>
+
+    <div>
+      <%= f.label :pack_type, "Type de pack", class: "block text-sm font-medium text-gray-900" %>
+      <%= f.select :pack_type, 
+            Pack.pack_types.keys.map { |k| [k.humanize, k] },
+            {},
+            class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" %>
+      <p class="mt-1 text-xs text-gray-500">Crédits pour le moment, licence et stage plus tard</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <%= f.label :amount_cents, "Montant (centimes)", class: "block text-sm font-medium text-gray-900" %>
+        <%= f.number_field :amount_cents, required: true,
+              placeholder: "1000",
+              class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+        <p class="mt-1 text-xs text-gray-500">1000 centimes = 10 EUR</p>
+      </div>
+
+      <div>
+        <%= f.label :credits, "Nombre de crédits", class: "block text-sm font-medium text-gray-900" %>
+        <%= f.number_field :credits,
+              placeholder: "1000",
+              class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+        <p class="mt-1 text-xs text-gray-500">Requis pour les packs de crédits</p>
+      </div>
+    </div>
+
+    <div>
+      <%= f.label :position, "Position (ordre d'affichage)", class: "block text-sm font-medium text-gray-900" %>
+      <%= f.number_field :position,
+            placeholder: "1",
+            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+      <p class="mt-1 text-xs text-gray-500">Les packs avec position plus petite s'affichent en premier</p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <%= f.check_box :active, class: "rounded border-gray-300 text-asmbv-red focus:ring-asmbv-red" %>
+      <%= f.label :active, "Pack actif (visible pour les utilisateurs)", class: "text-sm font-medium text-gray-900" %>
     </div>
   </div>
 
   <div>
-    <%= form.label :position, "Position (ordre d'affichage)", class: "block text-sm font-medium text-gray-700 mb-1" %>
-    <%= form.number_field :position, 
-          class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-asmbv-red focus:ring focus:ring-asmbv-red focus:ring-opacity-50",
-          placeholder: "1" %>
-    <p class="text-xs text-gray-500 mt-1">
-      <%= lucide_icon("info", size: 12, class: "inline") %>
-      Les packs seront affichés par ordre croissant
-    </p>
-  </div>
-
-  <div class="flex items-center gap-2">
-    <%= form.check_box :active, class: "rounded border-gray-300 text-asmbv-red focus:ring-asmbv-red" %>
-    <%= form.label :active, "Pack actif (visible pour les utilisateurs)", class: "text-sm font-medium text-gray-700" %>
-  </div>
-
-  <div class="flex gap-3 pt-4 border-t border-gray-200">
-    <%= form.submit class: "inline-flex items-center gap-2 rounded-lg bg-asmbv-red px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all" %>
-    <%= link_to admin_packs_path, 
-          class: "inline-flex items-center gap-2 rounded-lg bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
-      <%= lucide_icon("x", size: 20) %>
-      Annuler
+    <%= f.submit class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
+      <%= lucide_icon("save", size: 16) %> Enregistrer
     <% end %>
   </div>
 <% end %>
