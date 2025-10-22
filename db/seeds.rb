@@ -8,65 +8,43 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-User.create(email: "admin@example.com", password: "password", admin: true)
+# Création de packs de crédits par défaut
+puts "Création des packs de crédits..."
 
-# Créer des niveaux de base
-Level.find_or_create_by!(name: "G1") do |level|
-  level.gender = "mixed"
-  level.color = "#10B981" # Vert
+Pack.find_or_create_by!(name: "Pack Découverte") do |pack|
+  pack.description = "Idéal pour découvrir notre club"
+  pack.pack_type = "credits"
+  pack.amount_cents = 500  # 5 EUR
+  pack.credits = 500
+  pack.active = true
+  pack.position = 1
 end
 
-Level.find_or_create_by!(name: "G2") do |level|
-  level.gender = "mixed"
-  level.color = "#F59E0B" # Orange
+Pack.find_or_create_by!(name: "Pack Standard") do |pack|
+  pack.description = "Le pack le plus populaire"
+  pack.pack_type = "credits"
+  pack.amount_cents = 1000  # 10 EUR
+  pack.credits = 1000
+  pack.active = true
+  pack.position = 2
 end
 
-Level.find_or_create_by!(name: "G3") do |level|
-  level.gender = "mixed"
-  level.color = "#EF4444" # Rouge
+Pack.find_or_create_by!(name: "Pack Premium") do |pack|
+  pack.description = "Pour les joueurs réguliers - Meilleur rapport qualité/prix"
+  pack.pack_type = "credits"
+  pack.amount_cents = 2000  # 20 EUR
+  pack.credits = 2200  # Bonus de 200 crédits
+  pack.active = true
+  pack.position = 3
 end
 
-Level.find_or_create_by!(name: "G4") do |level|
-  level.gender = "mixed"
-  level.color = "#8B5CF6" # Violet
+Pack.find_or_create_by!(name: "Pack VIP") do |pack|
+  pack.description = "Le maximum de crédits avec un super bonus"
+  pack.pack_type = "credits"
+  pack.amount_cents = 5000  # 50 EUR
+  pack.credits = 6000  # Bonus de 1000 crédits
+  pack.active = true
+  pack.position = 4
 end
 
-Level.find_or_create_by!(name: "G1") do |level|
-  level.gender = "female"
-  level.color = "#10B981" # Vert
-end
-
-Level.find_or_create_by!(name: "G2") do |level|
-  level.gender = "female"
-  level.color = "#F59E0B" # Orange
-end
-
-Level.find_or_create_by!(name: "G3") do |level|
-  level.gender = "female"
-  level.color = "#EF4444" # Rouge
-end
-
-Level.find_or_create_by!(name: "G4") do |level|
-  level.gender = "female"
-  level.color = "#8B5CF6" # Violet
-end
-
-Level.find_or_create_by!(name: "G1") do |level|
-  level.gender = "male"
-  level.color = "#10B981" # Vert
-end
-
-Level.find_or_create_by!(name: "G2") do |level|
-  level.gender = "male"
-  level.color = "#F59E0B" # Orange
-end
-
-Level.find_or_create_by!(name: "G3") do |level|
-  level.gender = "male"
-  level.color = "#EF4444" # Rouge
-end
-
-Level.find_or_create_by!(name: "G4") do |level|
-  level.gender = "male"
-  level.color = "#8B5CF6" # Violet
-end
+puts "✅ #{Pack.count} packs créés"
