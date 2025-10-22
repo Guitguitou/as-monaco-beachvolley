@@ -1,0 +1,102 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">💳 Acheter des crédits</h1>
+
+  <%# Solde actuel %>
+  <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+    <p class="text-lg">
+      <span class="font-semibold">Solde actuel :</span>
+      <span class="text-2xl font-bold text-blue-700"><%= @current_balance %> crédits</span>
+    </p>
+  </div>
+
+  <%# Pack 10 EUR %>
+  <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Pack 10 €</h2>
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-lg mb-2">
+          <span class="font-semibold">1000 crédits</span> pour <span class="font-semibold">10 €</span>
+        </p>
+        <p class="text-gray-600 text-sm">
+          Conversion : 100 crédits = 1 €
+        </p>
+      </div>
+      <div>
+        <%= button_to "Acheter 10 € (1000 crédits)", 
+            buy_10_eur_admin_payments_path, 
+            method: :post,
+            class: "bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200",
+            data: { turbo: false } %>
+      </div>
+    </div>
+  </div>
+
+  <%# Historique des achats %>
+  <% if @credit_purchases.any? %>
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">📊 Historique des achats</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Référence
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Montant
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Crédits
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Statut
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @credit_purchases.each do |purchase| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= l(purchase.created_at, format: :short) %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600">
+                  <%= purchase.sherlock_transaction_reference %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= number_to_currency(purchase.amount_eur, unit: "€") %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= purchase.credits %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% case purchase.status %>
+                  <% when "paid" %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      ✓ Payé
+                    </span>
+                  <% when "pending" %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                      ⏳ En attente
+                    </span>
+                  <% when "failed" %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                      ✗ Échoué
+                    </span>
+                  <% when "cancelled" %>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                      ⊘ Annulé
+                    </span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+</div>
+
