@@ -1,37 +1,52 @@
-<div class="container mx-auto px-4 py-8 max-w-2xl">
-  <div class="bg-white shadow-lg rounded-lg p-8 text-center">
-    <%# Cancel icon %>
-    <div class="mb-6">
-      <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto">
-        <svg class="w-12 h-12 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
+<div class="max-w-2xl mx-auto">
+  <div class="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+    <%# Cancel header with gradient %>
+    <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-8 text-white text-center">
+      <div class="flex justify-center mb-4">
+        <div class="p-4 bg-white/20 rounded-full">
+          <%= lucide_icon("x-circle", size: 64) %>
+        </div>
       </div>
+      <h1 class="text-3xl font-bold mb-2">Paiement annulé</h1>
+      <p class="text-lg opacity-90">Votre paiement a été annulé</p>
     </div>
 
-    <h1 class="text-3xl font-bold text-gray-900 mb-4">
-      Paiement annulé
-    </h1>
+    <%# Content %>
+    <div class="p-8">
+      <div class="text-center mb-6">
+        <p class="text-gray-600 mb-2">Aucun débit n'a été effectué sur votre compte.</p>
+        <% if @credit_purchase %>
+          <p class="text-sm text-gray-500">
+            Référence : <span class="font-mono"><%= @credit_purchase.sherlock_transaction_reference %></span>
+          </p>
+        <% end %>
+      </div>
 
-    <p class="text-lg text-gray-700 mb-6">
-      Votre paiement a été annulé. Aucun débit n'a été effectué.
-    </p>
+      <%# Info box %>
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex gap-3">
+          <%= lucide_icon("info", size: 20, class: "text-blue-600 flex-shrink-0 mt-0.5") %>
+          <div class="text-sm text-blue-800">
+            <p class="font-semibold mb-1">Vous avez changé d'avis ?</p>
+            <p>Vous pouvez réessayer à tout moment en retournant sur la page des packs.</p>
+          </div>
+        </div>
+      </div>
 
-    <% if @credit_purchase %>
-      <p class="text-sm text-gray-500 mb-6">
-        Référence : <span class="font-mono"><%= @credit_purchase.sherlock_transaction_reference %></span>
-      </p>
-    <% end %>
-
-    <div class="space-y-3">
-      <%= link_to "Réessayer", 
-          admin_payments_path, 
-          class: "inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-200" %>
-      
-      <%= link_to "Retour à l'accueil", 
-          root_path, 
-          class: "inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-lg transition duration-200" %>
+      <%# Actions %>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <%= link_to packs_path,
+              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-asmbv-red px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-asmbv-red-dark transition-all" do %>
+          <%= lucide_icon("package", size: 20) %>
+          Voir les packs
+        <% end %>
+        
+        <%= link_to root_path,
+              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
+          <%= lucide_icon("home", size: 20) %>
+          Retour à l'accueil
+        <% end %>
+      </div>
     </div>
   </div>
 </div>
-
