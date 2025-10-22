@@ -63,10 +63,8 @@ Rails.application.routes.draw do
   resources :stages, only: [:index, :show]
   
   # Checkout (success/cancel after payment)
-  resource :checkout, only: [] do
-    get :success, on: :collection
-    get :cancel, on: :collection
-  end
+  get 'checkout/success', to: 'checkout#success', as: :checkout_success
+  get 'checkout/cancel', to: 'checkout#cancel', as: :checkout_cancel
   
   # Webhooks
   namespace :webhooks do
