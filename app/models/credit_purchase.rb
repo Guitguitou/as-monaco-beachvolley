@@ -7,7 +7,7 @@ class CreditPurchase < ApplicationRecord
     paid: "paid",
     failed: "failed",
     cancelled: "cancelled"
-  }, _suffix: true
+  }, suffix: true
 
   validates :amount_cents, presence: true, numericality: { greater_than: 0 }
   validates :currency, presence: true
