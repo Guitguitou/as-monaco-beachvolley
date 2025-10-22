@@ -1,13 +1,13 @@
 module Admin
   class PurchaseHistoryController < ApplicationController
+    layout 'dashboard'
     before_action :authenticate_user!
     before_action :ensure_admin!
 
     def index
       @credit_purchases = CreditPurchase.includes(:user, :pack)
                                         .order(created_at: :desc)
-                                        .page(params[:page])
-                                        .per(50)
+                                        .limit(100)
       
       # Stats
       @total_revenue = CreditPurchase.paid_status.sum(:amount_cents) / 100.0

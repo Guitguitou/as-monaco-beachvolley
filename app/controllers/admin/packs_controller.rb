@@ -1,5 +1,6 @@
 module Admin
   class PacksController < ApplicationController
+    layout 'dashboard'
     before_action :authenticate_user!
     before_action :ensure_admin!
     before_action :set_pack, only: [:edit, :update, :destroy]
