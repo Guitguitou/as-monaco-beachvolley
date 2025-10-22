@@ -5,14 +5,14 @@
 </div>
 
 <%# Solde actuel %>
-<div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-xl shadow-lg p-6 mb-8 text-white">
+<div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-xl shadow-lg p-6 mb-8">
   <div class="flex items-center gap-4">
     <div class="p-4 bg-white/20 rounded-lg">
       <%= lucide_icon("wallet", size: 32) %>
     </div>
     <div>
       <p class="text-sm uppercase tracking-wide opacity-90">Votre solde actuel</p>
-      <p class="text-4xl font-bold"><%= @current_balance %> <span class="text-xl font-normal">crédits</span></p>
+      <p class="text-4xl font-bold text-asmbv-red"><%= @current_balance %> <span class="text-xl font-normal">crédits</span></p>
     </div>
   </div>
 </div>
@@ -23,7 +23,7 @@
     <% @packs.each do |pack| %>
       <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
         <%# Header avec gradient %>
-        <div class="bg-gradient-to-br from-asmbv-red to-asmbv-red-dark p-6 text-white">
+        <div class="bg-gradient-to-br from-asmbv-red to-asmbv-red-dark p-6">
           <div class="flex items-start justify-between mb-2">
             <div>
               <h3 class="text-xl font-bold"><%= pack.name %></h3>
