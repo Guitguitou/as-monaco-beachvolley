@@ -43,6 +43,21 @@ class CreditPurchase < ApplicationRecord
     end
   end
 
+  # Détermine si c'est un pack de crédits
+  def credits_pack?
+    pack&.pack_type_credits?
+  end
+
+  # Détermine si c'est un pack de stage
+  def stage_pack?
+    pack&.pack_type_stage?
+  end
+
+  # Détermine si c'est un pack de licence
+  def licence_pack?
+    pack&.pack_type_licence?
+  end
+
   private
 
   def process_credits_purchase
@@ -91,21 +106,6 @@ class CreditPurchase < ApplicationRecord
   # Calculer le montant en euros
   def amount_eur
     amount_cents / 100.0
-  end
-
-  # Détermine si c'est un pack de crédits
-  def credits_pack?
-    pack&.pack_type_credits?
-  end
-
-  # Détermine si c'est un pack de stage
-  def stage_pack?
-    pack&.pack_type_stage?
-  end
-
-  # Détermine si c'est un pack de licence
-  def licence_pack?
-    pack&.pack_type_licence?
   end
 
   # Pack prédéfini : 10 EUR = 1000 crédits
