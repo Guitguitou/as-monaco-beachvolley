@@ -28,7 +28,10 @@
       <%= f.label :name, "Nom du pack", class: "block text-sm font-medium text-gray-900" %>
       <%= f.text_field :name, required: true,
             placeholder: "Ex: Pack Premium",
-            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+            class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:name].any?} #{'border-gray-300' unless pack.errors[:name].any?} bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+      <% if pack.errors[:name].any? %>
+        <p class="mt-1 text-sm text-red-600"><%= pack.errors[:name].first %></p>
+      <% end %>
     </div>
 
     <div>
@@ -44,13 +47,17 @@
             Pack.pack_types.keys.map { |k| [k.humanize, k] },
             {},
             { 
-              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red",
+              class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:pack_type].any?} #{'border-gray-300' unless pack.errors[:pack_type].any?} shadow-sm focus:border-asmbv-red focus:ring-asmbv-red",
               data: { 
                 pack_type_selector_target: "select",
                 action: "change->pack-type-selector#change"
               }
             } %>
-      <p class="mt-1 text-xs text-gray-500">Sélectionnez le type de pack</p>
+      <% if pack.errors[:pack_type].any? %>
+        <p class="mt-1 text-sm text-red-600"><%= pack.errors[:pack_type].first %></p>
+      <% else %>
+        <p class="mt-1 text-xs text-gray-500">Sélectionnez le type de pack</p>
+      <% end %>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -58,17 +65,25 @@
         <%= f.label :amount_cents, "Montant (centimes)", class: "block text-sm font-medium text-gray-900" %>
         <%= f.number_field :amount_cents, required: true,
               placeholder: "1000",
-              class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-        <p class="mt-1 text-xs text-gray-500">1000 centimes = 10 EUR</p>
+              class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:amount_cents].any?} #{'border-gray-300' unless pack.errors[:amount_cents].any?} bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+        <% if pack.errors[:amount_cents].any? %>
+          <p class="mt-1 text-sm text-red-600"><%= pack.errors[:amount_cents].first %></p>
+        <% else %>
+          <p class="mt-1 text-xs text-gray-500">1000 centimes = 10 EUR</p>
+        <% end %>
       </div>
 
       <div>
         <%= f.label :credits, "Nombre de crédits", class: "block text-sm font-medium text-gray-900" %>
         <%= f.number_field :credits,
               placeholder: "1000",
-              class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+              class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:credits].any?} #{'border-gray-300' unless pack.errors[:credits].any?} bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
               data: { pack_type_selector_target: "creditsField" } %>
-        <p class="mt-1 text-xs text-gray-500">Requis pour les packs de crédits</p>
+        <% if pack.errors[:credits].any? %>
+          <p class="mt-1 text-sm text-red-600"><%= pack.errors[:credits].first %></p>
+        <% else %>
+          <p class="mt-1 text-xs text-gray-500">Requis pour les packs de crédits</p>
+        <% end %>
       </div>
     </div>
 
@@ -78,18 +93,26 @@
             options_from_collection_for_select(@stages, :id, :title, @pack.stage_id),
             { prompt: "Sélectionnez un stage" },
             { 
-              class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red",
+              class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:stage_id].any?} #{'border-gray-300' unless pack.errors[:stage_id].any?} shadow-sm focus:border-asmbv-red focus:ring-asmbv-red",
               required: true
             } %>
-      <p class="mt-1 text-xs text-gray-500">Requis pour les packs de stage</p>
+      <% if pack.errors[:stage_id].any? %>
+        <p class="mt-1 text-sm text-red-600"><%= pack.errors[:stage_id].first %></p>
+      <% else %>
+        <p class="mt-1 text-xs text-gray-500">Requis pour les packs de stage</p>
+      <% end %>
     </div>
 
     <div>
       <%= f.label :position, "Position (ordre d'affichage)", class: "block text-sm font-medium text-gray-900" %>
       <%= f.number_field :position,
             placeholder: "1",
-            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-      <p class="mt-1 text-xs text-gray-500">Les packs avec position plus petite s'affichent en premier</p>
+            class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:position].any?} #{'border-gray-300' unless pack.errors[:position].any?} bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+      <% if pack.errors[:position].any? %>
+        <p class="mt-1 text-sm text-red-600"><%= pack.errors[:position].first %></p>
+      <% else %>
+        <p class="mt-1 text-xs text-gray-500">Les packs avec position plus petite s'affichent en premier</p>
+      <% end %>
     </div>
 
     <div class="flex items-center gap-2">
