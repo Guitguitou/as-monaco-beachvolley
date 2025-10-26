@@ -4,7 +4,7 @@ class PacksController < ApplicationController
   def index
     @credits_packs = Pack.active.credits_packs.ordered
     @licence_packs = Pack.active.licence_packs.ordered
-    @stages = Stage.ordered_for_players
+    @stage_packs = Pack.active.stage_packs.ordered.includes(:stage)
     @current_balance = current_user.balance&.amount || 0
   end
 
