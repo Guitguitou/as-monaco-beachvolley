@@ -12,30 +12,28 @@ class CreditPurchase < ApplicationRecord
 
   validates :amount_cents, presence: true, numericality: { greater_than: 0 }
   validates :currency, presence: true
-  validates :credits, presence: true, numericality: { greater_than: 0 }
+  validates :credits, presence: true, numericality: { greater_than: 0 }, if: :credits_pack?
 
   before_create :generate_reference
 
   # Conversion: 100 crédits = 1 EUR
   CREDITS_PER_EUR = 100
 
-  # Crédite le compte de l'utilisateur (idempotent)
+  # Traite le paiement selon le type de pack (idempotent)
   def credit!
     return if paid_status? # Déjà traité, ne rien faire
 
     ActiveRecord::Base.transaction do
-      # Créer ou trouver le balance de l'utilisateur
-      balance = user.balance || user.create_balance!(amount: 0)
-
-      # Créer la transaction de crédit
-      credit_transaction = user.credit_transactions.create!(
-        transaction_type: :purchase,
-        amount: credits,
-        session: nil
-      )
-
-      # Incrémenter le solde de l'utilisateur
-      balance.increment!(:amount, credits)
+      case
+      when credits_pack?
+        process_credits_purchase
+      when stage_pack?
+        process_stage_purchase
+      when licence_pack?
+        process_licence_purchase
+      else
+        raise "Type de pack non reconnu"
+      end
 
       # Marquer comme payé
       update!(
@@ -43,6 +41,37 @@ class CreditPurchase < ApplicationRecord
         paid_at: Time.current
       )
     end
+  end
+
+  private
+
+  def process_credits_purchase
+    # Créer ou trouver le balance de l'utilisateur
+    balance = user.balance || user.create_balance!(amount: 0)
+
+    # Créer la transaction de crédit
+    credit_transaction = user.credit_transactions.create!(
+      transaction_type: :purchase,
+      amount: credits,
+      session: nil
+    )
+
+    # Incrémenter le solde de l'utilisateur
+    balance.increment!(:amount, credits)
+  end
+
+  def process_stage_purchase
+    # Pour les stages, on pourrait créer une inscription ou un enregistrement
+    # Pour l'instant, on log juste l'achat
+    Rails.logger.info("Stage pack purchased: #{pack.name} by user #{user.id}")
+    # TODO: Implémenter la logique d'inscription au stage
+  end
+
+  def process_licence_purchase
+    # Pour les licences, on pourrait activer des fonctionnalités premium
+    # Pour l'instant, on log juste l'achat
+    Rails.logger.info("Licence pack purchased: #{pack.name} by user #{user.id}")
+    # TODO: Implémenter la logique d'activation de licence
   end
 
   # Marquer comme échoué
@@ -62,6 +91,21 @@ class CreditPurchase < ApplicationRecord
   # Calculer le montant en euros
   def amount_eur
     amount_cents / 100.0
+  end
+
+  # Détermine si c'est un pack de crédits
+  def credits_pack?
+    pack&.pack_type_credits?
+  end
+
+  # Détermine si c'est un pack de stage
+  def stage_pack?
+    pack&.pack_type_stage?
+  end
+
+  # Détermine si c'est un pack de licence
+  def licence_pack?
+    pack&.pack_type_licence?
   end
 
   # Pack prédéfini : 10 EUR = 1000 crédits
