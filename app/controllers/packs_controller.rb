@@ -2,7 +2,9 @@ class PacksController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @packs = Pack.active.credits_packs.ordered
+    @credits_packs = Pack.active.credits_packs.ordered
+    @stage_packs = Pack.active.stage_packs.ordered.includes(:stage)
+    @licence_packs = Pack.active.licence_packs.ordered
     @current_balance = current_user.balance&.amount || 0
   end
 

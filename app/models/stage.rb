@@ -2,6 +2,7 @@ class Stage < ApplicationRecord
   # Associations
   belongs_to :main_coach, class_name: 'User', optional: true
   belongs_to :assistant_coach, class_name: 'User', optional: true
+  has_many :packs, dependent: :nullify
 
   # Attachments
   has_one_attached :image

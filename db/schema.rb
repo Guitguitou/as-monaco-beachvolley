@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_22_090229) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_26_092107) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -337,9 +337,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_22_090229) do
     t.integer "position", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "stage_id"
     t.index ["active"], name: "index_packs_on_active"
     t.index ["pack_type"], name: "index_packs_on_pack_type"
     t.index ["position"], name: "index_packs_on_position"
+    t.index ["stage_id"], name: "index_packs_on_stage_id"
   end
 
   create_table "parcours_type", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -612,6 +614,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_22_090229) do
   add_foreign_key "late_cancellations", "sessions"
   add_foreign_key "late_cancellations", "users"
   add_foreign_key "mises_en_action", "evaluations", on_delete: :cascade
+  add_foreign_key "packs", "stages"
   add_foreign_key "parties", "evaluations", on_delete: :cascade
   add_foreign_key "parties", "situations", on_delete: :cascade
   add_foreign_key "questionnaires_questions", "questionnaires"

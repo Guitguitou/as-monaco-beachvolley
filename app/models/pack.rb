@@ -1,5 +1,6 @@
 class Pack < ApplicationRecord
   has_many :credit_purchases, dependent: :nullify
+  belongs_to :stage, optional: true
 
   # Types de packs
   enum :pack_type, {
@@ -14,11 +15,16 @@ class Pack < ApplicationRecord
   
   # Validation conditionnelle : credits requis pour les packs de crédits
   validates :credits, presence: true, numericality: { greater_than: 0 }, if: :pack_type_credits?
+  
+  # Validation conditionnelle : stage_id requis pour les packs de stage
+  validates :stage_id, presence: true, if: :pack_type_stage?
 
   # Scopes
   scope :active, -> { where(active: true) }
   scope :ordered, -> { order(:position, :created_at) }
   scope :credits_packs, -> { where(pack_type: :credits) }
+  scope :stage_packs, -> { where(pack_type: :stage) }
+  scope :licence_packs, -> { where(pack_type: :licence) }
 
   # Montant en euros
   def amount_eur
@@ -38,7 +44,8 @@ class Pack < ApplicationRecord
     when "licence"
       "#{name} - Licence (#{amount_eur} €)"
     when "stage"
-      "#{name} - Stage (#{amount_eur} €)"
+      stage_name = stage&.title || "Stage"
+      "#{name} - #{stage_name} (#{amount_eur} €)"
     else
       "#{name} (#{amount_eur} €)"
     end

@@ -6,11 +6,12 @@ module Admin
     before_action :set_pack, only: [:edit, :update, :destroy]
 
     def index
-      @packs = Pack.ordered
+      @packs = Pack.ordered.includes(:stage)
     end
 
     def new
       @pack = Pack.new(active: true, pack_type: 'credits')
+      @stages = Stage.ordered_for_players
     end
 
     def create
@@ -24,6 +25,7 @@ module Admin
     end
 
     def edit
+      @stages = Stage.ordered_for_players
     end
 
     def update
@@ -46,7 +48,7 @@ module Admin
     end
 
     def pack_params
-      params.require(:pack).permit(:name, :description, :pack_type, :amount_cents, :credits, :active, :position)
+      params.require(:pack).permit(:name, :description, :pack_type, :amount_cents, :credits, :stage_id, :active, :position)
     end
 
     def ensure_admin!
