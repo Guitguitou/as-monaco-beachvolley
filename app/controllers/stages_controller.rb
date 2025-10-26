@@ -1,5 +1,5 @@
 class StagesController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:show]
   before_action :set_stage, only: [:show]
 
   def index
@@ -9,6 +9,7 @@ class StagesController < ApplicationController
   end
 
   def show
+    @stage_packs = @stage.packs.active.ordered
   end
 
   private
