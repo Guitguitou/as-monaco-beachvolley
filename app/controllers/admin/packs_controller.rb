@@ -16,6 +16,7 @@ module Admin
 
     def create
       @pack = Pack.new(pack_params)
+      @stages = Stage.ordered_for_players
       
       if @pack.save
         redirect_to admin_packs_path, notice: "Pack créé avec succès"
@@ -29,6 +30,8 @@ module Admin
     end
 
     def update
+      @stages = Stage.ordered_for_players
+      
       if @pack.update(pack_params)
         redirect_to admin_packs_path, notice: "Pack mis à jour avec succès"
       else

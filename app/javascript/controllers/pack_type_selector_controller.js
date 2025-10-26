@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["creditsField", "stageField"]
+  static targets = ["select", "creditsField", "stageField"]
 
   connect() {
     this.toggleFields()
@@ -12,19 +12,27 @@ export default class extends Controller {
   }
 
   toggleFields() {
-    const packType = this.element.value
+    const packType = this.selectTarget.value
     
     // Reset visibility
-    this.creditsFieldTarget.style.display = "none"
-    this.stageFieldTarget.style.display = "none"
+    if (this.hasCreditsFieldTarget) {
+      this.creditsFieldTarget.style.display = "none"
+    }
+    if (this.hasStageFieldTarget) {
+      this.stageFieldTarget.style.display = "none"
+    }
     
     // Show relevant fields based on pack type
     switch(packType) {
       case "credits":
-        this.creditsFieldTarget.style.display = "block"
+        if (this.hasCreditsFieldTarget) {
+          this.creditsFieldTarget.style.display = "block"
+        }
         break
       case "stage":
-        this.stageFieldTarget.style.display = "block"
+        if (this.hasStageFieldTarget) {
+          this.stageFieldTarget.style.display = "block"
+        }
         break
       case "licence":
         // No additional fields needed for licence
