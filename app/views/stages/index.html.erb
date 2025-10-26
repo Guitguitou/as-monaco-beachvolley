@@ -1,58 +1,187 @@
-<div class="max-w-5xl mx-auto">
-  <h1 class="text-2xl font-bold mb-4">Stages</h1>
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
+      <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
+        <%= lucide_icon("calendar") %> Stages disponibles
+      </h1>
+    </div>
 
-  <% if @current_or_next %>
-    <div class="mb-8 bg-white p-4 rounded-xl border shadow-sm">
-      <div class="flex items-start gap-4">
-        <% if @current_or_next.image.attached? %>
-          <%= image_tag @current_or_next.image, class: "w-40 h-28 object-cover rounded-md" %>
-        <% else %>
-          <div class="w-40 h-28 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
-            <%= lucide_icon('flag') %>
-          </div>
-        <% end %>
-        <div class="flex-1">
-          <div class="text-sm text-gray-500">À l'affiche</div>
-          <h2 class="text-xl font-semibold text-gray-900">
-            <%= link_to @current_or_next.title, stage_path(@current_or_next), class: "hover:underline" %>
-          </h2>
-          <div class="text-gray-700 mt-1"><%= l @current_or_next.starts_on, format: :long %> — <%= l @current_or_next.ends_on, format: :long %></div>
-          <% if @current_or_next.main_coach || @current_or_next.assistant_coach %>
-            <div class="text-gray-700 text-sm mt-1">
-              <%= [@current_or_next.main_coach&.full_name, @current_or_next.assistant_coach&.full_name].compact.join(" / ") %>
+    <% if @current_or_next %>
+      <div class="mb-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <%= lucide_icon("star", size: 24, class: "text-yellow-500") %>
+          Stage à l'affiche
+        </h2>
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+          <%# Image du stage %>
+          <% if @current_or_next.image.attached? %>
+            <div class="h-48 overflow-hidden">
+              <%= image_tag @current_or_next.image, 
+                    class: "w-full h-full object-cover hover:scale-105 transition-transform duration-300",
+                    alt: @current_or_next.title %>
+            </div>
+          <% else %>
+            <div class="h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <%= lucide_icon("calendar", size: 48, class: "text-gray-400") %>
             </div>
           <% end %>
-          <% if @current_or_next.description.present? %>
-            <p class="text-sm text-gray-600 mt-2 line-clamp-2"><%= @current_or_next.description %></p>
+
+          <%# Header épuré %>
+          <div class="p-4 border-b border-gray-100">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">
+                  <%= link_to @current_or_next.title, stage_path(@current_or_next), class: "hover:text-asmbv-red transition-colors" %>
+                </h3>
+                <% if @current_or_next.description.present? %>
+                  <p class="text-sm text-gray-600 mt-1 line-clamp-2"><%= @current_or_next.description %></p>
+                <% end %>
+              </div>
+              <%= lucide_icon("calendar", size: 24, class: "text-gray-400") %>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span class="text-2xl font-bold text-gray-900"><%= @current_or_next.price.to_i %></span>
+              <span class="text-lg text-gray-600">€</span>
+              <% if @current_or_next.price != @current_or_next.price.to_i %>
+                <span class="text-sm text-gray-500"><%= sprintf("%.2f", @current_or_next.price).split('.')[1] %></span>
+              <% end %>
+            </div>
+          </div>
+
+          <%# Content %>
+          <div class="flex-1 p-4 flex flex-col">
+            <%# Dates du stage %>
+            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
+              <div class="flex items-center gap-2 text-gray-600">
+                <%= lucide_icon("calendar-days", size: 16, class: "text-gray-500") %>
+                <span class="text-sm font-medium">Dates</span>
+              </div>
+              <span class="text-xs text-gray-500">
+                <%= @current_or_next.starts_on.strftime("%d/%m") %> - <%= @current_or_next.ends_on.strftime("%d/%m") %>
+              </span>
+            </div>
+
+            <%# Coachs %>
+            <% if @current_or_next.main_coach || @current_or_next.assistant_coach %>
+              <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
+                <div class="flex items-center gap-2 text-gray-600">
+                  <%= lucide_icon("users", size: 16, class: "text-gray-500") %>
+                  <span class="text-sm font-medium">Coachs</span>
+                </div>
+                <span class="text-xs text-gray-500">
+                  <%= [@current_or_next.main_coach&.full_name, @current_or_next.assistant_coach&.full_name].compact.join(" / ") %>
+                </span>
+              </div>
+            <% end %>
+
+            <%# Durée du stage %>
+            <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
+              <%= lucide_icon("clock", size: 14, class: "text-gray-400") %>
+              <span><%= (@current_or_next.ends_on - @current_or_next.starts_on + 1).to_i %> jour(s)</span>
+            </div>
+
+            <%# Boutons d'action %>
+            <div class="flex flex-col gap-2 mt-auto">
+              <%= link_to stage_path(@current_or_next),
+                    class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 transition-all" do %>
+                <%= lucide_icon("info", size: 16) %>
+                Voir les détails
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @others.any? %>
+      <div class="mb-12">
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <%= lucide_icon("calendar", size: 24, class: "text-blue-600") %>
+          Autres stages
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <% @others.each do |stage| %>
+            <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+              <%# Image du stage %>
+              <% if stage.image.attached? %>
+                <div class="h-40 overflow-hidden">
+                  <%= image_tag stage.image, 
+                        class: "w-full h-full object-cover hover:scale-105 transition-transform duration-300",
+                        alt: stage.title %>
+                </div>
+              <% else %>
+                <div class="h-40 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                  <%= lucide_icon("calendar", size: 40, class: "text-gray-400") %>
+                </div>
+              <% end %>
+
+              <%# Header épuré %>
+              <div class="p-4 border-b border-gray-100">
+                <div class="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900">
+                      <%= link_to stage.title, stage_path(stage), class: "hover:text-asmbv-red transition-colors" %>
+                    </h3>
+                    <% if stage.description.present? %>
+                      <p class="text-sm text-gray-600 mt-1 line-clamp-2"><%= stage.description %></p>
+                    <% end %>
+                  </div>
+                  <%= lucide_icon("calendar", size: 24, class: "text-gray-400") %>
+                </div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-2xl font-bold text-gray-900"><%= stage.price.to_i %></span>
+                  <span class="text-lg text-gray-600">€</span>
+                  <% if stage.price != stage.price.to_i %>
+                    <span class="text-sm text-gray-500"><%= sprintf("%.2f", stage.price).split('.')[1] %></span>
+                  <% end %>
+                </div>
+              </div>
+
+              <%# Content %>
+              <div class="flex-1 p-4 flex flex-col">
+                <%# Dates du stage %>
+                <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
+                  <div class="flex items-center gap-2 text-gray-600">
+                    <%= lucide_icon("calendar-days", size: 16, class: "text-gray-500") %>
+                    <span class="text-sm font-medium">Dates</span>
+                  </div>
+                  <span class="text-xs text-gray-500">
+                    <%= stage.starts_on.strftime("%d/%m") %> - <%= stage.ends_on.strftime("%d/%m") %>
+                  </span>
+                </div>
+
+                <%# Durée du stage %>
+                <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
+                  <%= lucide_icon("clock", size: 14, class: "text-gray-400") %>
+                  <span><%= (stage.ends_on - stage.starts_on + 1).to_i %> jour(s)</span>
+                </div>
+
+                <%# Boutons d'action %>
+                <div class="flex flex-col gap-2 mt-auto">
+                  <%= link_to stage_path(stage),
+                        class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 transition-all" do %>
+                    <%= lucide_icon("info", size: 16) %>
+                    Détails
+                  <% end %>
+                </div>
+              </div>
+            </div>
           <% end %>
         </div>
       </div>
-    </div>
-  <% end %>
+    <% end %>
 
-  <% if @others.any? %>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <% @others.each do |stage| %>
-        <div class="bg-white p-4 rounded-xl border shadow-sm">
-          <div class="flex items-start gap-4">
-            <% if stage.image.attached? %>
-              <%= image_tag stage.image, class: "w-32 h-24 object-cover rounded-md" %>
-            <% else %>
-              <div class="w-32 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
-                <%= lucide_icon('flag') %>
-              </div>
-            <% end %>
-            <div class="flex-1">
-              <h3 class="text-lg font-semibold text-gray-900">
-                <%= link_to stage.title, stage_path(stage), class: "hover:underline" %>
-              </h3>
-              <div class="text-gray-700 mt-1 text-sm"><%= l stage.starts_on, format: :long %> — <%= l stage.ends_on, format: :long %></div>
-            </div>
+    <%# Message si aucun stage %>
+    <% if @current_or_next.nil? && @others.empty? %>
+      <div class="text-center py-16 bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="flex flex-col items-center gap-4">
+          <%= lucide_icon("calendar", size: 64, class: "text-gray-300") %>
+          <div>
+            <p class="text-xl font-semibold text-gray-900 mb-2">Aucun stage disponible</p>
+            <p class="text-gray-500">Les stages seront bientôt disponibles.</p>
           </div>
         </div>
-      <% end %>
-    </div>
-  <% else %>
-    <div class="text-gray-600">Aucun autre stage pour le moment.</div>
-  <% end %>
+      </div>
+    <% end %>
+  </div>
 </div>
