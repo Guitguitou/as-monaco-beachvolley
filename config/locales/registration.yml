@@ -27,7 +27,7 @@ fr:
               duplicate_registration: "Tu es déjà inscrit à cette session"
   registrations:
     prices:
-      training: "350 crédits"
+      training: "400 crédits"
       free_play: "300 crédits"
       private_coaching: "500 crédits"
     messages:

@@ -54,10 +54,10 @@ RSpec.describe Admin::DashboardController, type: :controller do
 
       it 'assigns current month revenue' do
         month_start = Time.zone.now.beginning_of_month
-        create(:credit_transaction, user: regular_user, transaction_type: 'training_payment', amount: -350, created_at: month_start + 1.day)
+        create(:credit_transaction, user: regular_user, transaction_type: 'training_payment', amount: -400, created_at: month_start + 1.day)
         
         get :index
-        expect(assigns(:current_month_revenue)).to eq(350)
+        expect(assigns(:current_month_revenue)).to eq(400)
       end
 
       it 'assigns coach salary data' do
@@ -98,7 +98,7 @@ RSpec.describe Admin::DashboardController, type: :controller do
       it 'assigns charges and revenue data' do
         week_start = Time.zone.now.beginning_of_week
         training = create(:session, session_type: 'entrainement', start_at: week_start + 1.day + 10.hours, end_at: week_start + 1.day + 12.hours, user: coach)
-        create(:credit_transaction, user: regular_user, transaction_type: 'training_payment', amount: -350, created_at: week_start + 1.day)
+        create(:credit_transaction, user: regular_user, transaction_type: 'training_payment', amount: -400, created_at: week_start + 1.day)
         create(:credit_transaction, user: regular_user, transaction_type: 'refund', amount: 200, created_at: week_start + 2.days)
         
         get :index
