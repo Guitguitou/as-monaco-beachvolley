@@ -4,8 +4,8 @@ class StagesController < ApplicationController
 
   def index
     ordered = Stage.ordered_for_players
-    @current_or_next = ordered.find { |s| s.current_or_upcoming? }
-    @others = ordered.reject { |s| s == @current_or_next }
+    @upcoming_stages = ordered.select { |s| s.current_or_upcoming? }
+    @past_stages = ordered.select { |s| !s.current_or_upcoming? }
   end
 
   def show
