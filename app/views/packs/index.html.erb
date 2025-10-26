@@ -1,6 +1,6 @@
 <div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
   <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("package") %> Packs de crédits
+    <%= lucide_icon("package") %> Packs disponibles
   </h1>
 </div>
 
@@ -17,75 +17,212 @@
   </div>
 </div>
 
-<%# Packs Grid %>
-<% if @packs.any? %>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <% @packs.each do |pack| %>
-      <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
-        <%# Header avec gradient %>
-        <div class="bg-gradient-to-br from-asmbv-red to-asmbv-red-dark p-6">
-          <div class="flex items-start justify-between mb-2">
-            <div>
-              <h3 class="text-xl font-bold"><%= pack.name %></h3>
-              <% if pack.description.present? %>
-                <p class="text-sm opacity-90 mt-1"><%= pack.description %></p>
-              <% end %>
+<%# Packs de crédits %>
+<% if @credits_packs.any? %>
+  <div class="mb-12">
+    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+      <%= lucide_icon("coins", size: 24, class: "text-asmbv-red") %>
+      Packs de crédits
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @credits_packs.each do |pack| %>
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+          <%# Header avec gradient %>
+          <div class="bg-gradient-to-br from-asmbv-red to-asmbv-red-dark p-6">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <h3 class="text-xl font-bold"><%= pack.name %></h3>
+                <% if pack.description.present? %>
+                  <p class="text-sm opacity-90 mt-1"><%= pack.description %></p>
+                <% end %>
+              </div>
+              <%= lucide_icon("coins", size: 32, class: "opacity-50") %>
             </div>
-            <%= lucide_icon("package", size: 32, class: "opacity-50") %>
-          </div>
-          <div class="mt-4">
-            <div class="flex items-baseline gap-1">
-              <span class="text-4xl font-bold"><%= pack.amount_eur.to_i %></span>
-              <span class="text-xl">€</span>
-              <% if pack.amount_eur != pack.amount_eur.to_i %>
-                <span class="text-lg"><%= sprintf("%.2f", pack.amount_eur).split('.')[1] %></span>
-              <% end %>
+            <div class="mt-4">
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl font-bold"><%= pack.amount_eur.to_i %></span>
+                <span class="text-xl">€</span>
+                <% if pack.amount_eur != pack.amount_eur.to_i %>
+                  <span class="text-lg"><%= sprintf("%.2f", pack.amount_eur).split('.')[1] %></span>
+                <% end %>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <%# Content %>
-        <div class="flex-1 p-6 flex flex-col">
-          <%# Crédits %>
-          <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
-            <div class="flex items-center gap-2 text-gray-700">
-              <%= lucide_icon("coins", size: 20, class: "text-asmbv-red") %>
-              <span class="font-medium">Crédits</span>
-            </div>
-            <span class="text-2xl font-bold text-asmbv-red"><%= pack.credits %></span>
           </div>
 
-          <%# Taux de conversion %>
-          <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
-            <%= lucide_icon("trending-up", size: 16, class: "text-green-600") %>
-            <span><%= pack.credits_per_euro.round %> crédits par euro</span>
-            <% bonus = ((pack.credits.to_f / pack.amount_eur - 100) / 100 * 100).round %>
-            <% if bonus > 0 %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-                +<%= bonus %>% bonus
-              </span>
+          <%# Content %>
+          <div class="flex-1 p-6 flex flex-col">
+            <%# Crédits %>
+            <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
+              <div class="flex items-center gap-2 text-gray-700">
+                <%= lucide_icon("coins", size: 20, class: "text-asmbv-red") %>
+                <span class="font-medium">Crédits</span>
+              </div>
+              <span class="text-2xl font-bold text-asmbv-red"><%= pack.credits %></span>
+            </div>
+
+            <%# Taux de conversion %>
+            <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
+              <%= lucide_icon("trending-up", size: 16, class: "text-green-600") %>
+              <span><%= pack.credits_per_euro.round %> crédits par euro</span>
+              <% bonus = ((pack.credits.to_f / pack.amount_eur - 100) / 100 * 100).round %>
+              <% if bonus > 0 %>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+                  +<%= bonus %>% bonus
+                </span>
+              <% end %>
+            </div>
+
+            <%# Bouton d'achat %>
+            <%= button_to buy_pack_path(pack),
+                  method: :post,
+                  class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-asmbv-red px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
+                  data: { turbo: false } do %>
+              <%= lucide_icon("shopping-cart", size: 20) %>
+              Acheter ce pack
             <% end %>
           </div>
-
-          <%# Bouton d'achat %>
-          <%= button_to buy_pack_path(pack),
-                method: :post,
-                class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-asmbv-red px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
-                data: { turbo: false } do %>
-            <%= lucide_icon("shopping-cart", size: 20) %>
-            Acheter ce pack
-          <% end %>
         </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
   </div>
-<% else %>
+<% end %>
+
+<%# Packs de stages %>
+<% if @stage_packs.any? %>
+  <div class="mb-12">
+    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+      <%= lucide_icon("calendar", size: 24, class: "text-blue-600") %>
+      Packs de stages
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @stage_packs.each do |pack| %>
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+          <%# Header avec gradient %>
+          <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-6">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <h3 class="text-xl font-bold"><%= pack.name %></h3>
+                <% if pack.description.present? %>
+                  <p class="text-sm opacity-90 mt-1"><%= pack.description %></p>
+                <% end %>
+              </div>
+              <%= lucide_icon("calendar", size: 32, class: "opacity-50") %>
+            </div>
+            <div class="mt-4">
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl font-bold"><%= pack.amount_eur.to_i %></span>
+                <span class="text-xl">€</span>
+                <% if pack.amount_eur != pack.amount_eur.to_i %>
+                  <span class="text-lg"><%= sprintf("%.2f", pack.amount_eur).split('.')[1] %></span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <%# Content %>
+          <div class="flex-1 p-6 flex flex-col">
+            <%# Stage info %>
+            <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
+              <div class="flex items-center gap-2 text-gray-700">
+                <%= lucide_icon("calendar", size: 20, class: "text-blue-600") %>
+                <span class="font-medium">Stage</span>
+              </div>
+              <span class="text-lg font-bold text-blue-600"><%= pack.stage.title %></span>
+            </div>
+
+            <%# Dates du stage %>
+            <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
+              <%= lucide_icon("calendar-days", size: 16, class: "text-gray-500") %>
+              <span><%= pack.stage.starts_on.strftime("%d/%m/%Y") %> - <%= pack.stage.ends_on.strftime("%d/%m/%Y") %></span>
+            </div>
+
+            <%# Bouton d'achat %>
+            <%= button_to buy_pack_path(pack),
+                  method: :post,
+                  class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-all mt-auto",
+                  data: { turbo: false } do %>
+              <%= lucide_icon("shopping-cart", size: 20) %>
+              S'inscrire au stage
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<%# Packs de licence %>
+<% if @licence_packs.any? %>
+  <div class="mb-12">
+    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+      <%= lucide_icon("award", size: 24, class: "text-green-600") %>
+      Packs de licence
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @licence_packs.each do |pack| %>
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+          <%# Header avec gradient %>
+          <div class="bg-gradient-to-br from-green-600 to-green-700 p-6">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <h3 class="text-xl font-bold"><%= pack.name %></h3>
+                <% if pack.description.present? %>
+                  <p class="text-sm opacity-90 mt-1"><%= pack.description %></p>
+                <% end %>
+              </div>
+              <%= lucide_icon("award", size: 32, class: "opacity-50") %>
+            </div>
+            <div class="mt-4">
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl font-bold"><%= pack.amount_eur.to_i %></span>
+                <span class="text-xl">€</span>
+                <% if pack.amount_eur != pack.amount_eur.to_i %>
+                  <span class="text-lg"><%= sprintf("%.2f", pack.amount_eur).split('.')[1] %></span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <%# Content %>
+          <div class="flex-1 p-6 flex flex-col">
+            <%# Licence info %>
+            <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
+              <div class="flex items-center gap-2 text-gray-700">
+                <%= lucide_icon("award", size: 20, class: "text-green-600") %>
+                <span class="font-medium">Licence</span>
+              </div>
+              <span class="text-lg font-bold text-green-600">Annuelle</span>
+            </div>
+
+            <%# Description %>
+            <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
+              <%= lucide_icon("info", size: 16, class: "text-gray-500") %>
+              <span>Accès complet à toutes les fonctionnalités</span>
+            </div>
+
+            <%# Bouton d'achat %>
+            <%= button_to buy_pack_path(pack),
+                  method: :post,
+                  class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all mt-auto",
+                  data: { turbo: false } do %>
+              <%= lucide_icon("shopping-cart", size: 20) %>
+              Acheter la licence
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<%# Message si aucun pack %>
+<% if @credits_packs.empty? && @stage_packs.empty? && @licence_packs.empty? %>
   <div class="text-center py-16 bg-white rounded-xl border border-gray-200 shadow-sm">
     <div class="flex flex-col items-center gap-4">
       <%= lucide_icon("package", size: 64, class: "text-gray-300") %>
       <div>
         <p class="text-xl font-semibold text-gray-900 mb-2">Aucun pack disponible</p>
-        <p class="text-gray-500">Les packs de crédits seront bientôt disponibles.</p>
+        <p class="text-gray-500">Les packs seront bientôt disponibles.</p>
       </div>
     </div>
   </div>

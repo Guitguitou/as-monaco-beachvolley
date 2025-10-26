@@ -17,7 +17,8 @@
         <th class="px-4 sm:px-6 py-3 text-left hidden sm:table-cell">Type</th>
         <th class="px-4 sm:px-6 py-3 text-left">Montant</th>
         <th class="px-4 sm:px-6 py-3 text-left hidden md:table-cell">Crédits</th>
-        <th class="px-4 sm:px-6 py-3 text-left hidden lg:table-cell">Position</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden lg:table-cell">Stage</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden xl:table-cell">Position</th>
         <th class="px-4 sm:px-6 py-3 text-left">Statut</th>
         <th class="px-4 sm:px-6 py-3 text-right w-16 sm:w-24">Actions</th>
       </tr>
@@ -61,8 +62,17 @@
             <% end %>
           </td>
 
-          <!-- Position -->
+          <!-- Stage -->
           <td class="px-4 sm:px-6 py-4 text-gray-700 hidden lg:table-cell">
+            <% if pack.stage.present? %>
+              <span class="text-sm"><%= pack.stage.title %></span>
+            <% else %>
+              <span class="text-gray-400">–</span>
+            <% end %>
+          </td>
+
+          <!-- Position -->
+          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden xl:table-cell">
             <%= pack.position %>
           </td>
 
