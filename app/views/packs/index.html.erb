@@ -85,32 +85,32 @@
   </div>
 <% end %>
 
-<%# Stages disponibles %>
-<% if @stages.any? %>
+<%# Packs de stage %>
+<% if @stage_packs.any? %>
   <div class="mb-12">
     <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
       <%= lucide_icon("calendar", size: 24, class: "text-blue-600") %>
       Stages disponibles
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <% @stages.each do |stage| %>
+      <% @stage_packs.each do |pack| %>
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
           <%# Header épuré %>
           <div class="p-4 border-b border-gray-100">
             <div class="flex items-start justify-between mb-3">
               <div>
-                <h3 class="text-lg font-semibold text-gray-900"><%= stage.title %></h3>
-                <% if stage.description.present? %>
-                  <p class="text-sm text-gray-600 mt-1"><%= stage.description %></p>
+                <h3 class="text-lg font-semibold text-gray-900"><%= pack.stage.title %></h3>
+                <% if pack.stage.description.present? %>
+                  <p class="text-sm text-gray-600 mt-1"><%= pack.stage.description %></p>
                 <% end %>
               </div>
               <%= lucide_icon("calendar", size: 24, class: "text-gray-400") %>
             </div>
             <div class="flex items-baseline gap-1">
-              <span class="text-2xl font-bold text-gray-900"><%= stage.price.to_i %></span>
+              <span class="text-2xl font-bold text-gray-900"><%= pack.amount_eur.to_i %></span>
               <span class="text-lg text-gray-600">€</span>
-              <% if stage.price != stage.price.to_i %>
-                <span class="text-sm text-gray-500"><%= sprintf("%.2f", stage.price).split('.')[1] %></span>
+              <% if pack.amount_eur != pack.amount_eur.to_i %>
+                <span class="text-sm text-gray-500"><%= sprintf("%.2f", pack.amount_eur).split('.')[1] %></span>
               <% end %>
             </div>
           </div>
@@ -124,27 +124,29 @@
                 <span class="text-sm font-medium">Dates</span>
               </div>
               <span class="text-xs text-gray-500">
-                <%= stage.starts_on.strftime("%d/%m") %> - <%= stage.ends_on.strftime("%d/%m") %>
+                <%= pack.stage.starts_on.strftime("%d/%m") %> - <%= pack.stage.ends_on.strftime("%d/%m") %>
               </span>
             </div>
 
             <%# Durée du stage %>
             <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
               <%= lucide_icon("clock", size: 14, class: "text-gray-400") %>
-              <span><%= (stage.ends_on - stage.starts_on + 1).to_i %> jour(s)</span>
+              <span><%= (pack.stage.ends_on - pack.stage.starts_on + 1).to_i %> jour(s)</span>
             </div>
 
             <%# Boutons d'action %>
             <div class="flex flex-col gap-2 mt-auto">
-              <%= link_to stage_path(stage),
+              <%= link_to stage_path(pack.stage),
                     class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 transition-all" do %>
                 <%= lucide_icon("info", size: 16) %>
                 Détails
               <% end %>
               
-              <% if stage.current_or_upcoming? %>
-                <%= link_to "#",
-                      class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all" do %>
+              <% if pack.stage.current_or_upcoming? %>
+                <%= button_to buy_pack_path(pack),
+                      method: :post,
+                      class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all",
+                      data: { turbo: false } do %>
                   <%= lucide_icon("user-plus", size: 16) %>
                   S'inscrire
                 <% end %>
@@ -225,7 +227,7 @@
 <% end %>
 
 <%# Message si aucun pack ni stage %>
-<% if @credits_packs.empty? && @licence_packs.empty? && @stages.empty? %>
+<% if @credits_packs.empty? && @licence_packs.empty? && @stage_packs.empty? %>
   <div class="text-center py-16 bg-white rounded-xl border border-gray-200 shadow-sm">
     <div class="flex flex-col items-center gap-4">
       <%= lucide_icon("package", size: 64, class: "text-gray-300") %>
