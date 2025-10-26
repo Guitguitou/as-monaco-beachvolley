@@ -23,7 +23,7 @@
     </div>
   <% end %>
 
-  <div class="grid grid-cols-1 gap-6">
+  <div class="grid grid-cols-1 gap-6" data-controller="pack-type-selector">
     <div>
       <%= f.label :name, "Nom du pack", class: "block text-sm font-medium text-gray-900" %>
       <%= f.text_field :name, required: true,
@@ -41,7 +41,7 @@
             class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
     </div>
 
-    <div data-controller="pack-type-selector">
+    <div>
       <%= f.label :pack_type, "Type de pack", class: "block text-sm font-medium text-gray-900" %>
       <%= f.select :pack_type, 
             Pack.pack_types.keys.map { |k| [k.humanize, k] },
