@@ -61,6 +61,62 @@
           <p class="text-gray-700 whitespace-pre-line"><%= @stage.description %></p>
         </div>
       <% end %>
+
+      <%# Packs disponibles %>
+      <% if @stage_packs.any? %>
+        <div class="mt-8">
+          <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <%= lucide_icon("package", size: 20, class: "text-asmbv-red") %>
+            Packs d'inscription disponibles
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% @stage_packs.each do |pack| %>
+              <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900"><%= pack.name %></h3>
+                    <% if pack.description.present? %>
+                      <p class="text-sm text-gray-600 mt-1"><%= pack.description %></p>
+                    <% end %>
+                  </div>
+                  <%= lucide_icon("package", size: 20, class: "text-gray-400") %>
+                </div>
+                
+                <div class="flex items-baseline gap-1 mb-4">
+                  <span class="text-2xl font-bold text-gray-900"><%= pack.amount_eur.to_i %></span>
+                  <span class="text-lg text-gray-600">€</span>
+                  <% if pack.amount_eur != pack.amount_eur.to_i %>
+                    <span class="text-sm text-gray-500"><%= sprintf("%.2f", pack.amount_eur).split('.')[1] %></span>
+                  <% end %>
+                </div>
+
+                <% if user_signed_in? %>
+                  <% if @stage.current_or_upcoming? %>
+                    <%= button_to buy_pack_path(pack),
+                          method: :post,
+                          class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all",
+                          data: { turbo: false } do %>
+                      <%= lucide_icon("shopping-cart", size: 16) %>
+                      S'inscrire
+                    <% end %>
+                  <% else %>
+                    <div class="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed">
+                      <%= lucide_icon("calendar-x", size: 16) %>
+                      Stage terminé
+                    </div>
+                  <% end %>
+                <% else %>
+                  <%= link_to new_user_session_path,
+                        class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all" do %>
+                    <%= lucide_icon("log-in", size: 16) %>
+                    Se connecter pour s'inscrire
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
