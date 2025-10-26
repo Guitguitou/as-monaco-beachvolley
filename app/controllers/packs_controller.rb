@@ -21,7 +21,7 @@ class PacksController < ApplicationController
       pack: @pack,
       amount_cents: @pack.amount_cents,
       currency: 'EUR',
-      credits: @pack.credits || 0,
+      credits: @pack.credits || 0, # 0 pour les stages et licences
       status: :pending
     )
 
