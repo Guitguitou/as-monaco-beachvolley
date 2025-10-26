@@ -78,6 +78,7 @@ RSpec.configure do |config|
   
   # Configure Devise for tests
   config.include Devise::Test::ControllerHelpers, type: :controller
+  config.include Devise::Test::IntegrationHelpers, type: :controller
 
   # Devise helpers for request specs (sign_in, sign_out)
   config.include Devise::Test::IntegrationHelpers, type: :request

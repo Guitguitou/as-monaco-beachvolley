@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe PacksController, type: :controller do
   let(:user) { create(:user) }
   let(:credits_pack) { create(:pack, :credits, active: true) }
-  let(:stage_pack) { create(:pack, :stage, active: true) }
   let(:licence_pack) { create(:pack, :licence, active: true) }
+  let(:stage) { create(:stage) }
 
   before do
     sign_in user
@@ -16,14 +16,14 @@ RSpec.describe PacksController, type: :controller do
       expect(assigns(:credits_packs)).to include(credits_pack)
     end
 
-    it 'assigns stage packs' do
-      get :index
-      expect(assigns(:stage_packs)).to include(stage_pack)
-    end
-
     it 'assigns licence packs' do
       get :index
       expect(assigns(:licence_packs)).to include(licence_pack)
+    end
+
+    it 'assigns stages' do
+      get :index
+      expect(assigns(:stages)).to include(stage)
     end
 
     it 'assigns current balance' do

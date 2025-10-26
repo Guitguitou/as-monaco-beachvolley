@@ -87,33 +87,33 @@
   </div>
 <% end %>
 
-<%# Packs de stages %>
-<% if @stage_packs.any? %>
+<%# Stages disponibles %>
+<% if @stages.any? %>
   <div class="mb-12">
     <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
       <%= lucide_icon("calendar", size: 24, class: "text-blue-600") %>
-      Packs de stages
+      Stages disponibles
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <% @stage_packs.each do |pack| %>
+      <% @stages.each do |stage| %>
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
           <%# Header avec gradient %>
           <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-6">
             <div class="flex items-start justify-between mb-2">
               <div>
-                <h3 class="text-xl font-bold"><%= pack.name %></h3>
-                <% if pack.description.present? %>
-                  <p class="text-sm opacity-90 mt-1"><%= pack.description %></p>
+                <h3 class="text-xl font-bold"><%= stage.title %></h3>
+                <% if stage.description.present? %>
+                  <p class="text-sm opacity-90 mt-1"><%= stage.description %></p>
                 <% end %>
               </div>
               <%= lucide_icon("calendar", size: 32, class: "opacity-50") %>
             </div>
             <div class="mt-4">
               <div class="flex items-baseline gap-1">
-                <span class="text-4xl font-bold"><%= pack.amount_eur.to_i %></span>
+                <span class="text-4xl font-bold"><%= stage.price.to_i %></span>
                 <span class="text-xl">€</span>
-                <% if pack.amount_eur != pack.amount_eur.to_i %>
-                  <span class="text-lg"><%= sprintf("%.2f", pack.amount_eur).split('.')[1] %></span>
+                <% if stage.price != stage.price.to_i %>
+                  <span class="text-lg"><%= sprintf("%.2f", stage.price).split('.')[1] %></span>
                 <% end %>
               </div>
             </div>
@@ -121,29 +121,44 @@
 
           <%# Content %>
           <div class="flex-1 p-6 flex flex-col">
-            <%# Stage info %>
+            <%# Dates du stage %>
             <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
               <div class="flex items-center gap-2 text-gray-700">
-                <%= lucide_icon("calendar", size: 20, class: "text-blue-600") %>
-                <span class="font-medium">Stage</span>
+                <%= lucide_icon("calendar-days", size: 20, class: "text-blue-600") %>
+                <span class="font-medium">Dates</span>
               </div>
-              <span class="text-lg font-bold text-blue-600"><%= pack.stage.title %></span>
+              <span class="text-sm text-gray-600">
+                <%= stage.starts_on.strftime("%d/%m/%Y") %> - <%= stage.ends_on.strftime("%d/%m/%Y") %>
+              </span>
             </div>
 
-            <%# Dates du stage %>
+            <%# Durée du stage %>
             <div class="flex items-center gap-2 text-sm text-gray-600 mb-6">
-              <%= lucide_icon("calendar-days", size: 16, class: "text-gray-500") %>
-              <span><%= pack.stage.starts_on.strftime("%d/%m/%Y") %> - <%= pack.stage.ends_on.strftime("%d/%m/%Y") %></span>
+              <%= lucide_icon("clock", size: 16, class: "text-gray-500") %>
+              <span><%= (stage.ends_on - stage.starts_on + 1).to_i %> jour(s)</span>
             </div>
 
-            <%# Bouton d'achat %>
-            <%= button_to buy_pack_path(pack),
-                  method: :post,
-                  class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-all mt-auto",
-                  data: { turbo: false } do %>
-              <%= lucide_icon("shopping-cart", size: 20) %>
-              S'inscrire au stage
-            <% end %>
+            <%# Boutons d'action %>
+            <div class="flex flex-col gap-3 mt-auto">
+              <%= link_to stage_path(stage),
+                    class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-all" do %>
+                <%= lucide_icon("info", size: 20) %>
+                Voir les détails
+              <% end %>
+              
+              <% if stage.current_or_upcoming? %>
+                <%= link_to "#",
+                      class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all" do %>
+                  <%= lucide_icon("user-plus", size: 20) %>
+                  S'inscrire
+                <% end %>
+              <% else %>
+                <div class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-gray-400 px-6 py-3 text-base font-semibold text-white cursor-not-allowed">
+                  <%= lucide_icon("calendar-x", size: 20) %>
+                  Stage terminé
+                </div>
+              <% end %>
+            </div>
           </div>
         </div>
       <% end %>
@@ -215,14 +230,14 @@
   </div>
 <% end %>
 
-<%# Message si aucun pack %>
-<% if @credits_packs.empty? && @stage_packs.empty? && @licence_packs.empty? %>
+<%# Message si aucun pack ni stage %>
+<% if @credits_packs.empty? && @licence_packs.empty? && @stages.empty? %>
   <div class="text-center py-16 bg-white rounded-xl border border-gray-200 shadow-sm">
     <div class="flex flex-col items-center gap-4">
       <%= lucide_icon("package", size: 64, class: "text-gray-300") %>
       <div>
-        <p class="text-xl font-semibold text-gray-900 mb-2">Aucun pack disponible</p>
-        <p class="text-gray-500">Les packs seront bientôt disponibles.</p>
+        <p class="text-xl font-semibold text-gray-900 mb-2">Aucun pack ou stage disponible</p>
+        <p class="text-gray-500">Les packs et stages seront bientôt disponibles.</p>
       </div>
     </div>
   </div>
