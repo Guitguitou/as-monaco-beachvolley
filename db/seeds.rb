@@ -48,3 +48,38 @@ Pack.find_or_create_by!(name: "Pack VIP") do |pack|
 end
 
 puts "✅ #{Pack.count} packs créés"
+
+# Création d'un stage de démonstration
+puts "Création d'un stage de démonstration..."
+
+stage = Stage.find_or_create_by!(title: "Stage Été 2025") do |s|
+  s.description = "Stage de beach volley pour tous niveaux"
+  s.starts_on = Date.current + 1.month
+  s.ends_on = Date.current + 1.month + 1.week
+  s.price_cents = 5000
+end
+
+# Création d'un pack de stage
+puts "Création d'un pack de stage..."
+
+Pack.find_or_create_by!(name: "Pack Stage Été") do |pack|
+  pack.description = "Inscription au stage d'été avec hébergement"
+  pack.pack_type = "stage"
+  pack.amount_cents = 8000  # 80 EUR
+  pack.stage_id = stage.id
+  pack.active = true
+  pack.position = 5
+end
+
+# Création d'un pack de licence
+puts "Création d'un pack de licence..."
+
+Pack.find_or_create_by!(name: "Licence Annuelle 2025") do |pack|
+  pack.description = "Licence complète pour l'année 2025"
+  pack.pack_type = "licence"
+  pack.amount_cents = 15000  # 150 EUR
+  pack.active = true
+  pack.position = 6
+end
+
+puts "✅ #{Pack.count} packs au total (incluant stages et licences)"
