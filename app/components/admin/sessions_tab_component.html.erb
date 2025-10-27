@@ -1,0 +1,122 @@
+<div class="space-y-6">
+  <!-- Filtres -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <%= form_with url: admin_dashboard_path, method: :get, local: true, class: "grid grid-cols-1 md:grid-cols-4 gap-4" do |form| %>
+      <div>
+        <%= form.label :date_range, "Période", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.select :date_range, 
+            [
+              ['Cette semaine', 'week'],
+              ['Ce mois', 'month'],
+              ['Cette année', 'year'],
+              ['Toutes', 'all']
+            ], 
+            { selected: filters[:date_range] || 'week' },
+            { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
+      </div>
+      
+      <div>
+        <%= form.label :session_type, "Type", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.select :session_type, 
+            session_types.map { |type| [type[:label], type[:value]] },
+            { selected: filters[:session_type] || '' },
+            { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
+      </div>
+      
+      <div>
+        <%= form.label :coach_id, "Coach", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.select :coach_id, 
+            [['Tous les coachs', '']] + coaches.map { |coach| [coach[:label], coach[:value]] },
+            { selected: filters[:coach_id] || '' },
+            { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
+      </div>
+      
+      <div class="flex items-end">
+        <%= form.submit "Filtrer", class: "w-full bg-asmbv-red text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:ring-offset-2" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Sessions -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-900">Sessions</h3>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coach</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Terrain</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Capacité</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if sessions.any? %>
+            <% sessions.each do |session| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= l(session.start_at, format: :short) %>
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                    <%= case session.session_type
+                        when 'entrainement' then 'bg-blue-100 text-blue-800'
+                        when 'jeu_libre' then 'bg-green-100 text-green-800'
+                        when 'coaching_prive' then 'bg-purple-100 text-purple-800'
+                        else 'bg-gray-100 text-gray-800'
+                        end %>">
+                    <%= session.session_type.humanize %>
+                  </span>
+                </td>
+                <td class="px-4 py-4 text-sm text-gray-900">
+                  <%= link_to session.title, admin_session_path(session), class: "text-asmbv-red hover:underline" %>
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= session.user&.full_name %>
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= session.terrain %>
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap">
+                  <% if session.max_players.present? %>
+                    <% status = capacity_status(session) %>
+                    <div class="flex items-center">
+                      <span class="text-sm text-gray-900 mr-2">
+                        <%= session.registrations.confirmed.count %>/<%= session.max_players %>
+                      </span>
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= capacity_status_classes(status) %>">
+                        <%= capacity_status_text(status) %>
+                      </span>
+                    </div>
+                  <% else %>
+                    <span class="text-sm text-gray-500">Illimité</span>
+                  <% end %>
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= number_with_precision(session.price, precision: 2) %> €
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                  <%= link_to "Voir", admin_session_path(session), class: "text-asmbv-red hover:text-red-700 mr-3" %>
+                  <%= link_to "Modifier", edit_admin_session_path(session), class: "text-gray-600 hover:text-gray-900" %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="8" class="px-4 py-8 text-center text-sm text-gray-500">
+                Aucune session trouvée avec ces filtres.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

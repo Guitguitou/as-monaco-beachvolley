@@ -1,0 +1,125 @@
+<div class="space-y-6">
+  <!-- KPIs Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <% kpi_cards.each do |card| %>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="<%= card_color_classes(card[:color]) %> rounded-lg p-2">
+              <%= lucide_icon(card[:icon], class: 'w-6 h-6') %>
+            </div>
+          </div>
+          <div class="ml-4 flex-1">
+            <p class="text-sm font-medium text-gray-500"><%= card[:title] %></p>
+            <p class="text-2xl font-bold text-gray-900"><%= card[:value] %></p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Sessions à venir -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Entraînements -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="px-4 py-3 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+          <%= lucide_icon('dumbbell', class: 'w-5 h-5 mr-2 text-blue-600') %>
+          Entraînements à venir
+        </h3>
+      </div>
+      <div class="p-4">
+        <% if upcoming_sessions[:trainings].any? %>
+          <div class="space-y-3">
+            <% upcoming_sessions[:trainings].each do |session| %>
+              <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900"><%= session.title %></p>
+                  <p class="text-xs text-gray-500">
+                    <%= l(session.start_at, format: :short) %> - <%= session.terrain %>
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-gray-900">
+                    <%= session.registrations.confirmed.count %>/<%= session.max_players || '∞' %>
+                  </p>
+                  <p class="text-xs text-gray-500">places</p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-4">Aucun entraînement prévu</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Jeux libres -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="px-4 py-3 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+          <%= lucide_icon('gamepad-2', class: 'w-5 h-5 mr-2 text-green-600') %>
+          Jeux libres à venir
+        </h3>
+      </div>
+      <div class="p-4">
+        <% if upcoming_sessions[:free_plays].any? %>
+          <div class="space-y-3">
+            <% upcoming_sessions[:free_plays].each do |session| %>
+              <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900"><%= session.title %></p>
+                  <p class="text-xs text-gray-500">
+                    <%= l(session.start_at, format: :short) %> - <%= session.terrain %>
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-gray-900">
+                    <%= session.registrations.confirmed.count %>/<%= session.max_players || '∞' %>
+                  </p>
+                  <p class="text-xs text-gray-500">places</p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-4">Aucun jeu libre prévu</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Coachings privés -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="px-4 py-3 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+          <%= lucide_icon('user-check', class: 'w-5 h-5 mr-2 text-purple-600') %>
+          Coachings privés à venir
+        </h3>
+      </div>
+      <div class="p-4">
+        <% if upcoming_sessions[:private_coachings].any? %>
+          <div class="space-y-3">
+            <% upcoming_sessions[:private_coachings].each do |session| %>
+              <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900"><%= session.title %></p>
+                  <p class="text-xs text-gray-500">
+                    <%= l(session.start_at, format: :short) %> - <%= session.user&.full_name %>
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-gray-900">
+                    <%= session.registrations.confirmed.count %>/<%= session.max_players || '∞' %>
+                  </p>
+                  <p class="text-xs text-gray-500">places</p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-4">Aucun coaching privé prévu</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
