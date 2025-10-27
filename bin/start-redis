@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Script pour démarrer Redis localement
+echo "🚀 Démarrage de Redis..."
+
+# Vérifier si Docker est disponible
+if command -v docker &> /dev/null; then
+    echo "📦 Utilisation de Docker Compose..."
+    docker-compose -f docker-compose.redis.yml up -d
+    echo "✅ Redis démarré sur localhost:6379"
+    echo "🔗 URL Redis: redis://localhost:6379/0"
+else
+    echo "❌ Docker n'est pas installé. Veuillez installer Redis manuellement:"
+    echo "   - macOS: brew install redis && brew services start redis"
+    echo "   - Ubuntu: sudo apt install redis-server && sudo systemctl start redis"
+    echo "   - Ou utilisez Docker: docker run -d -p 6379:6379 redis:7-alpine"
+fi
