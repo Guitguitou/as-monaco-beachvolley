@@ -58,6 +58,11 @@ class CreditPurchase < ApplicationRecord
     pack&.pack_type_licence?
   end
 
+  # Calculer le montant en euros
+  def amount_eur
+    amount_cents / 100.0
+  end
+
   private
 
   def process_credits_purchase
@@ -110,11 +115,6 @@ class CreditPurchase < ApplicationRecord
   # Générer une référence unique
   def generate_reference
     self.sherlock_transaction_reference ||= "CP-#{SecureRandom.hex(8).upcase}"
-  end
-
-  # Calculer le montant en euros
-  def amount_eur
-    amount_cents / 100.0
   end
 
   # Pack prédéfini : 10 EUR = 1000 crédits
