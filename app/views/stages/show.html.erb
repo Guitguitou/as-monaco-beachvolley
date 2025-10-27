@@ -91,27 +91,19 @@
                     </div>
                   </div>
 
-                  <% if user_signed_in? %>
-                    <% if @stage.current_or_upcoming? %>
-                      <%= button_to buy_pack_path(pack),
-                            method: :post,
-                            class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all",
-                            data: { turbo: false } do %>
-                        <%= lucide_icon("shopping-cart", size: 16) %>
-                        S'inscrire
-                      <% end %>
-                    <% else %>
-                      <div class="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed">
-                        <%= lucide_icon("calendar-x", size: 16) %>
-                        Stage terminé
-                      </div>
+                  <% if @stage.current_or_upcoming? %>
+                    <%= button_to buy_pack_path(pack),
+                          method: :post,
+                          class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all",
+                          data: { turbo: false } do %>
+                      <%= lucide_icon("shopping-cart", size: 16) %>
+                      S'inscrire
                     <% end %>
                   <% else %>
-                    <%= link_to new_user_session_path,
-                          class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all" do %>
-                      <%= lucide_icon("log-in", size: 16) %>
-                      Se connecter pour s'inscrire
-                    <% end %>
+                    <div class="w-full inline-flex items-center justify-center gap-2 rounded-md bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed">
+                      <%= lucide_icon("calendar-x", size: 16) %>
+                      Stage terminé
+                    </div>
                   <% end %>
                 </div>
               <% end %>

@@ -1,5 +1,5 @@
 class CreditPurchase < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, optional: true
   belongs_to :pack, optional: true
 
   # Statuts possibles
@@ -61,6 +61,11 @@ class CreditPurchase < ApplicationRecord
   private
 
   def process_credits_purchase
+    # Les packs de crédits nécessitent un utilisateur connecté
+    if user.nil?
+      raise "Les packs de crédits nécessitent une connexion utilisateur"
+    end
+
     # Créer ou trouver le balance de l'utilisateur
     balance = user.balance || user.create_balance!(amount: 0)
 
@@ -78,15 +83,19 @@ class CreditPurchase < ApplicationRecord
   def process_stage_purchase
     # Pour les stages, on pourrait créer une inscription ou un enregistrement
     # Pour l'instant, on log juste l'achat
-    Rails.logger.info("Stage pack purchased: #{pack.name} by user #{user.id}")
+    user_info = user ? "user #{user.id}" : "anonymous user"
+    Rails.logger.info("Stage pack purchased: #{pack.name} by #{user_info}")
     # TODO: Implémenter la logique d'inscription au stage
+    # Pour les utilisateurs anonymes, on pourrait stocker l'email dans sherlock_fields
   end
 
   def process_licence_purchase
     # Pour les licences, on pourrait activer des fonctionnalités premium
     # Pour l'instant, on log juste l'achat
-    Rails.logger.info("Licence pack purchased: #{pack.name} by user #{user.id}")
+    user_info = user ? "user #{user.id}" : "anonymous user"
+    Rails.logger.info("Licence pack purchased: #{pack.name} by #{user_info}")
     # TODO: Implémenter la logique d'activation de licence
+    # Pour les utilisateurs anonymes, on pourrait stocker l'email dans sherlock_fields
   end
 
   # Marquer comme échoué
