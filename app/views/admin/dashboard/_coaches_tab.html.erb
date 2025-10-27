@@ -40,14 +40,14 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= coach_data[:week_sessions] || 0 %>
+                <%= coach_data[:week_count] || 0 %>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= number_to_currency(coach_data[:week_salary] || 0, unit: "", separator: ",", delimiter: "") %>€
+                <%= number_to_currency(coach_data[:week_amount] || 0, unit: "", separator: ",", delimiter: "") %>€
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <% if coach_data[:week_sessions] && coach_data[:week_sessions] > 0 %>
-                  <%= number_to_currency((coach_data[:week_salary] || 0) / coach_data[:week_sessions], unit: "", separator: ",", delimiter: "") %>€
+                <% if coach_data[:week_count] && coach_data[:week_count] > 0 %>
+                  <%= number_to_currency((coach_data[:week_amount] || 0) / coach_data[:week_count], unit: "", separator: ",", delimiter: "") %>€
                 <% else %>
                   -
                 <% end %>
@@ -106,14 +106,14 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= coach_data[:month_sessions] || 0 %>
+                <%= coach_data[:month_count] || 0 %>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= number_to_currency(coach_data[:month_salary] || 0, unit: "", separator: ",", delimiter: "") %>€
+                <%= number_to_currency(coach_data[:month_amount] || 0, unit: "", separator: ",", delimiter: "") %>€
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <% if coach_data[:month_sessions] && coach_data[:month_sessions] > 0 %>
-                  <%= number_to_currency((coach_data[:month_salary] || 0) / coach_data[:month_sessions], unit: "", separator: ",", delimiter: "") %>€
+                <% if coach_data[:month_count] && coach_data[:month_count] > 0 %>
+                  <%= number_to_currency((coach_data[:month_amount] || 0) / coach_data[:month_count], unit: "", separator: ",", delimiter: "") %>€
                 <% else %>
                   -
                 <% end %>
@@ -172,14 +172,14 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= coach_data[:year_sessions] || 0 %>
+                <%= coach_data[:year_count] || 0 %>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= number_to_currency(coach_data[:year_salary] || 0, unit: "", separator: ",", delimiter: "") %>€
+                <%= number_to_currency(coach_data[:year_amount] || 0, unit: "", separator: ",", delimiter: "") %>€
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <% if coach_data[:year_sessions] && coach_data[:year_sessions] > 0 %>
-                  <%= number_to_currency((coach_data[:year_salary] || 0) / coach_data[:year_sessions], unit: "", separator: ",", delimiter: "") %>€
+                <% if coach_data[:year_count] && coach_data[:year_count] > 0 %>
+                  <%= number_to_currency((coach_data[:year_amount] || 0) / coach_data[:year_count], unit: "", separator: ",", delimiter: "") %>€
                 <% else %>
                   -
                 <% end %>
