@@ -74,15 +74,12 @@ class CreditPurchase < ApplicationRecord
     # Créer ou trouver le balance de l'utilisateur
     balance = user.balance || user.create_balance!(amount: 0)
 
-    # Créer la transaction de crédit
+    # Créer la transaction de crédit (le callback apply_amount_delta s'occupe de l'incrémentation)
     credit_transaction = user.credit_transactions.create!(
       transaction_type: :purchase,
       amount: credits,
       session: nil
     )
-
-    # Incrémenter le solde de l'utilisateur
-    balance.increment!(:amount, credits)
   end
 
   def process_stage_purchase
