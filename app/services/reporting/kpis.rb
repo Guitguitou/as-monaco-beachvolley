@@ -47,7 +47,7 @@ module Reporting
         next false unless session.max_players.present?
         
         capacity_ratio = session.registrations.confirmed.count.to_f / session.max_players
-        capacity_ratio < 0.4 || capacity_ratio > 0.9
+        capacity_ratio < 0.4 || capacity_ratio >= 0.9
       end
     end
 
@@ -100,6 +100,7 @@ module Reporting
         .sum(:amount_cents)
 
       # Convertir en euros (les transactions sont en centimes)
+      # Les transactions de sessions sont négatives, les achats de packs sont positifs
       total_cents = -session_revenue + pack_revenue
       total_cents / 100.0
     end

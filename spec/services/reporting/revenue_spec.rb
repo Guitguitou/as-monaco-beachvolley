@@ -54,7 +54,7 @@ RSpec.describe Reporting::Revenue do
 
   describe '#breakdown_by_purchase_type' do
     let!(:user) { create(:user) }
-    let!(:session) { create(:session, session_type: 'entrainement', start_at: current_time + 1.day) }
+    let!(:session) { create(:session, session_type: 'entrainement', start_at: current_time + 1.day, end_at: current_time + 1.day + 1.5.hours) }
     let(:period_range) { current_time..(current_time + 7.days) }
 
     before do
@@ -84,8 +84,9 @@ RSpec.describe Reporting::Revenue do
 
   describe '#pack_breakdown_by_type' do
     let!(:user) { create(:user) }
+    let!(:stage) { create(:stage) }
     let!(:credits_pack) { create(:pack, pack_type: :credits) }
-    let!(:stage_pack) { create(:pack, pack_type: :stage) }
+    let!(:stage_pack) { create(:pack, pack_type: :stage, stage: stage) }
     let!(:licence_pack) { create(:pack, pack_type: :licence) }
     let(:period_range) { current_time..(current_time + 7.days) }
 
@@ -123,9 +124,9 @@ RSpec.describe Reporting::Revenue do
 
   describe '#session_breakdown_by_type' do
     let!(:user) { create(:user) }
-    let!(:training_session) { create(:session, session_type: 'entrainement', start_at: current_time + 1.day) }
-    let!(:free_play_session) { create(:session, session_type: 'jeu_libre', start_at: current_time + 2.days) }
-    let!(:private_coaching_session) { create(:session, session_type: 'coaching_prive', start_at: current_time + 3.days) }
+    let!(:training_session) { create(:session, session_type: 'entrainement', start_at: current_time + 1.day, end_at: current_time + 1.day + 1.5.hours) }
+    let!(:free_play_session) { create(:session, session_type: 'jeu_libre', start_at: current_time + 2.days, end_at: current_time + 2.days + 2.hours) }
+    let!(:private_coaching_session) { create(:session, session_type: 'coaching_prive', start_at: current_time + 3.days, end_at: current_time + 3.days + 1.hour) }
     let(:period_range) { current_time..(current_time + 7.days) }
 
     before do
