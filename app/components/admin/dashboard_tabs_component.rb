@@ -12,21 +12,21 @@ module Admin
 
     def tabs
       [
-        { id: 'overview', label: 'Aperçu', icon: 'bar-chart-3' },
-        { id: 'sessions', label: 'Sessions', icon: 'calendar' },
-        { id: 'finances', label: 'Finances', icon: 'euro' },
-        { id: 'coaches', label: 'Coachs', icon: 'users' },
-        { id: 'alerts', label: 'Alertes', icon: 'alert-triangle' }
+        { id: 'overview', name: 'Vue d\'ensemble', icon: '📊' },
+        { id: 'sessions', name: 'Sessions', icon: '🏐' },
+        { id: 'finances', name: 'Finances', icon: '💰' },
+        { id: 'coaches', name: 'Coachs', icon: '👥' },
+        { id: 'alerts', name: 'Alertes', icon: '⚠️' }
       ]
     end
 
     def tab_classes(tab_id)
-      base_classes = "flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+      base_classes = "px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200"
       
-      if active_tab == tab_id
+      if tab_id == active_tab
         "#{base_classes} bg-asmbv-red text-white"
       else
-        "#{base_classes} text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+        "#{base_classes} text-gray-500 hover:text-gray-700 hover:bg-gray-100"
       end
     end
   end

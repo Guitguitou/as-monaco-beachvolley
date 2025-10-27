@@ -37,15 +37,11 @@ module Admin
       @kpis = kpis_service.week_kpis
       @upcoming_sessions = kpis_service.upcoming_sessions
       @alerts = alerts_service.all_alerts
-      
-      render partial: 'overview_tab'
     end
 
     def render_sessions_tab
       @filters = session_filters
       @sessions = filtered_sessions
-      
-      render partial: 'sessions_tab'
     end
 
     def render_finances_tab
@@ -62,8 +58,6 @@ module Admin
         sessions: revenue_service.session_breakdown_by_type(month_range),
         packs: revenue_service.pack_breakdown_by_type(month_range)
       }
-      
-      render partial: 'finances_tab'
     end
 
     def render_coaches_tab
@@ -82,17 +76,12 @@ module Admin
         
         @upcoming_sessions_by_coach[coach.id] = coach_salaries_service.upcoming_sessions_for_coach(coach)
       end
-      
-      render partial: 'coaches_tab'
     end
 
     def render_alerts_tab
       alerts_service = Reporting::Alerts.new
       
       @alerts = alerts_service.all_alerts
-      @alert_counts = alerts_service.alert_counts
-      
-      render partial: 'alerts_tab'
     end
 
     def session_filters

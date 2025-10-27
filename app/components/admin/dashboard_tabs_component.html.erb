@@ -1,24 +1,23 @@
-<div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+<div class="mb-8">
+  <!-- Tab Navigation -->
   <div class="border-b border-gray-200">
-    <nav class="flex space-x-1 p-1" data-controller="tabs">
+    <nav class="-mb-px flex space-x-8" data-controller="tabs">
       <% tabs.each do |tab| %>
-        <button
-          type="button"
-          class="<%= tab_classes(tab[:id]) %>"
-          data-tabs-target="tab"
-          data-tab-id="<%= tab[:id] %>"
-          data-action="click->tabs#switchTab"
-        >
-          <%= lucide_icon(tab[:icon], class: 'w-4 h-4 mr-2') %>
-          <%= tab[:label] %>
-        </button>
+        <%= link_to admin_dashboard_path(tab: tab[:id]), 
+            class: tab_classes(tab[:id]),
+            data: { 
+              action: "click->tabs#switchTab",
+              tab: tab[:id]
+            } do %>
+          <span class="mr-2"><%= tab[:icon] %></span>
+          <%= tab[:name] %>
+        <% end %>
       <% end %>
     </nav>
   </div>
-  
-  <div class="p-6">
-    <turbo-frame id="dashboard-content" data-tabs-target="content">
-      <%= yield %>
-    </turbo-frame>
+
+  <!-- Tab Content -->
+  <div class="mt-6">
+    <%= content %>
   </div>
 </div>
