@@ -391,10 +391,6 @@ GEM
       activejob (>= 7.2)
       activerecord (>= 7.2)
       railties (>= 7.2)
-    solid_cache (1.0.7)
-      activejob (>= 7.2)
-      activerecord (>= 7.2)
-      railties (>= 7.2)
     sshkit (1.24.0)
       base64
       logger
@@ -474,7 +470,7 @@ DEPENDENCIES
   puma (>= 5.0)
   rails (~> 8.0.1)
   rails-controller-testing
-  redis
+  redis (~> 5.0)
   rspec-rails
   rubocop
   rubocop-config-captive (~> 1.10.0)
@@ -487,7 +483,6 @@ DEPENDENCIES
   sidekiq-cron
   sidekiq-unique-jobs
   solid_cable
-  solid_cache
   stimulus-rails
   tailwindcss-rails (~> 4.2)
   tailwindcss-ruby (~> 4.1)

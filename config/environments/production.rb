@@ -49,8 +49,12 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Use memory cache store (can be changed to Redis in the future)
-  config.cache_store = :memory_store
+  # Use Redis cache store for production
+  config.cache_store = :redis_cache_store, {
+    url: ENV.fetch("REDIS_URL", "redis://localhost:6379/0"),
+    expires_in: 1.hour,
+    namespace: "as_monaco_beach_volley_cache"
+  }
 
   # Use Sidekiq as the queuing backend for Active Job.
   config.active_job.queue_adapter = :sidekiq
