@@ -1,8 +1,241 @@
-<div class="bg-white rounded-lg shadow">
-  <div class="px-6 py-4 border-b border-gray-200">
-    <h3 class="text-lg font-medium text-gray-900">Finances</h3>
+<!-- KPIs Financiers -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <!-- CA Semaine -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-8 h-8 bg-green-600 rounded-md flex items-center justify-center">
+          <span class="text-white text-sm font-medium">€</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">CA Semaine</p>
+        <p class="text-2xl font-semibold text-gray-900">
+          <%= number_to_currency(@revenues[:week], unit: "", separator: ",", delimiter: "") %>€
+        </p>
+      </div>
+    </div>
   </div>
-  <div class="p-6">
-    <p class="text-gray-500">Fonctionnalité en cours de développement...</p>
+
+  <!-- Salaires Coachs Semaine -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-8 h-8 bg-orange-500 rounded-md flex items-center justify-center">
+          <span class="text-white text-sm font-medium">👥</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Salaires Coachs (Semaine)</p>
+        <p class="text-2xl font-semibold text-gray-900">
+          <%= number_to_currency(@coach_salaries[:week], unit: "", separator: ",", delimiter: "") %>€
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Salaires Coachs Mois -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+          <span class="text-white text-sm font-medium">📅</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Salaires Coachs (Mois)</p>
+        <p class="text-2xl font-semibold text-gray-900">
+          <%= number_to_currency(@coach_salaries[:month], unit: "", separator: ",", delimiter: "") %>€
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Salaires Coachs Année -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+          <span class="text-white text-sm font-medium">📊</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Salaires Coachs (Année)</p>
+        <p class="text-2xl font-semibold text-gray-900">
+          <%= number_to_currency(@coach_salaries[:year], unit: "", separator: ",", delimiter: "") %>€
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tableaux de Différences CA - Salaires -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+  <!-- Différence Semaine -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900 flex items-center">
+        <span class="mr-2">📈</span>
+        Différence Semaine
+      </h3>
+    </div>
+    <div class="p-6">
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-medium text-gray-500">CA Semaine</span>
+          <span class="text-sm font-semibold text-gray-900">
+            <%= number_to_currency(@revenues[:week], unit: "", separator: ",", delimiter: "") %>€
+          </span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-medium text-gray-500">Salaires Coachs</span>
+          <span class="text-sm font-semibold text-gray-900">
+            <%= number_to_currency(@coach_salaries[:week], unit: "", separator: ",", delimiter: "") %>€
+          </span>
+        </div>
+        <hr class="border-gray-200">
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-bold text-gray-900">Différence</span>
+          <span class="text-lg font-bold <%= (@revenues[:week] - @coach_salaries[:week]) >= 0 ? 'text-green-600' : 'text-red-600' %>">
+            <%= number_to_currency(@revenues[:week] - @coach_salaries[:week], unit: "", separator: ",", delimiter: "") %>€
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Différence Mois -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900 flex items-center">
+        <span class="mr-2">📊</span>
+        Différence Mois
+      </h3>
+    </div>
+    <div class="p-6">
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-medium text-gray-500">CA Mois</span>
+          <span class="text-sm font-semibold text-gray-900">
+            <%= number_to_currency(@revenues[:month], unit: "", separator: ",", delimiter: "") %>€
+          </span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-medium text-gray-500">Salaires Coachs</span>
+          <span class="text-sm font-semibold text-gray-900">
+            <%= number_to_currency(@coach_salaries[:month], unit: "", separator: ",", delimiter: "") %>€
+          </span>
+        </div>
+        <hr class="border-gray-200">
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-bold text-gray-900">Différence</span>
+          <span class="text-lg font-bold <%= (@revenues[:month] - @coach_salaries[:month]) >= 0 ? 'text-green-600' : 'text-red-600' %>">
+            <%= number_to_currency(@revenues[:month] - @coach_salaries[:month], unit: "", separator: ",", delimiter: "") %>€
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Différence Année -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900 flex items-center">
+        <span class="mr-2">📈</span>
+        Différence Année
+      </h3>
+    </div>
+    <div class="p-6">
+      <div class="space-y-4">
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-medium text-gray-500">CA Année</span>
+          <span class="text-sm font-semibold text-gray-900">
+            <%= number_to_currency(@revenues[:year], unit: "", separator: ",", delimiter: "") %>€
+          </span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-medium text-gray-500">Salaires Coachs</span>
+          <span class="text-sm font-semibold text-gray-900">
+            <%= number_to_currency(@coach_salaries[:year], unit: "", separator: ",", delimiter: "") %>€
+          </span>
+        </div>
+        <hr class="border-gray-200">
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-bold text-gray-900">Différence</span>
+          <span class="text-lg font-bold <%= (@revenues[:year] - @coach_salaries[:year]) >= 0 ? 'text-green-600' : 'text-red-600' %>">
+            <%= number_to_currency(@revenues[:year] - @coach_salaries[:year], unit: "", separator: ",", delimiter: "") %>€
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Détail des Revenus par Type -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <!-- Revenus par Type de Session -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900 flex items-center">
+        <span class="mr-2">🏐</span>
+        Revenus par Type de Session (Mois)
+      </h3>
+    </div>
+    <div class="p-6">
+      <% if @breakdowns[:sessions].any? %>
+        <div class="space-y-3">
+          <% @breakdowns[:sessions].each do |session_type, amount| %>
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+              <span class="text-sm font-medium text-gray-700">
+                <%= case session_type
+                    when 'entrainement' then 'Entraînements'
+                    when 'jeu_libre' then 'Jeux libres'
+                    when 'coaching_prive' then 'Coachings privés'
+                    else session_type.humanize
+                    end %>
+              </span>
+              <span class="text-sm font-semibold text-gray-900">
+                <%= number_to_currency(amount, unit: "", separator: ",", delimiter: "") %>€
+              </span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-center py-4">Aucun revenu de session ce mois</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Revenus par Type de Pack -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900 flex items-center">
+        <span class="mr-2">📦</span>
+        Revenus par Type de Pack (Mois)
+      </h3>
+    </div>
+    <div class="p-6">
+      <% if @breakdowns[:packs].any? %>
+        <div class="space-y-3">
+          <% @breakdowns[:packs].each do |pack_type, amount| %>
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+              <span class="text-sm font-medium text-gray-700">
+                <%= case pack_type
+                    when 'credits' then 'Packs de Crédits'
+                    when 'stage' then 'Packs de Stage'
+                    when 'license' then 'Packs de Licence'
+                    else pack_type.humanize
+                    end %>
+              </span>
+              <span class="text-sm font-semibold text-gray-900">
+                <%= number_to_currency(amount, unit: "", separator: ",", delimiter: "") %>€
+              </span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-center py-4">Aucun revenu de pack ce mois</p>
+      <% end %>
+    </div>
   </div>
 </div>
