@@ -31,7 +31,7 @@ RSpec.describe Reporting::Alerts do
 
   describe '#late_cancellation_alerts' do
     let!(:coach) { create(:user, coach: true) }
-    let!(:session) { create(:session, session_type: 'entrainement', user: coach) }
+    let!(:session) { create(:session, session_type: 'entrainement', start_at: 1.day.from_now, end_at: 1.day.from_now + 1.5.hours, user: coach) }
     let!(:old_cancellation) do
       create(:late_cancellation, 
              session: session, 
@@ -66,6 +66,7 @@ RSpec.describe Reporting::Alerts do
         create(:session, 
                session_type: 'entrainement', 
                start_at: current_time + 1.day,
+               end_at: current_time + 1.day + 1.5.hours,
                user: coach,
                max_players: 10)
       end
@@ -73,6 +74,7 @@ RSpec.describe Reporting::Alerts do
         create(:session, 
                session_type: 'entrainement', 
                start_at: current_time + 2.days,
+               end_at: current_time + 2.days + 1.5.hours,
                user: coach,
                max_players: 10)
       end
@@ -80,6 +82,7 @@ RSpec.describe Reporting::Alerts do
         create(:session, 
                session_type: 'entrainement', 
                start_at: current_time + 3.days,
+               end_at: current_time + 3.days + 1.5.hours,
                user: coach,
                max_players: 10)
       end
@@ -105,6 +108,7 @@ RSpec.describe Reporting::Alerts do
         create(:session, 
                session_type: 'entrainement', 
                start_at: current_time + 1.day,
+               end_at: current_time + 1.day + 1.5.hours,
                user: coach,
                max_players: nil)
       end
@@ -126,6 +130,7 @@ RSpec.describe Reporting::Alerts do
         create(:session, 
                session_type: 'entrainement', 
                start_at: current_time + 1.day,
+               end_at: current_time + 1.day + 1.5.hours,
                user: coach,
                max_players: 10)
       end
@@ -133,6 +138,7 @@ RSpec.describe Reporting::Alerts do
         create(:session, 
                session_type: 'entrainement', 
                start_at: current_time + 2.days,
+               end_at: current_time + 2.days + 1.5.hours,
                user: coach,
                max_players: 10)
       end
@@ -160,18 +166,21 @@ RSpec.describe Reporting::Alerts do
         create(:session, 
                session_type: 'entrainement', 
                start_at: current_time + 1.day,
+               end_at: current_time + 1.day + 1.5.hours,
                user: coach)
       end
       let!(:session2) do
         create(:session, 
                session_type: 'jeu_libre', 
                start_at: current_time + 2.days,
+               end_at: current_time + 2.days + 2.hours,
                user: coach)
       end
       let!(:future_session) do
         create(:session, 
                session_type: 'entrainement', 
                start_at: current_time + 5.days,
+               end_at: current_time + 5.days + 1.5.hours,
                user: coach)
       end
 
@@ -202,7 +211,7 @@ RSpec.describe Reporting::Alerts do
 
   describe '#critical_alerts' do
     let!(:coach) { create(:user, coach: true) }
-    let!(:session) { create(:session, session_type: 'entrainement', user: coach) }
+    let!(:session) { create(:session, session_type: 'entrainement', start_at: 1.day.from_now, end_at: 1.day.from_now + 1.5.hours, user: coach) }
     let!(:late_cancellation_today) do
       create(:late_cancellation, 
              session: session, 
@@ -212,12 +221,14 @@ RSpec.describe Reporting::Alerts do
       create(:session, 
              session_type: 'entrainement', 
              start_at: current_time + 1.hour,
+             end_at: current_time + 1.hour + 1.5.hours,
              user: coach)
     end
     let!(:empty_session) do
       create(:session, 
              session_type: 'entrainement', 
              start_at: current_time + 1.day,
+             end_at: current_time + 1.day + 1.5.hours,
              user: coach,
              max_players: 10)
     end

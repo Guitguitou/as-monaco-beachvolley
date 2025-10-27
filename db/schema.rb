@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_26_092107) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_27_075211) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -211,7 +211,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_26_092107) do
     t.bigint "pack_id"
     t.index ["created_at"], name: "index_credit_purchases_on_created_at"
     t.index ["pack_id"], name: "index_credit_purchases_on_pack_id"
+    t.index ["paid_at", "status"], name: "index_credit_purchases_on_paid_at_and_status"
     t.index ["sherlock_transaction_reference"], name: "index_credit_purchases_on_sherlock_transaction_reference", unique: true, where: "(sherlock_transaction_reference IS NOT NULL)"
+    t.index ["status", "paid_at"], name: "index_credit_purchases_on_status_and_paid_at"
     t.index ["status"], name: "index_credit_purchases_on_status"
     t.index ["user_id"], name: "index_credit_purchases_on_user_id"
   end
@@ -223,8 +225,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_26_092107) do
     t.integer "amount"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_at", "transaction_type"], name: "index_credit_transactions_on_created_at_and_type"
     t.index ["created_at"], name: "index_credit_transactions_on_created_at"
+    t.index ["session_id", "transaction_type"], name: "index_credit_transactions_on_session_and_type"
     t.index ["session_id"], name: "index_credit_transactions_on_session_id"
+    t.index ["transaction_type", "created_at"], name: "index_credit_transactions_on_type_and_created_at"
     t.index ["transaction_type"], name: "index_credit_transactions_on_transaction_type"
     t.index ["user_id"], name: "index_credit_transactions_on_user_id"
   end
@@ -294,6 +299,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_26_092107) do
     t.bigint "session_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_late_cancellations_on_created_at"
+    t.index ["session_id", "created_at"], name: "index_late_cancellations_on_session_and_created_at"
     t.index ["session_id"], name: "index_late_cancellations_on_session_id"
     t.index ["user_id", "created_at"], name: "index_late_cancellations_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_late_cancellations_on_user_id"
@@ -436,7 +443,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_26_092107) do
     t.integer "status", default: 0, null: false
     t.index ["created_at"], name: "index_registrations_on_created_at"
     t.index ["session_id", "status", "created_at"], name: "index_registrations_on_session_status_created_at"
+    t.index ["session_id", "status"], name: "index_registrations_on_session_and_status"
     t.index ["session_id"], name: "index_registrations_on_session_id"
+    t.index ["status", "created_at"], name: "index_registrations_on_status_and_created_at"
     t.index ["status"], name: "index_registrations_on_status"
     t.index ["user_id", "session_id"], name: "index_registrations_on_user_id_and_session_id", unique: true
     t.index ["user_id"], name: "index_registrations_on_user_id"
@@ -467,8 +476,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_26_092107) do
     t.datetime "registration_opens_at"
     t.text "coach_notes"
     t.index ["registration_opens_at"], name: "index_sessions_on_registration_opens_at"
+    t.index ["session_type", "start_at"], name: "index_sessions_on_type_and_start_at"
     t.index ["session_type"], name: "index_sessions_on_session_type"
+    t.index ["start_at", "session_type"], name: "index_sessions_on_start_at_and_type"
     t.index ["start_at"], name: "index_sessions_on_start_at"
+    t.index ["user_id", "start_at"], name: "index_sessions_on_user_and_start_at"
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
@@ -589,6 +601,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_26_092107) do
     t.integer "salary_per_training_cents", default: 0, null: false
     t.string "license_type"
     t.datetime "disabled_at"
+    t.index ["admin", "id"], name: "index_users_on_admin_and_id"
+    t.index ["coach", "id"], name: "index_users_on_coach_and_id"
     t.index ["disabled_at"], name: "index_users_on_disabled_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["license_type"], name: "index_users_on_license_type"

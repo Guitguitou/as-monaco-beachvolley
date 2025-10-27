@@ -18,7 +18,7 @@ module Reporting
     end
 
     # Alertes de désinscriptions hors délai
-    def late_cancellation_alerts
+    def late_cancellation_alerts(limit: 20)
       recent_range = @current_time - 7.days..@current_time
       
       LateCancellation
@@ -26,7 +26,7 @@ module Reporting
         .where(created_at: recent_range)
         .includes(:user, :session)
         .order(created_at: :desc)
-        .limit(20)
+        .limit(limit)
     end
 
     # Alertes de capacité (sessions presque pleines ou en sous-capacité)

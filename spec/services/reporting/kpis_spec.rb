@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Reporting::Kpis do
   let(:time_zone) { 'Europe/Paris' }
-  let(:kpis_service) { described_class.new(time_zone: time_zone) }
+  let(:service) { described_class.new(time_zone: time_zone) }
   let(:current_time) { Time.zone.parse('2024-01-15 10:00:00') } # Lundi
 
   before do
@@ -17,6 +17,7 @@ RSpec.describe Reporting::Kpis do
 
   describe '#week_kpis' do
     let!(:coach) { create(:user, coach: true, salary_per_training_cents: 5000) } # 50€
+    let!(:coach_balance) { create(:balance, user: coach, amount: 2000) } # 20€ de crédits
     let!(:week_start) { current_time.beginning_of_week(:monday) }
     let!(:week_end) { current_time.end_of_week(:monday) }
 
@@ -25,23 +26,26 @@ RSpec.describe Reporting::Kpis do
         create(:session, 
                session_type: 'entrainement', 
                start_at: week_start + 1.day,
+               end_at: week_start + 1.day + 1.5.hours,
                user: coach)
       end
       let!(:free_play_session) do
         create(:session, 
                session_type: 'jeu_libre', 
                start_at: week_start + 2.days,
+               end_at: week_start + 2.days + 2.hours,
                user: coach)
       end
       let!(:private_coaching_session) do
         create(:session, 
                session_type: 'coaching_prive', 
                start_at: week_start + 3.days,
+               end_at: week_start + 3.days + 1.hour,
                user: coach)
       end
 
       it 'returns correct counts for each session type' do
-        kpis = kpis_service.week_kpis
+        kpis = service.week_kpis
 
         expect(kpis[:trainings_count]).to eq(1)
         expect(kpis[:free_plays_count]).to eq(1)
@@ -49,44 +53,29 @@ RSpec.describe Reporting::Kpis do
       end
 
       it 'calculates coach salaries correctly' do
-        kpis = kpis_service.week_kpis
+        kpis = service.week_kpis
 
         expect(kpis[:coach_salaries]).to eq(50.0) # 1 session * 50€
       end
     end
 
     context 'with late cancellations' do
-      let!(:session) { create(:session, session_type: 'entrainement', start_at: week_start + 1.day) }
-      let!(:late_cancellation) { create(:late_cancellation, session: session) }
+      let!(:session) { create(:session, session_type: 'entrainement', start_at: week_start + 1.day, end_at: week_start + 1.day + 1.5.hours) }
+      let!(:late_cancellation) { create(:late_cancellation, session: session, created_at: week_start + 1.day) }
 
       it 'counts late cancellations' do
-        kpis = kpis_service.week_kpis
+        kpis = service.week_kpis
 
         expect(kpis[:late_cancellations_count]).to eq(1)
       end
     end
 
-    context 'with revenue' do
-      let!(:user) { create(:user) }
-      let!(:session) { create(:session, session_type: 'entrainement', start_at: week_start + 1.day) }
-      let!(:credit_purchase) do
-        create(:credit_purchase, 
-               user: user, 
-               status: :paid, 
-               paid_at: week_start + 1.day,
-               amount_cents: 10000) # 100€
-      end
-
-      it 'calculates revenue correctly' do
-        kpis = kpis_service.week_kpis
-
-        expect(kpis[:revenue]).to eq(100.0)
-      end
-    end
   end
+
 
   describe '#upcoming_sessions' do
     let!(:coach) { create(:user, coach: true) }
+    let!(:coach_balance) { create(:balance, user: coach, amount: 2000) } # 20€ de crédits
     let!(:upcoming_range) { current_time..(current_time + 7.days) }
 
     context 'with upcoming sessions' do
@@ -94,23 +83,26 @@ RSpec.describe Reporting::Kpis do
         create(:session, 
                session_type: 'entrainement', 
                start_at: current_time + 1.day,
+               end_at: current_time + 1.day + 1.5.hours,
                user: coach)
       end
       let!(:free_play_session) do
         create(:session, 
                session_type: 'jeu_libre', 
                start_at: current_time + 2.days,
+               end_at: current_time + 2.days + 2.hours,
                user: coach)
       end
       let!(:private_coaching_session) do
         create(:session, 
                session_type: 'coaching_prive', 
                start_at: current_time + 3.days,
+               end_at: current_time + 3.days + 1.hour,
                user: coach)
       end
 
       it 'returns upcoming sessions grouped by type' do
-        upcoming = kpis_service.upcoming_sessions
+        upcoming = service.upcoming_sessions
 
         expect(upcoming[:trainings]).to include(training_session)
         expect(upcoming[:free_plays]).to include(free_play_session)
@@ -118,7 +110,7 @@ RSpec.describe Reporting::Kpis do
       end
 
       it 'respects the limit parameter' do
-        upcoming = kpis_service.upcoming_sessions(limit: 1)
+        upcoming = service.upcoming_sessions(limit: 1)
 
         expect(upcoming[:trainings].count).to eq(1)
         expect(upcoming[:free_plays].count).to eq(1)
@@ -129,6 +121,7 @@ RSpec.describe Reporting::Kpis do
 
   describe '#capacity_alerts' do
     let!(:coach) { create(:user, coach: true) }
+    let!(:coach_balance) { create(:balance, user: coach, amount: 2000) } # 20€ de crédits
     let!(:upcoming_range) { current_time..(current_time + 7.days) }
 
     context 'with capacity issues' do
@@ -136,6 +129,7 @@ RSpec.describe Reporting::Kpis do
         create(:session, 
                session_type: 'entrainement', 
                start_at: current_time + 1.day,
+               end_at: current_time + 1.day + 1.5.hours,
                user: coach,
                max_players: 10)
       end
@@ -143,18 +137,23 @@ RSpec.describe Reporting::Kpis do
         create(:session, 
                session_type: 'entrainement', 
                start_at: current_time + 2.days,
+               end_at: current_time + 2.days + 1.5.hours,
                user: coach,
                max_players: 10)
       end
 
       before do
+        # Create users with credits for registrations
+        users = create_list(:user, 11)
+        users.each { |user| create(:balance, user: user, amount: 1000) } # 10€ de crédits
+        
         # Create registrations to simulate capacity issues
-        create_list(:registration, 2, session: low_capacity_session, status: :confirmed) # 20% capacity
-        create_list(:registration, 9, session: high_capacity_session, status: :confirmed) # 90% capacity
+        2.times { |i| create(:registration, session: low_capacity_session, status: :confirmed, user: users[i]) } # 20% capacity
+        9.times { |i| create(:registration, session: high_capacity_session, status: :confirmed, user: users[i + 2]) } # 90% capacity
       end
 
       it 'identifies sessions with capacity alerts' do
-        alerts = kpis_service.capacity_alerts
+        alerts = service.capacity_alerts
 
         expect(alerts).to include(low_capacity_session)
         expect(alerts).to include(high_capacity_session)
@@ -164,19 +163,39 @@ RSpec.describe Reporting::Kpis do
 
   describe '#recent_late_cancellations' do
     let!(:coach) { create(:user, coach: true) }
-    let!(:session) { create(:session, session_type: 'entrainement', user: coach) }
+    let!(:session) { create(:session, session_type: 'entrainement', start_at: 1.day.from_now, end_at: 1.day.from_now + 1.5.hours, user: coach) }
     let!(:late_cancellation) { create(:late_cancellation, session: session) }
 
     it 'returns recent late cancellations' do
-      cancellations = kpis_service.recent_late_cancellations
+      cancellations = service.recent_late_cancellations
 
       expect(cancellations).to include(late_cancellation)
     end
 
     it 'respects the limit parameter' do
-      cancellations = kpis_service.recent_late_cancellations(limit: 1)
+      cancellations = service.recent_late_cancellations(limit: 1)
 
       expect(cancellations.count).to eq(1)
+    end
+  end
+
+  describe 'revenue calculation in isolation' do
+    let(:isolated_service) { described_class.new(time_zone: 'Europe/Paris') }
+    let(:week_start) { current_time.beginning_of_week(:monday) }
+    let(:week_end) { current_time.end_of_week(:monday) }
+    
+    it 'calculates revenue correctly without other sessions' do
+      user = create(:user)
+      create(:balance, user: user, amount: 1000) # 10€ de crédits
+      create(:credit_purchase, 
+             user: user, 
+             status: :paid, 
+             paid_at: week_start + 1.day,
+             amount_cents: 10000) # 100€
+
+      kpis = isolated_service.week_kpis
+
+      expect(kpis[:revenue]).to eq(100.0)
     end
   end
 end
