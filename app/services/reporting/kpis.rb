@@ -114,23 +114,26 @@ module Reporting
     end
 
     def upcoming_trainings(range, limit)
-      Session.upcoming_trainings
+      Session.trainings
              .where(start_at: range)
              .includes(:registrations, :levels, :user)
+             .ordered_by_start
              .limit(limit)
     end
 
     def upcoming_free_plays(range, limit)
-      Session.upcoming_free_plays
+      Session.free_plays
              .where(start_at: range)
              .includes(:registrations, :user)
+             .ordered_by_start
              .limit(limit)
     end
 
     def upcoming_private_coachings(range, limit)
-      Session.upcoming_private_coachings
+      Session.private_coachings
              .where(start_at: range)
              .includes(:registrations, :user)
+             .ordered_by_start
              .limit(limit)
     end
   end

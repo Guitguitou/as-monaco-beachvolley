@@ -222,7 +222,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_27_075211) do
   add_foreign_key "balances", "users"
   add_foreign_key "credit_purchases", "packs"
   add_foreign_key "credit_purchases", "users"
-  add_foreign_key "credit_transactions", "sessions", on_delete: :nullify
+  add_foreign_key "credit_transactions", "sessions"
   add_foreign_key "credit_transactions", "users"
   add_foreign_key "late_cancellations", "sessions"
   add_foreign_key "late_cancellations", "users"
