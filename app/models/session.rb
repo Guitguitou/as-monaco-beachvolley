@@ -50,6 +50,23 @@ class Session < ApplicationRecord
   scope :free_plays, -> { where(session_type: 'jeu_libre') }
   scope :private_coachings, -> { where(session_type: 'coaching_prive') }
   scope :ordered_by_start, -> { order(:start_at) }
+  
+  # Scopes pour les sessions à venir par type
+  scope :upcoming_trainings, -> { upcoming.trainings.ordered_by_start }
+  scope :upcoming_free_plays, -> { upcoming.free_plays.ordered_by_start }
+  scope :upcoming_private_coachings, -> { upcoming.private_coachings.ordered_by_start }
+  
+  # Scopes pour les sessions passées
+  scope :past, -> { where("start_at < ?", Time.current) }
+  scope :past_trainings, -> { past.trainings.ordered_by_start }
+  scope :past_free_plays, -> { past.free_plays.ordered_by_start }
+  scope :past_private_coachings, -> { past.private_coachings.ordered_by_start }
+  
+  # Scopes pour les sessions dans une plage de dates
+  scope :in_date_range, ->(start_date, end_date) { where(start_at: start_date..end_date) }
+  scope :trainings_in_range, ->(start_date, end_date) { in_date_range(start_date, end_date).trainings }
+  scope :free_plays_in_range, ->(start_date, end_date) { in_date_range(start_date, end_date).free_plays }
+  scope :private_coachings_in_range, ->(start_date, end_date) { in_date_range(start_date, end_date).private_coachings }
 
   PRIORITY_WINDOW_HOURS = 24
 

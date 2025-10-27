@@ -101,19 +101,24 @@ module Admin
     def filtered_sessions
       sessions = Session.includes(:registrations, :user, :levels)
       
-      # Filter by date range
+      # Filter by date range using scopes
       case session_filters[:date_range]
       when 'week'
-        sessions = sessions.where(start_at: week_range)
+        sessions = sessions.in_week(week_range.begin)
       when 'month'
-        sessions = sessions.where(start_at: month_range)
+        sessions = sessions.in_month(month_range.begin)
       when 'year'
-        sessions = sessions.where(start_at: year_range)
+        sessions = sessions.in_year(year_range.begin)
       end
       
-      # Filter by session type
-      if session_filters[:session_type].present?
-        sessions = sessions.where(session_type: session_filters[:session_type])
+      # Filter by session type using scopes
+      case session_filters[:session_type]
+      when 'entrainement'
+        sessions = sessions.trainings
+      when 'jeu_libre'
+        sessions = sessions.free_plays
+      when 'coaching_prive'
+        sessions = sessions.private_coachings
       end
       
       # Filter by coach

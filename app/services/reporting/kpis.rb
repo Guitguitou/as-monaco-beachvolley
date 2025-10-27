@@ -69,15 +69,15 @@ module Reporting
     end
 
     def trainings_count(range)
-      Session.trainings.where(start_at: range).count
+      Session.trainings_in_range(range.begin, range.end).count
     end
 
     def free_plays_count(range)
-      Session.free_plays.where(start_at: range).count
+      Session.free_plays_in_range(range.begin, range.end).count
     end
 
     def private_coachings_count(range)
-      Session.private_coachings.where(start_at: range).count
+      Session.private_coachings_in_range(range.begin, range.end).count
     end
 
     def late_cancellations_count(range)
@@ -114,26 +114,23 @@ module Reporting
     end
 
     def upcoming_trainings(range, limit)
-      Session.trainings
+      Session.upcoming_trainings
              .where(start_at: range)
              .includes(:registrations, :levels, :user)
-             .ordered_by_start
              .limit(limit)
     end
 
     def upcoming_free_plays(range, limit)
-      Session.free_plays
+      Session.upcoming_free_plays
              .where(start_at: range)
              .includes(:registrations, :user)
-             .ordered_by_start
              .limit(limit)
     end
 
     def upcoming_private_coachings(range, limit)
-      Session.private_coachings
+      Session.upcoming_private_coachings
              .where(start_at: range)
              .includes(:registrations, :user)
-             .ordered_by_start
              .limit(limit)
     end
   end
