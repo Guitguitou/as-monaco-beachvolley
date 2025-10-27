@@ -1,0 +1,177 @@
+<div class="space-y-6">
+  <!-- Cartes d'alertes -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <% alert_cards.each do |card| %>
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="<%= card_color_classes(card[:color]) %> rounded-lg p-2">
+              <%= lucide_icon(card[:icon], class: 'w-6 h-6') %>
+            </div>
+          </div>
+          <div class="ml-4 flex-1">
+            <p class="text-sm font-medium text-gray-500"><%= card[:title] %></p>
+            <p class="text-2xl font-bold text-gray-900"><%= card[:count] %></p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Détail des alertes -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Désinscriptions hors délai -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="px-4 py-3 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+          <%= lucide_icon('user-x', class: 'w-5 h-5 mr-2 text-red-600') %>
+          Désinscriptions hors délai
+        </h3>
+      </div>
+      <div class="p-4">
+        <% if alerts[:late_cancellations].any? %>
+          <div class="space-y-3">
+            <% alerts[:late_cancellations].each do |cancellation| %>
+              <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    <%= link_to cancellation.user&.full_name, admin_user_path(cancellation.user), class: "text-asmbv-red hover:underline" %>
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    <%= cancellation.session&.title %> - <%= l(cancellation.created_at, format: :short) %>
+                  </p>
+                </div>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  Hors délai
+                </span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-4">Aucune désinscription hors délai récente</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Alertes de capacité -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="px-4 py-3 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+          <%= lucide_icon('users', class: 'w-5 h-5 mr-2 text-yellow-600') %>
+          Alertes de capacité
+        </h3>
+      </div>
+      <div class="p-4">
+        <% if alerts[:capacity_alerts].any? %>
+          <div class="space-y-3">
+            <% alerts[:capacity_alerts].each do |session| %>
+              <% alert_type = capacity_alert_type(session) %>
+              <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    <%= link_to session.title, admin_session_path(session), class: "text-asmbv-red hover:underline" %>
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    <%= l(session.start_at, format: :short) %> - <%= session.terrain %>
+                  </p>
+                </div>
+                <div class="text-right">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium <%= capacity_alert_classes(alert_type) %>">
+                    <%= capacity_alert_text(alert_type) %>
+                  </span>
+                  <p class="text-xs text-gray-500 mt-1">
+                    <%= session.registrations.confirmed.count %>/<%= session.max_players %>
+                  </p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-4">Aucune alerte de capacité</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Faible participation -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="px-4 py-3 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+          <%= lucide_icon('alert-triangle', class: 'w-5 h-5 mr-2 text-orange-600') %>
+          Faible participation
+        </h3>
+      </div>
+      <div class="p-4">
+        <% if alerts[:low_attendance].any? %>
+          <div class="space-y-3">
+            <% alerts[:low_attendance].each do |session| %>
+              <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    <%= link_to session.title, admin_session_path(session), class: "text-asmbv-red hover:underline" %>
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    <%= l(session.start_at, format: :short) %> - <%= session.terrain %>
+                  </p>
+                </div>
+                <div class="text-right">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    Faible participation
+                  </span>
+                  <p class="text-xs text-gray-500 mt-1">
+                    <%= session.registrations.confirmed.count %>/<%= session.max_players %>
+                  </p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-4">Aucune alerte de faible participation</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Sessions à venir -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div class="px-4 py-3 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+          <%= lucide_icon('calendar', class: 'w-5 h-5 mr-2 text-blue-600') %>
+          Sessions à venir (2 prochains jours)
+        </h3>
+      </div>
+      <div class="p-4">
+        <% if alerts[:upcoming_sessions].any? %>
+          <div class="space-y-3">
+            <% alerts[:upcoming_sessions].each do |session| %>
+              <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900">
+                    <%= link_to session.title, admin_session_path(session), class: "text-asmbv-red hover:underline" %>
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    <%= l(session.start_at, format: :short) %> - <%= session.terrain %> - <%= session.user&.full_name %>
+                  </p>
+                </div>
+                <div class="text-right">
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                    <%= case session.session_type
+                        when 'entrainement' then 'bg-blue-100 text-blue-800'
+                        when 'jeu_libre' then 'bg-green-100 text-green-800'
+                        when 'coaching_prive' then 'bg-purple-100 text-purple-800'
+                        else 'bg-gray-100 text-gray-800'
+                        end %>">
+                    <%= session.session_type.humanize %>
+                  </span>
+                  <p class="text-xs text-gray-500 mt-1">
+                    <%= session.registrations.confirmed.count %>/<%= session.max_players || '∞' %>
+                  </p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center py-4">Aucune session à venir dans les 2 prochains jours</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
