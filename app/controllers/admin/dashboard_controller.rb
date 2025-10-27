@@ -40,6 +40,12 @@ module Admin
     end
 
     def render_sessions_tab
+      kpis_service = Reporting::Kpis.new
+      alerts_service = Reporting::Alerts.new
+      
+      @kpis = kpis_service.week_kpis
+      @upcoming_sessions = kpis_service.upcoming_sessions
+      @alerts = alerts_service.all_alerts
       @filters = session_filters
       @sessions = filtered_sessions
     end

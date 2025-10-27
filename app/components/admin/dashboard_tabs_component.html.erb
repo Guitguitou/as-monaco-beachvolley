@@ -3,7 +3,7 @@
   <div class="border-b border-gray-200">
     <nav class="-mb-px flex space-x-8" data-controller="tabs">
       <% tabs.each do |tab| %>
-        <%= link_to admin_dashboard_path(tab: tab[:id]), 
+        <%= link_to helpers.admin_root_path(tab: tab[:id]), 
             class: tab_classes(tab[:id]),
             data: { 
               action: "click->tabs#switchTab",

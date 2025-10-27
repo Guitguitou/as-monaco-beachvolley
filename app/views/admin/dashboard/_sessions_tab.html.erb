@@ -1,8 +1,208 @@
+<!-- KPIs de la semaine -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+          <span class="text-white text-sm font-medium">🏋️</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Entraînements (semaine)</p>
+        <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:trainings_count] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+          <span class="text-white text-sm font-medium">🎮</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Jeux libres (semaine)</p>
+        <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:free_plays_count] %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+          <span class="text-white text-sm font-medium">👥</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Coachings privés (semaine)</p>
+        <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:private_coachings_count] %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sessions à venir -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+  <!-- Entraînements à venir -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900 flex items-center">
+        <span class="mr-2">🏋️</span>
+        Entraînements à venir
+      </h3>
+    </div>
+    <div class="p-6">
+      <% if @upcoming_sessions['entrainement']&.any? %>
+        <div class="space-y-3">
+          <% @upcoming_sessions['entrainement'].each do |session| %>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex-1">
+                <p class="font-medium text-gray-900"><%= session.title %></p>
+                <p class="text-sm text-gray-500">
+                  <%= session.start_at.strftime("%d/%m - %H:%M") %> - <%= session.terrain %>
+                </p>
+                <p class="text-xs text-gray-400">
+                  Coach: <%= session.user.first_name %> <%= session.user.last_name %>
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm text-gray-500">
+                  <%= session.registrations.confirmed.count %>/<%= session.max_players || '∞' %> places
+                </p>
+                <p class="text-xs text-gray-400">
+                  <%= number_to_currency(session.price / 100.0, unit: "€", separator: ",", delimiter: "") %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-center py-4">Aucun entraînement à venir</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Jeux libres à venir -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900 flex items-center">
+        <span class="mr-2">🎮</span>
+        Jeux libres à venir
+      </h3>
+    </div>
+    <div class="p-6">
+      <% if @upcoming_sessions['jeu_libre']&.any? %>
+        <div class="space-y-3">
+          <% @upcoming_sessions['jeu_libre'].each do |session| %>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex-1">
+                <p class="font-medium text-gray-900"><%= session.title %></p>
+                <p class="text-sm text-gray-500">
+                  <%= session.start_at.strftime("%d/%m - %H:%M") %> - <%= session.terrain %>
+                </p>
+                <p class="text-xs text-gray-400">
+                  Responsable: <%= session.user.first_name %> <%= session.user.last_name %>
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm text-gray-500">
+                  <%= session.registrations.confirmed.count %>/<%= session.max_players || '∞' %> places
+                </p>
+                <p class="text-xs text-gray-400">
+                  <%= number_to_currency(session.price / 100.0, unit: "€", separator: ",", delimiter: "") %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-center py-4">Aucun jeu libre à venir</p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Coachings privés à venir -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900 flex items-center">
+        <span class="mr-2">👥</span>
+        Coachings privés à venir
+      </h3>
+    </div>
+    <div class="p-6">
+      <% if @upcoming_sessions['coaching_prive']&.any? %>
+        <div class="space-y-3">
+          <% @upcoming_sessions['coaching_prive'].each do |session| %>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex-1">
+                <p class="font-medium text-gray-900"><%= session.title %></p>
+                <p class="text-sm text-gray-500">
+                  <%= session.start_at.strftime("%d/%m - %H:%M") %> - <%= session.terrain %>
+                </p>
+                <p class="text-xs text-gray-400">
+                  Coach: <%= session.user.first_name %> <%= session.user.last_name %>
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm text-gray-500">
+                  <%= session.registrations.confirmed.count %>/<%= session.max_players || '∞' %> places
+                </p>
+                <p class="text-xs text-gray-400">
+                  <%= number_to_currency(session.price / 100.0, unit: "€", separator: ",", delimiter: "") %>
+                </p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 text-center py-4">Aucun coaching privé à venir</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Désinscriptions hors délai -->
 <div class="bg-white rounded-lg shadow">
   <div class="px-6 py-4 border-b border-gray-200">
-    <h3 class="text-lg font-medium text-gray-900">Sessions</h3>
+    <h3 class="text-lg font-medium text-gray-900 flex items-center">
+      <span class="mr-2">⚠️</span>
+      Désinscriptions hors délai
+      <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+        <%= @kpis[:late_cancellations_count] %>
+      </span>
+    </h3>
   </div>
   <div class="p-6">
-    <p class="text-gray-500">Fonctionnalité en cours de développement...</p>
+    <% if @alerts[:late_cancellations]&.any? %>
+      <div class="space-y-3">
+        <% @alerts[:late_cancellations].each do |cancellation| %>
+          <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex-1">
+              <p class="font-medium text-gray-900">
+                <%= cancellation.user.first_name %> <%= cancellation.user.last_name %>
+              </p>
+              <p class="text-sm text-gray-600">
+                Session: <%= cancellation.session.title %>
+              </p>
+              <p class="text-xs text-gray-500">
+                Annulé le <%= cancellation.created_at.strftime("%d/%m/%Y à %H:%M") %>
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-red-600 font-medium">
+                Hors délai
+              </p>
+              <p class="text-xs text-gray-500">
+                Session: <%= cancellation.session.start_at.strftime("%d/%m à %H:%M") %>
+              </p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-gray-500 text-center py-4">Aucune désinscription hors délai</p>
+    <% end %>
   </div>
 </div>
