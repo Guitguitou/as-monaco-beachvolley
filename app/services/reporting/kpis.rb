@@ -29,9 +29,9 @@ module Reporting
       upcoming_range = @current_time..(@current_time + 7.days)
       
       {
-        trainings: upcoming_trainings(upcoming_range, limit),
-        free_plays: upcoming_free_plays(upcoming_range, limit),
-        private_coachings: upcoming_private_coachings(upcoming_range, limit)
+        'entrainement' => upcoming_trainings(upcoming_range, limit),
+        'jeu_libre' => upcoming_free_plays(upcoming_range, limit),
+        'coaching_prive' => upcoming_private_coachings(upcoming_range, limit)
       }
     end
 
