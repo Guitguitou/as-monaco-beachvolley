@@ -13,23 +13,25 @@
         <p class="text-2xl font-semibold text-gray-900">
           <%= number_to_currency(@revenues[:week], unit: "", separator: ",", delimiter: "") %>€
         </p>
+        <p class="text-xs text-gray-500">Achats de crédits</p>
       </div>
     </div>
   </div>
 
-  <!-- Salaires Coachs Semaine -->
+  <!-- CA Mois -->
   <div class="bg-white rounded-lg shadow p-6">
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-orange-500 rounded-md flex items-center justify-center">
-          <span class="text-white text-sm font-medium">👥</span>
+        <div class="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center">
+          <span class="text-white text-sm font-medium">📅</span>
         </div>
       </div>
       <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Salaires Coachs (Semaine)</p>
+        <p class="text-sm font-medium text-gray-500">CA Mois</p>
         <p class="text-2xl font-semibold text-gray-900">
-          <%= number_to_currency(@coach_salaries[:week], unit: "", separator: ",", delimiter: "") %>€
+          <%= number_to_currency(@revenues[:month], unit: "", separator: ",", delimiter: "") %>€
         </p>
+        <p class="text-xs text-gray-500">Achats de crédits</p>
       </div>
     </div>
   </div>
@@ -38,8 +40,8 @@
   <div class="bg-white rounded-lg shadow p-6">
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-          <span class="text-white text-sm font-medium">📅</span>
+        <div class="w-8 h-8 bg-orange-500 rounded-md flex items-center justify-center">
+          <span class="text-white text-sm font-medium">👥</span>
         </div>
       </div>
       <div class="ml-4">
@@ -47,11 +49,12 @@
         <p class="text-2xl font-semibold text-gray-900">
           <%= number_to_currency(@coach_salaries[:month], unit: "", separator: ",", delimiter: "") %>€
         </p>
+        <p class="text-xs text-gray-500">Charges</p>
       </div>
     </div>
   </div>
 
-  <!-- Salaires Coachs Année -->
+  <!-- Bénéfice Mois -->
   <div class="bg-white rounded-lg shadow p-6">
     <div class="flex items-center">
       <div class="flex-shrink-0">
@@ -60,10 +63,11 @@
         </div>
       </div>
       <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Salaires Coachs (Année)</p>
-        <p class="text-2xl font-semibold text-gray-900">
-          <%= number_to_currency(@coach_salaries[:year], unit: "", separator: ",", delimiter: "") %>€
+        <p class="text-sm font-medium text-gray-500">Bénéfice (Mois)</p>
+        <p class="text-2xl font-semibold <%= (@revenues[:month] - @coach_salaries[:month]) >= 0 ? 'text-green-600' : 'text-red-600' %>">
+          <%= number_to_currency(@revenues[:month] - @coach_salaries[:month], unit: "", separator: ",", delimiter: "") %>€
         </p>
+        <p class="text-xs text-gray-500">CA - Salaires</p>
       </div>
     </div>
   </div>
@@ -173,12 +177,13 @@
 
 <!-- Détail des Revenus par Type -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-  <!-- Revenus par Type de Session -->
+  <!-- Revenus par Type de Session (Information visuelle) -->
   <div class="bg-white rounded-lg shadow">
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">🏐</span>
         Revenus par Type de Session (Mois)
+        <span class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Info</span>
       </h3>
     </div>
     <div class="p-6">
@@ -206,12 +211,12 @@
     </div>
   </div>
 
-  <!-- Revenus par Type de Pack -->
+  <!-- CA par Type d'Achat -->
   <div class="bg-white rounded-lg shadow">
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">📦</span>
-        Revenus par Type de Pack (Mois)
+        CA par Type d'Achat (Mois)
       </h3>
     </div>
     <div class="p-6">
@@ -234,7 +239,7 @@
           <% end %>
         </div>
       <% else %>
-        <p class="text-gray-500 text-center py-4">Aucun revenu de pack ce mois</p>
+        <p class="text-gray-500 text-center py-4">Aucun CA ce mois</p>
       <% end %>
     </div>
   </div>

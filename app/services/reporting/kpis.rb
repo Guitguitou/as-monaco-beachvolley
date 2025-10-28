@@ -58,6 +58,21 @@ module Reporting
                       .recent(limit)
     end
 
+    def revenue_for_period(range)
+      # CA = Achats de packs de crédits uniquement
+      CreditPurchase
+        .where(status: :paid, paid_at: range)
+        .sum(:amount_cents) / 100.0
+    end
+
+    def coach_salaries_for_period(range)
+      Reporting::CoachSalaries.new.total_for_period(range)
+    end
+
+    def net_profit_for_period(range)
+      revenue_for_period(range) - coach_salaries_for_period(range)
+    end
+
     private
 
     def week_start
@@ -84,33 +99,6 @@ module Reporting
       LateCancellation.joins(:session)
                       .where(sessions: { start_at: range })
                       .count
-    end
-
-    def revenue_for_period(range)
-      # Revenus des sessions dans la période
-      session_revenue = CreditTransaction
-        .payments
-        .joins(:session)
-        .where(sessions: { start_at: range })
-        .sum(:amount)
-
-      # Revenus des achats de packs dans la période
-      pack_revenue = CreditPurchase
-        .where(status: :paid, paid_at: range)
-        .sum(:amount_cents)
-
-      # Convertir en euros (les transactions sont en centimes)
-      # Les transactions de sessions sont négatives, les achats de packs sont positifs
-      total_cents = -session_revenue + pack_revenue
-      total_cents / 100.0
-    end
-
-    def coach_salaries_for_period(range)
-      Reporting::CoachSalaries.new.total_for_period(range)
-    end
-
-    def net_profit_for_period(range)
-      revenue_for_period(range) - coach_salaries_for_period(range)
     end
 
     def upcoming_trainings(range, limit)

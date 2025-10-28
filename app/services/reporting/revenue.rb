@@ -7,7 +7,7 @@ module Reporting
       @current_time = Time.current.in_time_zone(@time_zone)
     end
 
-    # Revenus pour différentes périodes
+    # CA (Chiffre d'Affaires) pour différentes périodes
     def period_revenues
       Reporting::CacheService.fetch('revenue', 'period_revenues', @current_time.to_date) do
         {
@@ -18,22 +18,26 @@ module Reporting
       end
     end
 
-    # Breakdown par type d'achat
+    # Breakdown du CA par type d'achat
     def breakdown_by_purchase_type(period_range)
-      # Revenus des sessions
-      session_revenue = session_revenue_for_period(period_range)
+      # CA des packs de crédits
+      credit_packs_revenue = credit_packs_revenue_for_period(period_range)
       
-      # Revenus des packs
-      pack_revenue = pack_revenue_for_period(period_range)
+      # CA des licences
+      licenses_revenue = licenses_revenue_for_period(period_range)
+      
+      # CA des stages
+      stages_revenue = stages_revenue_for_period(period_range)
       
       {
-        sessions: session_revenue,
-        packs: pack_revenue,
-        total: session_revenue + pack_revenue
+        credit_packs: credit_packs_revenue,
+        licenses: licenses_revenue,
+        stages: stages_revenue,
+        total: credit_packs_revenue + licenses_revenue + stages_revenue
       }
     end
 
-    # Breakdown détaillé des packs par type
+    # Breakdown détaillé des packs de crédits par type
     def pack_breakdown_by_type(period_range)
       purchases = CreditPurchase
         .where(status: :paid, paid_at: period_range)
@@ -44,7 +48,7 @@ module Reporting
       purchases.transform_values { |cents| cents / 100.0 }
     end
 
-    # Breakdown des sessions par type
+    # Breakdown des revenus par type de session (pour information visuelle)
     def session_breakdown_by_type(period_range)
       transactions = CreditTransaction
         .payments
@@ -107,32 +111,25 @@ module Reporting
     end
 
     def revenue_for_period(range)
-      session_revenue_for_period(range) + pack_revenue_for_period(range)
+      credit_packs_revenue_for_period(range) + 
+      licenses_revenue_for_period(range) + 
+      stages_revenue_for_period(range)
     end
 
-    def session_revenue_for_period(range)
-      # Revenus des sessions (attribués à la date de la session)
-      session_revenue = CreditTransaction
-        .payments
-        .joins(:session)
-        .where(sessions: { start_at: range })
-        .sum(:amount)
-
-      # Revenus des sessions sans session liée (attribués à la date de création)
-      orphan_revenue = CreditTransaction
-        .payments
-        .where(session_id: nil, created_at: range)
-        .sum(:amount)
-
-      # Convertir en montants positifs
-      total_cents = -session_revenue - orphan_revenue
-      total_cents / 100.0
-    end
-
-    def pack_revenue_for_period(range)
+    def credit_packs_revenue_for_period(range)
       CreditPurchase
         .where(status: :paid, paid_at: range)
         .sum(:amount_cents) / 100.0
+    end
+
+    def licenses_revenue_for_period(range)
+      # TODO: Implémenter quand le système de licences sera créé
+      0.0
+    end
+
+    def stages_revenue_for_period(range)
+      # TODO: Implémenter quand le système de stages sera créé
+      0.0
     end
 
     def evolution_percentage(current, previous)
