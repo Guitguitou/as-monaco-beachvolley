@@ -9,6 +9,7 @@ RSpec.describe Reporting::Kpis do
 
   before do
     travel_to(current_time)
+    Reporting::CacheService.clear_all
   end
 
   after do
@@ -60,10 +61,25 @@ RSpec.describe Reporting::Kpis do
     end
 
     context 'with late cancellations' do
-      let!(:session) { create(:session, session_type: 'entrainement', start_at: week_start + 1.day, end_at: week_start + 1.day + 1.5.hours) }
-      let!(:late_cancellation) { create(:late_cancellation, session: session, created_at: week_start + 1.day) }
+      # Note: late_cancellations_count compte par session.start_at, pas par created_at
+      let!(:lc_user) { create(:user) }
+      let!(:training_session) do
+        create(:session, 
+               session_type: 'entrainement', 
+               start_at: week_start + 1.day, 
+               end_at: week_start + 1.day + 1.5.hours,
+               user: coach)
+      end
+      let!(:late_cancellation) do
+        create(:late_cancellation, 
+               session: training_session, 
+               user: lc_user,
+               created_at: week_start + 1.day)
+      end
 
       it 'counts late cancellations' do
+        # Clear cache to ensure fresh calculation
+        Reporting::CacheService.clear_all
         kpis = service.week_kpis
 
         expect(kpis[:late_cancellations_count]).to eq(1)
@@ -104,17 +120,17 @@ RSpec.describe Reporting::Kpis do
       it 'returns upcoming sessions grouped by type' do
         upcoming = service.upcoming_sessions
 
-        expect(upcoming[:trainings]).to include(training_session)
-        expect(upcoming[:free_plays]).to include(free_play_session)
-        expect(upcoming[:private_coachings]).to include(private_coaching_session)
+        expect(upcoming['entrainement']).to include(training_session)
+        expect(upcoming['jeu_libre']).to include(free_play_session)
+        expect(upcoming['coaching_prive']).to include(private_coaching_session)
       end
 
       it 'respects the limit parameter' do
         upcoming = service.upcoming_sessions(limit: 1)
 
-        expect(upcoming[:trainings].count).to eq(1)
-        expect(upcoming[:free_plays].count).to eq(1)
-        expect(upcoming[:private_coachings].count).to eq(1)
+        expect(upcoming['entrainement'].count).to eq(1)
+        expect(upcoming['jeu_libre'].count).to eq(1)
+        expect(upcoming['coaching_prive'].count).to eq(1)
       end
     end
   end
@@ -186,13 +202,17 @@ RSpec.describe Reporting::Kpis do
     
     it 'calculates revenue correctly without other sessions' do
       user = create(:user)
-      create(:balance, user: user, amount: 1000) # 10€ de crédits
-      create(:credit_purchase, 
-             user: user, 
-             status: :paid, 
-             paid_at: week_start + 1.day,
-             amount_cents: 10000) # 100€
+      pack = create(:pack, pack_type: 'credits')
+      purchase = create(:credit_purchase, 
+                        user:, 
+                        pack:,
+                        amount_cents: 10000, # 100€
+                        credits: 10000)
+      # Manually set as paid within the week range
+      purchase.update_columns(status: :paid, paid_at: week_start + 1.day)
 
+      # Clear cache to ensure fresh calculation
+      Reporting::CacheService.clear_all
       kpis = isolated_service.week_kpis
 
       expect(kpis[:revenue]).to eq(100.0)

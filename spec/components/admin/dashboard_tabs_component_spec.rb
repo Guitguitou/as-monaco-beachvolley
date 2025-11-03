@@ -9,18 +9,18 @@ RSpec.describe Admin::DashboardTabsComponent, type: :component do
     render_inline(component)
 
     expect(page).to have_css('[data-controller="tabs"]')
-    expect(page).to have_button('Aperçu')
-    expect(page).to have_button('Sessions')
-    expect(page).to have_button('Finances')
-    expect(page).to have_button('Coachs')
-    expect(page).to have_button('Alertes')
+    expect(page).to have_link('Vue d\'ensemble')
+    expect(page).to have_link('Sessions')
+    expect(page).to have_link('Finances')
+    expect(page).to have_link('Coachs')
+    expect(page).to have_link('Alertes')
   end
 
   it 'marks the active tab correctly' do
     render_inline(component)
 
-    expect(page).to have_css('button.bg-asmbv-red.text-white', text: 'Aperçu')
-    expect(page).to have_css('button.text-gray-600', text: 'Sessions')
+    expect(page).to have_css('a.bg-asmbv-red.text-white', text: 'Vue d\'ensemble')
+    expect(page).to have_css('a.text-gray-500', text: 'Sessions')
   end
 
   context 'with different active tab' do
@@ -29,14 +29,16 @@ RSpec.describe Admin::DashboardTabsComponent, type: :component do
     it 'marks the correct tab as active' do
       render_inline(component)
 
-      expect(page).to have_css('button.bg-asmbv-red.text-white', text: 'Sessions')
-      expect(page).to have_css('button.text-gray-600', text: 'Aperçu')
+      expect(page).to have_css('a.bg-asmbv-red.text-white', text: 'Sessions')
+      expect(page).to have_css('a.text-gray-500', text: 'Vue d\'ensemble')
     end
   end
 
-  it 'includes turbo-frame for content' do
-    render_inline(component)
+  it 'renders tab content area' do
+    render_inline(component) do
+      "Test content"
+    end
 
-    expect(page).to have_css('turbo-frame#dashboard-content')
+    expect(page).to have_text('Test content')
   end
 end

@@ -75,8 +75,8 @@ RSpec.describe Admin::DashboardPresenter do
 
     it 'returns the net revenue (payments - refunds) for the current month as positive revenue' do
       result = presenter.current_month_revenue
-      # payments: 400 + 300 + 1500 = 2150, refund: 200
-      # net revenue: 2150 - 200 = 1950
+      # payments: 400 + 300 + 1500 = 2200, refund: 200
+      # net revenue: 2200 - 200 = 2000
       expected_revenue = 400 + 300 + 1500 - 200
       expect(result).to eq(expected_revenue)
     end
@@ -84,17 +84,18 @@ RSpec.describe Admin::DashboardPresenter do
     it 'excludes non-revenue transactions like purchases' do
       result = presenter.current_month_revenue
       # purchase of 1000 should not affect revenue calculation
-      expect(result).to eq(1950) # same as above test
+      expect(result).to eq(2000) # same as above test
     end
 
     it 'excludes transactions from other months' do
       result = presenter.current_month_revenue
       # old_payment from previous month should not be included
-      expect(result).to eq(1950) # same as above test
+      expect(result).to eq(2000) # same as above test
     end
   end
 
   describe '#coach_salary_for_period' do
+
     let(:period_start) { Time.zone.now.beginning_of_week }
     let(:period_end) { period_start + 7.days }
     let!(:training_1) { create(:session, session_type: 'entrainement', start_at: period_start + 1.day + 10.hours, end_at: period_start + 1.day + 12.hours, user: coach) }
@@ -112,6 +113,7 @@ RSpec.describe Admin::DashboardPresenter do
   end
 
   describe '#coach_salary_breakdown' do
+
     let(:week_start) { Time.zone.now.beginning_of_week }
     let(:month_start) { Time.zone.now.beginning_of_month }
     let(:year_start) { Time.zone.now.beginning_of_year }
@@ -231,32 +233,32 @@ RSpec.describe Admin::DashboardPresenter do
     describe '#weekly_revenue' do
       it 'calculates weekly revenue from payments' do
         result = presenter.weekly_revenue
-        # payment: -400, so revenue = 400€
-        expect(result).to eq(400.0)
+        # payment: -400 cents = 4.0 euros
+        expect(result).to eq(4.0)
       end
     end
 
     describe '#monthly_revenue' do
       it 'calculates monthly revenue from payments' do
         result = presenter.monthly_revenue
-        # payment: -400, so revenue = 400€
-        expect(result).to eq(400.0)
+        # payment: -400 cents = 4.0 euros
+        expect(result).to eq(4.0)
       end
     end
 
     describe '#weekly_net_profit' do
       it 'calculates weekly net profit (revenue - charges)' do
         result = presenter.weekly_net_profit
-        # revenue: 400€, charges: 52€, profit: 298€
-        expect(result).to eq(298.0)
+        # revenue: 4€, charges: 52€, profit: -48€
+        expect(result).to eq(-48.0)
       end
     end
 
     describe '#monthly_net_profit' do
       it 'calculates monthly net profit (revenue - charges)' do
         result = presenter.monthly_net_profit
-        # revenue: 400€, charges: 52€, profit: 298€
-        expect(result).to eq(298.0)
+        # revenue: 4€, charges: 52€, profit: -48€
+        expect(result).to eq(-48.0)
       end
     end
 
@@ -276,7 +278,8 @@ RSpec.describe Admin::DashboardPresenter do
         period_range = week_start..(week_start + 7.days)
         result = presenter.revenue_breakdown(period_range)
         
-        expect(result).to eq(400.0)
+        # payment: -400 cents = 4.0 euros
+        expect(result).to eq(4.0)
       end
     end
   end

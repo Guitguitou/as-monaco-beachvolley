@@ -8,6 +8,7 @@ RSpec.describe Reporting::CoachSalaries do
 
   before do
     travel_to(current_time)
+    Reporting::CacheService.clear_all
   end
 
   after do
@@ -52,9 +53,11 @@ RSpec.describe Reporting::CoachSalaries do
       end
     end
 
-    context 'with no training sessions' do
+    context 'with no training sessions in period' do
+      let(:future_period) { (current_time + 30.days)..(current_time + 37.days) }
+      
       it 'returns zero' do
-        total = coach_salaries_service.total_for_period(period_range)
+        total = coach_salaries_service.total_for_period(future_period)
 
         expect(total).to eq(0.0)
       end

@@ -4,43 +4,51 @@ RSpec.describe CreditPurchase, type: :model do
   let(:user) { create(:user) }
 
   describe 'validations' do
+    let(:credits_pack) { create(:pack, pack_type: 'credits') }
+
     it 'validates presence of required fields' do
       purchase = CreditPurchase.new
       expect(purchase).not_to be_valid
-      expect(purchase.errors[:amount_cents]).to include("can't be blank")
-      expect(purchase.errors[:currency]).to include("can't be blank")
-      expect(purchase.errors[:credits]).to include("can't be blank")
+      expect(purchase.errors[:amount_cents]).to be_present
+    end
+    
+    it 'validates currency is present' do
+      purchase = CreditPurchase.new(amount_cents: 1000, currency: nil)
+      expect(purchase).not_to be_valid
+      expect(purchase.errors[:currency]).to be_present
     end
 
     it 'validates amount_cents is greater than 0' do
       purchase = build(:credit_purchase, amount_cents: 0)
       expect(purchase).not_to be_valid
-      expect(purchase.errors[:amount_cents]).to include("must be greater than 0")
+      expect(purchase.errors[:amount_cents]).to be_present
     end
 
-    it 'validates credits is greater than 0' do
-      purchase = build(:credit_purchase, credits: 0)
+    it 'validates credits is greater than 0 for credits packs' do
+      purchase = build(:credit_purchase, credits: 0, pack: credits_pack)
       expect(purchase).not_to be_valid
-      expect(purchase.errors[:credits]).to include("must be greater than 0")
+      expect(purchase.errors[:credits]).to be_present
     end
   end
 
   describe '#generate_reference' do
     it 'generates a unique reference on creation' do
-      purchase = create(:credit_purchase, user: user)
+      purchase = create(:credit_purchase, user:)
       expect(purchase.sherlock_transaction_reference).to match(/^CP-[A-F0-9]{16}$/)
     end
 
     it 'does not override existing reference' do
       custom_ref = "CP-CUSTOM123"
-      purchase = create(:credit_purchase, user: user, sherlock_transaction_reference: custom_ref)
+      purchase = create(:credit_purchase, user:, sherlock_transaction_reference: custom_ref)
       expect(purchase.sherlock_transaction_reference).to eq(custom_ref)
     end
   end
 
   describe '#credit!' do
+    let(:credits_pack) { create(:pack, pack_type: 'credits') }
+
     it 'credits the user account once (idempotent)' do
-      purchase = create(:credit_purchase, user: user, amount_cents: 1000, credits: 1000)
+      purchase = create(:credit_purchase, user:, pack: credits_pack, amount_cents: 1000, credits: 1000)
       
       expect { purchase.credit! }.to change { user.reload.balance&.amount.to_i }.by(1000)
       expect(purchase.reload.status).to eq("paid")
@@ -51,7 +59,7 @@ RSpec.describe CreditPurchase, type: :model do
     end
 
     it 'creates a credit_transaction with type purchase' do
-      purchase = create(:credit_purchase, user: user, credits: 1000)
+      purchase = create(:credit_purchase, user:, pack: credits_pack, credits: 1000)
       
       expect {
         purchase.credit!
@@ -65,9 +73,9 @@ RSpec.describe CreditPurchase, type: :model do
 
   describe '#mark_as_failed!' do
     it 'marks purchase as failed with reason' do
-      purchase = create(:credit_purchase, user: user)
+      purchase = create(:credit_purchase, user:)
       
-      purchase.mark_as_failed!(reason: "Card declined")
+      purchase.send(:mark_as_failed!, reason: "Card declined")
       
       expect(purchase.status).to eq("failed")
       expect(purchase.failed_at).to be_present

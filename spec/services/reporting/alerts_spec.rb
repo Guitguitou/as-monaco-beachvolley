@@ -8,6 +8,7 @@ RSpec.describe Reporting::Alerts do
 
   before do
     travel_to(current_time)
+    Reporting::CacheService.clear_all
   end
 
   after do
@@ -88,10 +89,15 @@ RSpec.describe Reporting::Alerts do
       end
 
       before do
+        # Create users with enough credits for registrations
+        users_low = create_list(:user, 2).each { |u| u.balance.update!(amount: 1000) }
+        users_high = create_list(:user, 10).each { |u| u.balance.update!(amount: 1000) } # 10/10 = 100% > 90%
+        users_normal = create_list(:user, 5).each { |u| u.balance.update!(amount: 1000) }
+
         # Create registrations to simulate capacity issues
-        create_list(:registration, 2, session: low_capacity_session, status: :confirmed) # 20% capacity
-        create_list(:registration, 9, session: high_capacity_session, status: :confirmed) # 90% capacity
-        create_list(:registration, 5, session: normal_capacity_session, status: :confirmed) # 50% capacity
+        users_low.each { |u| create(:registration, session: low_capacity_session, user: u, status: :confirmed) }
+        users_high.each { |u| create(:registration, session: high_capacity_session, user: u, status: :confirmed) }
+        users_normal.each { |u| create(:registration, session: normal_capacity_session, user: u, status: :confirmed) }
       end
 
       it 'identifies sessions with capacity alerts' do
@@ -144,8 +150,11 @@ RSpec.describe Reporting::Alerts do
       end
 
       before do
-        create_list(:registration, 2, session: low_attendance_session, status: :confirmed) # 20% capacity
-        create_list(:registration, 5, session: normal_attendance_session, status: :confirmed) # 50% capacity
+        users_low_att = create_list(:user, 2).each { |u| u.balance.update!(amount: 1000) }
+        users_low_att.each { |u| create(:registration, session: low_attendance_session, user: u, status: :confirmed) }
+        
+        users_normal_att = create_list(:user, 5).each { |u| u.balance.update!(amount: 1000) }
+        users_normal_att.each { |u| create(:registration, session: normal_attendance_session, user: u, status: :confirmed) }
       end
 
       it 'identifies sessions with low attendance' do
@@ -211,7 +220,7 @@ RSpec.describe Reporting::Alerts do
 
   describe '#critical_alerts' do
     let!(:coach) { create(:user, coach: true) }
-    let!(:session) { create(:session, session_type: 'entrainement', start_at: 1.day.from_now, end_at: 1.day.from_now + 1.5.hours, user: coach) }
+    let!(:session) { create(:session, session_type: 'entrainement', start_at: 1.day.from_now, end_at: 1.day.from_now + 1.5.hours, user: coach, terrain: 'Terrain 1') }
     let!(:late_cancellation_today) do
       create(:late_cancellation, 
              session: session, 
@@ -222,7 +231,8 @@ RSpec.describe Reporting::Alerts do
              session_type: 'entrainement', 
              start_at: current_time + 1.hour,
              end_at: current_time + 1.hour + 1.5.hours,
-             user: coach)
+             user: coach,
+             terrain: 'Terrain 2')
     end
     let!(:empty_session) do
       create(:session, 
@@ -230,7 +240,8 @@ RSpec.describe Reporting::Alerts do
              start_at: current_time + 1.day,
              end_at: current_time + 1.day + 1.5.hours,
              user: coach,
-             max_players: 10)
+             max_players: 10,
+             terrain: 'Terrain 3')
     end
 
     it 'returns critical alerts' do

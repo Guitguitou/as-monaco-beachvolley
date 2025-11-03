@@ -65,11 +65,16 @@ RSpec.describe Admin::OverviewTabComponent, type: :component do
   end
 
   context 'with upcoming sessions' do
-    let!(:coach) { create(:user, coach: true) }
+    let!(:coach) do
+      user = create(:user, coach: true)
+      user.balance.update!(amount: 2000) # Enough for private coaching
+      user
+    end
     let!(:training_session) do
       create(:session, 
              session_type: 'entrainement', 
              start_at: 1.day.from_now,
+             end_at: 1.day.from_now + 2.hours,
              user: coach,
              title: 'Entraînement Test')
     end
@@ -77,6 +82,7 @@ RSpec.describe Admin::OverviewTabComponent, type: :component do
       create(:session, 
              session_type: 'jeu_libre', 
              start_at: 2.days.from_now,
+             end_at: 2.days.from_now + 2.hours,
              user: coach,
              title: 'Jeu Libre Test')
     end
@@ -84,6 +90,7 @@ RSpec.describe Admin::OverviewTabComponent, type: :component do
       create(:session, 
              session_type: 'coaching_prive', 
              start_at: 3.days.from_now,
+             end_at: 3.days.from_now + 2.hours,
              user: coach,
              title: 'Coaching Privé Test')
     end

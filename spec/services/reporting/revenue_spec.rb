@@ -21,25 +21,25 @@ RSpec.describe Reporting::Revenue do
     let!(:year_start) { current_time.beginning_of_year }
 
     before do
-      # Week revenue
+      # Week revenue (in current week)
       create(:credit_purchase, 
              user: user, 
              status: :paid, 
              paid_at: week_start + 1.day,
              amount_cents: 10000) # 100€
       
-      # Month revenue (outside week)
+      # Month revenue (in month but outside current week)
       create(:credit_purchase, 
              user: user, 
              status: :paid, 
-             paid_at: month_start + 10.days,
+             paid_at: month_start + 2.days, # Early in month, before week
              amount_cents: 20000) # 200€
       
-      # Year revenue (outside month)
+      # Year revenue (in year but outside current month)  
       create(:credit_purchase, 
              user: user, 
              status: :paid, 
-             paid_at: year_start + 30.days,
+             paid_at: year_start + 60.days, # February/March, outside current month
              amount_cents: 50000) # 500€
     end
 
@@ -47,27 +47,21 @@ RSpec.describe Reporting::Revenue do
       revenues = revenue_service.period_revenues
 
       expect(revenues[:week]).to eq(100.0)
-      expect(revenues[:month]).to eq(300.0) # 100 + 200
+      expect(revenues[:month]).to eq(300.0) # 100 (week) + 200 (month only)
       expect(revenues[:year]).to eq(800.0) # 100 + 200 + 500
     end
   end
 
   describe '#breakdown_by_purchase_type' do
     let!(:user) { create(:user) }
-    let!(:session) { create(:session, session_type: 'entrainement', start_at: current_time + 1.day, end_at: current_time + 1.day + 1.5.hours) }
+    let!(:credits_pack) { create(:pack, pack_type: :credits, amount_cents: 10000, credits: 100) }
     let(:period_range) { current_time..(current_time + 7.days) }
 
     before do
-      # Session revenue
-      create(:credit_transaction, 
-             user: user, 
-             session: session,
-             transaction_type: :training_payment,
-             amount: -400) # -4€ (negative for payment)
-      
-      # Pack revenue
+      # Credit pack revenue
       create(:credit_purchase, 
              user: user, 
+             pack: credits_pack,
              status: :paid, 
              paid_at: current_time + 1.day,
              amount_cents: 10000) # 100€
@@ -76,9 +70,10 @@ RSpec.describe Reporting::Revenue do
     it 'breaks down revenue by purchase type' do
       breakdown = revenue_service.breakdown_by_purchase_type(period_range)
 
-      expect(breakdown[:sessions]).to eq(4.0) # Converted from -400 cents
-      expect(breakdown[:packs]).to eq(100.0)
-      expect(breakdown[:total]).to eq(104.0)
+      expect(breakdown[:credit_packs]).to eq(100.0)
+      expect(breakdown[:licenses]).to eq(0.0) # Not implemented yet
+      expect(breakdown[:stages]).to eq(0.0) # Not implemented yet
+      expect(breakdown[:total]).to eq(100.0)
     end
   end
 
@@ -124,9 +119,14 @@ RSpec.describe Reporting::Revenue do
 
   describe '#session_breakdown_by_type' do
     let!(:user) { create(:user) }
-    let!(:training_session) { create(:session, session_type: 'entrainement', start_at: current_time + 1.day, end_at: current_time + 1.day + 1.5.hours) }
-    let!(:free_play_session) { create(:session, session_type: 'jeu_libre', start_at: current_time + 2.days, end_at: current_time + 2.days + 2.hours) }
-    let!(:private_coaching_session) { create(:session, session_type: 'coaching_prive', start_at: current_time + 3.days, end_at: current_time + 3.days + 1.hour) }
+    let!(:coach) do
+      coach = create(:user, coach: true)
+      coach.balance.update!(amount: 2000) # Enough for private coaching
+      coach
+    end
+    let!(:training_session) { create(:session, session_type: 'entrainement', start_at: current_time + 1.day, end_at: current_time + 1.day + 1.5.hours, user: coach) }
+    let!(:free_play_session) { create(:session, session_type: 'jeu_libre', start_at: current_time + 2.days, end_at: current_time + 2.days + 2.hours, user: coach) }
+    let!(:private_coaching_session) { create(:session, session_type: 'coaching_prive', start_at: current_time + 3.days, end_at: current_time + 3.days + 1.hour, user: coach) }
     let(:period_range) { current_time..(current_time + 7.days) }
 
     before do
@@ -142,11 +142,8 @@ RSpec.describe Reporting::Revenue do
              transaction_type: :free_play_payment,
              amount: -300) # -3€
       
-      create(:credit_transaction, 
-             user: user, 
-             session: private_coaching_session,
-             transaction_type: :private_coaching_payment,
-             amount: -1500) # -15€
+      # Note: private_coaching_session already created a transaction via callback
+      # So no need to create it manually
     end
 
     it 'breaks down session revenue by type' do

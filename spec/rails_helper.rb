@@ -11,6 +11,7 @@ require 'rspec/rails'
 require 'capybara/rspec'
 require 'devise'
 require 'warden'
+require 'view_component/test_helpers'
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
@@ -76,15 +77,22 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include ActiveSupport::Testing::TimeHelpers
   
+  # ViewComponent test helpers
+  config.include ViewComponent::TestHelpers, type: :component
+  config.include Capybara::RSpecMatchers, type: :component
+  
   # Configure Devise for tests
   config.include Devise::Test::ControllerHelpers, type: :controller
-  config.include Devise::Test::IntegrationHelpers, type: :controller
 
   # Devise helpers for request specs (sign_in, sign_out)
   config.include Devise::Test::IntegrationHelpers, type: :request
   config.include Warden::Test::Helpers, type: :request
   config.include Warden::Test::Helpers, type: :system
-  config.include Warden::Test::Helpers, type: :controller
+
+  # Setup Devise mapping for controller specs
+  config.before(:each, type: :controller) do
+    @request.env["devise.mapping"] = Devise.mappings[:user] if @request
+  end
 
   config.after(type: :request) do
     Warden.test_reset!
@@ -94,15 +102,18 @@ RSpec.configure do |config|
     Warden.test_reset!
   end
 
-  config.after(type: :controller) do
-    Warden.test_reset!
-  end
-
   # Run JS-enabled browser for system tests
   config.before(:each, type: :system) do
     driven_by :selenium, using: :headless_chrome, screen_size: [1400, 1400]
+  end
+
+  # Set default host for all request specs to avoid Host Authorization errors
+  config.before(:each, type: :request) do
+    host! 'test.host'
   end
 end
 
 # Increase Capybara wait time for JS to settle a bit
 Capybara.default_max_wait_time = 5
+Capybara.app_host = 'http://test.host'
+Capybara.server_host = 'test.host'
