@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_27_075211) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_03_200035) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -209,6 +209,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_27_075211) do
     t.integer "salary_per_training_cents", default: 0, null: false
     t.string "license_type"
     t.datetime "disabled_at"
+    t.datetime "activated_at"
+    t.index ["activated_at"], name: "index_users_on_activated_at"
     t.index ["admin", "id"], name: "index_users_on_admin_and_id"
     t.index ["coach", "id"], name: "index_users_on_coach_and_id"
     t.index ["disabled_at"], name: "index_users_on_disabled_at"

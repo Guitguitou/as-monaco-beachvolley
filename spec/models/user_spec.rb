@@ -128,18 +128,82 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe 'Devise authentication with Disableable' do
+  describe 'Account activation' do
+    describe '#activated?' do
+      it 'returns true when activated_at is present' do
+        user.update!(activated_at: Time.current)
+        expect(user.activated?).to be true
+      end
+
+      it 'returns false when activated_at is nil' do
+        user.update!(activated_at: nil)
+        expect(user.activated?).to be false
+      end
+    end
+
+    describe '#activate!' do
+      it 'sets activated_at to current time' do
+        user.update!(activated_at: nil)
+        
+        expect {
+          user.activate!
+        }.to change { user.reload.activated_at }.from(nil)
+
+        expect(user.activated?).to be true
+      end
+
+      it 'does not update if already activated' do
+        original_time = 1.day.ago
+        user.update!(activated_at: original_time)
+
+        user.activate!
+
+        expect(user.reload.activated_at).to be_within(1.second).of(original_time)
+      end
+    end
+
+    describe 'scopes' do
+      let!(:activated_user) { create(:user, activated_at: Time.current) }
+      let!(:not_activated_user) { create(:user, activated_at: nil) }
+
+      describe '.activated' do
+        it 'returns only activated users' do
+          expect(User.activated).to include(activated_user)
+          expect(User.activated).not_to include(not_activated_user)
+        end
+      end
+
+      describe '.not_activated' do
+        it 'returns only non-activated users' do
+          expect(User.not_activated).to include(not_activated_user)
+          expect(User.not_activated).not_to include(activated_user)
+        end
+      end
+    end
+  end
+
+  describe 'Devise authentication with Disableable and Activation' do
     describe '#active_for_authentication?' do
-      context 'when user is not disabled' do
+      context 'when user is not disabled and activated' do
+        before { user.update!(disabled_at: nil, activated_at: Time.current) }
+
         it 'returns true' do
           expect(user.active_for_authentication?).to be true
         end
       end
 
       context 'when user is disabled' do
-        before { user.update!(disabled_at: Time.current) }
+        before { user.update!(disabled_at: Time.current, activated_at: Time.current) }
 
-        it 'returns false' do
+        it 'returns false even if activated' do
+          expect(user.active_for_authentication?).to be false
+        end
+      end
+
+      context 'when user is not activated' do
+        before { user.update!(disabled_at: nil, activated_at: nil) }
+
+        it 'returns false even if not disabled' do
           expect(user.active_for_authentication?).to be false
         end
       end
@@ -147,14 +211,24 @@ RSpec.describe User, type: :model do
 
     describe '#inactive_message' do
       context 'when user is disabled' do
-        before { user.update!(disabled_at: Time.current) }
+        before { user.update!(disabled_at: Time.current, activated_at: Time.current) }
 
         it 'returns :locked' do
           expect(user.inactive_message).to eq(:locked)
         end
       end
 
-      context 'when user is not disabled' do
+      context 'when user is not activated' do
+        before { user.update!(disabled_at: nil, activated_at: nil) }
+
+        it 'returns :inactive' do
+          expect(user.inactive_message).to eq(:inactive)
+        end
+      end
+
+      context 'when user is activated and not disabled' do
+        before { user.update!(disabled_at: nil, activated_at: Time.current) }
+
         it 'returns default devise message' do
           # Devise default behavior
           expect(user.inactive_message).to be_in([:inactive, nil])

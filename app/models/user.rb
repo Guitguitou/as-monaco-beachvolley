@@ -28,19 +28,34 @@ class User < ApplicationRecord
   scope :coachs, -> { where(coach: true) }
   scope :responsables, -> { where(responsable: true) }
   scope :admins, -> { where(admin: true) }
+  scope :activated, -> { where.not(activated_at: nil) }
+  scope :not_activated, -> { where(activated_at: nil) }
   scope :gender, ->(g) { joins(:levels).where(levels: { gender: g }) }
   scope :with_license, ->(lic) { where(license_type: lic) }
   scope :with_enough_credits, lambda { |session_record|
     joins(:balance).where('balances.amount >= ?', session_record.price)
   }
 
-  # Devise: Prevent login when account is disabled
+  # Devise: Prevent login when account is disabled or not activated
   def active_for_authentication?
-    super && !disabled?
+    super && !disabled? && activated?
   end
 
   def inactive_message
-    disabled? ? :locked : super
+    return :locked if disabled?
+    return :inactive unless activated?
+
+    super
+  end
+
+  # Check if account is activated (licence paid)
+  def activated?
+    activated_at.present?
+  end
+
+  # Activate the account (called when licence is paid)
+  def activate!
+    update!(activated_at: Time.current) unless activated?
   end
 
   # Backward-compat virtual association for specs/legacy code

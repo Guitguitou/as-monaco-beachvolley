@@ -101,4 +101,34 @@ RSpec.describe CreditPurchase, type: :model do
       expect(purchase.amount_eur).to eq(10.0)
     end
   end
+
+  describe 'Licence purchase activation' do
+    let(:licence_pack) { create(:pack, pack_type: 'licence') }
+    let(:inactive_user) do
+      u = create(:user, activated_at: nil)
+      u.update_column(:activated_at, nil) # Bypass callbacks
+      u
+    end
+
+    it 'activates user account when licence is paid' do
+      purchase = create(:credit_purchase, user: inactive_user, pack: licence_pack, credits: 0)
+      
+      expect(inactive_user.activated?).to be false
+      
+      purchase.credit!
+      
+      expect(inactive_user.reload.activated?).to be true
+      expect(purchase.reload.status).to eq('paid')
+    end
+
+    it 'does not reactivate already activated account' do
+      activated_user = create(:user, activated_at: 2.days.ago)
+      original_time = activated_user.activated_at
+      
+      purchase = create(:credit_purchase, user: activated_user, pack: licence_pack, credits: 0)
+      purchase.credit!
+      
+      expect(activated_user.reload.activated_at).to be_within(1.second).of(original_time)
+    end
+  end
 end

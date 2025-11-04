@@ -17,12 +17,21 @@ class Ability
       can :read, Stage
       can :read, User, id: user.id
 
-      # Registrations (sign-up to sessions)
-      can :create, Registration
-      can [:destroy], Registration, user_id: user.id
+      # Packs : Licences toujours accessibles, autres seulement si activé
+      can :read, Pack, pack_type: 'licence'
+      can :buy, Pack, pack_type: 'licence'
+      
+      if user.activated?
+        can :read, Pack  # Tous les packs si activé
+        can :buy, Pack   # Peut acheter tous les packs
 
-      # View own credit history
-      can :read, CreditTransaction, user_id: user.id
+        # Registrations (sign-up to sessions) - seulement si activé
+        can :create, Registration
+        can [:destroy], Registration, user_id: user.id
+
+        # View own credit history
+        can :read, CreditTransaction, user_id: user.id
+      end
     end
 
     # Elevated roles

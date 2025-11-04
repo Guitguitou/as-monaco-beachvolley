@@ -54,6 +54,30 @@
     </div>
   </fieldset>
 
+  <!-- Activation du compte -->
+  <div class="border-l-4 border-asmbv-red bg-asmbv-red/5 p-4 rounded">
+    <div class="flex items-start">
+      <div class="flex items-center h-5">
+        <%= f.check_box :activate_immediately,
+              { checked: @user.persisted? ? @user.activated? : false },
+              class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+      </div>
+      <div class="ml-3">
+        <%= f.label :activate_immediately, class: "text-sm font-medium text-gray-900" do %>
+          Activer le compte immédiatement
+        <% end %>
+        <p class="text-xs text-gray-600 mt-1">
+          ⚠️ Par défaut, le compte sera inactif jusqu'au paiement de la licence.
+          <% if @user.new_record? %>
+            Cochez cette case pour activer le compte dès sa création.
+          <% else %>
+            <%= @user.activated? ? "✅ Compte activé le #{l(@user.activated_at, format: :short)}" : "❌ Compte non activé" %>
+          <% end %>
+        </p>
+      </div>
+    </div>
+  </div>
+
   <!-- Niveaux (multi) -->
   <div>
     <%= f.label :level_ids, "Niveaux", class: "block text-sm font-medium text-gray-900" %>

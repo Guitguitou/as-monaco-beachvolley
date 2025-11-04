@@ -1,11 +1,25 @@
 class PacksController < ApplicationController
   before_action :authenticate_user!, except: [:index, :buy]
-  before_action :authenticate_user_for_credits!, only: [:buy]
 
   def index
-    @credits_packs = Pack.active.credits_packs.ordered
-    @licence_packs = Pack.active.licence_packs.ordered
-    @stage_packs = Pack.active.stage_packs.ordered.includes(:stage)
+    # Charger tous les packs actifs
+    all_packs = Pack.active.ordered
+    
+    # CanCanCan filtre selon les permissions (activated? pour credits/stages)
+    if user_signed_in?
+      accessible_packs = all_packs.select { |pack| can?(:read, pack) }
+    else
+      # Utilisateurs non connectés : tous les packs visibles (achat redirige vers login sauf licences)
+      accessible_packs = all_packs
+    end
+    
+    # Regrouper par type
+    @credits_packs = accessible_packs.select(&:pack_type_credits?)
+    @licence_packs = accessible_packs.select(&:pack_type_licence?)
+    @stage_packs = accessible_packs.select(&:pack_type_stage?)
+    
+    # Afficher la notice si user non activé
+    @show_activation_notice = user_signed_in? && !current_user.activated?
     @current_balance = current_user&.balance&.amount || 0
   end
 
@@ -17,9 +31,12 @@ class PacksController < ApplicationController
       return
     end
 
-    # Vérifier si l'utilisateur est connecté pour les packs de crédits
-    if @pack.pack_type_credits? && !user_signed_in?
-      redirect_to new_user_session_path, alert: "Vous devez être connecté pour acheter des crédits"
+    # Vérification des permissions CanCanCan
+    if user_signed_in?
+      authorize! :buy, @pack
+    elsif !@pack.pack_type_licence?
+      # Seules les licences sont achetables sans connexion
+      redirect_to new_user_session_path, alert: "Vous devez être connecté pour acheter ce pack"
       return
     end
 
@@ -54,10 +71,5 @@ class PacksController < ApplicationController
     redirect_to packs_path, alert: "Erreur lors de la création du paiement: #{e.message}"
   end
 
-  private
-
-  def authenticate_user_for_credits!
-    # Cette méthode sera appelée seulement pour les packs de crédits
-    # Les stages et licences peuvent être achetés sans connexion
-  end
+  # CanCanCan gère les permissions via app/models/ability.rb
 end
