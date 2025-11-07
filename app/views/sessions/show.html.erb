@@ -55,11 +55,17 @@
                                class: "w-full border rounded px-2 py-2",
                                data: { controller: "select", "select-placeholder-value": "Rechercher un·e joueur·se..." } %>
               </div>
+              <% if @session.entrainement? && @session.past_registration_deadline? %>
+                <div class="text-xs text-blue-800 bg-blue-50 inline-flex items-center gap-1 px-2 py-1 rounded">
+                  <%= lucide_icon("info", class: "w-3 h-3") %>
+                  Délai d'inscription dépassé (17h), mais vous pouvez inscrire.
+                </div>
+              <% end %>
               <% if @session.full? %>
                 <%= hidden_field_tag :waitlist, true %>
                 <div class="text-xs text-yellow-800 bg-yellow-50 inline-flex items-center gap-1 px-2 py-1 rounded">
                   <%= lucide_icon("alert-circle", class: "w-3 h-3") %>
-                  Session complète: ajout en liste d’attente.
+                  Session complète: ajout en liste d'attente.
                 </div>
               <% end %>
               <%= f.submit(@session.full? ? "Ajouter en attente" : "Ajouter",

@@ -4,6 +4,12 @@ class RegistrationsController < ApplicationController
 
   def create
     authorize! :create, Registration
+    
+    # Check if registration deadline has passed (only for regular users on trainings)
+    if @session.entrainement? && @session.past_registration_deadline? && !can_bypass_deadline?
+      redirect_to session_path(@session), alert: "Les inscriptions sont closes (limite : 17h le jour de la session)." and return
+    end
+    
     # Only admins or the session owner (coach/responsable assigned to the session)
     # can register someone else via user_id. Otherwise, register current_user.
     target_user = if params[:user_id].present? && (current_user.admin? || current_user == @session.user)
@@ -90,5 +96,10 @@ class RegistrationsController < ApplicationController
 
   def set_session
     @session = Session.find(params[:session_id])
+  end
+
+  # Admins and the session coach can bypass the registration deadline
+  def can_bypass_deadline?
+    current_user.admin? || current_user == @session.user
   end
 end

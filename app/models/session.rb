@@ -69,6 +69,7 @@ class Session < ApplicationRecord
   scope :private_coachings_in_range, ->(start_date, end_date) { in_date_range(start_date, end_date).private_coachings }
 
   PRIORITY_WINDOW_HOURS = 24
+  REGISTRATION_DEADLINE_HOUR = 17 # 17h le jour J
 
   # Returns [boolean, reason]
   # Enforces registration opening rules for trainings with a 24h priority
@@ -87,10 +88,28 @@ class Session < ApplicationRecord
 
     within_priority_window = now < (registration_opens_at + PRIORITY_WINDOW_HOURS.hours)
     if within_priority_window && user&.license_type != 'competition'
-      return [false, "Priorité licence compétition pendant 24h après l’ouverture."]
+      return [false, "Priorité licence compétition pendant 24h après l'ouverture."]
+    end
+
+    # Check if registration deadline (17h on the day) has passed
+    if past_registration_deadline?
+      return [false, "Les inscriptions sont closes (limite : 17h le jour de la session)."]
     end
 
     [true, nil]
+  end
+
+  # Check if current time is past 17h on the day of the session
+  def past_registration_deadline?
+    return false if start_at.blank?
+    
+    now = Time.current
+    session_day = start_at.to_date
+    deadline = start_at.change(hour: REGISTRATION_DEADLINE_HOUR, min: 0, sec: 0)
+    
+    # If the session is today, check if we're past 17h
+    # If the session is in the past, deadline is definitely passed
+    now >= deadline
   end
 
   def display_name
