@@ -7,20 +7,16 @@ fr:
       day_month_year: "%d/%m/%Y"
       short: "%d/%m" 
       default: "%d/%m/%Y %H:%M"
+      month_and_year: "%B %Y"
   date:
-    month_names: "%b"
-    day_names: "%a"
-    abbr_month_names: "%b"
-    abbr_day_names: "%a"
-    abbr_month_names_short: "%b"
-    abbr_day_names_short: "%a"
-    abbr_month_names_short_2: "%b"
-    abbr_day_names_short_2: "%a"
-    abbr_month_names_short_3: "%b"
-    abbr_day_names_short_3: "%a"
     formats:
       default: "%d/%m/%Y"
       long: "%d %B %Y"
+      month_and_year: "%B %Y"
+    month_names: [~, janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre]
+    abbr_month_names: [~, jan, fév, mar, avr, mai, juin, juil, août, sep, oct, nov, déc]
+    day_names: [dimanche, lundi, mardi, mercredi, jeudi, vendredi, samedi]
+    abbr_day_names: [dim, lun, mar, mer, jeu, ven, sam]
 
   activerecord:
     errors:

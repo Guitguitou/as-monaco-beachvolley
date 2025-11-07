@@ -1,0 +1,293 @@
+<!-- Statistiques Mensuelles (Année en cours) -->
+<div class="mb-8">
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+        <span class="mr-2">📅</span>
+        Statistiques Mensuelles - <%= Time.current.year %>
+      </h3>
+      <p class="text-sm text-gray-500 mt-1">Récapitulatif des packs achetés par mois</p>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Période
+            </th>
+            <% @pack_types.each do |pack_type| %>
+              <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" colspan="2">
+                <%= case pack_type
+                    when 'credits' then 'Crédits'
+                    when 'licence' then 'Licence'
+                    when 'stage' then 'Stage'
+                    else pack_type.humanize
+                    end %>
+              </th>
+            <% end %>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-100">
+              Total
+            </th>
+          </tr>
+          <tr class="bg-gray-50 border-t border-gray-200">
+            <th class="px-6 py-2 text-left text-xs font-medium text-gray-400">
+            </th>
+            <% @pack_types.each do |pack_type| %>
+              <th class="px-3 py-2 text-center text-xs font-medium text-gray-400">
+                Qté
+              </th>
+              <th class="px-3 py-2 text-center text-xs font-medium text-gray-400">
+                Montant
+              </th>
+            <% end %>
+            <th class="px-6 py-2 text-right text-xs font-medium text-gray-400 bg-gray-100">
+              €
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if @monthly_stats.any? %>
+            <% @monthly_stats.each do |stat| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <%= stat[:period] %>
+                </td>
+                <% @pack_types.each do |pack_type| %>
+                  <% type_data = stat[:by_type][pack_type] %>
+                  <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
+                    <%= type_data ? type_data[:count] : '-' %>
+                  </td>
+                  <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
+                    <% if type_data %>
+                      <%= number_to_currency(type_data[:amount], unit: "", separator: ",", delimiter: " ") %>€
+                    <% else %>
+                      -
+                    <% end %>
+                  </td>
+                <% end %>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 text-right bg-gray-50">
+                  <%= number_to_currency(stat[:total], unit: "", separator: ",", delimiter: " ") %>€
+                </td>
+              </tr>
+            <% end %>
+            
+            <!-- Total Annuel -->
+            <tr class="bg-blue-50 font-semibold">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <strong>Total <%= Time.current.year %></strong>
+              </td>
+              <% @pack_types.each do |pack_type| %>
+                <% 
+                  total_count = @monthly_stats.sum { |s| s[:by_type][pack_type]&.dig(:count) || 0 }
+                  total_amount = @monthly_stats.sum { |s| s[:by_type][pack_type]&.dig(:amount) || 0 }
+                %>
+                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <%= total_count %>
+                </td>
+                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <%= number_to_currency(total_amount, unit: "", separator: ",", delimiter: " ") %>€
+                </td>
+              <% end %>
+              <td class="px-6 py-4 whitespace-nowrap text-base font-bold text-gray-900 text-right bg-gray-100">
+                <%= number_to_currency(@monthly_stats.sum { |s| s[:total] }, unit: "", separator: ",", delimiter: " ") %>€
+              </td>
+            </tr>
+          <% else %>
+            <tr>
+              <td colspan="<%= 1 + (@pack_types.size * 2) + 1 %>" class="px-6 py-8 text-center text-gray-500">
+                Aucun achat de pack enregistré pour l'année <%= Time.current.year %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Statistiques Annuelles -->
+<div class="mb-8">
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+        <span class="mr-2">📊</span>
+        Statistiques Annuelles
+      </h3>
+      <p class="text-sm text-gray-500 mt-1">Récapitulatif historique par année</p>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Année
+            </th>
+            <% @pack_types.each do |pack_type| %>
+              <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" colspan="2">
+                <%= case pack_type
+                    when 'credits' then 'Crédits'
+                    when 'licence' then 'Licence'
+                    when 'stage' then 'Stage'
+                    else pack_type.humanize
+                    end %>
+              </th>
+            <% end %>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-100">
+              Total
+            </th>
+          </tr>
+          <tr class="bg-gray-50 border-t border-gray-200">
+            <th class="px-6 py-2 text-left text-xs font-medium text-gray-400">
+            </th>
+            <% @pack_types.each do |pack_type| %>
+              <th class="px-3 py-2 text-center text-xs font-medium text-gray-400">
+                Qté
+              </th>
+              <th class="px-3 py-2 text-center text-xs font-medium text-gray-400">
+                Montant
+              </th>
+            <% end %>
+            <th class="px-6 py-2 text-right text-xs font-medium text-gray-400 bg-gray-100">
+              €
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% if @yearly_stats.any? %>
+            <% @yearly_stats.each do |stat| %>
+              <tr class="hover:bg-gray-50 <%= 'bg-blue-50' if stat[:year] == Time.current.year %>">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <%= stat[:period] %>
+                  <% if stat[:year] == Time.current.year %>
+                    <span class="ml-2 text-xs bg-blue-500 text-white px-2 py-1 rounded-full">En cours</span>
+                  <% end %>
+                </td>
+                <% @pack_types.each do |pack_type| %>
+                  <% type_data = stat[:by_type][pack_type] %>
+                  <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
+                    <%= type_data ? type_data[:count] : '-' %>
+                  </td>
+                  <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
+                    <% if type_data %>
+                      <%= number_to_currency(type_data[:amount], unit: "", separator: ",", delimiter: " ") %>€
+                    <% else %>
+                      -
+                    <% end %>
+                  </td>
+                <% end %>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 text-right bg-gray-50">
+                  <%= number_to_currency(stat[:total], unit: "", separator: ",", delimiter: " ") %>€
+                </td>
+              </tr>
+            <% end %>
+            
+            <!-- Total Général -->
+            <tr class="bg-indigo-50 font-bold border-t-2 border-indigo-200">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <strong>TOTAL GÉNÉRAL</strong>
+              </td>
+              <% @pack_types.each do |pack_type| %>
+                <% 
+                  total_count = @yearly_stats.sum { |s| s[:by_type][pack_type]&.dig(:count) || 0 }
+                  total_amount = @yearly_stats.sum { |s| s[:by_type][pack_type]&.dig(:amount) || 0 }
+                %>
+                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <strong><%= total_count %></strong>
+                </td>
+                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <strong><%= number_to_currency(total_amount, unit: "", separator: ",", delimiter: " ") %>€</strong>
+                </td>
+              <% end %>
+              <td class="px-6 py-4 whitespace-nowrap text-lg font-bold text-indigo-700 text-right bg-indigo-100">
+                <%= number_to_currency(@yearly_stats.sum { |s| s[:total] }, unit: "", separator: ",", delimiter: " ") %>€
+              </td>
+            </tr>
+          <% else %>
+            <tr>
+              <td colspan="<%= 1 + (@pack_types.size * 2) + 1 %>" class="px-6 py-8 text-center text-gray-500">
+                Aucun achat de pack enregistré
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Graphique de l'évolution (optionnel, pour plus tard) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+  <!-- KPI : Total année en cours -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-12 h-12 bg-green-600 rounded-md flex items-center justify-center">
+          <span class="text-white text-lg font-bold">€</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">CA Packs <%= Time.current.year %></p>
+        <p class="text-2xl font-semibold text-gray-900">
+          <%= number_to_currency(@monthly_stats.sum { |s| s[:total] }, unit: "", separator: ",", delimiter: " ") %>€
+        </p>
+        <p class="text-xs text-gray-500">
+          <%= @monthly_stats.sum { |s| s[:by_type].values.sum { |v| v[:count] } } %> achats
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI : Total tous temps -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-12 h-12 bg-blue-600 rounded-md flex items-center justify-center">
+          <span class="text-white text-lg font-bold">📦</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">CA Total (tous temps)</p>
+        <p class="text-2xl font-semibold text-gray-900">
+          <%= number_to_currency(@yearly_stats.sum { |s| s[:total] }, unit: "", separator: ",", delimiter: " ") %>€
+        </p>
+        <p class="text-xs text-gray-500">
+          <%= @yearly_stats.sum { |s| s[:by_type].values.sum { |v| v[:count] } } %> achats
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI : Pack le plus populaire -->
+  <% 
+    most_popular_type = @pack_types.max_by do |type|
+      @yearly_stats.sum { |s| s[:by_type][type]&.dig(:count) || 0 }
+    end
+    most_popular_count = @yearly_stats.sum { |s| s[:by_type][most_popular_type]&.dig(:count) || 0 }
+  %>
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        <div class="w-12 h-12 bg-purple-600 rounded-md flex items-center justify-center">
+          <span class="text-white text-lg font-bold">⭐</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <p class="text-sm font-medium text-gray-500">Pack le plus populaire</p>
+        <p class="text-xl font-semibold text-gray-900">
+          <%= case most_popular_type
+              when 'credits' then 'Crédits'
+              when 'licence' then 'Licence'
+              when 'stage' then 'Stage'
+              else most_popular_type.humanize
+              end %>
+        </p>
+        <p class="text-xs text-gray-500">
+          <%= most_popular_count %> achats
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+

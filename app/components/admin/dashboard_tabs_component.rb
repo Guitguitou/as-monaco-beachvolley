@@ -15,6 +15,7 @@ module Admin
         { id: 'overview', name: 'Vue d\'ensemble', icon: '📊' },
         { id: 'sessions', name: 'Sessions', icon: '🏐' },
         { id: 'finances', name: 'Finances', icon: '💰' },
+        { id: 'packs', name: 'Packs', icon: '📦' },
         { id: 'coaches', name: 'Coachs', icon: '👥' },
         { id: 'alerts', name: 'Alertes', icon: '⚠️' }
       ]

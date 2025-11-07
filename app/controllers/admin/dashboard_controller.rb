@@ -15,6 +15,8 @@ module Admin
         render_sessions_tab
       when 'finances'
         render_finances_tab
+      when 'packs'
+        render_packs_tab
       when 'coaches'
         render_coaches_tab
       when 'alerts'
@@ -66,8 +68,17 @@ module Admin
       }
     end
 
+    def render_packs_tab
+      packs_stats_service = Reporting::PacksStats.new
+      
+      @monthly_stats = packs_stats_service.monthly_stats_for_current_year
+      @yearly_stats = packs_stats_service.yearly_stats
+      @pack_types = Pack.pack_types.keys
+    end
+
     def render_coaches_tab
       coach_salaries_service = Reporting::CoachSalaries.new
+      coach_stats_service = Reporting::CoachStats.new
       
       @coach_breakdown = coach_salaries_service.breakdown(
         week_range: week_range,
@@ -82,6 +93,10 @@ module Admin
         
         @upcoming_sessions_by_coach[coach.id] = coach_salaries_service.upcoming_sessions_for_coach(coach)
       end
+      
+      @monthly_stats = coach_stats_service.monthly_stats_for_current_year
+      @yearly_stats = coach_stats_service.yearly_stats
+      @coaches = coach_stats_service.active_coaches
     end
 
     def render_alerts_tab

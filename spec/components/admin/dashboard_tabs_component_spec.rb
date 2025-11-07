@@ -12,6 +12,7 @@ RSpec.describe Admin::DashboardTabsComponent, type: :component do
     expect(page).to have_link('Vue d\'ensemble')
     expect(page).to have_link('Sessions')
     expect(page).to have_link('Finances')
+    expect(page).to have_link('Packs')
     expect(page).to have_link('Coachs')
     expect(page).to have_link('Alertes')
   end
