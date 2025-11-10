@@ -3,7 +3,9 @@ require 'rails_helper'
 RSpec.describe Registration, type: :model do
   let(:level) { create(:level) }
   let(:user)  { create(:user, level: level) }
-  let(:session) { create(:session, session_type: 'entrainement', levels: [level], terrain: 'Terrain 1') }
+  # Create session tomorrow at 19h to avoid registration deadline issues
+  let(:tomorrow_7pm) { (Time.current + 1.day).change(hour: 19, min: 0) }
+  let(:session) { create(:session, session_type: 'entrainement', levels: [level], terrain: 'Terrain 1', start_at: tomorrow_7pm, end_at: tomorrow_7pm + 1.5.hours) }
 
   before do
     # Ensure users used in tests have enough credits unless explicitly testing insufficient credits
@@ -37,7 +39,7 @@ RSpec.describe Registration, type: :model do
     end
 
     it 'disallows confirmed registration when overlapping with another confirmed session' do
-      other_session = create(:session, session_type: 'entrainement', levels: [level], terrain: 'Terrain 2', start_at: session.start_at + 10.minutes, end_at: session.end_at + 10.minutes)
+      other_session = create(:session, session_type: 'entrainement', levels: [level], terrain: 'Terrain 2', start_at: tomorrow_7pm + 10.minutes, end_at: tomorrow_7pm + 1.5.hours + 10.minutes)
       create(:registration, user: user, session: session, status: :confirmed)
       reg = build(:registration, user: user, session: other_session, status: :confirmed)
       expect(reg).not_to be_valid
@@ -45,7 +47,7 @@ RSpec.describe Registration, type: :model do
     end
 
     it 'allows waitlisted registration even if overlapping' do
-      other_session = create(:session, session_type: 'entrainement', levels: [level], terrain: 'Terrain 2', start_at: session.start_at + 10.minutes, end_at: session.end_at + 10.minutes)
+      other_session = create(:session, session_type: 'entrainement', levels: [level], terrain: 'Terrain 2', start_at: tomorrow_7pm + 10.minutes, end_at: tomorrow_7pm + 1.5.hours + 10.minutes)
       create(:registration, user: user, session: session, status: :confirmed)
       reg = build(:registration, user: user, session: other_session, status: :waitlisted)
       expect(reg).to be_valid

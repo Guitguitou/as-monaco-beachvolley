@@ -11,20 +11,27 @@
   </div>
   <div class="p-4 flex flex-col h-full space-y-6">
     <div class="flex items-center gap-2 text-asmbv-red text-xl font-semibold justify-center">
-      <%= link_to root_path do %>
+      <%= link_to (current_user.activated? ? root_path : packs_path) do %>
         <%= image_tag "logo.png", class: "w-16 h-16 md:w-20 md:h-20" %>
       <% end %>
     </div>
 
     <nav class="flex-1 space-y-2 text-xs">
-      <%= nav_link "Calendrier", sessions_path, icon: "calendar", extra_classes: 'sidebar-link' %>
-      <%= nav_link "Stages", stages_path, icon: "flag", extra_classes: 'sidebar-link' %>
-      <%= nav_link "Mes sessions", me_sessions_path, icon: "volleyball", extra_classes: 'sidebar-link' %>
-      <%= nav_link "Packs", packs_path, icon: "credit-card", extra_classes: 'sidebar-link' %>
-      <% if current_user.coach? || current_user.admin? %>
-        <%= nav_link "Entraînements (coach)", coach_trainings_path, icon: "book-open", extra_classes: 'sidebar-link' %>
+      <% if current_user.activated? %>
+        <%= nav_link "Calendrier", sessions_path, icon: "calendar", extra_classes: 'sidebar-link' %>
+        <%= nav_link "Stages", stages_path, icon: "flag", extra_classes: 'sidebar-link' %>
+        <%= nav_link "Mes sessions", me_sessions_path, icon: "volleyball", extra_classes: 'sidebar-link' %>
+        <%= nav_link "Packs", packs_path, icon: "credit-card", extra_classes: 'sidebar-link' %>
+        <% if current_user.coach? || current_user.admin? %>
+          <%= nav_link "Entraînements (coach)", coach_trainings_path, icon: "book-open", extra_classes: 'sidebar-link' %>
+        <% end %>
+        <%= nav_link "Mon profil", profile_path, icon: "user", extra_classes: 'sidebar-link' %>
+      <% else %>
+        <!-- Sidebar limitée pour comptes non activés -->
+        <%= nav_link "Packs", packs_path, icon: "credit-card", extra_classes: 'sidebar-link' %>
+        <%= nav_link "Stages", stages_path, icon: "flag", extra_classes: 'sidebar-link' %>
+        <%= nav_link "Mon profil", profile_path, icon: "user", extra_classes: 'sidebar-link' %>
       <% end %>
-      <%= nav_link "Mon profil", profile_path, icon: "user", extra_classes: 'sidebar-link' %>
 
       <div class="pt-2" data-controller="collapse" data-open="false">
         <button type="button" data-action="click->collapse#toggle" class="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium text-sm sidebar-link">

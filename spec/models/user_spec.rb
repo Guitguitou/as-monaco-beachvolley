@@ -203,8 +203,8 @@ RSpec.describe User, type: :model do
       context 'when user is not activated' do
         before { user.update!(disabled_at: nil, activated_at: nil) }
 
-        it 'returns false even if not disabled' do
-          expect(user.active_for_authentication?).to be false
+        it 'returns true (non-activated users can login with limited access)' do
+          expect(user.active_for_authentication?).to be true
         end
       end
     end
@@ -218,13 +218,9 @@ RSpec.describe User, type: :model do
         end
       end
 
-      context 'when user is not activated' do
-        before { user.update!(disabled_at: nil, activated_at: nil) }
-
-        it 'returns :inactive' do
-          expect(user.inactive_message).to eq(:inactive)
-        end
-      end
+      # Note: inactive_message is only called when active_for_authentication? returns false
+      # Since non-activated users can now login (active_for_authentication? = true),
+      # inactive_message is no longer relevant for non-activated users
 
       context 'when user is activated and not disabled' do
         before { user.update!(disabled_at: nil, activated_at: Time.current) }

@@ -13,16 +13,19 @@ class Ability
 
     # Base permissions for all authenticated users
     if user.id.present? && !user.disabled?
-      can :read, Session
-      can :read, Stage
       can :read, User, id: user.id
 
-      # Packs : Licences toujours accessibles, autres seulement si activé
-      can :read, Pack, pack_type: 'licence'
-      can :buy, Pack, pack_type: 'licence'
-      
-      if user.activated?
-        can :read, Pack  # Tous les packs si activé
+      # Non-activated users: limited access to licenses, stages and infos
+      if !user.activated?
+        can :read, Pack, pack_type: ['licence', 'stage']
+        can :buy, Pack, pack_type: ['licence', 'stage']
+        can :read, Stage
+        # Access to infos pages (handled in routes, no specific permission needed)
+      else
+        # Activated users: full access
+        can :read, Session
+        can :read, Stage
+        can :read, Pack  # Tous les packs
         can :buy, Pack   # Peut acheter tous les packs
 
         # Registrations (sign-up to sessions) - seulement si activé

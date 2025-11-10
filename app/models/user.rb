@@ -36,14 +36,14 @@ class User < ApplicationRecord
     joins(:balance).where('balances.amount >= ?', session_record.price)
   }
 
-  # Devise: Prevent login when account is disabled or not activated
+  # Devise: Prevent login when account is disabled
+  # Non-activated users can login but have limited access
   def active_for_authentication?
-    super && !disabled? && activated?
+    super && !disabled?
   end
 
   def inactive_message
     return :locked if disabled?
-    return :inactive unless activated?
 
     super
   end

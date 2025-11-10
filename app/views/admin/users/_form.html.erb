@@ -59,8 +59,8 @@
     <div class="flex items-start">
       <div class="flex items-center h-5">
         <%= f.check_box :activate_immediately,
-              { checked: @user.persisted? ? @user.activated? : false },
-              class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+              { checked: @user.persisted? ? @user.activated? : false, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" },
+              "1", "0" %>
       </div>
       <div class="ml-3">
         <%= f.label :activate_immediately, class: "text-sm font-medium text-gray-900" do %>
