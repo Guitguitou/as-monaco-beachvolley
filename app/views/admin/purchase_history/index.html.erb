@@ -4,6 +4,32 @@
   </h1>
 </div>
 
+<%# Tabs de filtrage par statut %>
+<div id="status-tabs" class="flex gap-2 sm:gap-4 mb-6 border-b border-gray-200 overflow-x-auto whitespace-nowrap px-1">
+  <% status_tabs = [
+    { value: 'paid', label: 'Payés', icon: 'check-circle' },
+    { value: 'pending', label: 'En attente', icon: 'clock' },
+    { value: 'failed', label: 'Échoués/Annulés', icon: 'x-circle' }
+  ] %>
+
+  <% status_tabs.each do |tab| %>
+    <% active = @status_filter == tab[:value] %>
+    <%= link_to admin_purchase_history_index_path(status: tab[:value]),
+        class: "px-3 sm:px-4 py-2 text-sm font-medium border-b-2 flex items-center gap-2 #{active ? 'text-asmbv-red border-asmbv-red' : 'text-gray-500 border-transparent hover:text-asmbv-red hover:border-asmbv-red'}" do %>
+      <%= lucide_icon(tab[:icon], size: 16) %>
+      <%= tab[:label] %>
+    <% end %>
+  <% end %>
+  
+  <%# Lien "Tous" séparé pour revenir à la vue complète %>
+  <% active_all = @status_filter.blank? %>
+  <%= link_to admin_purchase_history_index_path,
+      class: "px-3 sm:px-4 py-2 text-sm font-medium border-b-2 flex items-center gap-2 ml-auto #{active_all ? 'text-asmbv-red border-asmbv-red' : 'text-gray-500 border-transparent hover:text-asmbv-red hover:border-asmbv-red'}" do %>
+    <%= lucide_icon('list', size: 16) %>
+    Tous
+  <% end %>
+</div>
+
 <%# Stats Cards %>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
