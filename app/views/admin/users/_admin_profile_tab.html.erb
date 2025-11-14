@@ -48,7 +48,12 @@
               <%= lucide_icon("key-round", size: 14) %> Responsable
             </span>
           <% end %>
-          <% unless @user.admin? || @user.coach? || @user.responsable? %>
+          <% if @user.financial_manager? %>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-semibold">
+              <%= lucide_icon("wallet", size: 14) %> Resp. Financier
+            </span>
+          <% end %>
+          <% unless @user.admin? || @user.coach? || @user.responsable? || @user.financial_manager? %>
             <span class="text-sm text-gray-500">Aucun rôle défini</span>
           <% end %>
         </dd>

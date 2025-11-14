@@ -11,6 +11,13 @@ class Ability
       return
     end
 
+    # Responsable financier : accès limité au dashboard et historique des achats
+    if user.financial_manager?
+      can :read, :admin_dashboard
+      can :read, CreditPurchase
+      return
+    end
+
     # Base permissions for all authenticated users
     if user.id.present? && !user.disabled?
       can :read, User, id: user.id

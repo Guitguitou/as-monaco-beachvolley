@@ -209,7 +209,7 @@ module Admin
     def user_params
       params.require(:user).permit(
         :email, :first_name, :last_name,
-        :admin, :coach, :responsable,
+        :admin, :coach, :responsable, :financial_manager,
         :license_type,
         :salary_per_training,
         :password, :password_confirmation,

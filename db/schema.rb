@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_03_200035) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_14_113332) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -210,11 +210,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_03_200035) do
     t.string "license_type"
     t.datetime "disabled_at"
     t.datetime "activated_at"
+    t.boolean "financial_manager", default: false, null: false
     t.index ["activated_at"], name: "index_users_on_activated_at"
     t.index ["admin", "id"], name: "index_users_on_admin_and_id"
     t.index ["coach", "id"], name: "index_users_on_coach_and_id"
     t.index ["disabled_at"], name: "index_users_on_disabled_at"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["financial_manager"], name: "index_users_on_financial_manager"
     t.index ["license_type"], name: "index_users_on_license_type"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

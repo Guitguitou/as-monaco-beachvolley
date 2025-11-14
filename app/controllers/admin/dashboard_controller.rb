@@ -29,7 +29,7 @@ module Admin
     private
 
     def require_admin!
-      redirect_to root_path, alert: "Accès non autorisé" unless current_user&.admin?
+      redirect_to root_path, alert: "Accès non autorisé" unless current_user&.admin? || current_user&.financial_manager?
     end
 
     def render_overview_tab

@@ -10,11 +10,13 @@
 
     <nav class="flex-1 space-y-2 text-sm">
       <%= nav_link "Dashboard", admin_root_path, icon: "layout-dashboard" %>
-      <%= nav_link "Joueurs", admin_users_path, icon: "users" %>
-      <%= nav_link "Sessions", admin_sessions_path, icon: "calendar" %>
-      <%= nav_link "Stages", admin_stages_path, icon: "flag" %>
-      <%= nav_link "Niveaux", admin_levels_path, icon: "layers" %>
-      <%= nav_link "Packs", admin_packs_path, icon: "package" %>
+      <% if current_user.admin? %>
+        <%= nav_link "Joueurs", admin_users_path, icon: "users" %>
+        <%= nav_link "Sessions", admin_sessions_path, icon: "calendar" %>
+        <%= nav_link "Stages", admin_stages_path, icon: "flag" %>
+        <%= nav_link "Niveaux", admin_levels_path, icon: "layers" %>
+        <%= nav_link "Packs", admin_packs_path, icon: "package" %>
+      <% end %>
       <%= nav_link "Historique achats", admin_purchase_history_index_path, icon: "shopping-cart" %>
       <%= nav_link "Retour App", sessions_path, icon: "arrow-left" %>
     </nav>

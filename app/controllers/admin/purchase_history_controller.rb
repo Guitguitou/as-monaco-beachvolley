@@ -30,7 +30,7 @@ module Admin
     private
 
     def ensure_admin!
-      redirect_to root_path, alert: "Accès interdit" unless current_user.admin?
+      redirect_to root_path, alert: "Accès interdit" unless current_user.admin? || current_user.financial_manager?
     end
   end
 end

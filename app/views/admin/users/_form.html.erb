@@ -37,7 +37,7 @@
   </div>
 
   <!-- Rôles -->
-  <fieldset class="grid grid-cols-1 md:grid-cols-3 gap-4">
+  <fieldset class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="flex items-center">
       <%= f.check_box :admin, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
       <%= f.label :admin, "Administrateur", class: "ml-2 text-sm text-gray-700" %>
@@ -51,6 +51,11 @@
     <div class="flex items-center">
       <%= f.check_box :responsable, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
       <%= f.label :responsable, "Responsable", class: "ml-2 text-sm text-gray-700" %>
+    </div>
+
+    <div class="flex items-center">
+      <%= f.check_box :financial_manager, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+      <%= f.label :financial_manager, "Responsable financier", class: "ml-2 text-sm text-gray-700" %>
     </div>
   </fieldset>
 

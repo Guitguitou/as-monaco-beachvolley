@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
 
   def accueil
     # Redirect authenticated non-activated users to packs
-    if user_signed_in? && !current_user.activated? && !current_user.admin?
+    if user_signed_in? && !current_user.activated? && !current_user.admin? && !current_user.financial_manager?
       redirect_to packs_path
       return
     end
@@ -28,7 +28,7 @@ class ApplicationController < ActionController::Base
   def redirect_non_activated_users
     return unless user_signed_in?
     return if current_user.activated?
-    return if current_user.admin? # Admins always have full access
+    return if current_user.admin? || current_user.financial_manager? # Admins and financial managers always have full access
     
     # Allow access to specific paths for non-activated users
     allowed_paths = [

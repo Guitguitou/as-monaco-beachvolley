@@ -51,7 +51,7 @@
         </div>
       </div>
 
-      <% if current_user.admin? %>
+      <% if current_user.admin? || current_user.financial_manager? %>
         <%= nav_link "Admin", admin_root_path, icon: "shield-check" %>
       <% end %>
     </nav>

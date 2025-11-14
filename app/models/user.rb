@@ -28,6 +28,7 @@ class User < ApplicationRecord
   scope :coachs, -> { where(coach: true) }
   scope :responsables, -> { where(responsable: true) }
   scope :admins, -> { where(admin: true) }
+  scope :financial_managers, -> { where(financial_manager: true) }
   scope :activated, -> { where.not(activated_at: nil) }
   scope :not_activated, -> { where(activated_at: nil) }
   scope :gender, ->(g) { joins(:levels).where(levels: { gender: g }) }
