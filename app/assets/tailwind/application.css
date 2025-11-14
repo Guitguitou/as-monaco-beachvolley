@@ -170,8 +170,8 @@
   }
 
   .fc-timegrid-slot-label {
-    padding-top: 0.25rem !important;
-    padding-bottom: 0.25rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
   }
 
   .fc .fc-day-today {
@@ -187,15 +187,22 @@
 /* FullCalendar mobile tweaks */
 @layer components {
   .fc .fc-toolbar.fc-header-toolbar { margin-bottom: 0.5rem !important; }
-  .fc .fc-timegrid-slot-label-cushion { font-size: 10px !important; }
-  .fc .fc-timegrid-axis-cushion { font-size: 10px !important; }
+  .fc .fc-timegrid-slot-label-cushion { font-size: 13px !important; }
+  .fc .fc-timegrid-axis-cushion { font-size: 13px !important; }
   .fc-asmbv-event { line-height: 1.1 !important; }
   .fc-asmbv-event div { overflow: visible !important; white-space: normal !important; }
+  /* Améliorer l'espacement des créneaux pour mieux gérer les chevauchements */
+  .fc .fc-timegrid-slot { min-height: 3.5rem !important; }
 }
 
 @media (max-width: 640px) {
   .fc .fc-col-header-cell-cushion { font-size: 0.7rem !important; }
   .fc .fc-toolbar-title { font-size: 0.95rem !important; }
   .fc .fc-button { font-size: 0.75rem !important; padding: 0.25rem 0.5rem !important; }
-  .fc .fc-timegrid-slot-label-cushion, .fc .fc-timegrid-axis-cushion { font-size: 9px !important; }
+  .fc .fc-timegrid-slot-label-cushion, .fc .fc-timegrid-axis-cushion { font-size: 11px !important; }
+  .fc .fc-timegrid-slot { min-height: 3rem !important; }
+  /* Sur mobile, empêcher les débordements */
+  .fc-event { overflow: hidden !important; }
+  .fc-event-main { overflow: hidden !important; width: 100% !important; }
+  .fc-event-title-container { overflow: hidden !important; }
 }

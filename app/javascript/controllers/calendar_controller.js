@@ -37,14 +37,14 @@ export default class extends Controller {
       slotMaxTime: '23:00:00',
       slotDuration: '00:30:00',
       slotLabelFormat: { hour: 'numeric', minute: '2-digit', meridiem: false, hour12: false },
-      height: isMobile ? 'auto' : '100%',
+      height: isMobile ? 'auto' : 'calc(100vh - 280px)',
       nowIndicator: true,
       stickyHeaderDates: true,
       eventOverlap: true,
       scrollTime: isMobile ? '07:30:00' : '08:00:00',
       expandRows: true,
-      dayMaxEvents: true,
-      slotLabelClassNames: ['text-xs', 'text-gray-400'],
+      dayMaxEvents: false,
+      slotLabelClassNames: ['text-sm', 'text-gray-600', 'font-medium'],
       eventDisplay: 'block',
       dayHeaderFormat: isMobile ? { weekday: 'short', day: 'numeric', month: 'numeric' } : undefined,
       events: sessions,
@@ -83,38 +83,77 @@ export default class extends Controller {
 
         // style "carte"
         info.el.style.borderRadius = '10px'
-        info.el.style.padding = isMobile ? '6px' : '8px'
+        info.el.style.padding = isMobile ? '4px' : '8px'
         info.el.style.boxShadow = '0 1px 0 rgba(0,0,0,0.06)'
         info.el.style.fontWeight = '500'
         info.el.style.whiteSpace = 'normal'
-        info.el.style.overflow = 'visible'
+        info.el.style.overflow = isMobile ? 'hidden' : 'visible'
         info.el.style.display = 'block'
+        // Sur mobile, s'assurer que le contenu ne dépasse pas
+        if (isMobile) {
+          info.el.style.width = '100%'
+          info.el.style.boxSizing = 'border-box'
+        }
 
         // typographies fines via classes utilitaires
         const card = info.el.querySelector('.fc-asmbv-card')
+        if (card) {
+          card.style.width = '100%'
+          card.style.height = '100%'
+          card.style.display = 'flex'
+          card.style.flexDirection = 'column'
+          card.style.overflow = 'hidden'
+        }
+
         const time = info.el.querySelector('.fc-asmbv-time')
         const title = info.el.querySelector('.fc-asmbv-title')
         const coach = info.el.querySelector('.fc-asmbv-coach')
 
-        time.style.fontSize = isMobile ? '11px' : '12px'
-        time.style.opacity = '0.9'
-        time.style.lineHeight = '1.1'
+        if (time) {
+          time.style.fontSize = isMobile ? '10px' : '12px'
+          time.style.opacity = '0.9'
+          time.style.lineHeight = '1.1'
+          time.style.flexShrink = '0'
+          if (isMobile) {
+            time.style.overflow = 'hidden'
+            time.style.textOverflow = 'ellipsis'
+            time.style.whiteSpace = 'nowrap'
+          }
+        }
 
-        title.style.fontSize = isMobile ? '12px' : '13px'
-        title.style.fontWeight = '600'
-        title.style.lineHeight = '1.2'
-        // line-clamp 2
-        title.style.display = '-webkit-box'
-        title.style.webkitLineClamp = '2'
-        title.style.webkitBoxOrient = 'vertical'
-        title.style.overflow = 'hidden'
+        if (title) {
+          title.style.fontSize = isMobile ? '11px' : '13px'
+          title.style.fontWeight = '600'
+          title.style.lineHeight = '1.2'
+          title.style.flex = '1'
+          title.style.minHeight = '0'
+          // line-clamp 2 sur desktop, 1 sur mobile pour économiser l'espace
+          title.style.display = '-webkit-box'
+          title.style.webkitLineClamp = isMobile ? '1' : '2'
+          title.style.webkitBoxOrient = 'vertical'
+          title.style.overflow = 'hidden'
+          title.style.textOverflow = 'ellipsis'
+        }
 
-        coach.style.fontSize = isMobile ? '11px' : '12px'
-        coach.style.opacity = '0.9'
-        coach.style.lineHeight = '1.1'
+        if (coach) {
+          coach.style.fontSize = isMobile ? '9px' : '12px'
+          coach.style.opacity = '0.9'
+          coach.style.lineHeight = '1.1'
+          coach.style.flexShrink = '0'
+          if (isMobile) {
+            coach.style.overflow = 'hidden'
+            coach.style.textOverflow = 'ellipsis'
+            coach.style.whiteSpace = 'nowrap'
+            coach.style.maxWidth = '100%'
+          }
+        }
 
-        // min height douce pour les events courts
-        info.el.style.minHeight = isMobile ? '44px' : '48px'
+        // min height douce pour les events courts - ajusté pour mobile
+        info.el.style.minHeight = isMobile ? '40px' : '60px'
+        // Sur mobile, hauteur maximale pour éviter les débordements
+        if (isMobile) {
+          info.el.style.maxHeight = '100%'
+        }
       },
 
       datesSet: (info) => {
