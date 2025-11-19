@@ -8,6 +8,10 @@ class Registration < ApplicationRecord
   # even though public registrations are closed for that session type.
   attr_accessor :allow_private_coaching_registration
 
+  # When true, allows creating registrations after the registration deadline (17h)
+  # for admins and session coaches.
+  attr_accessor :allow_deadline_bypass
+
   after_initialize do
     self.status ||= :confirmed if has_attribute?(:status)
   end
@@ -21,7 +25,13 @@ class Registration < ApplicationRecord
 
   def can_register?
     # Opening rules with 24h priority for competition license
-    open_ok, open_reason = session.registration_open_state_for(user)
+    # Skip deadline check if allow_deadline_bypass is true (for admins/coaches)
+    if allow_deadline_bypass
+      # Check all opening rules except deadline
+      open_ok, open_reason = session.registration_open_state_for(user, skip_deadline: true)
+    else
+      open_ok, open_reason = session.registration_open_state_for(user)
+    end
     unless open_ok
       errors.add(:base, open_reason)
     end

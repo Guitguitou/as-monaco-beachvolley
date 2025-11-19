@@ -251,3 +251,6 @@ Accès complet débloqué
 - Vérifier la liste des `allowed_paths`
 - Regarder les logs pour les redirections multiples
 
+
+
+

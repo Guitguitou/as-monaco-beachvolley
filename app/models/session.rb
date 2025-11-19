@@ -74,7 +74,9 @@ class Session < ApplicationRecord
   # Returns [boolean, reason]
   # Enforces registration opening rules for trainings with a 24h priority
   # window for users with competition license.
-  def registration_open_state_for(user)
+  # @param user [User] The user trying to register
+  # @param skip_deadline [Boolean] If true, skip the deadline check (for admins/coaches)
+  def registration_open_state_for(user, skip_deadline: false)
     # Only trainings are constrained by opening rules
     return [true, nil] unless entrainement?
 
@@ -92,7 +94,8 @@ class Session < ApplicationRecord
     end
 
     # Check if registration deadline (17h on the day) has passed
-    if past_registration_deadline?
+    # Skip this check if skip_deadline is true (for admins/coaches)
+    if !skip_deadline && past_registration_deadline?
       return [false, "Les inscriptions sont closes (limite : 17h le jour de la session)."]
     end
 

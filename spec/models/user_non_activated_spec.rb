@@ -52,3 +52,6 @@ RSpec.describe User, 'Non-activated users' do
   end
 end
 
+
+
+

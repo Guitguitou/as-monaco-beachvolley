@@ -62,4 +62,59 @@ RSpec.describe "Registrations flow", type: :request do
     expect(session_record.registrations.confirmed.first.user).to eq(second)
     expect(second.reload.balance.amount).to be <= 1000 - session_record.price
   end
+
+  context 'when registration deadline has passed (after 17h)' do
+    let(:today) { Time.zone.parse('2024-11-07 10:00:00') }
+    let(:session_today) do
+      create(:session,
+             session_type: 'entrainement',
+             terrain: 'Terrain 1',
+             user: coach,
+             levels: [level],
+             start_at: today.change(hour: 19, min: 0), # 19h aujourd'hui
+             end_at: today.change(hour: 20, min: 30),
+             registration_opens_at: today.change(hour: 9, min: 0))
+    end
+    let(:admin) { create(:user, admin: true) }
+    let(:target_user) { create(:user, level: level) }
+
+    before do
+      travel_to(today)
+      create(:credit_transaction, user: target_user, amount: 1_000)
+    end
+
+    after do
+      travel_back
+    end
+
+    it 'allows admin to add a user after 17h deadline' do
+      # Simulate time after 17h
+      travel_to(today.change(hour: 18, min: 0))
+
+      login_as admin, scope: :user
+
+      expect {
+        post session_registrations_path(session_today), params: { user_id: target_user.id }
+      }.to change { session_today.reload.registrations.count }.by(1)
+        .and change { target_user.reload.balance.amount }.by(-session_today.price)
+
+      follow_redirect!
+      expect(response.body).to include('Inscription réussie')
+    end
+
+    it 'blocks regular user from registering after 17h deadline' do
+      # Simulate time after 17h
+      travel_to(today.change(hour: 18, min: 0))
+
+      login_as target_user, scope: :user
+
+      expect {
+        post session_registrations_path(session_today)
+      }.not_to change { session_today.reload.registrations.count }
+
+      follow_redirect!
+      expect(response.body).to include('Les inscriptions sont closes')
+      expect(response.body).to include('17h')
+    end
+  end
 end

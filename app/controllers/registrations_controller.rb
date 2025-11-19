@@ -21,6 +21,8 @@ class RegistrationsController < ApplicationController
     registration = Registration.new(user: target_user, session: @session, status: requested_waitlist ? :waitlisted : :confirmed)
     # Allow admin or session owner to add participants to private coachings
     registration.allow_private_coaching_registration = true if @session.coaching_prive? && (current_user.admin? || current_user == @session.user)
+    # Allow admin or session owner to bypass registration deadline (17h)
+    registration.allow_deadline_bypass = true if can_bypass_deadline?
 
     begin
       ActiveRecord::Base.transaction do
