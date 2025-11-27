@@ -2,6 +2,34 @@
   <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
     <%= lucide_icon("shopping-cart") %> Historique des achats
   </h1>
+  
+  <%# Formulaire d'export %>
+  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 w-full sm:w-auto">
+    <%= form_with url: export_admin_purchase_history_index_path, method: :get, local: true, class: "flex flex-col sm:flex-row gap-3 items-end" do |f| %>
+      <div class="flex flex-col sm:flex-row gap-3 flex-1">
+        <div class="flex flex-col">
+          <label for="start_date" class="text-xs font-medium text-gray-600 mb-1">Date de début</label>
+          <%= f.date_field :start_date, 
+              value: params[:start_date] || Date.current.beginning_of_month,
+              class: "px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
+              required: true %>
+        </div>
+        <div class="flex flex-col">
+          <label for="end_date" class="text-xs font-medium text-gray-600 mb-1">Date de fin</label>
+          <%= f.date_field :end_date,
+              value: params[:end_date] || Date.current.end_of_month,
+              class: "px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
+              required: true %>
+        </div>
+        <%= f.hidden_field :format, value: 'csv' %>
+      </div>
+      <%= f.submit class: "px-4 py-2 bg-asmbv-red text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2 whitespace-nowrap cursor-pointer",
+          data: { disable_with: "Export en cours..." } do %>
+        <%= lucide_icon("download", size: 16) %> Exporter CSV
+      <% end %>
+    <% end %>
+    <p class="text-xs text-gray-500 mt-2">Par défaut, le mois en cours est sélectionné</p>
+  </div>
 </div>
 
 <%# Tabs de filtrage par statut %>
@@ -94,8 +122,12 @@
           <!-- Utilisateur -->
           <td class="px-4 sm:px-6 py-4 hidden lg:table-cell">
             <div class="flex flex-col">
-              <span class="font-medium text-gray-800"><%= purchase.user.full_name %></span>
-              <span class="text-xs text-gray-500"><%= purchase.user.email %></span>
+              <% if purchase.user %>
+                <span class="font-medium text-gray-800"><%= purchase.user.full_name %></span>
+                <span class="text-xs text-gray-500"><%= purchase.user.email %></span>
+              <% else %>
+                <span class="text-gray-400 italic">Utilisateur anonyme</span>
+              <% end %>
             </div>
           </td>
 

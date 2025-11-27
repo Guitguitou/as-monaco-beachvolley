@@ -57,7 +57,11 @@ Rails.application.routes.draw do
     resources :packs
     
     # Purchase history
-    resources :purchase_history, only: [:index]
+    resources :purchase_history, only: [:index] do
+      collection do
+        get :export
+      end
+    end
     
     # Payments (deprecated - use packs)
     resource :payments, only: [:show] do
