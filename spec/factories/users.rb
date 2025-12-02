@@ -19,5 +19,9 @@ FactoryBot.define do
     trait :admin do
       admin { true }
     end
+
+    trait :financial_manager do
+      financial_manager { true }
+    end
   end
 end
