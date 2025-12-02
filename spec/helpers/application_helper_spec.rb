@@ -117,9 +117,14 @@ RSpec.describe ApplicationHelper, type: :helper do
       expect(helper.external_url?('https://google.com')).to be true
     end
 
-    it 'returns false for same host' do
+    it 'returns false for same host with scheme' do
       allow(helper).to receive(:request).and_return(double(host: 'example.com'))
       expect(helper.external_url?('https://example.com/path')).to be false
+    end
+
+    it 'returns false for same host without scheme' do
+      allow(helper).to receive(:request).and_return(double(host: 'example.com'))
+      expect(helper.external_url?('//example.com/path')).to be false
     end
 
     it 'returns false for blank URL' do

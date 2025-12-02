@@ -6,15 +6,23 @@ RSpec.describe "Stages", type: :request do
   let(:stage) { create(:stage) }
 
   describe "GET /stages" do
-    it "returns http success" do
-      get stages_path
-      expect(response).to have_http_status(:success)
-    end
-
     it "requires authentication" do
       get stages_path
       # Stages index requires authentication except for show
       expect(response).to have_http_status(:redirect)
+    end
+
+    context "when authenticated" do
+      let(:user) { create(:user) }
+
+      before do
+        sign_in user
+      end
+
+      it "returns http success" do
+        get stages_path
+        expect(response).to have_http_status(:success)
+      end
     end
   end
 
