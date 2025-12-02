@@ -7,7 +7,7 @@ RSpec.describe "Admin::Stages", type: :request do
   let(:stage) { create(:stage) }
 
   before do
-    sign_in admin
+    login_as(admin, scope: :user)
   end
 
   describe "GET /admin/stages" do

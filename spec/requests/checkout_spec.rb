@@ -5,10 +5,10 @@ require 'rails_helper'
 RSpec.describe "Checkout", type: :request do
   describe "GET /checkout/success" do
     context "when user is signed in" do
-      let(:user) { create(:user) }
+      let(:user) { create(:user, activated_at: Time.current) }
 
       before do
-        sign_in user
+        login_as(user, scope: :user)
       end
 
       it "redirects to admin payments path" do
@@ -42,10 +42,10 @@ RSpec.describe "Checkout", type: :request do
 
   describe "GET /checkout/cancel" do
     context "when user is signed in" do
-      let(:user) { create(:user) }
+      let(:user) { create(:user, activated_at: Time.current) }
 
       before do
-        sign_in user
+        login_as(user, scope: :user)
       end
 
       it "redirects to admin payments path" do

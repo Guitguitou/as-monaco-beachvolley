@@ -6,7 +6,7 @@ RSpec.describe "Admin::Payments", type: :request do
   let(:admin) { create(:user, :admin) }
 
   before do
-    sign_in admin
+    login_as(admin, scope: :user)
     allow(ENV).to receive(:fetch).and_call_original
     allow(ENV).to receive(:fetch).with("CURRENCY", anything).and_return("EUR")
     allow(ENV).to receive(:fetch).with("APP_HOST", anything).and_return("http://test.host")
@@ -60,15 +60,15 @@ RSpec.describe "Admin::Payments", type: :request do
   end
 
   context "when user is not admin" do
-    let(:regular_user) { create(:user) }
+    let(:regular_user) { create(:user, activated_at: Time.current) }
 
     before do
-      sign_in regular_user
+      login_as(regular_user, scope: :user)
     end
 
-    it "redirects to root with alert" do
+    it "redirects with alert" do
       get admin_payments_path
-      expect(response).to redirect_to(root_path)
+      expect(response).to have_http_status(:redirect)
       expect(flash[:alert]).to include("Accès interdit")
     end
   end

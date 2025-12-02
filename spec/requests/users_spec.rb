@@ -6,7 +6,7 @@ RSpec.describe "Users", type: :request do
   let(:user) { create(:user) }
 
   before do
-    sign_in user
+    login_as(user, scope: :user)
   end
 
   describe "GET /profile" do

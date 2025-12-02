@@ -23,12 +23,14 @@ RSpec.describe Sherlock::RealGateway do
   end
 
   before do
+    allow(ENV).to receive(:fetch).and_call_original
     allow(ENV).to receive(:fetch).with("SHERLOCK_PAYMENT_INIT_URL", anything).and_return("https://test.sherlock.com/init")
     allow(ENV).to receive(:fetch).with("SHERLOCK_INTERFACE_VERSION", anything).and_return("HP_3.4")
     allow(ENV).to receive(:fetch).with("SHERLOCK_KEY_VERSION", anything).and_return("1")
     allow(ENV).to receive(:fetch).with("SHERLOCK_SEAL_ALGO", anything).and_return("sha256")
-    allow(ENV).to receive(:fetch).with("SHERLOCK_MERCHANT_ID", anything).and_return("TEST_MERCHANT")
-    allow(ENV).to receive(:fetch).with("SHERLOCK_API_KEY", anything).and_return("test_secret_key")
+    allow(ENV).to receive(:fetch).with("SHERLOCK_MERCHANT_ID").and_return("TEST_MERCHANT")
+    allow(ENV).to receive(:fetch).with("SHERLOCK_API_KEY").and_return("test_secret_key")
+    allow(ENV).to receive(:fetch).with("APP_HOST").and_return("https://example.com")
     allow(ENV).to receive(:[]).with("SHERLOCK_USE_ORDER_ID").and_return(nil)
   end
 

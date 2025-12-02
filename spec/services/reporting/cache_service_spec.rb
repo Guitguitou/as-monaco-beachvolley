@@ -23,26 +23,42 @@ RSpec.describe Reporting::CacheService do
   end
 
   describe '.fetch' do
+    around do |example|
+      # Temporarily enable memory cache for these tests
+      original_cache = Rails.cache
+      Rails.cache = ActiveSupport::Cache::MemoryStore.new
+      example.run
+      Rails.cache = original_cache
+    end
+
     before do
       Rails.cache.clear
     end
 
+    after do
+      Rails.cache.clear
+    end
+
     it 'caches the result of the block' do
-      call_count = 0
-      
-      result1 = described_class.fetch('TestService', 'test_method') do
-        call_count += 1
-        'result'
+      freeze_time do
+        call_count = 0
+        
+        # First call should execute the block
+        result1 = described_class.fetch('CacheTestService', 'unique_method_name') do
+          call_count += 1
+          'cached_result'
+        end
+        
+        # Second call should use cached value
+        result2 = described_class.fetch('CacheTestService', 'unique_method_name') do
+          call_count += 1
+          'should_not_be_called'
+        end
+        
+        expect(result1).to eq('cached_result')
+        expect(result2).to eq('cached_result')
+        expect(call_count).to eq(1)
       end
-      
-      result2 = described_class.fetch('TestService', 'test_method') do
-        call_count += 1
-        'result'
-      end
-      
-      expect(result1).to eq('result')
-      expect(result2).to eq('result')
-      expect(call_count).to eq(1)
     end
 
     it 'expires cache after duration' do
@@ -50,7 +66,7 @@ RSpec.describe Reporting::CacheService do
         'cached'
       end
       
-      travel_to(Reporting::CacheService::CACHE_DURATION + 1.second) do
+      travel(Reporting::CacheService::CACHE_DURATION + 1.second) do
         call_count = 0
         described_class.fetch('TestService', 'test_method') do
           call_count += 1
