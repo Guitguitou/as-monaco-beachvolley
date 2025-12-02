@@ -13,25 +13,8 @@ module Admin
       # 10 € = 1000 crédits
       @credit_purchase = CreditPurchase.create_pack_10_eur(user: current_user)
 
-      ref          = @credit_purchase.sherlock_transaction_reference || "CP-#{@credit_purchase.id}-#{SecureRandom.hex(4)}"
-      amount_cents = @credit_purchase.amount_cents
-      currency     = @credit_purchase.currency || ENV.fetch("CURRENCY", "EUR")
-
       # Construction du formulaire auto-submit via la gateway réelle
-      payment_html = Sherlock::CreatePayment.call(
-        reference: ref,
-        amount_cents: amount_cents,
-        currency: currency,
-        return_urls: {
-          success: Rails.application.routes.url_helpers.success_checkout_url(host: ENV.fetch("APP_HOST")),
-          cancel:  Rails.application.routes.url_helpers.cancel_checkout_url(host: ENV.fetch("APP_HOST")),
-          auto:    Rails.application.routes.url_helpers.webhooks_sherlock_url(host: ENV.fetch("APP_HOST"))
-        },
-        customer: { id: current_user.id, email: current_user.email }
-      )
-
-      # On enregistre la référence et passe à pending
-      @credit_purchase.update!(sherlock_transaction_reference: ref, status: :pending)
+      payment_html = Sherlock::CreatePayment.new(@credit_purchase).call
 
       # ⚠️ IMPORTANT : on RENVOIE le HTML (form POST auto-submit), pas un redirect
       render html: payment_html.html_safe, layout: false

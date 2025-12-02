@@ -10,8 +10,8 @@ RSpec.describe "Admin::Payments", type: :request do
     allow(ENV).to receive(:fetch).and_call_original
     allow(ENV).to receive(:fetch).with("CURRENCY", anything).and_return("EUR")
     allow(ENV).to receive(:fetch).with("APP_HOST", anything).and_return("http://test.host")
-    # Mock the class method call used in the controller
-    allow(Sherlock::CreatePayment).to receive(:call).and_return("<html>payment form</html>")
+    # Mock the instance method call used in the controller
+    allow_any_instance_of(Sherlock::CreatePayment).to receive(:call).and_return("<html>payment form</html>")
   end
 
   describe "GET /admin/payments" do
@@ -35,7 +35,7 @@ RSpec.describe "Admin::Payments", type: :request do
     end
 
     it "calls CreatePayment service" do
-      expect(Sherlock::CreatePayment).to receive(:call).and_return("<html>payment form</html>")
+      expect_any_instance_of(Sherlock::CreatePayment).to receive(:call).and_return("<html>payment form</html>")
       post buy_10_eur_admin_payments_path
     end
 
@@ -47,7 +47,7 @@ RSpec.describe "Admin::Payments", type: :request do
 
     context "when payment creation fails" do
       before do
-        allow(Sherlock::CreatePayment).to receive(:call).and_raise(StandardError.new("Payment error"))
+        allow_any_instance_of(Sherlock::CreatePayment).to receive(:call).and_raise(StandardError.new("Payment error"))
         allow(Rails.logger).to receive(:error)
       end
 

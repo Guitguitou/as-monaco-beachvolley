@@ -117,8 +117,8 @@ module ApplicationHelper
     
     begin
       uri = URI.parse(url)
-      # Consider it external if it has a different host or is an absolute URL with protocol
-      uri.host.present? && (uri.host != request.host || uri.scheme.present?)
+      # Consider it external if it has a different host
+      uri.host.present? && uri.host != request.host
     rescue URI::InvalidURIError
       false
     end
