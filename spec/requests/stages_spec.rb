@@ -16,7 +16,7 @@ RSpec.describe "Stages", type: :request do
       let(:user) { create(:user) }
 
       before do
-        sign_in user
+        login_as(user, scope: :user)
       end
 
       it "returns http success" do

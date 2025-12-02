@@ -64,6 +64,15 @@ class CreditPurchase < ApplicationRecord
     amount_cents / 100.0
   end
 
+  # Marquer comme échoué (méthode publique pour les webhooks)
+  def mark_as_failed!(reason: nil)
+    update!(
+      status: :failed,
+      failed_at: Time.current,
+      sherlock_fields: sherlock_fields.merge(failure_reason: reason)
+    )
+  end
+
   private
 
   def process_credits_purchase
@@ -100,15 +109,6 @@ class CreditPurchase < ApplicationRecord
       # et activer le compte ultérieurement quand ils se connectent/créent un compte
       Rails.logger.info('Licence pack purchased by anonymous user - stored in sherlock_fields')
     end
-  end
-
-  # Marquer comme échoué
-  def mark_as_failed!(reason: nil)
-    update!(
-      status: :failed,
-      failed_at: Time.current,
-      sherlock_fields: sherlock_fields.merge(failure_reason: reason)
-    )
   end
 
   # Générer une référence unique

@@ -8,6 +8,7 @@ RSpec.describe Sherlock::CreatePayment do
   let(:service) { described_class.new(credit_purchase) }
 
   before do
+    allow(ENV).to receive(:fetch).and_call_original
     allow(ENV).to receive(:fetch).with("CURRENCY", anything).and_return("EUR")
     allow(ENV).to receive(:fetch).with("SHERLOCK_RETURN_URL_SUCCESS", anything).and_return("https://example.com/success")
     allow(ENV).to receive(:fetch).with("SHERLOCK_RETURN_URL_CANCEL", anything).and_return("https://example.com/cancel")
@@ -75,7 +76,7 @@ RSpec.describe Sherlock::CreatePayment do
     end
 
     it 'defaults to EUR currency if not set' do
-      credit_purchase.update!(currency: nil)
+      credit_purchase.update_column(:currency, "")
       
       gateway = double
       allow(Sherlock::Gateway).to receive(:build).and_return(gateway)

@@ -7,7 +7,8 @@ RSpec.describe "Webhooks::Sherlock", type: :request do
   let(:credit_purchase) { create(:credit_purchase, user: user, sherlock_transaction_reference: "REF-123") }
 
   before do
-    allow(ENV).to receive(:fetch).with("SHERLOCK_API_KEY", anything).and_return("test_secret")
+    allow(ENV).to receive(:fetch).and_call_original
+    allow(ENV).to receive(:fetch).with("SHERLOCK_API_KEY").and_return("test_secret")
     allow(ENV).to receive(:fetch).with("SHERLOCK_SEAL_ALGO", anything).and_return("sha256")
     allow(SherlockCallbackJob).to receive(:perform_later)
   end

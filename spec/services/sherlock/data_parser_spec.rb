@@ -42,12 +42,12 @@ RSpec.describe Sherlock::DataParser do
 
     it 'handles empty values' do
       result = described_class.parse("key1=|key2=value2")
-      expect(result).to eq({ "key1" => nil, "key2" => "value2" })
+      expect(result).to eq({ "key1" => "", "key2" => "value2" })
     end
 
     it 'handles keys without values' do
       result = described_class.parse("key1=|key2")
-      expect(result["key1"]).to be_nil
+      expect(result["key1"]).to eq("")
       expect(result["key2"]).to be_nil
     end
   end

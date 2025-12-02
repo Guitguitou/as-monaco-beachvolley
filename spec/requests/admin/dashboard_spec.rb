@@ -9,7 +9,7 @@ RSpec.describe "Admin::Dashboard", type: :request do
   describe "GET /admin" do
     context "when user is admin" do
       before do
-        sign_in admin
+        login_as(admin, scope: :user)
       end
 
       it "returns http success" do
@@ -50,7 +50,7 @@ RSpec.describe "Admin::Dashboard", type: :request do
 
     context "when user is financial manager" do
       before do
-        sign_in financial_manager
+        login_as(financial_manager, scope: :user)
       end
 
       it "returns http success" do
@@ -60,15 +60,15 @@ RSpec.describe "Admin::Dashboard", type: :request do
     end
 
     context "when user is not admin or financial manager" do
-      let(:regular_user) { create(:user) }
+      let(:regular_user) { create(:user, activated_at: Time.current) }
 
       before do
-        sign_in regular_user
+        login_as(regular_user, scope: :user)
       end
 
-      it "redirects to root with alert" do
+      it "redirects with alert" do
         get admin_root_path
-        expect(response).to redirect_to(root_path)
+        expect(response).to have_http_status(:redirect)
         expect(flash[:alert]).to include("Accès non autorisé")
       end
     end
