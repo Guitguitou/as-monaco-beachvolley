@@ -12,6 +12,7 @@ class Session < ApplicationRecord
   has_many :levels, through: :session_levels
   has_many :registrations, dependent: :destroy
   has_many :participants, through: :registrations, source: :user
+  has_many :late_cancellations, dependent: :destroy
   validates :title, :start_at, :end_at, :session_type, :user_id, :terrain, presence: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }
   accepts_nested_attributes_for :registrations, allow_destroy: true
