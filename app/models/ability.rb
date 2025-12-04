@@ -46,8 +46,10 @@ class Ability
 
     # Elevated roles
     if (user.coach? || user.responsable?) && !user.disabled?
-      can :manage, Session
-      cannot :cancel, Session  # Only admins can cancel sessions
+      # Give all CRUD actions except cancel
+      can [:read, :create, :update, :destroy], Session
+      # Can only cancel their own sessions
+      can :cancel, Session, user_id: user.id
       can :manage, Registration
     end
   end

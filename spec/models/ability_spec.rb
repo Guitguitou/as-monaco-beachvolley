@@ -193,14 +193,22 @@ RSpec.describe Ability do
       coach_user.update!(activated_at: Time.current)
     end
 
-    it 'can manage sessions' do
+    it 'can perform CRUD operations on sessions' do
       session = create(:session)
-      expect(ability).to be_able_to(:manage, session)
+      expect(ability).to be_able_to(:read, session)
+      expect(ability).to be_able_to(:create, Session)
+      expect(ability).to be_able_to(:update, session)
+      expect(ability).to be_able_to(:destroy, session)
     end
 
-    it 'cannot cancel sessions' do
-      session = create(:session)
-      expect(ability).not_to be_able_to(:cancel, session)
+    it 'can cancel their own sessions' do
+      own_session = create(:session, user: coach_user)
+      expect(ability).to be_able_to(:cancel, own_session)
+    end
+
+    it 'cannot cancel other coaches sessions' do
+      other_session = create(:session)
+      expect(ability).not_to be_able_to(:cancel, other_session)
     end
 
     it 'can manage registrations' do
@@ -219,14 +227,22 @@ RSpec.describe Ability do
       responsable_user.update!(activated_at: Time.current)
     end
 
-    it 'can manage sessions' do
+    it 'can perform CRUD operations on sessions' do
       session = create(:session)
-      expect(ability).to be_able_to(:manage, session)
+      expect(ability).to be_able_to(:read, session)
+      expect(ability).to be_able_to(:create, Session)
+      expect(ability).to be_able_to(:update, session)
+      expect(ability).to be_able_to(:destroy, session)
     end
 
-    it 'cannot cancel sessions' do
-      session = create(:session)
-      expect(ability).not_to be_able_to(:cancel, session)
+    it 'can cancel their own sessions' do
+      own_session = create(:session, user: responsable_user)
+      expect(ability).to be_able_to(:cancel, own_session)
+    end
+
+    it 'cannot cancel other users sessions' do
+      other_session = create(:session)
+      expect(ability).not_to be_able_to(:cancel, other_session)
     end
 
     it 'can manage registrations' do
