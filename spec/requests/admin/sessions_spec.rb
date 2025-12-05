@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-xdescribe "Admin::Sessions", type: :request do
+RSpec.xdescribe "Admin::Sessions", type: :request do
   describe "GET /index" do
     it "returns http success" do
       get "/admin/sessions/index"
