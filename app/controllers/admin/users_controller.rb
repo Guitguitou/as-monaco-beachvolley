@@ -7,53 +7,13 @@ module Admin
     load_and_authorize_resource
     before_action :set_user, only: %i[show edit update adjust_credits disable enable]
 
-    PER_PAGE = 25
-
     def index
-      @users = @users
-
-      # Search by name or email
-      if params[:q].present?
-        query = "%#{params[:q].strip}%"
-        @users = @users.where(
-          User.arel_table[:first_name].matches(query)
-          .or(User.arel_table[:last_name].matches(query))
-          .or(User.arel_table[:email].matches(query))
-        )
-      end
-
-      @users = @users.joins(:levels).where(levels: { gender: params[:gender] }).distinct if params[:gender].present?
-
-      @users = @users.where(license_type: params[:license_type]) if params[:license_type].present?
-
-      # Sorting
-      allowed_sorts = {
-        'name' => ['last_name ASC, first_name ASC', 'last_name DESC, first_name DESC'],
-        'email' => ['email ASC', 'email DESC'],
-        'license_type' => ['license_type ASC', 'license_type DESC']
-      }
-      sort_key = params[:sort].to_s
-      direction = params[:direction] == 'desc' ? 1 : 0
-      @users = if allowed_sorts.key?(sort_key)
-                 @users.order(Arel.sql(allowed_sorts[sort_key][direction]))
-               else
-                 # Default stable ordering for pagination
-                 @users.order(:last_name, :first_name)
-               end
-
-      # Pagination (25 per page)
-      @per_page = PER_PAGE
-      @total_users_count = @users.count
-      @total_pages = (@total_users_count.to_f / @per_page).ceil
-
-      requested_page = params.fetch(:page, 1).to_i
-      @current_page = [requested_page, 1].max
-      # Ensure current page stays within bounds (handle empty collections too)
-      upper_bound = [@total_pages, 1].max
-      @current_page = [@current_page, upper_bound].min
-
-      offset = (@current_page - 1) * @per_page
-      @users = @users.limit(@per_page).offset(offset).includes(:levels)
+      result = UserFilterService.new(@users, params).call
+      @users = result[:users]
+      @per_page = result[:per_page]
+      @total_users_count = result[:total_count]
+      @total_pages = result[:total_pages]
+      @current_page = result[:current_page]
     end
 
     def show
