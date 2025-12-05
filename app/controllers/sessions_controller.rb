@@ -86,28 +86,13 @@ class SessionsController < ApplicationController
   def cancel
     authorize! :cancel, @session
 
-    ActiveRecord::Base.transaction do
-      # Refund all participants for non-private sessions
-      @session.registrations.includes(:user).find_each do |registration|
-        amount = registration.required_credits_for(registration.user)
-        TransactionService.new(registration.user, @session, amount).refund_transaction if amount.positive?
-        registration.destroy!
-      end
+    result = SessionCancellationService.new(@session).call
 
-      # If it's a private coaching, refund the coach for the debit done at creation
-      if @session.coaching_prive?
-        coach_amount = @session.send(:default_price)
-        TransactionService.new(@session.user, @session, coach_amount).refund_transaction if coach_amount.positive?
-      end
-
-      # Detach transactions from this session to avoid FK issues, then destroy
-      CreditTransaction.where(session_id: @session.id).update_all(session_id: nil)
-      @session.destroy!
+    if result[:success]
+      redirect_to sessions_path, notice: "Session annulée et remboursée ✅"
+    else
+      redirect_to session_path(@session), alert: "Erreur lors de l'annulation: #{result[:error]}"
     end
-
-    redirect_to sessions_path, notice: "Session annulée et remboursée ✅"
-  rescue StandardError => e
-    redirect_to session_path(@session), alert: "Erreur lors de l'annulation: #{e.message}"
   end
 
   # Duplicate moved to admin area
