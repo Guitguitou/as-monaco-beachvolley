@@ -16,10 +16,28 @@ class Ability
 
   def delegate_to_specialized_ability
     ability_class = find_ability_class
-    specialized_ability = ability_class.new(user)
-    # Copy rules from specialized ability to this ability
-    specialized_ability.rules.each do |rule|
-      rules << rule
+    # Create a temporary instance to get the abilities definition
+    # Then apply those abilities in this context
+    temp_ability = ability_class.new(user)
+    # Copy rules by re-applying them in this context
+    temp_ability.rules.each do |rule|
+      apply_rule(rule)
+    end
+  end
+
+  def apply_rule(rule)
+    # Re-apply the rule in this ability's context
+    if rule.block
+      can rule.actions, rule.subjects, &rule.block
+    elsif rule.conditions.is_a?(Hash) && !rule.conditions.empty?
+      # Hash conditions like { id: user.id }
+      can rule.actions, rule.subjects, rule.conditions
+    elsif rule.conditions.empty?
+      # No conditions
+      can rule.actions, rule.subjects
+    else
+      # Other condition types - try to apply as hash
+      can rule.actions, rule.subjects, rule.conditions if rule.conditions.is_a?(Hash)
     end
   end
 
