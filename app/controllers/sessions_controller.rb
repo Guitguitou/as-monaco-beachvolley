@@ -13,32 +13,7 @@ class SessionsController < ApplicationController
   end
 
   def show
-    if can?(:manage, Registration)
-      registered_ids = @session.registrations.pluck(:user_id)
-      base = User.where.not(id: registered_ids)
-
-      # Level filter for trainings with specific levels: allow users with any matching level
-      if @session.entrainement? && @session.levels.any?
-        base = base.joins(:user_levels).where(user_levels: { level_id: @session.level_ids }).distinct
-      end
-
-      # Credits filter only for non-private sessions
-      unless @session.coaching_prive?
-        base = base.joins(:balance).where("balances.amount >= ?", @session.price)
-      end
-
-      # Avoid schedule conflicts for confirmed adds
-      if !@session.full?
-        base = base.where.not(
-          id: User
-                .joins(:sessions_registered)
-                .where("sessions.start_at < ? AND sessions.end_at > ?", @session.end_at, @session.start_at)
-                .select(:id)
-        )
-      end
-
-      @candidate_users = base.order(:first_name, :last_name).distinct
-    end
+    @candidate_users = CandidateUsersService.new(@session).call if can?(:manage, Registration)
   end
 
   def new
