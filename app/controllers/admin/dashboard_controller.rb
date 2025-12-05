@@ -58,13 +58,13 @@ module Admin
       
       @revenues = revenue_service.period_revenues
       @coach_salaries = {
-        week: coach_salaries_service.total_for_period(week_range),
-        month: coach_salaries_service.total_for_period(month_range),
-        year: coach_salaries_service.total_for_period(year_range)
+        week: coach_salaries_service.total_for_period(DateRangeService.week_range),
+        month: coach_salaries_service.total_for_period(DateRangeService.month_range),
+        year: coach_salaries_service.total_for_period(DateRangeService.year_range)
       }
       @breakdowns = {
-        sessions: revenue_service.session_breakdown_by_type(month_range),
-        packs: revenue_service.pack_breakdown_by_type(month_range)
+        sessions: revenue_service.session_breakdown_by_type(DateRangeService.month_range),
+        packs: revenue_service.pack_breakdown_by_type(DateRangeService.month_range)
       }
     end
 
@@ -81,9 +81,9 @@ module Admin
       coach_stats_service = Reporting::CoachStats.new
       
       @coach_breakdown = coach_salaries_service.breakdown(
-        week_range: week_range,
-        month_range: month_range,
-        year_range: year_range
+        week_range: DateRangeService.week_range,
+        month_range: DateRangeService.month_range,
+        year_range: DateRangeService.year_range
       )
       
       @upcoming_sessions_by_coach = {}
@@ -114,52 +114,8 @@ module Admin
     end
 
     def filtered_sessions
-      sessions = Session.includes(:registrations, :user, :levels)
-      
-      # Filter by date range using scopes
-      case session_filters[:date_range]
-      when 'week'
-        sessions = sessions.in_week(week_range.begin)
-      when 'month'
-        sessions = sessions.in_month(month_range.begin)
-      when 'year'
-        sessions = sessions.in_year(year_range.begin)
-      end
-      
-      # Filter by session type using scopes
-      case session_filters[:session_type]
-      when 'entrainement'
-        sessions = sessions.trainings
-      when 'jeu_libre'
-        sessions = sessions.free_plays
-      when 'coaching_prive'
-        sessions = sessions.private_coachings
-      end
-      
-      # Filter by coach
-      if session_filters[:coach_id].present?
-        sessions = sessions.where(user_id: session_filters[:coach_id])
-      end
-      
-      sessions.ordered_by_start.limit(50)
+      SessionFilterService.new(Session.all, session_filters).call
     end
 
-    def week_range
-      current_time = Time.current.in_time_zone('Europe/Paris')
-      week_start = current_time.beginning_of_week(:monday)
-      week_start..week_start.end_of_week(:monday)
-    end
-
-    def month_range
-      current_time = Time.current.in_time_zone('Europe/Paris')
-      month_start = current_time.beginning_of_month
-      month_start..month_start.end_of_month
-    end
-
-    def year_range
-      current_time = Time.current.in_time_zone('Europe/Paris')
-      year_start = current_time.beginning_of_year
-      year_start..year_start.end_of_year
-    end
   end
 end

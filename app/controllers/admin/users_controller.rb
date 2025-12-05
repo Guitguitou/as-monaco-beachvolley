@@ -7,53 +7,13 @@ module Admin
     load_and_authorize_resource
     before_action :set_user, only: %i[show edit update adjust_credits disable enable]
 
-    PER_PAGE = 25
-
     def index
-      @users = @users
-
-      # Search by name or email
-      if params[:q].present?
-        query = "%#{params[:q].strip}%"
-        @users = @users.where(
-          User.arel_table[:first_name].matches(query)
-          .or(User.arel_table[:last_name].matches(query))
-          .or(User.arel_table[:email].matches(query))
-        )
-      end
-
-      @users = @users.joins(:levels).where(levels: { gender: params[:gender] }).distinct if params[:gender].present?
-
-      @users = @users.where(license_type: params[:license_type]) if params[:license_type].present?
-
-      # Sorting
-      allowed_sorts = {
-        'name' => ['last_name ASC, first_name ASC', 'last_name DESC, first_name DESC'],
-        'email' => ['email ASC', 'email DESC'],
-        'license_type' => ['license_type ASC', 'license_type DESC']
-      }
-      sort_key = params[:sort].to_s
-      direction = params[:direction] == 'desc' ? 1 : 0
-      @users = if allowed_sorts.key?(sort_key)
-                 @users.order(Arel.sql(allowed_sorts[sort_key][direction]))
-               else
-                 # Default stable ordering for pagination
-                 @users.order(:last_name, :first_name)
-               end
-
-      # Pagination (25 per page)
-      @per_page = PER_PAGE
-      @total_users_count = @users.count
-      @total_pages = (@total_users_count.to_f / @per_page).ceil
-
-      requested_page = params.fetch(:page, 1).to_i
-      @current_page = [requested_page, 1].max
-      # Ensure current page stays within bounds (handle empty collections too)
-      upper_bound = [@total_pages, 1].max
-      @current_page = [@current_page, upper_bound].min
-
-      offset = (@current_page - 1) * @per_page
-      @users = @users.limit(@per_page).offset(offset).includes(:levels)
+      result = UserFilterService.new(@users, params).call
+      @users = result[:users]
+      @per_page = result[:per_page]
+      @total_users_count = result[:total_count]
+      @total_pages = result[:total_pages]
+      @current_page = result[:current_page]
     end
 
     def show
@@ -151,59 +111,23 @@ module Admin
     end
 
     def load_coach_data_for_admin
-      week_range  = Time.zone.today.beginning_of_week..(Time.zone.today.beginning_of_week + 7.days)
-      month_range = Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
-      year_range  = Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
+      coach_data = CoachDataService.new(@user)
+      counts = coach_data.training_counts
+      salaries = coach_data.salaries
 
-      @my_trainings_week_count  = Session.where(user_id: @user.id, session_type: 'entrainement',
-                                                start_at: week_range).count
-      @my_trainings_month_count = Session.where(user_id: @user.id, session_type: 'entrainement',
-                                                start_at: month_range).count
-      @my_trainings_year_count  = Session.where(user_id: @user.id, session_type: 'entrainement',
-                                                start_at: year_range).count
-
-      spt = @user.salary_per_training
-      @my_salary_week  = (@my_trainings_week_count  * spt).to_f
-      @my_salary_month = (@my_trainings_month_count * spt).to_f
-      @my_salary_year  = (@my_trainings_year_count  * spt).to_f
+      @my_trainings_week_count = counts[:week]
+      @my_trainings_month_count = counts[:month]
+      @my_trainings_year_count = counts[:year]
+      @my_salary_week = salaries[:week]
+      @my_salary_month = salaries[:month]
+      @my_salary_year = salaries[:year]
     end
 
     def load_coach_trainings_data_for_admin
-      # Past trainings with details
-      @past_trainings = Session.includes(:levels, :registrations)
-                               .where(user_id: @user.id, session_type: 'entrainement')
-                               .where('start_at < ?', Time.current)
-                               .order(start_at: :desc)
-                               .limit(50)
-
-      # Upcoming trainings
-      @upcoming_trainings = Session.includes(:levels, :registrations)
-                                   .where(user_id: @user.id, session_type: 'entrainement')
-                                   .where('start_at >= ?', Time.current)
-                                   .order(start_at: :asc)
-                                   .limit(20)
-
-      # Monthly salary data for the last 12 months
-      @monthly_salary_data = []
-      12.times do |i|
-        month_start = (Time.current - i.months).beginning_of_month
-        month_end = month_start.end_of_month
-
-        training_count = Session.where(
-          user_id: @user.id,
-          session_type: 'entrainement',
-          start_at: month_start..month_end
-        ).count
-
-        total_salary = training_count * @user.salary_per_training
-
-        @monthly_salary_data << {
-          month_name: month_start.strftime('%B %Y'),
-          training_count:,
-          total_salary:
-        }
-      end
-      @monthly_salary_data.reverse! # Show oldest to newest
+      coach_data = CoachDataService.new(@user)
+      @past_trainings = coach_data.past_trainings
+      @upcoming_trainings = coach_data.upcoming_trainings
+      @monthly_salary_data = coach_data.monthly_salary_data
     end
 
     def user_params
