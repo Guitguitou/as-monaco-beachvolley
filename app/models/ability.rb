@@ -16,7 +16,9 @@ class Ability
 
   def delegate_to_specialized_ability
     ability_class = find_ability_class
-    ability_class.new(user).rules.each do |rule|
+    specialized_ability = ability_class.new(user)
+    # Copy rules from specialized ability to this ability
+    specialized_ability.rules.each do |rule|
       rules << rule
     end
   end
