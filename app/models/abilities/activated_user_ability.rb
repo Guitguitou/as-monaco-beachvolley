@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
+# Permissions for activated users.
+# Full access to sessions, stages, all packs, and registrations.
 module Abilities
-  # Permissions pour les utilisateurs activés
-  # Accès complet aux sessions, stages, packs et inscriptions
   class ActivatedUserAbility < BaseAbility
     protected
 
@@ -12,16 +12,11 @@ module Abilities
       can :read, User, id: user.id
       can :read, Session
       can :read, Stage
-      can :read, Pack # Tous les packs
-      can :buy, Pack  # Peut acheter tous les packs
-
-      # Registrations (sign-up to sessions) - seulement si activé
+      can :read, Pack
+      can :buy, Pack
       can :create, Registration
       can [:destroy], Registration, user_id: user.id
-
-      # View own credit history
       can :read, CreditTransaction, user_id: user.id
     end
   end
 end
-

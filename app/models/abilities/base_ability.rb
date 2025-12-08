@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# Classe de base pour les abilities
-# Suit le pattern Strategy pour séparer les permissions par type d'utilisateur
+# Base class for all specialized abilities.
+# Uses Strategy pattern to separate permissions by user type.
 module Abilities
   class BaseAbility
     include CanCan::Ability
@@ -28,4 +28,3 @@ module Abilities
     end
   end
 end
-

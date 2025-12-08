@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
+# Permissions for admin users.
+# Admins have access to everything.
 module Abilities
-  # Permissions pour les administrateurs
-  # Les admins ont accès à tout
   class AdminAbility < BaseAbility
     protected
 
@@ -11,4 +11,3 @@ module Abilities
     end
   end
 end
-

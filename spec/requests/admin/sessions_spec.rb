@@ -46,7 +46,7 @@ RSpec.xdescribe "Admin::Sessions", type: :request do
 end
 
 # Test for DuplicateSessionService integration
-describe DuplicateSessionService, type: :service do
+RSpec.describe DuplicateSessionService, type: :service do
   let(:admin_user) { create(:user, :admin) }
   let(:session) { create(:session, user: admin_user) }
 
