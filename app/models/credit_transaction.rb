@@ -1,3 +1,11 @@
+# frozen_string_literal: true
+
+# CreditTransaction model representing credit transactions (purchases, payments, refunds).
+#
+# Handles:
+# - Automatic balance updates via callbacks
+# - Transaction types: purchase, training_payment, free_play_payment, private_coaching_payment, refund, manual_adjustment
+# - Incremental balance updates to preserve existing balance baseline
 class CreditTransaction < ApplicationRecord
   belongs_to :user
   belongs_to :session, optional: true
@@ -24,7 +32,6 @@ class CreditTransaction < ApplicationRecord
   private
 
   def apply_amount_delta
-    # Incremental update preserves any pre-existing balance baseline
     user.balance.update!(amount: (user.balance.amount || 0) + amount)
   end
 
@@ -39,5 +46,4 @@ class CreditTransaction < ApplicationRecord
   def apply_amount_destroy_delta
     user.balance.update!(amount: (user.balance.amount || 0) - amount)
   end
-
 end

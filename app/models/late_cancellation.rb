@@ -1,3 +1,8 @@
+# frozen_string_literal: true
+
+# LateCancellation model representing late cancellations of training sessions.
+#
+# Tracks users who cancelled after the cancellation deadline.
 class LateCancellation < ApplicationRecord
   belongs_to :user
   belongs_to :session

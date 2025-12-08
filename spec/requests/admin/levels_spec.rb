@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-xdescribe "Admin::Levels", type: :request do
+RSpec.xdescribe "Admin::Levels", type: :request do
   describe "GET /index" do
     it "returns http success" do
       get "/admin/levels/index"

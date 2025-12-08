@@ -22,10 +22,16 @@ module AsMonacoBeachVolleyApp
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
+    # Time zone configuration
     config.time_zone = "Europe/Paris"
     config.active_record.default_timezone = :local
+
+    # Internationalization configuration
     config.i18n.default_locale = :fr
     config.i18n.load_path += Dir[Rails.root.join("config", "locales", "**", "*.{rb,yml}")]
+    config.i18n.available_locales = [:fr, :en]
+
+    # Eager load paths
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

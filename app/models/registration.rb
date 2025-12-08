@@ -1,15 +1,23 @@
+# frozen_string_literal: true
+
+# Registration model representing a user's registration to a session.
+#
+# Handles:
+# - Registration validations (level, credits, schedule conflicts, session full)
+# - Weekly training limit (one training per week, except current week)
+# - Waitlist management
+# - Deadline bypass for admins/coaches
+# - Private coaching registration control
 class Registration < ApplicationRecord
   belongs_to :user
   belongs_to :session
 
   enum :status, { confirmed: 0, waitlisted: 1 }
 
-  # When true, allows creating registrations for private coachings
-  # even though public registrations are closed for that session type.
+  # Allows creating registrations for private coachings even though public registrations are closed
   attr_accessor :allow_private_coaching_registration
 
-  # When true, allows creating registrations after the registration deadline (17h)
-  # for admins and session coaches.
+  # Allows creating registrations after the registration deadline (17h) for admins and session coaches
   attr_accessor :allow_deadline_bypass
 
   after_initialize do
@@ -24,10 +32,7 @@ class Registration < ApplicationRecord
   validate :weekly_training_limit
 
   def can_register?
-    # Opening rules with 24h priority for competition license
-    # Skip deadline check if allow_deadline_bypass is true (for admins/coaches)
     if allow_deadline_bypass
-      # Check all opening rules except deadline
       open_ok, open_reason = session.registration_open_state_for(user, skip_deadline: true)
     else
       open_ok, open_reason = session.registration_open_state_for(user)
@@ -37,22 +42,21 @@ class Registration < ApplicationRecord
     end
 
     if session.coaching_prive? && !allow_private_coaching_registration
-      errors.add(:base, "Les coachings privés ne sont pas ouverts à l’inscription.")
+      errors.add(:base, "Les coachings privés ne sont pas ouverts à l'inscription.")
     end
 
     unless level_allowed?
-      errors.add(:user, "n’a pas le bon niveau pour cet entraînement")
-      errors.add(:base, "Ce n’est pas ton niveau d'entrainement.")
+      errors.add(:user, "n'a pas le bon niveau pour cet entraînement")
+      errors.add(:base, "Ce n'est pas ton niveau d'entrainement.")
     end
 
-    # Only block on full if trying to confirm, not when waitlisting
     if confirmed? && session.full?
       errors.add(:status, "impossible: session complète")
       errors.add(:base, "Session complète.")
     end
 
     if !enough_credits?
-      errors.add(:user, "n’a pas assez de crédits")
+      errors.add(:user, "n'a pas assez de crédits")
       errors.add(:base, "Pas assez de crédits.")
     end
   end
@@ -61,16 +65,14 @@ class Registration < ApplicationRecord
     open_ok, open_reason = session.registration_open_state_for(user)
     return [false, open_reason] unless open_ok
 
-    return [false, "Les coachings privés ne sont pas ouverts à l’inscription."] if session.coaching_prive? && !allow_private_coaching_registration
+    return [false, "Les coachings privés ne sont pas ouverts à l'inscription."] if session.coaching_prive? && !allow_private_coaching_registration
 
     unless level_allowed?
-      return [false, "Ce n’est pas ton niveau d'entrainement."]
+      return [false, "Ce n'est pas ton niveau d'entrainement."]
     end
 
-    # Only show full message for confirmed registrations
     return [false, "Session complète."] if confirmed? && session.full?
 
-    # Schedule conflict only for confirmed
     if confirmed?
       overlap_exists = user
         .sessions_registered
@@ -91,25 +93,22 @@ class Registration < ApplicationRecord
     user.balance.amount >= required_credits_for(user)
   end
 
+  # Waitlisted users have not paid yet; do not require/refund credits
   def required_credits_for(user)
-    # Waitlisted users have not paid yet; do not require/refund credits
     return 0 if session.coaching_prive? || waitlisted?
     session.price.to_i
   end
 
   def level_allowed?
-    # Only enforce levels for training sessions
     return true unless session.entrainement?
-
-    # If the session accepts all levels (no level specified), allow anyone
     return true if session.levels.empty?
 
-    # Otherwise, user must have at least one level matching the session
     user_level_ids = if user.respond_to?(:levels)
                        user.levels.pluck(:id)
                      else
                        []
                      end
+
     # Backward-compat: consider legacy single level if present
     if user_level_ids.empty? && user.respond_to?(:level_id)
       user_level_ids = [user.level_id].compact
@@ -120,10 +119,8 @@ class Registration < ApplicationRecord
   end
 
   def no_schedule_conflict
-    # Only applies to confirmed registrations; waitlisted users can queue
     return if waitlisted?
 
-    # Overlap: existing.start < new_end AND existing.end > new_start
     overlap_exists = user
       .sessions_registered
       .where("start_at < ? AND end_at > ?", session.end_at, session.start_at)
@@ -138,12 +135,10 @@ class Registration < ApplicationRecord
 
   # Enforce: at most one training (entrainement) per week, except for the current week
   def weekly_training_limit
-    # Only applies to confirmed registrations for training sessions
     return if waitlisted?
     return unless confirmed?
     return unless session&.entrainement?
 
-    # Allow multiple registrations in the current week
     begin
       today_week_start = Time.zone.today.beginning_of_week(:monday)
       session_week_start = session.start_at.in_time_zone.beginning_of_week(:monday).to_date

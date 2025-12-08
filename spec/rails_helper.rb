@@ -22,12 +22,8 @@ require 'view_component/test_helpers'
 # end with _spec.rb. You can configure this pattern with the --pattern
 # option on the command line or in ~/.rspec, .rspec or `.rspec-local`.
 #
-# The following line is provided for convenience purposes. It has the downside
-# of increasing the boot-up time by auto-requiring all files in the support
-# directory. Alternatively, in the individual `*_spec.rb` files, manually
-# require only the support files necessary.
-#
-# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
+# Auto-require all support files for convenience
+Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Ensures that the test database schema matches the current schema file.
 # If there are pending migrations it will invoke `db:test:prepare` to
@@ -74,46 +70,7 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 
-  config.include FactoryBot::Syntax::Methods
+  # Include ActiveSupport::Testing::TimeHelpers for time manipulation in tests
   config.include ActiveSupport::Testing::TimeHelpers
-  
-  # ViewComponent test helpers
-  config.include ViewComponent::TestHelpers, type: :component
-  config.include Capybara::RSpecMatchers, type: :component
-  
-  # Configure Devise for tests
-  config.include Devise::Test::ControllerHelpers, type: :controller
-
-  # Devise helpers for request specs (sign_in, sign_out)
-  config.include Devise::Test::IntegrationHelpers, type: :request
-  config.include Warden::Test::Helpers, type: :request
-  config.include Warden::Test::Helpers, type: :system
-
-  # Setup Devise mapping for controller specs
-  config.before(:each, type: :controller) do
-    @request.env["devise.mapping"] = Devise.mappings[:user] if @request
-  end
-
-  config.after(type: :request) do
-    Warden.test_reset!
-  end
-
-  config.after(type: :system) do
-    Warden.test_reset!
-  end
-
-  # Run JS-enabled browser for system tests
-  config.before(:each, type: :system) do
-    driven_by :selenium, using: :headless_chrome, screen_size: [1400, 1400]
-  end
-
-  # Set default host for all request specs to avoid Host Authorization errors
-  config.before(:each, type: :request) do
-    host! 'test.host'
-  end
 end
 
-# Increase Capybara wait time for JS to settle a bit
-Capybara.default_max_wait_time = 5
-Capybara.app_host = 'http://test.host'
-Capybara.server_host = 'test.host'
