@@ -2,14 +2,14 @@
 
 module Reporting
   class Revenue
-    def initialize(time_zone: 'Europe/Paris')
+    def initialize(time_zone: "Europe/Paris")
       @time_zone = time_zone
       @current_time = Time.current.in_time_zone(@time_zone)
     end
 
     # CA (Chiffre d'Affaires) pour différentes périodes
     def period_revenues
-      Reporting::CacheService.fetch('revenue', 'period_revenues', @current_time.to_date) do
+      Reporting::CacheService.fetch("revenue", "period_revenues", @current_time.to_date) do
         {
           week: revenue_for_period(week_range),
           month: revenue_for_period(month_range),
@@ -22,13 +22,13 @@ module Reporting
     def breakdown_by_purchase_type(period_range)
       # CA des packs de crédits
       credit_packs_revenue = credit_packs_revenue_for_period(period_range)
-      
+
       # CA des licences
       licenses_revenue = licenses_revenue_for_period(period_range)
-      
+
       # CA des stages
       stages_revenue = stages_revenue_for_period(period_range)
-      
+
       {
         credit_packs: credit_packs_revenue,
         licenses: licenses_revenue,
@@ -42,7 +42,7 @@ module Reporting
       purchases = CreditPurchase
         .where(status: :paid, paid_at: period_range)
         .joins(:pack)
-        .group('packs.pack_type')
+        .group("packs.pack_type")
         .sum(:amount_cents)
 
       purchases.transform_values { |cents| cents / 100.0 }
@@ -54,7 +54,7 @@ module Reporting
         .payments
         .joins(:session)
         .where(sessions: { start_at: period_range })
-        .group('sessions.session_type')
+        .group("sessions.session_type")
         .sum(:amount)
 
       # Convertir en montants positifs (les transactions sont négatives)
@@ -65,7 +65,7 @@ module Reporting
     def revenue_evolution
       current_week = revenue_for_period(week_range)
       previous_week = revenue_for_period(previous_week_range)
-      
+
       current_month = revenue_for_period(month_range)
       previous_month = revenue_for_period(previous_month_range)
 
@@ -111,8 +111,8 @@ module Reporting
     end
 
     def revenue_for_period(range)
-      credit_packs_revenue_for_period(range) + 
-      licenses_revenue_for_period(range) + 
+      credit_packs_revenue_for_period(range) +
+      licenses_revenue_for_period(range) +
       stages_revenue_for_period(range)
     end
 

@@ -13,7 +13,7 @@ RSpec.describe PostPaymentFulfillmentJob, type: :job do
   describe '#perform' do
     it 'finds the credit purchase' do
       expect(CreditPurchase).to receive(:find).with(credit_purchase.id).and_return(credit_purchase)
-      
+
       described_class.perform_now(credit_purchase.id)
     end
 
@@ -21,7 +21,7 @@ RSpec.describe PostPaymentFulfillmentJob, type: :job do
       expect(Rails.logger).to receive(:info).with(
         "Payment fulfilled for CreditPurchase ##{credit_purchase.id} - User ##{user.id} received #{credit_purchase.credits} credits"
       )
-      
+
       described_class.perform_now(credit_purchase.id)
     end
 
@@ -32,4 +32,3 @@ RSpec.describe PostPaymentFulfillmentJob, type: :job do
     end
   end
 end
-

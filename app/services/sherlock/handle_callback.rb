@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/services/sherlock/handle_callback.rb
 module Sherlock
   class HandleCallback

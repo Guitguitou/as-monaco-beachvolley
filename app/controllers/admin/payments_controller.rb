@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module Admin
   class PaymentsController < ApplicationController
-    layout 'dashboard'
+    layout "dashboard"
     before_action :authenticate_user!
     before_action :ensure_admin!
 

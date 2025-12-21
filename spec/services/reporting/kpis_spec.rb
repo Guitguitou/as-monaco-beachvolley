@@ -24,22 +24,22 @@ RSpec.describe Reporting::Kpis do
 
     context 'with sessions in the current week' do
       let!(:training_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: week_start + 1.day,
                end_at: week_start + 1.day + 1.5.hours,
                user: coach)
       end
       let!(:free_play_session) do
-        create(:session, 
-               session_type: 'jeu_libre', 
+        create(:session,
+               session_type: 'jeu_libre',
                start_at: week_start + 2.days,
                end_at: week_start + 2.days + 2.hours,
                user: coach)
       end
       let!(:private_coaching_session) do
-        create(:session, 
-               session_type: 'coaching_prive', 
+        create(:session,
+               session_type: 'coaching_prive',
                start_at: week_start + 3.days,
                end_at: week_start + 3.days + 1.hour,
                user: coach)
@@ -64,15 +64,15 @@ RSpec.describe Reporting::Kpis do
       # Note: late_cancellations_count compte par session.start_at, pas par created_at
       let!(:lc_user) { create(:user) }
       let!(:training_session) do
-        create(:session, 
-               session_type: 'entrainement', 
-               start_at: week_start + 1.day, 
+        create(:session,
+               session_type: 'entrainement',
+               start_at: week_start + 1.day,
                end_at: week_start + 1.day + 1.5.hours,
                user: coach)
       end
       let!(:late_cancellation) do
-        create(:late_cancellation, 
-               session: training_session, 
+        create(:late_cancellation,
+               session: training_session,
                user: lc_user,
                created_at: week_start + 1.day)
       end
@@ -85,7 +85,6 @@ RSpec.describe Reporting::Kpis do
         expect(kpis[:late_cancellations_count]).to eq(1)
       end
     end
-
   end
 
 
@@ -96,22 +95,22 @@ RSpec.describe Reporting::Kpis do
 
     context 'with upcoming sessions' do
       let!(:training_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 1.day,
                end_at: current_time + 1.day + 1.5.hours,
                user: coach)
       end
       let!(:free_play_session) do
-        create(:session, 
-               session_type: 'jeu_libre', 
+        create(:session,
+               session_type: 'jeu_libre',
                start_at: current_time + 2.days,
                end_at: current_time + 2.days + 2.hours,
                user: coach)
       end
       let!(:private_coaching_session) do
-        create(:session, 
-               session_type: 'coaching_prive', 
+        create(:session,
+               session_type: 'coaching_prive',
                start_at: current_time + 3.days,
                end_at: current_time + 3.days + 1.hour,
                user: coach)
@@ -142,16 +141,16 @@ RSpec.describe Reporting::Kpis do
 
     context 'with capacity issues' do
       let!(:low_capacity_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 1.day,
                end_at: current_time + 1.day + 1.5.hours,
                user: coach,
                max_players: 10)
       end
       let!(:high_capacity_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 2.days,
                end_at: current_time + 2.days + 1.5.hours,
                user: coach,
@@ -162,7 +161,7 @@ RSpec.describe Reporting::Kpis do
         # Create users with credits for registrations
         users = create_list(:user, 11)
         users.each { |user| create(:balance, user: user, amount: 1000) } # 10€ de crédits
-        
+
         # Create registrations to simulate capacity issues
         2.times { |i| create(:registration, session: low_capacity_session, status: :confirmed, user: users[i]) } # 20% capacity
         9.times { |i| create(:registration, session: high_capacity_session, status: :confirmed, user: users[i + 2]) } # 90% capacity
@@ -199,12 +198,12 @@ RSpec.describe Reporting::Kpis do
     let(:isolated_service) { described_class.new(time_zone: 'Europe/Paris') }
     let(:week_start) { current_time.beginning_of_week(:monday) }
     let(:week_end) { current_time.end_of_week(:monday) }
-    
+
     it 'calculates revenue correctly without other sessions' do
       user = create(:user)
       pack = create(:pack, pack_type: 'credits')
-      purchase = create(:credit_purchase, 
-                        user:, 
+      purchase = create(:credit_purchase,
+                        user:,
                         pack:,
                         amount_cents: 10000, # 100€
                         credits: 10000)

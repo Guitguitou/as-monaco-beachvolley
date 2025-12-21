@@ -1,56 +1,55 @@
 # frozen_string_literal: true
 
+# Main Ability class that delegates to specialized ability classes.
+# Uses Strategy pattern to separate permissions by user type.
 class Ability
   include CanCan::Ability
 
   def initialize(user)
-    user ||= User.new
+    @user = user || User.new
+    delegate_to_specialized_ability
+  end
 
-    if user.admin?
-      can :manage, :all
-      return
+  private
+
+  attr_reader :user
+
+  def delegate_to_specialized_ability
+    ability_class = find_ability_class
+    temp_ability = ability_class.new(user)
+    temp_ability.rules.each do |rule|
+      apply_rule(rule)
     end
+  end
 
-    # Responsable financier : accès limité au dashboard et historique des achats
-    if user.financial_manager?
-      can :read, :admin_dashboard
-      can :read, CreditPurchase
-      return
-    end
+  def apply_rule(rule)
+    return apply_rule_with_block(rule) if rule.block
+    return apply_rule_with_conditions(rule) if rule.conditions.is_a?(Hash) && !rule.conditions.empty?
+    return apply_rule_simple(rule) if rule.conditions.empty?
 
-    # Base permissions for all authenticated users
-    if user.id.present? && !user.disabled?
-      can :read, User, id: user.id
+    apply_rule_with_conditions(rule) if rule.conditions.is_a?(Hash)
+  end
 
-      # Non-activated users: limited access to licenses, stages and infos
-      if !user.activated?
-        can :read, Pack, pack_type: ['licence', 'stage']
-        can :buy, Pack, pack_type: ['licence', 'stage']
-        can :read, Stage
-        # Access to infos pages (handled in routes, no specific permission needed)
-      else
-        # Activated users: full access
-        can :read, Session
-        can :read, Stage
-        can :read, Pack  # Tous les packs
-        can :buy, Pack   # Peut acheter tous les packs
+  def apply_rule_with_block(rule)
+    can rule.actions, rule.subjects, &rule.block
+  end
 
-        # Registrations (sign-up to sessions) - seulement si activé
-        can :create, Registration
-        can [:destroy], Registration, user_id: user.id
+  def apply_rule_with_conditions(rule)
+    can rule.actions, rule.subjects, rule.conditions
+  end
 
-        # View own credit history
-        can :read, CreditTransaction, user_id: user.id
-      end
-    end
+  def apply_rule_simple(rule)
+    can rule.actions, rule.subjects
+  end
 
-    # Elevated roles
-    if (user.coach? || user.responsable?) && !user.disabled?
-      # Give all CRUD actions except cancel
-      can [:read, :create, :update, :destroy], Session
-      # Can only cancel their own sessions
-      can :cancel, Session, user_id: user.id
-      can :manage, Registration
-    end
+  def find_ability_class
+    return Abilities::AdminAbility if user.admin?
+    return Abilities::FinancialManagerAbility if user.financial_manager?
+    return Abilities::CoachAbility if user.coach?
+    return Abilities::ResponsableAbility if user.responsable?
+    return Abilities::ActivatedUserAbility if user.activated?
+    return Abilities::NonActivatedUserAbility if user.id.present?
+
+    Abilities::BaseAbility
   end
 end

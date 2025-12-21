@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source "https://rubygems.org"
 
 ruby "3.2.2"
@@ -49,8 +51,8 @@ gem "thruster", require: false
 gem "view_component", "~> 3.9"
 gem "view_component-contrib"
 gem "devise"
-gem 'lucide-rails'
-gem 'cancancan'
+gem "lucide-rails"
+gem "cancancan"
 
 
 group :development, :test do
@@ -66,6 +68,7 @@ group :development, :test do
   gem "faker"
   gem "shoulda-matchers"
   gem "rubocop-config-captive", "~> 1.10.0"
+  gem "rubocop-rails-omakase"
   gem "rails-controller-testing"
 end
 
@@ -93,4 +96,4 @@ gem "cloudinary"
 gem "activestorage-cloudinary-service"
 
 # Load .env in Rails
-gem "dotenv-rails", groups: [:development, :test]
+gem "dotenv-rails", groups: [ :development, :test ]

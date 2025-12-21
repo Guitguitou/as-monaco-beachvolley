@@ -2,16 +2,16 @@
 
 module Reporting
   class Kpis
-    def initialize(time_zone: 'Europe/Paris')
+    def initialize(time_zone: "Europe/Paris")
       @time_zone = time_zone
       @current_time = Time.current.in_time_zone(@time_zone)
     end
 
     # KPIs pour la semaine en cours (Lun→Dim)
     def week_kpis
-      Reporting::CacheService.fetch('kpis', 'week_kpis', @current_time.to_date) do
+      Reporting::CacheService.fetch("kpis", "week_kpis", @current_time.to_date) do
         week_range = week_start..week_end
-        
+
         {
           trainings_count: trainings_count(week_range),
           free_plays_count: free_plays_count(week_range),
@@ -27,11 +27,11 @@ module Reporting
     # Sessions à venir (7 prochains jours)
     def upcoming_sessions(limit: 7)
       upcoming_range = @current_time..(@current_time + 7.days)
-      
+
       {
-        'entrainement' => upcoming_trainings(upcoming_range, limit),
-        'jeu_libre' => upcoming_free_plays(upcoming_range, limit),
-        'coaching_prive' => upcoming_private_coachings(upcoming_range, limit)
+        "entrainement" => upcoming_trainings(upcoming_range, limit),
+        "jeu_libre" => upcoming_free_plays(upcoming_range, limit),
+        "coaching_prive" => upcoming_private_coachings(upcoming_range, limit)
       }
     end
 
@@ -45,7 +45,7 @@ module Reporting
 
       sessions.select do |session|
         next false unless session.max_players.present?
-        
+
         capacity_ratio = session.registrations.confirmed.count.to_f / session.max_players
         capacity_ratio < 0.4 || capacity_ratio >= 0.9
       end

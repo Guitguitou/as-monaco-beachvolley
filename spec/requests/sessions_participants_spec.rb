@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "Sessions participants sync (public flow)", type: :request do
@@ -21,7 +23,7 @@ RSpec.describe "Sessions participants sync (public flow)", type: :request do
         start_at: 1.hour.from_now.change(sec: 0).strftime('%Y-%m-%dT%H:%M'),
         end_at: 2.hours.from_now.change(sec: 0).strftime('%Y-%m-%dT%H:%M'),
         max_players: 12,
-        participant_ids: [player.id]
+        participant_ids: [ player.id ]
       }
     }
 

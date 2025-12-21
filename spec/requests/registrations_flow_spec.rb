@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe "Registrations flow", type: :request do
   let(:coach) { create(:user, :coach) }
   let(:level) { create(:level) }
   let(:player) { create(:user, level: level) }
-  let(:session_record) { create(:session, session_type: 'entrainement', terrain: 'Terrain 1', user: coach, levels: [level]) }
+  let(:session_record) { create(:session, session_type: 'entrainement', terrain: 'Terrain 1', user: coach, levels: [ level ]) }
 
   before do
     create(:credit_transaction, user: player, amount: 1_000)
@@ -28,7 +30,7 @@ RSpec.describe "Registrations flow", type: :request do
   it 'prevents registration if overlapping with another confirmed session' do
     login_as player, scope: :user
     post session_registrations_path(session_record)
-    overlapping = create(:session, session_type: 'entrainement', terrain: 'Terrain 2', user: coach, levels: [level], start_at: session_record.start_at + 5.minutes, end_at: session_record.end_at + 5.minutes)
+    overlapping = create(:session, session_type: 'entrainement', terrain: 'Terrain 2', user: coach, levels: [ level ], start_at: session_record.start_at + 5.minutes, end_at: session_record.end_at + 5.minutes)
 
     expect {
       post session_registrations_path(overlapping)
@@ -70,7 +72,7 @@ RSpec.describe "Registrations flow", type: :request do
              session_type: 'entrainement',
              terrain: 'Terrain 1',
              user: coach,
-             levels: [level],
+             levels: [ level ],
              start_at: today.change(hour: 19, min: 0), # 19h aujourd'hui
              end_at: today.change(hour: 20, min: 30),
              registration_opens_at: today.change(hour: 9, min: 0))

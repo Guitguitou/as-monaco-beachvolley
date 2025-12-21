@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ApplicationHelper
   def level_badge(level)
     content_tag :span, level.name,
@@ -7,32 +9,32 @@ module ApplicationHelper
 
   def get_session_type_label(session_type)
     labels = {
-      'entrainement' => 'Entraînement',
-      'jeu_libre' => 'Jeu libre',
-      'tournoi' => 'Tournoi',
-      'coaching_prive' => 'Coaching privé'
+      "entrainement" => "Entraînement",
+      "jeu_libre" => "Jeu libre",
+      "tournoi" => "Tournoi",
+      "coaching_prive" => "Coaching privé"
     }
     labels[session_type] || session_type.humanize
   end
 
   def session_type_icon(session_type)
     icons = {
-      'entrainement' => 'dumbbell',
-      'jeu_libre' => 'volleyball',
-      'tournoi' => 'trophy',
-      'coaching_prive' => 'shield-user'
+      "entrainement" => "dumbbell",
+      "jeu_libre" => "volleyball",
+      "tournoi" => "trophy",
+      "coaching_prive" => "shield-user"
     }
-    icons[session_type] || 'volleyball'
+    icons[session_type] || "volleyball"
   end
 
   def get_session_type_classes(session_type)
     classes = {
-      'entrainement' => 'bg-green-100 text-green-800',
-      'jeu_libre' => 'bg-blue-100 text-blue-800',
-      'tournoi' => 'bg-purple-100 text-purple-800',
-      'coaching_prive' => 'bg-orange-100 text-orange-800'
+      "entrainement" => "bg-green-100 text-green-800",
+      "jeu_libre" => "bg-blue-100 text-blue-800",
+      "tournoi" => "bg-purple-100 text-purple-800",
+      "coaching_prive" => "bg-orange-100 text-orange-800"
     }
-    classes[session_type] || 'bg-gray-100 text-gray-800'
+    classes[session_type] || "bg-gray-100 text-gray-800"
   end
 
   def nav_link(name, path, icon:, extra_classes: nil)
@@ -75,16 +77,16 @@ module ApplicationHelper
   # Usage: sortable_link_to("Nom", :name, preserve: { gender: params[:gender], ... })
   def sortable_link_to(title, key, preserve: {})
     current_sort = params[:sort].to_s
-    current_direction = params[:direction] == 'desc' ? 'desc' : 'asc'
-    next_direction = (current_sort == key.to_s && current_direction == 'asc') ? 'desc' : 'asc'
+    current_direction = params[:direction] == "desc" ? "desc" : "asc"
+    next_direction = (current_sort == key.to_s && current_direction == "asc") ? "desc" : "asc"
 
     url_params = preserve.merge(action: :index, sort: key, direction: next_direction, page: 1)
 
     link_to url_params, class: "inline-flex items-center gap-1 hover:text-asmbv-red" do
       concat content_tag(:span, title)
       if current_sort == key.to_s
-        icon_name = current_direction == 'asc' ? 'chevron-up' : 'chevron-down'
-        concat lucide_icon(icon_name, size: 14, class: 'text-gray-600')
+        icon_name = current_direction == "asc" ? "chevron-up" : "chevron-down"
+        concat lucide_icon(icon_name, size: 14, class: "text-gray-600")
       end
     end
   end
@@ -100,11 +102,11 @@ module ApplicationHelper
 
     # Ensure external links open in new tab with security attributes
     html_options ||= {}
-    html_options[:target] = '_blank'
-    html_options[:rel] = 'noopener noreferrer'
-    
+    html_options[:target] = "_blank"
+    html_options[:rel] = "noopener noreferrer"
+
     # Add external link icon if not already present
-    unless html_options[:class]&.include?('no-external-icon')
+    unless html_options[:class]&.include?("no-external-icon")
       name = "#{name} #{lucide_icon('external-link', class: 'inline w-3 h-3 ml-1')}".html_safe
     end
 
@@ -114,7 +116,7 @@ module ApplicationHelper
   # Helper to check if a URL is external
   def external_url?(url)
     return false if url.blank?
-    
+
     begin
       uri = URI.parse(url)
       # Consider it external if it has a different host

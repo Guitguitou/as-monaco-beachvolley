@@ -62,4 +62,3 @@ RSpec.describe "Coach::Trainings", type: :request do
     end
   end
 end
-

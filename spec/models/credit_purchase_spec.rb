@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe CreditPurchase, type: :model do
@@ -11,7 +13,7 @@ RSpec.describe CreditPurchase, type: :model do
       expect(purchase).not_to be_valid
       expect(purchase.errors[:amount_cents]).to be_present
     end
-    
+
     it 'validates currency is present' do
       purchase = CreditPurchase.new(amount_cents: 1000, currency: nil)
       expect(purchase).not_to be_valid
@@ -49,22 +51,22 @@ RSpec.describe CreditPurchase, type: :model do
 
     it 'credits the user account once (idempotent)' do
       purchase = create(:credit_purchase, user:, pack: credits_pack, amount_cents: 1000, credits: 1000)
-      
+
       expect { purchase.credit! }.to change { user.reload.balance&.amount.to_i }.by(1000)
       expect(purchase.reload.status).to eq("paid")
       expect(purchase.paid_at).to be_present
-      
+
       # Idempotence: calling again should not credit twice
       expect { purchase.credit! }.not_to change { user.reload.balance&.amount.to_i }
     end
 
     it 'creates a credit_transaction with type purchase' do
       purchase = create(:credit_purchase, user:, pack: credits_pack, credits: 1000)
-      
+
       expect {
         purchase.credit!
       }.to change { user.credit_transactions.count }.by(1)
-      
+
       transaction = user.credit_transactions.last
       expect(transaction.transaction_type).to eq("purchase")
       expect(transaction.amount).to eq(1000)
@@ -74,9 +76,9 @@ RSpec.describe CreditPurchase, type: :model do
   describe '#mark_as_failed!' do
     it 'marks purchase as failed with reason' do
       purchase = create(:credit_purchase, user:)
-      
+
       purchase.send(:mark_as_failed!, reason: "Card declined")
-      
+
       expect(purchase.status).to eq("failed")
       expect(purchase.failed_at).to be_present
       expect(purchase.sherlock_fields["failure_reason"]).to eq("Card declined")
@@ -86,7 +88,7 @@ RSpec.describe CreditPurchase, type: :model do
   describe '.create_pack_10_eur' do
     it 'creates a 10 EUR pack with 1000 credits' do
       purchase = CreditPurchase.create_pack_10_eur(user: user)
-      
+
       expect(purchase.amount_cents).to eq(1000)
       expect(purchase.currency).to eq("EUR")
       expect(purchase.credits).to eq(1000)
@@ -112,11 +114,11 @@ RSpec.describe CreditPurchase, type: :model do
 
     it 'activates user account when licence is paid' do
       purchase = create(:credit_purchase, user: inactive_user, pack: licence_pack, credits: 0)
-      
+
       expect(inactive_user.activated?).to be false
-      
+
       purchase.credit!
-      
+
       expect(inactive_user.reload.activated?).to be true
       expect(purchase.reload.status).to eq('paid')
     end
@@ -124,10 +126,10 @@ RSpec.describe CreditPurchase, type: :model do
     it 'does not reactivate already activated account' do
       activated_user = create(:user, activated_at: 2.days.ago)
       original_time = activated_user.activated_at
-      
+
       purchase = create(:credit_purchase, user: activated_user, pack: licence_pack, credits: 0)
       purchase.credit!
-      
+
       expect(activated_user.reload.activated_at).to be_within(1.second).of(original_time)
     end
   end

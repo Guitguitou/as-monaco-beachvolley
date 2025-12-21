@@ -34,13 +34,13 @@ RSpec.describe Reporting::Alerts do
     let!(:coach) { create(:user, coach: true) }
     let!(:session) { create(:session, session_type: 'entrainement', start_at: 1.day.from_now, end_at: 1.day.from_now + 1.5.hours, user: coach) }
     let!(:old_cancellation) do
-      create(:late_cancellation, 
-             session: session, 
+      create(:late_cancellation,
+             session: session,
              created_at: current_time - 10.days)
     end
     let!(:recent_cancellation) do
-      create(:late_cancellation, 
-             session: session, 
+      create(:late_cancellation,
+             session: session,
              created_at: current_time - 3.days)
     end
 
@@ -64,24 +64,24 @@ RSpec.describe Reporting::Alerts do
 
     context 'with capacity issues' do
       let!(:low_capacity_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 1.day,
                end_at: current_time + 1.day + 1.5.hours,
                user: coach,
                max_players: 10)
       end
       let!(:high_capacity_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 2.days,
                end_at: current_time + 2.days + 1.5.hours,
                user: coach,
                max_players: 10)
       end
       let!(:normal_capacity_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 3.days,
                end_at: current_time + 3.days + 1.5.hours,
                user: coach,
@@ -111,8 +111,8 @@ RSpec.describe Reporting::Alerts do
 
     context 'with sessions without max_players' do
       let!(:unlimited_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 1.day,
                end_at: current_time + 1.day + 1.5.hours,
                user: coach,
@@ -133,16 +133,16 @@ RSpec.describe Reporting::Alerts do
 
     context 'with low attendance sessions' do
       let!(:low_attendance_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 1.day,
                end_at: current_time + 1.day + 1.5.hours,
                user: coach,
                max_players: 10)
       end
       let!(:normal_attendance_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 2.days,
                end_at: current_time + 2.days + 1.5.hours,
                user: coach,
@@ -152,7 +152,7 @@ RSpec.describe Reporting::Alerts do
       before do
         users_low_att = create_list(:user, 2).each { |u| u.balance.update!(amount: 1000) }
         users_low_att.each { |u| create(:registration, session: low_attendance_session, user: u, status: :confirmed) }
-        
+
         users_normal_att = create_list(:user, 5).each { |u| u.balance.update!(amount: 1000) }
         users_normal_att.each { |u| create(:registration, session: normal_attendance_session, user: u, status: :confirmed) }
       end
@@ -172,22 +172,22 @@ RSpec.describe Reporting::Alerts do
 
     context 'with upcoming sessions' do
       let!(:session1) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 1.day,
                end_at: current_time + 1.day + 1.5.hours,
                user: coach)
       end
       let!(:session2) do
-        create(:session, 
-               session_type: 'jeu_libre', 
+        create(:session,
+               session_type: 'jeu_libre',
                start_at: current_time + 2.days,
                end_at: current_time + 2.days + 2.hours,
                user: coach)
       end
       let!(:future_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 5.days,
                end_at: current_time + 5.days + 1.5.hours,
                user: coach)
@@ -222,21 +222,21 @@ RSpec.describe Reporting::Alerts do
     let!(:coach) { create(:user, coach: true) }
     let!(:session) { create(:session, session_type: 'entrainement', start_at: 1.day.from_now, end_at: 1.day.from_now + 1.5.hours, user: coach, terrain: 'Terrain 1') }
     let!(:late_cancellation_today) do
-      create(:late_cancellation, 
-             session: session, 
+      create(:late_cancellation,
+             session: session,
              created_at: current_time)
     end
     let!(:session_starting_soon) do
-      create(:session, 
-             session_type: 'entrainement', 
+      create(:session,
+             session_type: 'entrainement',
              start_at: current_time + 1.hour,
              end_at: current_time + 1.hour + 1.5.hours,
              user: coach,
              terrain: 'Terrain 2')
     end
     let!(:empty_session) do
-      create(:session, 
-             session_type: 'entrainement', 
+      create(:session,
+             session_type: 'entrainement',
              start_at: current_time + 1.day,
              end_at: current_time + 1.day + 1.5.hours,
              user: coach,

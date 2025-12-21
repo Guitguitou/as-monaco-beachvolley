@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 class CheckoutController < ApplicationController
   # LCL redirige en POST cross-site (pas de token)
-  skip_before_action :verify_authenticity_token, only: [:success, :cancel]
+  skip_before_action :verify_authenticity_token, only: [ :success, :cancel ]
   # Ne force pas la connexion, on affiche juste un message/redirect
-  skip_before_action :authenticate_user!, only: [:success, :cancel]
+  skip_before_action :authenticate_user!, only: [ :success, :cancel ]
 
   def success
     # Optionnel: extraire la référence pour log/debug (Data est posté par LCL)

@@ -42,19 +42,19 @@ RSpec.describe Reporting::CacheService do
     it 'caches the result of the block' do
       freeze_time do
         call_count = 0
-        
+
         # First call should execute the block
         result1 = described_class.fetch('CacheTestService', 'unique_method_name') do
           call_count += 1
           'cached_result'
         end
-        
+
         # Second call should use cached value
         result2 = described_class.fetch('CacheTestService', 'unique_method_name') do
           call_count += 1
           'should_not_be_called'
         end
-        
+
         expect(result1).to eq('cached_result')
         expect(result2).to eq('cached_result')
         expect(call_count).to eq(1)
@@ -65,14 +65,14 @@ RSpec.describe Reporting::CacheService do
       described_class.fetch('TestService', 'test_method') do
         'cached'
       end
-      
+
       travel(Reporting::CacheService::CACHE_DURATION + 1.second) do
         call_count = 0
         described_class.fetch('TestService', 'test_method') do
           call_count += 1
           'new_result'
         end
-        
+
         expect(call_count).to eq(1)
       end
     end
@@ -80,7 +80,7 @@ RSpec.describe Reporting::CacheService do
     it 'uses different keys for different arguments' do
       result1 = described_class.fetch('TestService', 'method', 'arg1') { 'result1' }
       result2 = described_class.fetch('TestService', 'method', 'arg2') { 'result2' }
-      
+
       expect(result1).to eq('result1')
       expect(result2).to eq('result2')
     end
@@ -94,15 +94,15 @@ RSpec.describe Reporting::CacheService do
     it 'clears all reporting cache entries' do
       described_class.fetch('Service1', 'method1') { 'value1' }
       described_class.fetch('Service2', 'method2') { 'value2' }
-      
+
       described_class.clear_all
-      
+
       call_count = 0
       described_class.fetch('Service1', 'method1') do
         call_count += 1
         'new_value'
       end
-      
+
       expect(call_count).to eq(1)
     end
   end
@@ -115,24 +115,23 @@ RSpec.describe Reporting::CacheService do
     it 'clears cache entries for a specific date' do
       today = Date.current
       yesterday = today - 1.day
-      
+
       described_class.fetch('Service', 'method') { 'today_value' }
-      
+
       travel_to(yesterday) do
         described_class.fetch('Service', 'method') { 'yesterday_value' }
       end
-      
+
       described_class.clear_for_date(today)
-      
+
       # Today's cache should be cleared
       call_count = 0
       described_class.fetch('Service', 'method') do
         call_count += 1
         'new_value'
       end
-      
+
       expect(call_count).to eq(1)
     end
   end
 end
-

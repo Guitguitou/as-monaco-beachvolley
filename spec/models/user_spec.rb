@@ -1,324 +1,326 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe User, type: :model do
-  let(:user) { create(:user) }
+  describe "associations" do
+    subject(:user) { create(:user) }
 
-  describe 'associations' do
-    it 'has many user_levels' do
+    it "has many user_levels" do
       expect(user).to respond_to(:user_levels)
+      expect(user.user_levels).to be_a(ActiveRecord::Associations::CollectionProxy)
     end
 
-    it 'has many levels through user_levels' do
+    it "has many levels through user_levels" do
       expect(user).to respond_to(:levels)
+      expect(user.levels).to be_a(ActiveRecord::Associations::CollectionProxy)
     end
 
-    it 'has one balance' do
+    it "has one balance" do
       expect(user).to respond_to(:balance)
+      expect(user.balance).to be_a(Balance)
     end
 
-    it 'has many credit_transactions' do
+    it "has many credit_transactions" do
       expect(user).to respond_to(:credit_transactions)
+      expect(user.credit_transactions).to be_a(ActiveRecord::Associations::CollectionProxy)
     end
 
-    it 'has many credit_purchases' do
+    it "has many credit_purchases" do
       expect(user).to respond_to(:credit_purchases)
+      expect(user.credit_purchases).to be_a(ActiveRecord::Associations::CollectionProxy)
     end
 
-    it 'has many registrations' do
+    it "has many registrations" do
       expect(user).to respond_to(:registrations)
+      expect(user.registrations).to be_a(ActiveRecord::Associations::CollectionProxy)
     end
 
-    it 'has many confirmed_registrations' do
+    it "has many confirmed_registrations" do
       expect(user).to respond_to(:confirmed_registrations)
+      expect(user.confirmed_registrations).to be_a(ActiveRecord::Associations::CollectionProxy)
     end
 
-    it 'has many sessions_registered' do
+    it "has many sessions_registered through confirmed_registrations" do
       expect(user).to respond_to(:sessions_registered)
+      expect(user.sessions_registered).to be_a(ActiveRecord::Associations::CollectionProxy)
     end
   end
 
-  describe 'callbacks' do
-    describe 'after_create' do
-      it 'initializes balance with 0' do
-        new_user = create(:user)
-        expect(new_user.balance).to be_present
-        expect(new_user.balance.amount).to eq(0)
+  describe "callbacks" do
+    describe "after_create :init_balance" do
+      it "creates a balance with amount 0" do
+        user = create(:user)
+        expect(user.balance).to be_present
+        expect(user.balance.amount).to eq(0)
       end
+    end
 
-      it 'applies legacy level assignment if provided' do
+    describe "after_create :apply_legacy_level_assignment" do
+      it "assigns level when provided via level= setter" do
         level = create(:level)
-        new_user = User.create!(
-          email: 'test@example.com',
-          password: 'password123',
-          first_name: 'John',
-          last_name: 'Doe',
-          level:
+        user = User.create!(
+          email: "test@example.com",
+          password: "password123",
+          first_name: "John",
+          last_name: "Doe",
+          level: level
         )
 
-        expect(new_user.levels).to include(level)
-        expect(new_user.level).to eq(level)
+        expect(user.levels).to include(level)
+        expect(user.level).to eq(level)
       end
     end
   end
 
-  describe 'scopes' do
+  describe "scopes" do
     let!(:coach) { create(:user, coach: true, admin: false, responsable: false) }
     let!(:responsable) { create(:user, responsable: true, admin: false, coach: false) }
     let!(:admin) { create(:user, admin: true, coach: false, responsable: false) }
     let!(:regular_user) { create(:user, admin: false, coach: false, responsable: false) }
 
-    describe '.coachs' do
-      it 'returns only coaches' do
-        expect(User.coachs).to include(coach)
-        expect(User.coachs).not_to include(regular_user, responsable, admin)
+    describe ".coachs" do
+      it "returns only users with coach role" do
+        expect(described_class.coachs).to include(coach)
+        expect(described_class.coachs).not_to include(regular_user, responsable, admin)
       end
     end
 
-    describe '.responsables' do
-      it 'returns only responsables' do
-        expect(User.responsables).to include(responsable)
-        expect(User.responsables).not_to include(regular_user, coach, admin)
+    describe ".responsables" do
+      it "returns only users with responsable role" do
+        expect(described_class.responsables).to include(responsable)
+        expect(described_class.responsables).not_to include(regular_user, coach, admin)
       end
     end
 
-    describe '.admins' do
-      it 'returns only admins' do
-        expect(User.admins).to include(admin)
-        expect(User.admins).not_to include(regular_user, coach, responsable)
+    describe ".admins" do
+      it "returns only users with admin role" do
+        expect(described_class.admins).to include(admin)
+        expect(described_class.admins).not_to include(regular_user, coach, responsable)
       end
     end
 
-    describe '.with_enough_credits' do
+    describe ".with_enough_credits" do
+      let(:session) { create(:session, price: 400) }
       let!(:rich_user) { create(:user) }
       let!(:poor_user) { create(:user) }
-      let(:session_record) { create(:session) }  # Default price is 400 for training
 
       before do
-        rich_user.balance.update!(amount: 500)   # More than session price
-        poor_user.balance.update!(amount: 100)   # Less than session price
-        rich_user.reload
-        poor_user.reload
+        rich_user.balance.update!(amount: 500)
+        poor_user.balance.update!(amount: 100)
       end
 
-      it 'returns users with sufficient credits' do
-        result = User.with_enough_credits(session_record)
+      it "returns only users with balance >= session price" do
+        result = described_class.with_enough_credits(session)
 
-        # Verify session price is as expected (default training price)
-        expect(session_record.price).to eq(400)
-
-        # Check that rich_user has enough credits
-        expect(rich_user.balance.amount).to eq(500)
-        expect(rich_user.balance.amount).to be >= session_record.price
-
-        # Check that poor_user doesn't have enough credits
-        expect(poor_user.balance.amount).to eq(100)
-        expect(poor_user.balance.amount).to be < session_record.price
-
-        # Verify the scope includes rich_user and excludes poor_user
-        expect(result.pluck(:id)).to include(rich_user.id)
-        expect(result.pluck(:id)).not_to include(poor_user.id)
-
-        # Verify the scope logic: all returned users have enough credits
-        result.each do |u|
-          expect(u.balance.amount).to be >= session_record.price
-        end
-      end
-    end
-  end
-
-  describe 'Account activation' do
-    describe '#activated?' do
-      it 'returns true when activated_at is present' do
-        user.update!(activated_at: Time.current)
-        expect(user.activated?).to be true
-      end
-
-      it 'returns false when activated_at is nil' do
-        user.update!(activated_at: nil)
-        expect(user.activated?).to be false
+        expect(result).to include(rich_user)
+        expect(result).not_to include(poor_user)
       end
     end
 
-    describe '#activate!' do
-      it 'sets activated_at to current time' do
-        user.update!(activated_at: nil)
-        
-        expect {
-          user.activate!
-        }.to change { user.reload.activated_at }.from(nil)
-
-        expect(user.activated?).to be true
-      end
-
-      it 'does not update if already activated' do
-        original_time = 1.day.ago
-        user.update!(activated_at: original_time)
-
-        user.activate!
-
-        expect(user.reload.activated_at).to be_within(1.second).of(original_time)
-      end
-    end
-
-    describe 'scopes' do
+    describe ".activated" do
       let!(:activated_user) { create(:user, activated_at: Time.current) }
       let!(:not_activated_user) { create(:user, activated_at: nil) }
 
-      describe '.activated' do
-        it 'returns only activated users' do
-          expect(User.activated).to include(activated_user)
-          expect(User.activated).not_to include(not_activated_user)
-        end
-      end
-
-      describe '.not_activated' do
-        it 'returns only non-activated users' do
-          expect(User.not_activated).to include(not_activated_user)
-          expect(User.not_activated).not_to include(activated_user)
-        end
-      end
-    end
-  end
-
-  describe 'Devise authentication with Disableable and Activation' do
-    describe '#active_for_authentication?' do
-      context 'when user is not disabled and activated' do
-        before { user.update!(disabled_at: nil, activated_at: Time.current) }
-
-        it 'returns true' do
-          expect(user.active_for_authentication?).to be true
-        end
-      end
-
-      context 'when user is disabled' do
-        before { user.update!(disabled_at: Time.current, activated_at: Time.current) }
-
-        it 'returns false even if activated' do
-          expect(user.active_for_authentication?).to be false
-        end
-      end
-
-      context 'when user is not activated' do
-        before { user.update!(disabled_at: nil, activated_at: nil) }
-
-        it 'returns true (non-activated users can login with limited access)' do
-          expect(user.active_for_authentication?).to be true
-        end
+      it "returns only users with activated_at set" do
+        expect(described_class.activated).to include(activated_user)
+        expect(described_class.activated).not_to include(not_activated_user)
       end
     end
 
-    describe '#inactive_message' do
-      context 'when user is disabled' do
-        before { user.update!(disabled_at: Time.current, activated_at: Time.current) }
+    describe ".not_activated" do
+      let!(:activated_user) { create(:user, activated_at: Time.current) }
+      let!(:not_activated_user) { create(:user, activated_at: nil) }
 
-        it 'returns :locked' do
-          expect(user.inactive_message).to eq(:locked)
-        end
-      end
-
-      # Note: inactive_message is only called when active_for_authentication? returns false
-      # Since non-activated users can now login (active_for_authentication? = true),
-      # inactive_message is no longer relevant for non-activated users
-
-      context 'when user is activated and not disabled' do
-        before { user.update!(disabled_at: nil, activated_at: Time.current) }
-
-        it 'returns default devise message' do
-          # Devise default behavior
-          expect(user.inactive_message).to be_in([:inactive, nil])
-        end
+      it "returns only users without activated_at" do
+        expect(described_class.not_activated).to include(not_activated_user)
+        expect(described_class.not_activated).not_to include(activated_user)
       end
     end
   end
 
-  describe '#full_name' do
-    it 'returns first and last name concatenated' do
-      user.update!(first_name: 'John', last_name: 'Doe')
-      expect(user.full_name).to eq('John Doe')
+  describe "#activated?" do
+    context "when activated_at is present" do
+      subject(:user) { create(:user, activated_at: Time.current) }
+
+      it { is_expected.to be_activated }
+    end
+
+    context "when activated_at is nil" do
+      subject(:user) { create(:user, activated_at: nil) }
+
+      it { is_expected.not_to be_activated }
     end
   end
 
-  describe '#credit_balance' do
-    it 'returns balance amount' do
-      user.balance.update!(amount: 100)
-      expect(user.credit_balance).to eq(100)
+  describe "#activate!" do
+    subject(:user) { create(:user, activated_at: nil) }
+
+    it "sets activated_at to current time" do
+      expect { user.activate! }.to change { user.reload.activated_at }.from(nil)
+      expect(user).to be_activated
     end
 
-    it 'returns 0 when balance is nil' do
-      user.balance.destroy
-      expect(user.credit_balance).to eq(0)
-    end
+    context "when already activated" do
+      let(:original_time) { 1.day.ago }
 
-    it 'reflects changes from credit transactions' do
-      create(:credit_transaction, user:, amount: 100)
-      create(:credit_transaction, user:, amount: -50)
+      before { user.update!(activated_at: original_time) }
 
-      expect(user.reload.credit_balance).to eq(50)
-      expect(user.balance.amount).to eq(50)
+      it "does not update activated_at" do
+        user.activate!
+        expect(user.reload.activated_at).to be_within(1.second).of(original_time)
+      end
     end
   end
 
-  describe '#level and #level=' do
+  describe "#active_for_authentication?" do
+    context "when user is not disabled and activated" do
+      subject(:user) { create(:user, disabled_at: nil, activated_at: Time.current) }
+
+      it { is_expected.to be_active_for_authentication }
+    end
+
+    context "when user is disabled" do
+      subject(:user) { create(:user, disabled_at: Time.current, activated_at: Time.current) }
+
+      it { is_expected.not_to be_active_for_authentication }
+    end
+
+    context "when user is not activated" do
+      subject(:user) { create(:user, disabled_at: nil, activated_at: nil) }
+
+      it "allows login with limited access" do
+        expect(user).to be_active_for_authentication
+      end
+    end
+  end
+
+  describe "#inactive_message" do
+    context "when user is disabled" do
+      subject(:user) { create(:user, disabled_at: Time.current) }
+
+      it "returns :locked" do
+        expect(user.inactive_message).to eq(:locked)
+      end
+    end
+
+    context "when user is not disabled" do
+      subject(:user) { create(:user, disabled_at: nil) }
+
+      it "returns default devise message" do
+        expect(user.inactive_message).to be_in([ :inactive, nil ])
+      end
+    end
+  end
+
+  describe "#full_name" do
+    subject(:user) { create(:user, first_name: "John", last_name: "Doe") }
+
+    it "returns first and last name concatenated" do
+      expect(user.full_name).to eq("John Doe")
+    end
+  end
+
+  describe "#credit_balance" do
+    subject(:user) { create(:user) }
+
+    context "when balance exists" do
+      before { user.balance.update!(amount: 100) }
+
+      it "returns balance amount" do
+        expect(user.credit_balance).to eq(100)
+      end
+    end
+
+    context "when balance is nil" do
+      before { user.balance.destroy }
+
+      it "returns 0" do
+        expect(user.credit_balance).to eq(0)
+      end
+    end
+
+    context "when credit transactions exist" do
+      before do
+        create(:credit_transaction, user: user, amount: 100)
+        create(:credit_transaction, user: user, amount: -50)
+      end
+
+      it "reflects the sum of transactions" do
+        expect(user.reload.credit_balance).to eq(50)
+      end
+    end
+  end
+
+  describe "#level" do
     let(:level1) { create(:level) }
     let(:level2) { create(:level) }
+    subject(:user) { create(:user) }
 
-    describe '#level' do
-      it 'returns the first level' do
-        user.levels << [level1, level2]
+    context "when user has levels" do
+      before { user.levels << [ level1, level2 ] }
+
+      it "returns the first level" do
         expect(user.level).to eq(level1)
       end
+    end
 
-      it 'returns nil when user has no levels' do
+    context "when user has no levels" do
+      it "returns nil" do
         expect(user.level).to be_nil
       end
     end
+  end
 
-    describe '#level=' do
-      it 'assigns level for legacy compatibility' do
-        new_user = User.new(
-          email: 'legacy@example.com',
-          password: 'password123',
-          first_name: 'Legacy',
-          last_name: 'User'
-        )
-        new_user.level = level1
-        new_user.save!
+  describe "#level=" do
+    let(:level) { create(:level) }
 
-        expect(new_user.reload.levels).to include(level1)
+    it "assigns level for legacy compatibility" do
+      user = User.new(
+        email: "legacy@example.com",
+        password: "password123",
+        first_name: "Legacy",
+        last_name: "User"
+      )
+      user.level = level
+      user.save!
+
+      expect(user.reload.levels).to include(level)
+    end
+  end
+
+  describe "#salary_per_training" do
+    subject(:user) { create(:user, salary_per_training_cents: 2500) }
+
+    it "converts cents to euros" do
+      expect(user.salary_per_training).to eq(25.0)
+    end
+
+    context "when salary_per_training_cents is 0" do
+      before { user.update!(salary_per_training_cents: 0) }
+
+      it "returns 0.0" do
+        expect(user.salary_per_training).to eq(0.0)
       end
     end
   end
 
-  describe 'salary helpers' do
-    describe '#salary_per_training' do
-      it 'converts cents to euros' do
-        user.update!(salary_per_training_cents: 2500)
-        expect(user.salary_per_training).to eq(25.0)
-      end
+  describe "#salary_per_training=" do
+    subject(:user) { create(:user) }
 
-      it 'returns 0 when salary_per_training_cents is 0' do
-        user.update!(salary_per_training_cents: 0)
-        expect(user.salary_per_training).to eq(0.0)
-      end
+    it "converts euros to cents and stores" do
+      user.salary_per_training = 35.50
+      expect(user.salary_per_training_cents).to eq(3550)
     end
 
-    describe '#salary_per_training=' do
-      it 'converts euros to cents and stores' do
-        user.salary_per_training = 35.50
-        expect(user.salary_per_training_cents).to eq(3550)
-      end
+    it "rounds to nearest cent" do
+      user.salary_per_training = 35.556
+      expect(user.salary_per_training_cents).to eq(3556)
+    end
 
-      it 'rounds to nearest cent' do
-        user.salary_per_training = 35.556
-        expect(user.salary_per_training_cents).to eq(3556)
-      end
-
-      it 'handles zero' do
-        user.salary_per_training = 0
-        expect(user.salary_per_training_cents).to eq(0)
-      end
+    it "handles zero" do
+      user.salary_per_training = 0
+      expect(user.salary_per_training_cents).to eq(0)
     end
   end
 end

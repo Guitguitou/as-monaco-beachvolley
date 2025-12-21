@@ -22,7 +22,7 @@ module Admin
     month_range = @current_time.beginning_of_month..@current_time.end_of_month
     # Get all revenue-related transactions (payments and refunds)
     revenue_transactions = CreditTransaction.revenue_transactions.in_period(month_range.first, month_range.last)
-    
+
     # Calculate net revenue: payments (negative amounts) - refunds (positive amounts)
     # Payments are negative, refunds are positive, so we negate the sum to get positive revenue
     monthly_sum = revenue_transactions.sum(:amount)
@@ -131,10 +131,10 @@ module Admin
     # For the weekly table, attribute refunds to the week of the session
     refunds = if period_range.first == week_start && period_range.last == (week_start + 7.days)
                 refunds_for_sessions_period(period_range)
-              else
+    else
                 refunds_for_period(period_range)
-              end
-    
+    end
+
     {
       coach_salaries: coach_salaries,
       refunds: refunds,
@@ -146,9 +146,9 @@ module Admin
     # For weekly breakdown, attribute to session period; otherwise fallback to created_at
     payments = if period_range.first == week_start && period_range.last == (week_start + 7.days)
                  payments_cents_for_sessions_period(period_range)
-               else
+    else
                  CreditTransaction.payments.in_period(period_range.first, period_range.last).sum(:amount)
-               end
+    end
     # Make revenue positive
     -payments
   end
@@ -202,5 +202,5 @@ module Admin
 
     (refunds_with_session + refunds_without_session) / 100.0
   end
-end
+  end
 end

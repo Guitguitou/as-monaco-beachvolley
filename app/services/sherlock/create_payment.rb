@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/services/sherlock/create_payment.rb
 module Sherlock
   class CreatePayment

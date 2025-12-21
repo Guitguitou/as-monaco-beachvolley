@@ -53,4 +53,3 @@ RSpec.describe Sherlock::Gateway do
     end
   end
 end
-

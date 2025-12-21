@@ -33,13 +33,13 @@ RSpec.describe Sherlock::HandleCallback do
           expect {
             service.call
           }.to change { credit_purchase.reload.status }.to("paid")
-          
+
           expect(credit_purchase.paid_at).to be_present
         end
 
         it 'does not credit if already paid' do
           credit_purchase.update!(status: :paid, paid_at: Time.current)
-          
+
           expect {
             service.call
           }.not_to change { credit_purchase.reload.status }
@@ -49,7 +49,7 @@ RSpec.describe Sherlock::HandleCallback do
           expect {
             service.call
           }.to change { credit_purchase.reload.sherlock_fields }
-          
+
           expect(credit_purchase.sherlock_fields["callback"]).to be_present
           expect(credit_purchase.sherlock_fields["received_at"]).to be_present
         end
@@ -58,10 +58,10 @@ RSpec.describe Sherlock::HandleCallback do
       context 'with failed status' do
         it 'marks purchase as failed with error message' do
           service = described_class.new({ reference: "REF-123", status: "failed", errorMessage: "Insufficient funds" })
-          
+
           service.call
           credit_purchase.reload
-          
+
           expect(credit_purchase.status).to eq("failed")
           expect(credit_purchase.failed_at).to be_present
           expect(credit_purchase.sherlock_fields["failure_reason"]).to eq("Insufficient funds")
@@ -69,20 +69,20 @@ RSpec.describe Sherlock::HandleCallback do
 
         it 'uses responseMessage if errorMessage is missing' do
           service = described_class.new({ reference: "REF-123", status: "failed", responseMessage: "Card declined" })
-          
+
           service.call
           credit_purchase.reload
-          
+
           expect(credit_purchase.status).to eq("failed")
           expect(credit_purchase.sherlock_fields["failure_reason"]).to eq("Card declined")
         end
 
         it 'uses default message if no error message provided' do
           service = described_class.new({ reference: "REF-123", status: "failed" })
-          
+
           service.call
           credit_purchase.reload
-          
+
           expect(credit_purchase.status).to eq("failed")
           expect(credit_purchase.sherlock_fields["failure_reason"]).to eq("Unknown error")
         end
@@ -103,7 +103,7 @@ RSpec.describe Sherlock::HandleCallback do
 
         it 'logs a warning and does not change status' do
           expect(Rails.logger).to receive(:warn).with(/Unknown status/)
-          
+
           expect {
             service.call
           }.not_to change { credit_purchase.reload.status }
@@ -134,21 +134,21 @@ RSpec.describe Sherlock::HandleCallback do
       it 'extracts reference from :reference key' do
         params = { reference: "REF-123", status: "paid" }
         service = described_class.new(params)
-        
+
         expect(service.call).to eq(true)
       end
 
       it 'extracts reference from :orderId key' do
         params = { orderId: "REF-123", status: "paid" }
         service = described_class.new(params)
-        
+
         expect(service.call).to eq(true)
       end
 
       it 'extracts reference from :transactionReference key' do
         params = { transactionReference: "REF-123", status: "paid" }
         service = described_class.new(params)
-        
+
         expect(service.call).to eq(true)
       end
     end
@@ -163,7 +163,7 @@ RSpec.describe Sherlock::HandleCallback do
       it 'normalizes "success" to "paid"' do
         params = { reference: "REF-123", status: "success" }
         service = described_class.new(params)
-        
+
         expect {
           service.call
         }.to change { credit_purchase.reload.status }.to("paid")
@@ -172,7 +172,7 @@ RSpec.describe Sherlock::HandleCallback do
       it 'normalizes "authorized" to "paid"' do
         params = { reference: "REF-123", status: "authorized" }
         service = described_class.new(params)
-        
+
         expect {
           service.call
         }.to change { credit_purchase.reload.status }.to("paid")
@@ -181,7 +181,7 @@ RSpec.describe Sherlock::HandleCallback do
       it 'normalizes "00" to "paid"' do
         params = { reference: "REF-123", responseCode: "00" }
         service = described_class.new(params)
-        
+
         expect {
           service.call
         }.to change { credit_purchase.reload.status }.to("paid")
@@ -189,24 +189,24 @@ RSpec.describe Sherlock::HandleCallback do
 
       it 'normalizes "refused" to "failed"' do
         service = described_class.new({ reference: "REF-123", status: "refused" })
-        
+
         service.call
-        
+
         expect(credit_purchase.reload.status).to eq("failed")
       end
 
       it 'normalizes "97" to "failed"' do
         service = described_class.new({ reference: "REF-123", responseCode: "97" })
-        
+
         service.call
-        
+
         expect(credit_purchase.reload.status).to eq("failed")
       end
 
       it 'normalizes "cancelled" to "cancelled"' do
         params = { reference: "REF-123", status: "cancelled" }
         service = described_class.new(params)
-        
+
         expect {
           service.call
         }.to change { credit_purchase.reload.status }.to("cancelled")
@@ -214,9 +214,9 @@ RSpec.describe Sherlock::HandleCallback do
 
       it 'normalizes blank status to "failed"' do
         service = described_class.new({ reference: "REF-123", status: "" })
-        
+
         service.call
-        
+
         expect(credit_purchase.reload.status).to eq("failed")
       end
     end
@@ -237,4 +237,3 @@ RSpec.describe Sherlock::HandleCallback do
     end
   end
 end
-
