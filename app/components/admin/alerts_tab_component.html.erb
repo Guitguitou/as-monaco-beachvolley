@@ -38,7 +38,7 @@
                     <%= link_to cancellation.user&.full_name, admin_user_path(cancellation.user), class: "text-asmbv-red hover:underline" %>
                   </p>
                   <p class="text-xs text-gray-500">
-                    <%= cancellation.session&.title %> - <%= l(cancellation.created_at, format: :short) %>
+                    <%= pluralize(cancellation.cancellations_count, "désinscription hors délai") %> - dernière le <%= l(cancellation.last_cancelled_at, format: :short) %>
                   </p>
                 </div>
                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">

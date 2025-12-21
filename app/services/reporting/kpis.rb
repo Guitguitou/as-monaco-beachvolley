@@ -16,7 +16,7 @@ module Reporting
           trainings_count: trainings_count(week_range),
           free_plays_count: free_plays_count(week_range),
           private_coachings_count: private_coachings_count(week_range),
-          late_cancellations_count: late_cancellations_count(week_range),
+          late_cancellations_count: late_cancellations_count,
           revenue: revenue_for_period(week_range),
           coach_salaries: coach_salaries_for_period(week_range),
           net_profit: net_profit_for_period(week_range)
@@ -95,10 +95,10 @@ module Reporting
       Session.private_coachings_in_range(range.begin, range.end).count
     end
 
-    def late_cancellations_count(range)
-      LateCancellation.joins(:session)
-                      .where(sessions: { start_at: range })
-                      .count
+    def late_cancellations_count(range = nil)
+      scope = LateCancellation.joins(:session)
+      scope = scope.where(sessions: { start_at: range }) if range
+      scope.count
     end
 
     def upcoming_trainings(range, limit)

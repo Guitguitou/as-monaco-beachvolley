@@ -33,28 +33,27 @@ RSpec.describe Reporting::Alerts do
   describe '#late_cancellation_alerts' do
     let!(:coach) { create(:user, coach: true) }
     let!(:session) { create(:session, session_type: 'entrainement', start_at: 1.day.from_now, end_at: 1.day.from_now + 1.5.hours, user: coach) }
-    let!(:old_cancellation) do
-      create(:late_cancellation, 
-             session: session, 
-             created_at: current_time - 10.days)
-    end
-    let!(:recent_cancellation) do
-      create(:late_cancellation, 
-             session: session, 
-             created_at: current_time - 3.days)
+    let!(:other_user) { create(:user) }
+
+    before do
+      2.times { create(:late_cancellation, session: session, user: coach, created_at: current_time - 1.day) }
+      create(:late_cancellation, session: session, user: other_user, created_at: current_time - 2.days)
     end
 
-    it 'returns only recent late cancellations' do
+    it "groups late cancellations by user with counts" do
       alerts = alerts_service.late_cancellation_alerts
 
-      expect(alerts).to include(recent_cancellation)
-      expect(alerts).not_to include(old_cancellation)
+      expect(alerts.first.user).to eq(coach)
+      expect(alerts.first.cancellations_count).to eq(2)
+      expect(alerts.second.user).to eq(other_user)
+      expect(alerts.second.cancellations_count).to eq(1)
     end
 
-    it 'respects the limit parameter' do
+    it "respects the limit parameter on grouped users" do
       alerts = alerts_service.late_cancellation_alerts(limit: 1)
 
       expect(alerts.count).to eq(1)
+      expect(alerts.first.user).to eq(coach)
     end
   end
 

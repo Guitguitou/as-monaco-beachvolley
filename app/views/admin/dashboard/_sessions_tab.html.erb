@@ -181,21 +181,18 @@
           <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
             <div class="flex-1">
               <p class="font-medium text-gray-900">
-                <%= cancellation.user.first_name %> <%= cancellation.user.last_name %>
+                <%= cancellation.user&.first_name %> <%= cancellation.user&.last_name %>
               </p>
               <p class="text-sm text-gray-600">
-                Session: <%= cancellation.session.title %>
+                Nombre de désinscriptions hors délai: <%= cancellation.cancellations_count %>
               </p>
               <p class="text-xs text-gray-500">
-                Annulé le <%= cancellation.created_at.strftime("%d/%m/%Y à %H:%M") %>
+                Dernière annulation le <%= l(cancellation.last_cancelled_at, format: :short) %>
               </p>
             </div>
             <div class="text-right">
               <p class="text-sm text-red-600 font-medium">
                 Hors délai
-              </p>
-              <p class="text-xs text-gray-500">
-                Session: <%= cancellation.session.start_at.strftime("%d/%m à %H:%M") %>
               </p>
             </div>
           </div>

@@ -2,6 +2,13 @@
 
 module Reporting
   class Alerts
+    LateCancellationSummary = Struct.new(
+      :user,
+      :cancellations_count,
+      :last_cancelled_at,
+      keyword_init: true
+    )
+
     def initialize(time_zone: 'Europe/Paris')
       @time_zone = time_zone
       @current_time = Time.current.in_time_zone(@time_zone)
@@ -19,14 +26,22 @@ module Reporting
 
     # Alertes de désinscriptions hors délai
     def late_cancellation_alerts(limit: 20)
-      recent_range = @current_time - 7.days..@current_time
-      
-      LateCancellation
+      grouped = LateCancellation
         .for_trainings
-        .where(created_at: recent_range)
-        .includes(:user, :session)
-        .order(created_at: :desc)
+        .select('late_cancellations.user_id AS user_id, COUNT(*) AS cancellations_count, MAX(late_cancellations.created_at) AS last_cancelled_at')
+        .group('late_cancellations.user_id')
+        .order('cancellations_count DESC, last_cancelled_at DESC')
         .limit(limit)
+
+      users_by_id = User.where(id: grouped.map(&:user_id)).index_by(&:id)
+
+      grouped.map do |row|
+        LateCancellationSummary.new(
+          user: users_by_id[row.user_id],
+          cancellations_count: row.cancellations_count.to_i,
+          last_cancelled_at: row.last_cancelled_at
+        )
+      end
     end
 
     # Alertes de capacité (sessions presque pleines ou en sous-capacité)
@@ -80,7 +95,7 @@ module Reporting
     # Compteurs d'alertes
     def alert_counts
       {
-        late_cancellations: late_cancellation_alerts.count,
+        late_cancellations: LateCancellation.for_trainings.count,
         capacity_alerts: capacity_alerts.count,
         low_attendance: low_attendance_alerts.count,
         upcoming_sessions: upcoming_sessions_alerts.count

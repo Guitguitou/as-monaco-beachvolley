@@ -60,29 +60,40 @@ RSpec.describe Reporting::Kpis do
       end
     end
 
-    context 'with late cancellations' do
-      # Note: late_cancellations_count compte par session.start_at, pas par created_at
+    context "with late cancellations across periods" do
       let!(:lc_user) { create(:user) }
       let!(:training_session) do
-        create(:session, 
-               session_type: 'entrainement', 
-               start_at: week_start + 1.day, 
+        create(:session,
+               session_type: "entrainement",
+               start_at: week_start + 1.day,
                end_at: week_start + 1.day + 1.5.hours,
                user: coach)
       end
       let!(:late_cancellation) do
-        create(:late_cancellation, 
-               session: training_session, 
+        create(:late_cancellation,
+               session: training_session,
                user: lc_user,
                created_at: week_start + 1.day)
       end
+      let!(:past_training_session) do
+        create(:session,
+               session_type: "entrainement",
+               start_at: week_start - 10.days,
+               end_at: week_start - 10.days + 1.5.hours,
+               user: coach)
+      end
+      let!(:past_late_cancellation) do
+        create(:late_cancellation,
+               session: past_training_session,
+               user: lc_user,
+               created_at: week_start - 10.days)
+      end
 
-      it 'counts late cancellations' do
-        # Clear cache to ensure fresh calculation
+      it "counts late cancellations for all periods" do
         Reporting::CacheService.clear_all
         kpis = service.week_kpis
 
-        expect(kpis[:late_cancellations_count]).to eq(1)
+        expect(kpis[:late_cancellations_count]).to eq(2)
       end
     end
 
