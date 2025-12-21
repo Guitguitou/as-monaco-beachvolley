@@ -10,7 +10,7 @@ module Abilities
       super
       return if disabled?
 
-      can [:read, :create, :update, :destroy], Session
+      can [ :read, :create, :update, :destroy ], Session
       can :cancel, Session, user_id: user.id
       can :manage, Registration
     end

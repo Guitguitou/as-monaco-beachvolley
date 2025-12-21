@@ -7,8 +7,8 @@
 # - Stage ordering for players (upcoming/current first, then past)
 # - Coach assignments (main and assistant)
 class Stage < ApplicationRecord
-  belongs_to :main_coach, class_name: 'User', optional: true
-  belongs_to :assistant_coach, class_name: 'User', optional: true
+  belongs_to :main_coach, class_name: "User", optional: true
+  belongs_to :assistant_coach, class_name: "User", optional: true
   has_many :packs, dependent: :nullify
   has_one_attached :image
 
@@ -20,8 +20,8 @@ class Stage < ApplicationRecord
 
   scope :ordered_for_players, -> do
     today = Date.current
-    upcoming_or_current = where('ends_on >= ?', today).order(:starts_on)
-    past = where('ends_on < ?', today).order(starts_on: :desc)
+    upcoming_or_current = where("ends_on >= ?", today).order(:starts_on)
+    past = where("ends_on < ?", today).order(starts_on: :desc)
     upcoming_or_current.to_a + past.to_a
   end
 
@@ -41,6 +41,6 @@ class Stage < ApplicationRecord
 
   def ends_on_after_starts_on
     return if starts_on.blank? || ends_on.blank?
-    errors.add(:ends_on, 'doit être après la date de début') if ends_on < starts_on
+    errors.add(:ends_on, "doit être après la date de début") if ends_on < starts_on
   end
 end

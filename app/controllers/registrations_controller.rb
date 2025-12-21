@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 class RegistrationsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_session, only: [:create, :destroy]
+  before_action :set_session, only: [ :create, :destroy ]
 
   def create
     authorize! :create, Registration

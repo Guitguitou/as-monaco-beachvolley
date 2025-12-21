@@ -7,7 +7,7 @@ RSpec.describe Sherlock::DataParser do
     it 'parses a data string into a hash' do
       data_string = "key1=value1|key2=value2|key3=value3"
       result = described_class.parse(data_string)
-      
+
       expect(result).to eq({
         "key1" => "value1",
         "key2" => "value2",
@@ -52,4 +52,3 @@ RSpec.describe Sherlock::DataParser do
     end
   end
 end
-

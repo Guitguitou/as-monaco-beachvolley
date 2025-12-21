@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'Calendar week persistence across terrain switch', type: :system, js: true do

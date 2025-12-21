@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SherlockCallbackJob < ApplicationJob
   queue_as :default
 
@@ -5,4 +7,3 @@ class SherlockCallbackJob < ApplicationJob
     Sherlock::HandleCallback.new(callback_params).call
   end
 end
-

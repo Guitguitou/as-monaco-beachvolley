@@ -7,4 +7,3 @@ RSpec.configure do |config|
     host! 'test.host'
   end
 end
-

@@ -12,7 +12,7 @@ RSpec.describe SyncParticipantsService, type: :service do
            session_type: 'entrainement',
            terrain: 'Terrain 1',
            user: coach,
-           levels: [level])
+           levels: [ level ])
   end
 
   before do
@@ -23,7 +23,7 @@ RSpec.describe SyncParticipantsService, type: :service do
   describe '#call' do
     context 'when adding participants' do
       it 'adds new participants and creates transactions' do
-        participant_ids = [player1.id, player2.id]
+        participant_ids = [ player1.id, player2.id ]
 
         result = SyncParticipantsService.new(
           session_record,
@@ -42,7 +42,7 @@ RSpec.describe SyncParticipantsService, type: :service do
         # Create a session that's already full
         session_record.update!(max_players: 1)
         create(:registration, user: player1, session: session_record, status: :confirmed)
-        participant_ids = [player2.id]
+        participant_ids = [ player2.id ]
 
         result = SyncParticipantsService.new(
           session_record,
@@ -64,7 +64,7 @@ RSpec.describe SyncParticipantsService, type: :service do
 
       it 'removes participants and refunds transactions' do
         initial_balance = player1.reload.balance.amount
-        participant_ids = [player2.id] # Keep only player2
+        participant_ids = [ player2.id ] # Keep only player2
 
         result = SyncParticipantsService.new(
           session_record,
@@ -85,7 +85,7 @@ RSpec.describe SyncParticipantsService, type: :service do
       end
 
       it 'handles both operations correctly' do
-        participant_ids = [player2.id] # Remove player1, add player2
+        participant_ids = [ player2.id ] # Remove player1, add player2
 
         result = SyncParticipantsService.new(
           session_record,
@@ -100,4 +100,3 @@ RSpec.describe SyncParticipantsService, type: :service do
     end
   end
 end
-

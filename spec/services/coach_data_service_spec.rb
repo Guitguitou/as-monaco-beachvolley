@@ -74,7 +74,7 @@ RSpec.describe CoachDataService, type: :service do
       service = CoachDataService.new(coach)
       past_trainings = service.past_trainings
 
-      expect(past_trainings).to eq([past2, past1])
+      expect(past_trainings).to eq([ past2, past1 ])
     end
   end
 
@@ -92,7 +92,7 @@ RSpec.describe CoachDataService, type: :service do
       service = CoachDataService.new(coach)
       upcoming_trainings = service.upcoming_trainings
 
-      expect(upcoming_trainings).to eq([future1, future2])
+      expect(upcoming_trainings).to eq([ future1, future2 ])
     end
   end
 
@@ -117,4 +117,3 @@ RSpec.describe CoachDataService, type: :service do
     end
   end
 end
-

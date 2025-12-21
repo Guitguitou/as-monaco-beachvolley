@@ -13,7 +13,7 @@ RSpec.describe SessionsController, type: :controller do
            session_type: 'entrainement',
            terrain: 'Terrain 1',
            user: coach,
-           levels: [level],
+           levels: [ level ],
            start_at: 2.days.from_now,
            end_at: 2.days.from_now + 90.minutes)
   end
@@ -30,7 +30,7 @@ RSpec.describe SessionsController, type: :controller do
         allow(controller).to receive(:current_user).and_return(admin)
         allow(controller).to receive(:user_signed_in?).and_return(true)
         allow(controller).to receive(:authenticate_user!).and_return(true)
-        
+
         registration = create(:registration, user: player, session: session_record, status: :confirmed)
         initial_balance = player.reload.balance.amount
 
@@ -49,11 +49,11 @@ RSpec.describe SessionsController, type: :controller do
         allow(controller).to receive(:current_user).and_return(coach)
         allow(controller).to receive(:user_signed_in?).and_return(true)
         allow(controller).to receive(:authenticate_user!).and_return(true)
-        
+
         expect {
           post :cancel, params: { id: session_record.id }
         }.to change { Session.exists?(session_record.id) }.from(true).to(false)
-        
+
         expect(response).to redirect_to(sessions_path)
         expect(flash[:notice]).to include('annulée')
       end
@@ -66,15 +66,15 @@ RSpec.describe SessionsController, type: :controller do
         allow(controller).to receive(:current_user).and_return(other_coach)
         allow(controller).to receive(:user_signed_in?).and_return(true)
         allow(controller).to receive(:authenticate_user!).and_return(true)
-        
+
         expect {
           post :cancel, params: { id: session_record.id }
         }.to raise_error(CanCan::AccessDenied)
-        
+
         expect(Session.exists?(session_record.id)).to be true
       end
     end
-    
+
     context 'when regular user tries to cancel' do
       let(:regular_user) { create(:user, activated_at: Time.current) }
 
@@ -82,7 +82,7 @@ RSpec.describe SessionsController, type: :controller do
         allow(controller).to receive(:current_user).and_return(regular_user)
         allow(controller).to receive(:user_signed_in?).and_return(true)
         allow(controller).to receive(:authenticate_user!).and_return(true)
-        
+
         expect {
           post :cancel, params: { id: session_record.id }
         }.to raise_error(CanCan::AccessDenied)
@@ -90,4 +90,3 @@ RSpec.describe SessionsController, type: :controller do
     end
   end
 end
-

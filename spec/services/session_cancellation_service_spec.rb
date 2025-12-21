@@ -12,7 +12,7 @@ RSpec.describe SessionCancellationService, type: :service do
            session_type: 'entrainement',
            terrain: 'Terrain 1',
            user: coach,
-           levels: [level])
+           levels: [ level ])
   end
 
   before do
@@ -52,7 +52,7 @@ RSpec.describe SessionCancellationService, type: :service do
                session_type: 'coaching_prive',
                terrain: 'Terrain 1',
                user: coach,
-               levels: [level])
+               levels: [ level ])
       end
 
       it 'refunds the coach for the debit done at creation' do
@@ -76,4 +76,3 @@ RSpec.describe SessionCancellationService, type: :service do
     end
   end
 end
-

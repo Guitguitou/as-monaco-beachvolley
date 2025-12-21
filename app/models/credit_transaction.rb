@@ -24,9 +24,9 @@ class CreditTransaction < ApplicationRecord
   after_update_commit :apply_amount_update_delta
   after_destroy_commit :apply_amount_destroy_delta
 
-  scope :payments, -> { where(transaction_type: [transaction_types[:training_payment], transaction_types[:free_play_payment], transaction_types[:private_coaching_payment]]) }
+  scope :payments, -> { where(transaction_type: [ transaction_types[:training_payment], transaction_types[:free_play_payment], transaction_types[:private_coaching_payment] ]) }
   scope :refunds, -> { where(transaction_type: transaction_types[:refund]) }
-  scope :revenue_transactions, -> { where(transaction_type: [transaction_types[:training_payment], transaction_types[:free_play_payment], transaction_types[:private_coaching_payment], transaction_types[:refund]]) }
+  scope :revenue_transactions, -> { where(transaction_type: [ transaction_types[:training_payment], transaction_types[:free_play_payment], transaction_types[:private_coaching_payment], transaction_types[:refund] ]) }
   scope :in_period, ->(start_date, end_date) { where(created_at: start_date..end_date) }
 
   private

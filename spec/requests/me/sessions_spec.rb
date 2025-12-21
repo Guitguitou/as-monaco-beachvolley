@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe "Me::Sessions", type: :request do
   let(:user) { create(:user, activated_at: Time.current) }
   let(:session_record) { create(:session, :jeu_libre) }
-  
+
   before do
     create(:credit_transaction, user: user, amount: 1000)
   end
@@ -23,7 +23,7 @@ RSpec.describe "Me::Sessions", type: :request do
     it "shows upcoming sessions" do
       future_session = create(:session, :jeu_libre, start_at: 1.week.from_now, end_at: 1.week.from_now + 90.minutes)
       create(:registration, user: user, session: future_session, status: :confirmed)
-      
+
       get me_sessions_path
       expect(response).to have_http_status(:success)
     end
@@ -31,7 +31,7 @@ RSpec.describe "Me::Sessions", type: :request do
     it "shows past sessions" do
       past_session = create(:session, :jeu_libre, start_at: 1.week.ago, end_at: 1.week.ago + 90.minutes)
       create(:registration, user: user, session: past_session, status: :confirmed)
-      
+
       get me_sessions_path
       expect(response).to have_http_status(:success)
     end
@@ -47,10 +47,9 @@ RSpec.describe "Me::Sessions", type: :request do
 
     it "only shows sessions the user is registered for" do
       other_session = create(:session, :jeu_libre, terrain: 'Terrain 2')
-      
+
       get me_session_path(other_session)
       expect(response).to have_http_status(:not_found)
     end
   end
 end
-

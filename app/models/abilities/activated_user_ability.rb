@@ -15,7 +15,7 @@ module Abilities
       can :read, Pack
       can :buy, Pack
       can :create, Registration
-      can [:destroy], Registration, user_id: user.id
+      can [ :destroy ], Registration, user_id: user.id
       can :read, CreditTransaction, user_id: user.id
     end
   end

@@ -63,9 +63,9 @@ class Session < ApplicationRecord
   scope :in_week, ->(week_start) { where(start_at: week_start..(week_start + 7.days)) }
   scope :in_month, ->(month_start) { where(start_at: month_start..month_start.end_of_month) }
   scope :in_year, ->(year_start) { where(start_at: year_start..year_start.end_of_year) }
-  scope :trainings, -> { where(session_type: 'entrainement') }
-  scope :free_plays, -> { where(session_type: 'jeu_libre') }
-  scope :private_coachings, -> { where(session_type: 'coaching_prive') }
+  scope :trainings, -> { where(session_type: "entrainement") }
+  scope :free_plays, -> { where(session_type: "jeu_libre") }
+  scope :private_coachings, -> { where(session_type: "coaching_prive") }
   scope :ordered_by_start, -> { order(:start_at) }
   scope :upcoming_trainings, -> { upcoming.trainings.ordered_by_start }
   scope :upcoming_free_plays, -> { upcoming.free_plays.ordered_by_start }
@@ -87,24 +87,24 @@ class Session < ApplicationRecord
   # - 24h priority window for users with competition license
   # - Registration deadline (17h on session day)
   def registration_open_state_for(user, skip_deadline: false)
-    return [true, nil] unless entrainement?
-    return [true, nil] if registration_opens_at.blank?
+    return [ true, nil ] unless entrainement?
+    return [ true, nil ] if registration_opens_at.blank?
 
     now = Time.current
     if now < registration_opens_at
-      return [false, "Les inscriptions ouvrent le #{I18n.l(registration_opens_at, format: :long)}."]
+      return [ false, "Les inscriptions ouvrent le #{I18n.l(registration_opens_at, format: :long)}." ]
     end
 
     within_priority_window = now < (registration_opens_at + PRIORITY_WINDOW_HOURS.hours)
-    if within_priority_window && user&.license_type != 'competition'
-      return [false, "Priorité licence compétition pendant 24h après l'ouverture."]
+    if within_priority_window && user&.license_type != "competition"
+      return [ false, "Priorité licence compétition pendant 24h après l'ouverture." ]
     end
 
     if !skip_deadline && past_registration_deadline?
-      return [false, "Les inscriptions sont closes (limite : 17h le jour de la session)."]
+      return [ false, "Les inscriptions sont closes (limite : 17h le jour de la session)." ]
     end
 
-    [true, nil]
+    [ true, nil ]
   end
 
   def past_registration_deadline?
@@ -137,39 +137,49 @@ class Session < ApplicationRecord
 
   # Promotes the earliest waitlisted user to confirmed if a spot is available
   def promote_from_waitlist!
-    return unless max_players.present?
-    return if registrations.confirmed.count >= max_players
+    return unless can_promote_from_waitlist?
 
     waitlisted_queue = registrations.waitlisted.order(:created_at)
     waitlisted_queue.each do |reg|
-      amount = coaching_prive? ? 0 : price.to_i
-      next unless amount.positive?
-      next unless reg.user.balance.amount >= amount
+      next unless can_promote_registration?(reg)
 
-      promotion_succeeded = false
-      begin
-        ActiveRecord::Base.transaction do
-          reg.status = :confirmed
-          reg.save!
-          TransactionService.new(reg.user, self, amount).create_transaction if amount.positive?
-          promotion_succeeded = true
-        end
-      rescue ActiveRecord::RecordInvalid
-        promotion_succeeded = false
-      end
-
-      break if promotion_succeeded
+      break if promote_registration(reg)
     end
   end
 
   private
+
+  def can_promote_from_waitlist?
+    max_players.present? && registrations.confirmed.count < max_players
+  end
+
+  def can_promote_registration?(reg)
+    amount = required_payment_amount
+    amount.positive? && reg.user.balance.amount >= amount
+  end
+
+  def required_payment_amount
+    coaching_prive? ? 0 : price.to_i
+  end
+
+  def promote_registration(reg)
+    amount = required_payment_amount
+    ActiveRecord::Base.transaction do
+      reg.status = :confirmed
+      reg.save!
+      TransactionService.new(reg.user, self, amount).create_transaction if amount.positive?
+      true
+    end
+  rescue ActiveRecord::RecordInvalid
+    false
+  end
 
   def set_price_from_type
     self.price = default_price
   end
 
   def set_default_registration_opens_at
-    if session_type == 'entrainement'
+    if session_type == "entrainement"
       if registration_opens_at.blank? && start_at.present?
         self.registration_opens_at = start_at - 7.days
       end
@@ -179,7 +189,7 @@ class Session < ApplicationRecord
   end
 
   def set_default_cancellation_deadline
-    return unless session_type == 'entrainement'
+    return unless session_type == "entrainement"
     return if cancellation_deadline_at.present?
     return if start_at.blank?
 

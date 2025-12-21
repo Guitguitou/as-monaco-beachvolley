@@ -3,7 +3,7 @@
 # Service pour calculer les plages de dates courantes
 # Centralise la logique de calcul des ranges pour éviter la duplication
 class DateRangeService
-  TIMEZONE = 'Europe/Paris'.freeze
+  TIMEZONE = "Europe/Paris".freeze
 
   def self.week_range
     current_time = Time.current.in_time_zone(TIMEZONE)
@@ -23,4 +23,3 @@ class DateRangeService
     year_start..year_start.end_of_year
   end
 end
-

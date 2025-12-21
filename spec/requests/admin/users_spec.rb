@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.xdescribe "Admin::Users", type: :request do
@@ -28,5 +30,4 @@ RSpec.xdescribe "Admin::Users", type: :request do
       expect(response).to have_http_status(:success)
     end
   end
-
 end

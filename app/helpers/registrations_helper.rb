@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RegistrationsHelper
   def registration_open_badge(session_record)
     return unless session_record.entrainement? && session_record.registration_opens_at.present?

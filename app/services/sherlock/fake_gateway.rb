@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/services/sherlock/fake_gateway.rb
 module Sherlock
   class FakeGateway < Gateway

@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 class PacksController < ApplicationController
-  before_action :authenticate_user!, except: [:index, :buy]
+  before_action :authenticate_user!, except: [ :index, :buy ]
 
   def index
     # Charger tous les packs actifs
     all_packs = Pack.active.ordered
-    
+
     # CanCanCan filtre selon les permissions (activated? pour credits/stages)
     if user_signed_in?
       accessible_packs = all_packs.select { |pack| can?(:read, pack) }
@@ -12,12 +14,12 @@ class PacksController < ApplicationController
       # Utilisateurs non connectés : tous les packs visibles (achat redirige vers login sauf licences)
       accessible_packs = all_packs
     end
-    
+
     # Regrouper par type
     @credits_packs = accessible_packs.select(&:pack_type_credits?)
     @licence_packs = accessible_packs.select(&:pack_type_licence?)
     @stage_packs = accessible_packs.select(&:pack_type_stage?)
-    
+
     # Afficher la notice si user non activé
     @show_activation_notice = user_signed_in? && !current_user.activated?
     @current_balance = current_user&.balance&.amount || 0
@@ -25,46 +27,12 @@ class PacksController < ApplicationController
 
   def buy
     @pack = Pack.find(params[:id])
-    
-    unless @pack.active?
-      redirect_to packs_path, alert: "Ce pack n'est plus disponible"
-      return
-    end
+    authorize! :buy, @pack if user_signed_in?
 
-    # Vérification des permissions CanCanCan
-    if user_signed_in?
-      authorize! :buy, @pack
-    elsif !@pack.pack_type_licence?
-      # Seules les licences sont achetables sans connexion
-      redirect_to new_user_session_path, alert: "Vous devez être connecté pour acheter ce pack"
-      return
-    end
+    service = PackPurchaseService.new(@pack, current_user)
+    @credit_purchase = service.call
 
-    # Créer le CreditPurchase avec le pack
-    if user_signed_in?
-      @credit_purchase = current_user.credit_purchases.create!(
-        pack: @pack,
-        amount_cents: @pack.amount_cents,
-        currency: 'EUR',
-        credits: @pack.credits || 0, # 0 pour les stages et licences
-        status: :pending
-      )
-    else
-      # Pour les utilisateurs non connectés, créer un achat temporaire
-      @credit_purchase = CreditPurchase.create!(
-        user: nil,
-        pack: @pack,
-        amount_cents: @pack.amount_cents,
-        currency: 'EUR',
-        credits: @pack.credits || 0,
-        status: :pending
-      )
-    end
-
-    # Générer le formulaire HTML de redirection vers la gateway
     payment_html = Sherlock::CreatePayment.new(@credit_purchase).call
-
-    # Rendre le formulaire HTML qui va auto-submit vers Sherlock
     render html: payment_html.html_safe, layout: false, content_type: "text/html"
   rescue StandardError => e
     Rails.logger.error("Payment creation failed: #{e.message}")

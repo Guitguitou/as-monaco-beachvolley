@@ -23,15 +23,23 @@ class Ability
   end
 
   def apply_rule(rule)
-    if rule.block
-      can rule.actions, rule.subjects, &rule.block
-    elsif rule.conditions.is_a?(Hash) && !rule.conditions.empty?
-      can rule.actions, rule.subjects, rule.conditions
-    elsif rule.conditions.empty?
-      can rule.actions, rule.subjects
-    else
-      can rule.actions, rule.subjects, rule.conditions if rule.conditions.is_a?(Hash)
-    end
+    return apply_rule_with_block(rule) if rule.block
+    return apply_rule_with_conditions(rule) if rule.conditions.is_a?(Hash) && !rule.conditions.empty?
+    return apply_rule_simple(rule) if rule.conditions.empty?
+
+    apply_rule_with_conditions(rule) if rule.conditions.is_a?(Hash)
+  end
+
+  def apply_rule_with_block(rule)
+    can rule.actions, rule.subjects, &rule.block
+  end
+
+  def apply_rule_with_conditions(rule)
+    can rule.actions, rule.subjects, rule.conditions
+  end
+
+  def apply_rule_simple(rule)
+    can rule.actions, rule.subjects
   end
 
   def find_ability_class

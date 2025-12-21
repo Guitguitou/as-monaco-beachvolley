@@ -10,8 +10,8 @@ module Abilities
       return if disabled?
 
       can :read, User, id: user.id
-      can :read, Pack, pack_type: ['licence', 'stage']
-      can :buy, Pack, pack_type: ['licence', 'stage']
+      can :read, Pack, pack_type: [ "licence", "stage" ]
+      can :buy, Pack, pack_type: [ "licence", "stage" ]
       can :read, Stage
     end
   end

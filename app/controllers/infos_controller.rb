@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InfosController < ApplicationController
   # Pages d'informations publiques (accessibles connecté ou non)
   # Rassemblent les contenus de l'accueil en sous-pages dédiées

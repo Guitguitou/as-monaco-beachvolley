@@ -14,7 +14,7 @@ RSpec.describe CandidateUsersService, type: :service do
            session_type: 'entrainement',
            terrain: 'Terrain 1',
            user: coach,
-           levels: [level1],
+           levels: [ level1 ],
            price: 100)
   end
 
@@ -55,7 +55,7 @@ RSpec.describe CandidateUsersService, type: :service do
                                 session_type: 'coaching_prive',
                                 terrain: 'Terrain 1',
                                 user: coach,
-                                levels: [level1],
+                                levels: [ level1 ],
                                 price: 1000)
 
       create(:credit_transaction, user: player3, amount: 50)
@@ -71,7 +71,7 @@ RSpec.describe CandidateUsersService, type: :service do
                                    session_type: 'entrainement',
                                    terrain: 'Terrain 2',
                                    user: coach,
-                                   levels: [level1],
+                                   levels: [ level1 ],
                                    start_at: session_record.start_at + 5.minutes,
                                    end_at: session_record.end_at + 5.minutes)
       create(:registration, user: player1, session: overlapping_session, status: :confirmed)
@@ -83,4 +83,3 @@ RSpec.describe CandidateUsersService, type: :service do
     end
   end
 end
-

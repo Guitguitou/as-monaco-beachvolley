@@ -2,7 +2,7 @@
 
 module Admin
   class UsersController < ApplicationController
-    layout 'dashboard'
+    layout "dashboard"
     before_action :authenticate_user!
     load_and_authorize_resource
     before_action :set_user, only: %i[show edit update adjust_credits disable enable]
@@ -19,7 +19,7 @@ module Admin
     def show
       @balance = @user.balance
       @transactions = @user.credit_transactions.order(created_at: :desc)
-      @active_tab = params[:tab] || 'profile'
+      @active_tab = params[:tab] || "profile"
 
       # Load coach data if user is a coach
       return unless @user.coach?
@@ -27,7 +27,7 @@ module Admin
       load_coach_data_for_admin
 
       # Load training data for coaches tab
-      return unless @active_tab == 'trainings'
+      return unless @active_tab == "trainings"
 
       load_coach_trainings_data_for_admin
     end
@@ -42,10 +42,10 @@ module Admin
       @user.password = SecureRandom.hex(8) if @user.password.blank?
 
       # Handle immediate activation checkbox
-      @user.activated_at = Time.current if params[:user][:activate_immediately] == '1'
+      @user.activated_at = Time.current if params[:user][:activate_immediately] == "1"
 
       if @user.save
-        redirect_to admin_user_path(@user), notice: 'Utilisateur créé avec succès'
+        redirect_to admin_user_path(@user), notice: "Utilisateur créé avec succès"
       else
         render :new, status: :unprocessable_entity
       end
@@ -62,15 +62,15 @@ module Admin
       end
 
       # Handle immediate activation checkbox
-      if params[:user][:activate_immediately] == '1' && !@user.activated?
+      if params[:user][:activate_immediately] == "1" && !@user.activated?
         @user.activated_at = Time.current
-      elsif params[:user][:activate_immediately] == '0' && @user.activated?
+      elsif params[:user][:activate_immediately] == "0" && @user.activated?
         # Allow admin to deactivate
         @user.activated_at = nil
       end
 
       if @user.update(sanitized_params)
-        redirect_to admin_user_path(@user), notice: 'Utilisateur mis à jour'
+        redirect_to admin_user_path(@user), notice: "Utilisateur mis à jour"
       else
         render :edit, status: :unprocessable_entity
       end
@@ -79,7 +79,7 @@ module Admin
     def adjust_credits
       amount = params.require(:adjustment).permit(:amount)[:amount].to_i
 
-      redirect_to admin_user_path(@user), alert: 'Montant invalide' and return if amount.zero?
+      redirect_to admin_user_path(@user), alert: "Montant invalide" and return if amount.zero?
 
       CreditTransaction.create!(
         user: @user,
@@ -90,18 +90,18 @@ module Admin
 
       # Le solde est recalculé automatiquement par le callback after_commit
 
-      notice = amount.positive? ? 'Crédits ajoutés avec succès' : 'Crédits déduits avec succès'
+      notice = amount.positive? ? "Crédits ajoutés avec succès" : "Crédits déduits avec succès"
       redirect_to admin_user_path(@user), notice:
     end
 
     def disable
       @user.update!(disabled_at: Time.current)
-      redirect_to admin_user_path(@user), notice: 'Compte désactivé'
+      redirect_to admin_user_path(@user), notice: "Compte désactivé"
     end
 
     def enable
       @user.update!(disabled_at: nil)
-      redirect_to admin_user_path(@user), notice: 'Compte réactivé'
+      redirect_to admin_user_path(@user), notice: "Compte réactivé"
     end
 
     private

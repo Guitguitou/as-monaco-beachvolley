@@ -53,13 +53,13 @@ class UserFilterService
 
   def apply_sorting
     allowed_sorts = {
-      'name' => ['last_name ASC, first_name ASC', 'last_name DESC, first_name DESC'],
-      'email' => ['email ASC', 'email DESC'],
-      'license_type' => ['license_type ASC', 'license_type DESC']
+      "name" => [ "last_name ASC, first_name ASC", "last_name DESC, first_name DESC" ],
+      "email" => [ "email ASC", "email DESC" ],
+      "license_type" => [ "license_type ASC", "license_type DESC" ]
     }
 
     sort_key = @params[:sort].to_s
-    direction = @params[:direction] == 'desc' ? 1 : 0
+    direction = @params[:direction] == "desc" ? 1 : 0
 
     if allowed_sorts.key?(sort_key)
       @users = @users.order(Arel.sql(allowed_sorts[sort_key][direction]))
@@ -74,12 +74,11 @@ class UserFilterService
     @total_pages = (@total_count.to_f / PER_PAGE).ceil
 
     requested_page = @params.fetch(:page, 1).to_i
-    @current_page = [requested_page, 1].max
-    upper_bound = [@total_pages, 1].max
-    @current_page = [@current_page, upper_bound].min
+    @current_page = [ requested_page, 1 ].max
+    upper_bound = [ @total_pages, 1 ].max
+    @current_page = [ @current_page, upper_bound ].min
 
     offset = (@current_page - 1) * PER_PAGE
     @users = @users.limit(PER_PAGE).offset(offset).includes(:levels)
   end
 end
-

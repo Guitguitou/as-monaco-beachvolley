@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class TransactionService
   def initialize(user, session, amount)
     @user = user

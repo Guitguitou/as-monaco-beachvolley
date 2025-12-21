@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/services/sherlock/real_gateway.rb
 require "openssl"
 require "erb"

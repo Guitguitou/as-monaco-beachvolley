@@ -71,24 +71,24 @@ RSpec.describe Admin::OverviewTabComponent, type: :component do
       user
     end
     let!(:training_session) do
-      create(:session, 
-             session_type: 'entrainement', 
+      create(:session,
+             session_type: 'entrainement',
              start_at: 1.day.from_now,
              end_at: 1.day.from_now + 2.hours,
              user: coach,
              title: 'Entraînement Test')
     end
     let!(:free_play_session) do
-      create(:session, 
-             session_type: 'jeu_libre', 
+      create(:session,
+             session_type: 'jeu_libre',
              start_at: 2.days.from_now,
              end_at: 2.days.from_now + 2.hours,
              user: coach,
              title: 'Jeu Libre Test')
     end
     let!(:private_coaching_session) do
-      create(:session, 
-             session_type: 'coaching_prive', 
+      create(:session,
+             session_type: 'coaching_prive',
              start_at: 3.days.from_now,
              end_at: 3.days.from_now + 2.hours,
              user: coach,
@@ -97,9 +97,9 @@ RSpec.describe Admin::OverviewTabComponent, type: :component do
 
     let(:upcoming_sessions) do
       {
-        trainings: [training_session],
-        free_plays: [free_play_session],
-        private_coachings: [private_coaching_session]
+        trainings: [ training_session ],
+        free_plays: [ free_play_session ],
+        private_coachings: [ private_coaching_session ]
       }
     end
 

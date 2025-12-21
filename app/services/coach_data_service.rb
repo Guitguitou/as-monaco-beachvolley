@@ -27,16 +27,16 @@ class CoachDataService
 
   def past_trainings(limit: 50)
     Session.includes(:levels, :registrations)
-           .where(user_id: @user.id, session_type: 'entrainement')
-           .where('start_at < ?', Time.current)
+           .where(user_id: @user.id, session_type: "entrainement")
+           .where("start_at < ?", Time.current)
            .order(start_at: :desc)
            .limit(limit)
   end
 
   def upcoming_trainings(limit: 20)
     Session.includes(:levels, :registrations)
-           .where(user_id: @user.id, session_type: 'entrainement')
-           .where('start_at >= ?', Time.current)
+           .where(user_id: @user.id, session_type: "entrainement")
+           .where("start_at >= ?", Time.current)
            .order(start_at: :asc)
            .limit(limit)
   end
@@ -49,14 +49,14 @@ class CoachDataService
 
       training_count = Session.where(
         user_id: @user.id,
-        session_type: 'entrainement',
+        session_type: "entrainement",
         start_at: month_start..month_end
       ).count
 
       total_salary = training_count * @user.salary_per_training
 
       data << {
-        month_name: month_start.strftime('%B %Y'),
+        month_name: month_start.strftime("%B %Y"),
         training_count: training_count,
         total_salary: total_salary
       }
@@ -69,9 +69,8 @@ class CoachDataService
   def training_count_for_period(range)
     Session.where(
       user_id: @user.id,
-      session_type: 'entrainement',
+      session_type: "entrainement",
       start_at: range
     ).count
   end
 end
-

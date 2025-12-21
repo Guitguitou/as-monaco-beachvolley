@@ -32,31 +32,39 @@ class SyncParticipantsService
 
   def add_participant(user_id, errors)
     user = User.find(user_id)
-    registration = Registration.new(
+    registration = build_registration(user)
+    configure_registration_permissions(registration)
+
+    ActiveRecord::Base.transaction do
+      registration.save!
+      process_payment(registration, user)
+    end
+  rescue StandardError => e
+    errors << "#{user.full_name}: #{registration.errors.full_messages.presence || e.message}"
+  end
+
+  def build_registration(user)
+    Registration.new(
       user: user,
       session: @session,
       status: :confirmed
     )
+  end
 
-    # Allow privileged add for private coachings
-    if @session.coaching_prive? && can_manage_registrations?
-      registration.allow_private_coaching_registration = true
-    end
+  def configure_registration_permissions(registration)
+    registration.allow_private_coaching_registration = true if private_coaching_allowed?
+    registration.allow_deadline_bypass = true if can_bypass_deadline?
+  end
 
-    # Allow admin to bypass registration deadline
-    if can_bypass_deadline?
-      registration.allow_deadline_bypass = true
-    end
+  def private_coaching_allowed?
+    @session.coaching_prive? && can_manage_registrations?
+  end
 
-    ActiveRecord::Base.transaction do
-      registration.save!
-      amount = registration.required_credits_for(user)
-      if amount.positive?
-        TransactionService.new(user, @session, amount).create_transaction
-      end
-    end
-  rescue StandardError => e
-    errors << "#{user.full_name}: #{registration.errors.full_messages.presence || e.message}"
+  def process_payment(registration, user)
+    amount = registration.required_credits_for(user)
+    return unless amount.positive?
+
+    TransactionService.new(user, @session, amount).create_transaction
   end
 
   def remove_participants(user_ids, errors)
@@ -91,4 +99,3 @@ class SyncParticipantsService
     @options[:can_bypass_deadline] || false
   end
 end
-

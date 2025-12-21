@@ -2,7 +2,7 @@
 
 module Admin
   class DashboardTabsComponent < ViewComponent::Base
-    def initialize(active_tab: 'overview')
+    def initialize(active_tab: "overview")
       @active_tab = active_tab
     end
 
@@ -12,18 +12,18 @@ module Admin
 
     def tabs
       [
-        { id: 'overview', name: 'Vue d\'ensemble', icon: '📊' },
-        { id: 'sessions', name: 'Sessions', icon: '🏐' },
-        { id: 'finances', name: 'Finances', icon: '💰' },
-        { id: 'packs', name: 'Packs', icon: '📦' },
-        { id: 'coaches', name: 'Coachs', icon: '👥' },
-        { id: 'alerts', name: 'Alertes', icon: '⚠️' }
+        { id: "overview", name: "Vue d'ensemble", icon: "📊" },
+        { id: "sessions", name: "Sessions", icon: "🏐" },
+        { id: "finances", name: "Finances", icon: "💰" },
+        { id: "packs", name: "Packs", icon: "📦" },
+        { id: "coaches", name: "Coachs", icon: "👥" },
+        { id: "alerts", name: "Alertes", icon: "⚠️" }
       ]
     end
 
     def tab_classes(tab_id)
       base_classes = "px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200"
-      
+
       if tab_id == active_tab
         "#{base_classes} bg-asmbv-red text-white"
       else

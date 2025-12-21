@@ -46,4 +46,3 @@ class SessionCancellationService
     CreditTransaction.where(session_id: @session.id).update_all(session_id: nil)
   end
 end
-

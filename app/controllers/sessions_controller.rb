@@ -3,8 +3,8 @@
 class SessionsController < ApplicationController
   before_action :authenticate_user!
   load_and_authorize_resource
-  before_action :set_session, only: [:show, :edit, :update, :destroy]
-  before_action :set_session_for_cancel, only: [:cancel]
+  before_action :set_session, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_session_for_cancel, only: [ :cancel ]
   before_action :set_session_for_duplicate, only: []
 
   def index
@@ -88,10 +88,10 @@ class SessionsController < ApplicationController
 
   def session_params
     params.require(:session).permit(
-      :title, :description, :start_at, :end_at, 
+      :title, :description, :start_at, :end_at,
       :session_type, :max_players, :terrain, :user_id, :price, :cancellation_deadline_at, :coach_notes,
       participant_ids: [],
-      registrations_attributes: [:id, :user_id, :_destroy],
+      registrations_attributes: [ :id, :user_id, :_destroy ],
       level_ids: []
     )
   end
@@ -103,7 +103,7 @@ class SessionsController < ApplicationController
     sp.delete(:participant_ids)
     if sp[:end_at].blank? && sp[:start_at].present?
       type = sp[:session_type]
-      if ["entrainement", "jeu_libre", "coaching_prive"].include?(type)
+      if [ "entrainement", "jeu_libre", "coaching_prive" ].include?(type)
         begin
           start_time = Time.zone.parse(sp[:start_at].to_s)
           sp[:end_at] = start_time + 90.minutes if start_time
@@ -125,7 +125,7 @@ class SessionsController < ApplicationController
     ).call
 
     if result[:errors].any?
-      flash[:alert] = [flash[:alert], result[:errors].join("; ")].compact.reject(&:blank?).join("; ")
+      flash[:alert] = [ flash[:alert], result[:errors].join("; ") ].compact.reject(&:blank?).join("; ")
     end
   end
 

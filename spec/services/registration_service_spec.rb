@@ -11,7 +11,7 @@ RSpec.describe RegistrationService, type: :service do
            session_type: 'entrainement',
            terrain: 'Terrain 1',
            user: coach,
-           levels: [level])
+           levels: [ level ])
   end
 
   before do
@@ -146,4 +146,3 @@ RSpec.describe RegistrationService, type: :service do
     end
   end
 end
-

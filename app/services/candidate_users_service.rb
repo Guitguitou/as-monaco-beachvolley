@@ -40,4 +40,3 @@ class CandidateUsersService
     )
   end
 end
-

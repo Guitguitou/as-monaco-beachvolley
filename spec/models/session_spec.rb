@@ -121,7 +121,7 @@ RSpec.describe Session, type: :model do
   describe "#display_name" do
     context "when session_type is entrainement" do
       let(:level) { create(:level, name: "A", gender: "male") }
-      subject(:session) { create(:session, session_type: "entrainement", title: "Training", levels: [level]) }
+      subject(:session) { create(:session, session_type: "entrainement", title: "Training", levels: [ level ]) }
 
       it "includes title and levels" do
         expect(session.display_name).to include("Training")
@@ -299,8 +299,8 @@ RSpec.describe Session, type: :model do
         session_3 = create(:session, session_type: "entrainement", start_at: current_time + 2.days + 10.hours,
                            end_at: current_time + 2.days + 12.hours, user: coach, terrain: "Terrain 3")
 
-        result = described_class.where(id: [session_1.id, session_2.id, session_3.id]).ordered_by_start
-        expect(result.to_a).to eq([session_2, session_3, session_1])
+        result = described_class.where(id: [ session_1.id, session_2.id, session_3.id ]).ordered_by_start
+        expect(result.to_a).to eq([ session_2, session_3, session_1 ])
       end
     end
   end

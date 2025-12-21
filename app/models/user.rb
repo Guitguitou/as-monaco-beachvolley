@@ -23,7 +23,7 @@ class User < ApplicationRecord
   has_many :credit_transactions, dependent: :destroy
   has_many :credit_purchases, dependent: :destroy
   has_many :registrations, dependent: :destroy
-  has_many :confirmed_registrations, -> { where(status: Registration.statuses[:confirmed]) }, class_name: 'Registration'
+  has_many :confirmed_registrations, -> { where(status: Registration.statuses[:confirmed]) }, class_name: "Registration", inverse_of: :user
   has_many :sessions_registered, through: :confirmed_registrations, source: :session
 
   after_create :init_balance
@@ -38,7 +38,7 @@ class User < ApplicationRecord
   scope :gender, ->(g) { joins(:levels).where(levels: { gender: g }) }
   scope :with_license, ->(lic) { where(license_type: lic) }
   scope :with_enough_credits, lambda { |session_record|
-    joins(:balance).where('balances.amount >= ?', session_record.price)
+    joins(:balance).where("balances.amount >= ?", session_record.price)
   }
 
   # Prevent login when account is disabled.

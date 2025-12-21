@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Level < ApplicationRecord
   has_many :users
   has_many :user_levels, dependent: :destroy

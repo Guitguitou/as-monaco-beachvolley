@@ -12,32 +12,43 @@ class RegistrationService
   def create(waitlist: false)
     check_registration_deadline! unless can_bypass_deadline?
 
-    registration = Registration.new(
-      user: @user,
-      session: @session,
-      status: waitlist ? :waitlisted : :confirmed
-    )
-
-    registration.allow_private_coaching_registration = true if can_register_private_coaching?
-    registration.allow_deadline_bypass = true if can_bypass_deadline?
+    registration = build_registration(waitlist)
+    configure_registration_permissions(registration)
 
     ActiveRecord::Base.transaction do
       registration.save!
-      amount = registration.required_credits_for(@user)
-      if amount.positive? && registration.confirmed?
-        TransactionService.new(@user, @session, amount).create_transaction
-      end
+      process_payment(registration) if registration.confirmed?
     end
 
     { success: true, registration: registration }
   rescue StandardError => e
-    error_message = registration&.errors&.full_messages&.presence || [e.message]
+    error_message = registration&.errors&.full_messages&.presence || [ e.message ]
     { success: false, errors: error_message }
+  end
+
+  def build_registration(waitlist)
+    Registration.new(
+      user: @user,
+      session: @session,
+      status: waitlist ? :waitlisted : :confirmed
+    )
+  end
+
+  def configure_registration_permissions(registration)
+    registration.allow_private_coaching_registration = true if can_register_private_coaching?
+    registration.allow_deadline_bypass = true if can_bypass_deadline?
+  end
+
+  def process_payment(registration)
+    amount = registration.required_credits_for(@user)
+    return unless amount.positive?
+
+    TransactionService.new(@user, @session, amount).create_transaction
   end
 
   def destroy
     registration = find_registration
-    return { success: false, errors: ["Tu n'es pas inscrit."] } unless registration
+    return { success: false, errors: [ "Tu n'es pas inscrit." ] } unless registration
 
     check_session_ended! unless can_bypass_session_end?
 
@@ -56,7 +67,7 @@ class RegistrationService
     notice_msg = build_notice_message(amount, refundable)
     { success: true, notice: notice_msg }
   rescue StandardError => e
-    { success: false, errors: ["Erreur lors de la désinscription: #{e.message}"] }
+    { success: false, errors: [ "Erreur lors de la désinscription: #{e.message}" ] }
   end
 
   private
@@ -120,4 +131,3 @@ class RegistrationService
     @options[:can_bypass_session_end] || false
   end
 end
-

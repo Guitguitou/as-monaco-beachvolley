@@ -10,7 +10,7 @@ class LateCancellation < ApplicationRecord
   validates :user_id, presence: true
   validates :session_id, presence: true
 
-  scope :for_trainings, -> { joins(:session).where(sessions: { session_type: 'entrainement' }) }
+  scope :for_trainings, -> { joins(:session).where(sessions: { session_type: "entrainement" }) }
   scope :recent, ->(limit = 50) { order(created_at: :desc).limit(limit) }
   scope :with_associations, -> { includes(:user, :session) }
 end

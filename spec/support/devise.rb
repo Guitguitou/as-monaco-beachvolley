@@ -24,4 +24,3 @@ RSpec.configure do |config|
     Warden.test_reset!
   end
 end
-

@@ -7,7 +7,7 @@ RSpec.describe Registration, type: :model do
   let(:user) { create(:user, level: level) }
   let(:tomorrow_7pm) { (Time.current + 1.day).change(hour: 19, min: 0) }
   let(:session) do
-    create(:session, session_type: "entrainement", levels: [level], terrain: "Terrain 1",
+    create(:session, session_type: "entrainement", levels: [ level ], terrain: "Terrain 1",
                      start_at: tomorrow_7pm, end_at: tomorrow_7pm + 1.5.hours)
   end
 
@@ -69,7 +69,7 @@ RSpec.describe Registration, type: :model do
     describe "schedule conflict validation" do
       context "when overlapping with another confirmed session" do
         let(:other_session) do
-          create(:session, session_type: "entrainement", levels: [level], terrain: "Terrain 2",
+          create(:session, session_type: "entrainement", levels: [ level ], terrain: "Terrain 2",
                           start_at: tomorrow_7pm + 10.minutes, end_at: tomorrow_7pm + 1.5.hours + 10.minutes)
         end
 
@@ -104,11 +104,11 @@ RSpec.describe Registration, type: :model do
     context "when multiple trainings in current week" do
       let(:s1) do
         create(:session, session_type: "entrainement", start_at: monday.change(hour: 10),
-                        end_at: monday.change(hour: 11), terrain: "Terrain 1", levels: [level])
+                        end_at: monday.change(hour: 11), terrain: "Terrain 1", levels: [ level ])
       end
       let(:s2) do
         create(:session, session_type: "entrainement", start_at: monday.change(hour: 18),
-                        end_at: monday.change(hour: 19), terrain: "Terrain 2", levels: [level])
+                        end_at: monday.change(hour: 19), terrain: "Terrain 2", levels: [ level ])
       end
 
       before do
@@ -124,12 +124,12 @@ RSpec.describe Registration, type: :model do
     context "when second training in non-current week" do
       let(:s1) do
         create(:session, session_type: "entrainement", start_at: next_week_monday.change(hour: 10),
-                        end_at: next_week_monday.change(hour: 11), terrain: "Terrain 1", levels: [level],
+                        end_at: next_week_monday.change(hour: 11), terrain: "Terrain 1", levels: [ level ],
                         registration_opens_at: next_week_monday.change(hour: 0) - 8.days)
       end
       let(:s2) do
         create(:session, session_type: "entrainement", start_at: next_week_monday.change(hour: 18),
-                        end_at: next_week_monday.change(hour: 19), terrain: "Terrain 2", levels: [level],
+                        end_at: next_week_monday.change(hour: 19), terrain: "Terrain 2", levels: [ level ],
                         registration_opens_at: next_week_monday.change(hour: 0) - 8.days)
       end
 

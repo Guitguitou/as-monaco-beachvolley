@@ -1,45 +1,20 @@
 # frozen_string_literal: true
 
-# Service pour filtrer les sessions selon différents critères
-# Extrait la logique métier depuis Admin::DashboardController
+# Service to filter sessions based on various criteria
 class SessionFilterService
-  def initialize(sessions, filters)
-    @sessions = sessions.includes(:registrations, :user, :levels)
+  def initialize(sessions_scope, filters)
+    @sessions = sessions_scope
     @filters = filters
   end
 
   def call
-    apply_date_range_filter
-    apply_session_type_filter
     apply_coach_filter
-    apply_limit
-
-    @sessions
+    apply_period_filter
+    apply_date_range_filter
+    @sessions.order(start_at: :desc)
   end
 
   private
-
-  def apply_date_range_filter
-    case @filters[:date_range]
-    when 'week'
-      @sessions = @sessions.in_week(week_range.begin)
-    when 'month'
-      @sessions = @sessions.in_month(month_range.begin)
-    when 'year'
-      @sessions = @sessions.in_year(year_range.begin)
-    end
-  end
-
-  def apply_session_type_filter
-    case @filters[:session_type]
-    when 'entrainement'
-      @sessions = @sessions.trainings
-    when 'jeu_libre'
-      @sessions = @sessions.free_plays
-    when 'coaching_prive'
-      @sessions = @sessions.private_coachings
-    end
-  end
 
   def apply_coach_filter
     return unless @filters[:coach_id].present?
@@ -47,20 +22,44 @@ class SessionFilterService
     @sessions = @sessions.where(user_id: @filters[:coach_id])
   end
 
-  def apply_limit
-    @sessions = @sessions.ordered_by_start.limit(50)
+  def apply_period_filter
+    return if @filters[:period].blank?
+
+    range = period_range(@filters[:period])
+    @sessions = @sessions.where(start_at: range) if range
   end
 
-  def week_range
-    DateRangeService.week_range
+  def apply_date_range_filter
+    return if @filters[:period].present?
+
+    from = parse_time(@filters[:start_at_from])
+    to = parse_time(@filters[:start_at_to])
+
+    if from && to
+      @sessions = @sessions.where(start_at: from..to)
+    elsif from
+      @sessions = @sessions.where("start_at >= ?", from)
+    elsif to
+      @sessions = @sessions.where("start_at <= ?", to)
+    end
   end
 
-  def month_range
-    DateRangeService.month_range
+  def period_range(period)
+    case period
+    when "week"
+      Time.zone.today.beginning_of_week..(Time.zone.today.beginning_of_week + 7.days)
+    when "month"
+      Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
+    when "year"
+      Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
+    end
   end
 
-  def year_range
-    DateRangeService.year_range
+  def parse_time(time_string)
+    return nil unless time_string.presence
+
+    Time.zone.parse(time_string)
+  rescue ArgumentError
+    nil
   end
 end
-

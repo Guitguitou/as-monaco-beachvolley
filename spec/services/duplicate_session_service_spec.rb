@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe DuplicateSessionService do
   let(:user) { create(:user) }
   let(:level) { create(:level) }
   let(:session) do
-    create(:session, 
+    create(:session,
            user: user,
            start_at: 1.week.from_now,
            end_at: 1.week.from_now + 90.minutes,
@@ -17,7 +19,7 @@ RSpec.describe DuplicateSessionService do
     create(:balance, user: user, amount: 2000)
     # Ensure user has the required level
     create(:user_level, user: user, level: level)
-    session.level_ids = [level.id]
+    session.level_ids = [ level.id ]
   end
 
   describe '#initialize' do
@@ -45,10 +47,10 @@ RSpec.describe DuplicateSessionService do
 
       it 'creates sessions with correct time shifts' do
         result = described_class.new(session, 2).call
-        
+
         expect(result[:success]).to be true
         created_sessions = result[:created_sessions]
-        
+
         expect(created_sessions[0].start_at).to eq(session.start_at + 1.week)
         expect(created_sessions[0].end_at).to eq(session.end_at + 1.week)
         expect(created_sessions[1].start_at).to eq(session.start_at + 2.weeks)
@@ -57,10 +59,10 @@ RSpec.describe DuplicateSessionService do
 
       it 'copies level associations' do
         result = described_class.new(session, 1).call
-        
+
         expect(result[:success]).to be true
         duplicated_session = result[:created_sessions].first
-        
+
         expect(duplicated_session.level_ids).to eq(session.level_ids)
         expect(duplicated_session.levels).to eq(session.levels)
       end
@@ -69,29 +71,29 @@ RSpec.describe DuplicateSessionService do
         # Skip this test for now as registration validation is complex
         # and not essential for testing the duplication logic
         result = described_class.new(session, 1).call
-        
+
         expect(result[:success]).to be true
         duplicated_session = result[:created_sessions].first
-        
+
         expect(duplicated_session.registrations).to be_empty
       end
 
       it 'shifts cancellation deadline and registration opens dates' do
         result = described_class.new(session, 1).call
-        
+
         expect(result[:success]).to be true
         duplicated_session = result[:created_sessions].first
-        
+
         expect(duplicated_session.cancellation_deadline_at).to eq(session.cancellation_deadline_at + 1.week)
         expect(duplicated_session.registration_opens_at).to eq(session.registration_opens_at + 1.week)
       end
 
       it 'preserves other attributes' do
         result = described_class.new(session, 1).call
-        
+
         expect(result[:success]).to be true
         duplicated_session = result[:created_sessions].first
-        
+
         expect(duplicated_session.title).to eq(session.title)
         expect(duplicated_session.description).to eq(session.description)
         expect(duplicated_session.session_type).to eq(session.session_type)
@@ -105,7 +107,7 @@ RSpec.describe DuplicateSessionService do
     context 'with invalid session' do
       it 'returns failure for nil session' do
         result = described_class.new(nil, 1).call
-        
+
         expect(result[:success]).to be false
         expect(result[:created_count]).to eq(0)
       end
@@ -113,7 +115,7 @@ RSpec.describe DuplicateSessionService do
       it 'returns failure for unsaved session' do
         unsaved_session = Session.new(title: "Test")
         result = described_class.new(unsaved_session, 1).call
-        
+
         expect(result[:success]).to be false
         expect(result[:created_count]).to eq(0)
       end
@@ -122,13 +124,13 @@ RSpec.describe DuplicateSessionService do
     context 'with validation errors' do
       it 'handles validation errors gracefully' do
         # Create a session that would cause overlap validation error
-        overlapping_session = create(:session, 
+        overlapping_session = create(:session,
                                    terrain: session.terrain,
                                    start_at: session.start_at + 1.week,
                                    end_at: session.end_at + 1.week)
-        
+
         result = described_class.new(session, 1).call
-        
+
         expect(result[:success]).to be false
         expect(result[:errors]).to include(/Semaine 1:/)
         expect(result[:created_count]).to eq(0)
@@ -138,9 +140,9 @@ RSpec.describe DuplicateSessionService do
     context 'with different session types' do
       it 'works with jeu_libre sessions' do
         jeu_libre_session = create(:session, :jeu_libre, :terrain_2, user: user)
-        
+
         result = described_class.new(jeu_libre_session, 1).call
-        
+
         expect(result[:success]).to be true
         expect(result[:created_count]).to eq(1)
       end
@@ -162,11 +164,11 @@ RSpec.describe DuplicateSessionService do
 
     it 'returns false when errors occurred' do
       # Force an error by creating overlapping session
-      create(:session, 
+      create(:session,
              terrain: session.terrain,
              start_at: session.start_at + 1.week,
              end_at: session.end_at + 1.week)
-      
+
       service = described_class.new(session, 1)
       service.call
       expect(service.success?).to be false

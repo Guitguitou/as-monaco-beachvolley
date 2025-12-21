@@ -208,7 +208,7 @@ RSpec.describe User, type: :model do
       subject(:user) { create(:user, disabled_at: nil) }
 
       it "returns default devise message" do
-        expect(user.inactive_message).to be_in([:inactive, nil])
+        expect(user.inactive_message).to be_in([ :inactive, nil ])
       end
     end
   end
@@ -258,7 +258,7 @@ RSpec.describe User, type: :model do
     subject(:user) { create(:user) }
 
     context "when user has levels" do
-      before { user.levels << [level1, level2] }
+      before { user.levels << [ level1, level2 ] }
 
       it "returns the first level" do
         expect(user.level).to eq(level1)

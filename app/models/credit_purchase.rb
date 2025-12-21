@@ -17,10 +17,10 @@ class CreditPurchase < ApplicationRecord
   belongs_to :pack, optional: true
 
   enum :status, {
-    pending: 'pending',
-    paid: 'paid',
-    failed: 'failed',
-    cancelled: 'cancelled'
+    pending: "pending",
+    paid: "paid",
+    failed: "failed",
+    cancelled: "cancelled"
   }, suffix: true
 
   validates :amount_cents, presence: true, numericality: { greater_than: 0 }
@@ -41,7 +41,7 @@ class CreditPurchase < ApplicationRecord
       elsif licence_pack?
         process_licence_purchase
       else
-        raise 'Type de pack non reconnu'
+        raise "Type de pack non reconnu"
       end
 
       update!(
@@ -80,7 +80,7 @@ class CreditPurchase < ApplicationRecord
     create!(
       user:,
       amount_cents: 1000,
-      currency: 'EUR',
+      currency: "EUR",
       credits: 1000,
       status: :pending
     )
@@ -89,7 +89,7 @@ class CreditPurchase < ApplicationRecord
   private
 
   def process_credits_purchase
-    raise 'Les packs de crédits nécessitent une connexion utilisateur' if user.nil?
+    raise "Les packs de crédits nécessitent une connexion utilisateur" if user.nil?
 
     user.balance || user.create_balance!(amount: 0)
 
@@ -101,7 +101,7 @@ class CreditPurchase < ApplicationRecord
   end
 
   def process_stage_purchase
-    user_info = user ? "user #{user.id}" : 'anonymous user'
+    user_info = user ? "user #{user.id}" : "anonymous user"
     Rails.logger.info("Stage pack purchased: #{pack.name} by #{user_info}")
     # TODO: Implémenter la logique d'inscription au stage
   end
@@ -111,7 +111,7 @@ class CreditPurchase < ApplicationRecord
       user.activate! unless user.activated?
       Rails.logger.info("Licence pack purchased and user activated: #{user.email}")
     else
-      Rails.logger.info('Licence pack purchased by anonymous user - stored in sherlock_fields')
+      Rails.logger.info("Licence pack purchased by anonymous user - stored in sherlock_fields")
     end
   end
 

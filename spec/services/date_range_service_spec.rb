@@ -42,4 +42,3 @@ RSpec.describe DateRangeService, type: :service do
     end
   end
 end
-

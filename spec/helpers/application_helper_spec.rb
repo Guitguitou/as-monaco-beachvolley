@@ -8,7 +8,7 @@ RSpec.describe ApplicationHelper, type: :helper do
 
     it 'returns a span with level name and color' do
       result = helper.level_badge(level)
-      
+
       expect(result).to include(level.name)
       expect(result).to include(level.color)
       expect(result).to include("inline-flex")
@@ -137,4 +137,3 @@ RSpec.describe ApplicationHelper, type: :helper do
     end
   end
 end
-

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class UsersController < ApplicationController
   before_action :authenticate_user!
 
@@ -5,7 +7,7 @@ class UsersController < ApplicationController
     @user = current_user
     @balance = @user.balance
     @transactions = @user.credit_transactions.order(created_at: :desc)
-    @active_tab = params[:tab] || 'profile'
+    @active_tab = params[:tab] || "profile"
 
     # Coach salary stats (own only)
     if @user.coach?
@@ -21,7 +23,7 @@ class UsersController < ApplicationController
       @my_salary_year = salaries[:year]
 
       # Load training data for coaches tab
-      if @active_tab == 'trainings'
+      if @active_tab == "trainings"
         load_coach_trainings_data
       end
     end
