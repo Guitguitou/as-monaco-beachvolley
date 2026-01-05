@@ -348,6 +348,7 @@ module Stats
         .valid
         .joins(:user)
         .where(users: { id: user_ids })
+        .where.not(users: { last_name: "Test" })
         .where(session_id: session_ids)
         .group("users.id", "users.first_name", "users.last_name")
         .order("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC")
