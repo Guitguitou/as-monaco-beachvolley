@@ -20,7 +20,9 @@ module Stats
     def by_group
       levels = Level.all.order(:name)
       levels.each_with_object({}) do |level, result|
-        users_in_level = User.players.joins(:user_levels).where(user_levels: { level_id: level.id })
+        # Get user IDs directly from UserLevel to avoid issues with joins
+        user_ids = UserLevel.where(level_id: level.id).joins(:user).merge(User.players).pluck(:user_id)
+        users_in_level = User.where(id: user_ids)
         
         result[level.id] = {
           level: level,
@@ -127,8 +129,15 @@ module Stats
     end
 
     def top_player_by_sessions_in_period(users_scope, sessions_scope)
-      # Get user IDs using select distinct to avoid issues with joins
-      user_ids = users_scope.select("DISTINCT users.id").pluck(:id)
+      # Get user IDs - always use pluck(:id) for simple scopes, select distinct for complex ones
+      # Check if it's a simple User.where(id: ...) scope
+      if users_scope.respond_to?(:where_values_hash) && users_scope.where_values_hash.key?(:id)
+        # Simple scope with where(id: ...), extract IDs directly
+        user_ids = users_scope.pluck(:id)
+      else
+        # Complex scope with joins, use select distinct
+        user_ids = users_scope.select("DISTINCT users.id").pluck(:id)
+      end
       return [] if user_ids.empty?
 
       session_ids = sessions_scope.pluck(:id)
