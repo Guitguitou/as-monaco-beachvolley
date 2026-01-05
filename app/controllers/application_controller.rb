@@ -17,6 +17,15 @@ class ApplicationController < ActionController::Base
 
   protected
 
+  def after_sign_in_path_for(resource)
+    # Redirect non-activated users to packs
+    if !resource.activated? && !resource.admin? && !resource.financial_manager?
+      packs_path
+    else
+      performances_path
+    end
+  end
+
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_up, keys: [:first_name, :last_name])
     devise_parameter_sanitizer.permit(:account_update, keys: [:first_name, :last_name])
