@@ -248,7 +248,8 @@ module Stats
 
     def most_inactive_player_with_sessions_by_gender(gender)
       # Get user IDs for the specific gender by joining through user_levels
-      user_ids = User.players
+      # Include all users (not just "players") as coaches/responsables/admins can also have levels and registrations
+      user_ids = User
         .joins(:user_levels)
         .joins("INNER JOIN levels ON levels.id = user_levels.level_id")
         .where(levels: { gender: gender })
@@ -287,7 +288,8 @@ module Stats
 
     def top_player_by_sessions_by_gender(gender)
       # Get user IDs for the specific gender by joining through user_levels
-      user_ids = User.players
+      # Include all users (not just "players") as coaches/responsables/admins can also have levels and registrations
+      user_ids = User
         .joins(:user_levels)
         .joins("INNER JOIN levels ON levels.id = user_levels.level_id")
         .where(levels: { gender: gender })
@@ -318,7 +320,8 @@ module Stats
 
     def top_player_by_sessions_in_period_by_gender(sessions_scope, gender)
       # Get user IDs for the specific gender by joining through user_levels
-      user_ids = User.players
+      # Include all users (not just "players") as coaches/responsables/admins can also have levels and registrations
+      user_ids = User
         .joins(:user_levels)
         .joins("INNER JOIN levels ON levels.id = user_levels.level_id")
         .where(levels: { gender: gender })
