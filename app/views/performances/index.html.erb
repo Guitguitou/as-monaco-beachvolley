@@ -167,14 +167,36 @@
     <!-- Tab Content: By Group -->
     <div data-tabs-target="panel" data-panel="groups" class="tab-panel hidden">
     <% if @stats_by_group.any? %>
-      <% @stats_by_group.each do |level_id, group_stats| %>
-        <div class="mb-12">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <%= level_badge(group_stats[:level]) %>
-            <span><%= group_stats[:level_name] %></span>
-          </h2>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Group Tabs -->
+      <div data-controller="group-tabs" class="mb-8">
+        <div class="border-b border-gray-200">
+          <nav class="flex space-x-4 overflow-x-auto pb-px" aria-label="Group Tabs">
+            <% @stats_by_group.each_with_index do |(level_id, group_stats), index| %>
+              <button
+                type="button"
+                data-group-tabs-target="tab"
+                data-action="click->group-tabs#switch"
+                data-group="<%= level_id %>"
+                data-level-color="<%= group_stats[:level].color %>"
+                class="group-tab-button py-3 px-4 border-b-2 font-medium text-sm whitespace-nowrap transition-colors hover:opacity-80 <%= index == 0 ? 'active' : '' %>"
+                style="<%= index == 0 ? "border-color: #{group_stats[:level].color}; color: #{group_stats[:level].color};" : "border-color: transparent; color: #6b7280;" %>"
+              >
+                <%= level_badge(group_stats[:level]) %>
+                <span class="ml-2"><%= group_stats[:level_name] %></span>
+              </button>
+            <% end %>
+          </nav>
+        </div>
+
+        <!-- Group Content -->
+        <% @stats_by_group.each_with_index do |(level_id, group_stats), index| %>
+          <div
+            data-group-tabs-target="panel"
+            data-group="<%= level_id %>"
+            class="group-panel <%= index == 0 ? '' : 'hidden' %>"
+          >
+            <div class="mt-8">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             <!-- Records all-time -->
             <div class="space-y-6">
               <h3 class="text-lg font-semibold text-gray-800 mb-4">Records all-time</h3>
@@ -260,10 +282,11 @@
                 icon: "snowflake",
                 empty_message: "Aucune donnée"
               ) %>
+              </div>
             </div>
           </div>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     <% else %>
       <div class="text-center py-12">
         <p class="text-gray-400 italic">Aucun groupe disponible</p>
