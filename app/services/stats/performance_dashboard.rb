@@ -52,10 +52,9 @@ module Stats
     attr_reader :timezone
 
     def all_time_stats
-      # Include all players (with or without level) - no gender filter
       {
-        male: top_player_by_sessions_all_players,
-        female: top_player_by_sessions_all_players
+        male: top_player_by_sessions_by_gender("male"),
+        female: top_player_by_sessions_by_gender("female")
       }
     end
 
@@ -63,8 +62,8 @@ module Stats
       week_start = current_week_start
       sessions = Session.free_plays.in_current_week(week_start)
       {
-        male: top_player_by_sessions_in_period_all_players(sessions),
-        female: top_player_by_sessions_in_period_all_players(sessions)
+        male: top_player_by_sessions_in_period_by_gender(sessions, "male"),
+        female: top_player_by_sessions_in_period_by_gender(sessions, "female")
       }
     end
 
@@ -72,8 +71,8 @@ module Stats
       month_start = current_month_start
       sessions = Session.free_plays.in_current_month(month_start)
       {
-        male: top_player_by_sessions_in_period_all_players(sessions),
-        female: top_player_by_sessions_in_period_all_players(sessions)
+        male: top_player_by_sessions_in_period_by_gender(sessions, "male"),
+        female: top_player_by_sessions_in_period_by_gender(sessions, "female")
       }
     end
 
@@ -237,9 +236,15 @@ module Stats
       results.first(3)
     end
 
-    def top_player_by_sessions_all_players
-      # Include ALL players - no gender filter
-      user_ids = User.players.pluck(:id)
+    def top_player_by_sessions_by_gender(gender)
+      # Get user IDs for the specific gender by joining through user_levels
+      user_ids = User.players
+        .joins(:user_levels)
+        .joins("INNER JOIN levels ON levels.id = user_levels.level_id")
+        .where(levels: { gender: gender })
+        .distinct
+        .pluck(:id)
+
       return [] if user_ids.empty?
 
       results = Registration
@@ -262,14 +267,20 @@ module Stats
       end
     end
 
-    def top_player_by_sessions_in_period_all_players(sessions_scope)
-      user_ids = User.players.pluck(:id)
+    def top_player_by_sessions_in_period_by_gender(sessions_scope, gender)
+      # Get user IDs for the specific gender by joining through user_levels
+      user_ids = User.players
+        .joins(:user_levels)
+        .joins("INNER JOIN levels ON levels.id = user_levels.level_id")
+        .where(levels: { gender: gender })
+        .distinct
+        .pluck(:id)
+
       return [] if user_ids.empty?
 
       session_ids = sessions_scope.pluck(:id)
       return [] if session_ids.empty?
 
-      # Include ALL players - no gender filter
       results = Registration
         .valid
         .joins(:user)
