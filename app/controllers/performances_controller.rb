@@ -5,6 +5,7 @@ class PerformancesController < ApplicationController
 
   def index
     @stats = Stats::PerformanceDashboard.new.call
+    @stats_by_group = Stats::PerformanceDashboard.new.by_group
   end
 end
 

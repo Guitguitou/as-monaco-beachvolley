@@ -17,6 +17,36 @@ module Stats
       }
     end
 
+    def by_group
+      levels = Level.all.order(:name)
+      levels.each_with_object({}) do |level, result|
+        users_in_level = User.players.joins(:user_levels).where(user_levels: { level_id: level.id })
+        
+        result[level.id] = {
+          level: level,
+          level_name: level.display_name,
+          all_time: {
+            players: top_player_by_sessions(users_in_level)
+          },
+          free_play_week: {
+            players: top_player_by_sessions_in_period(users_in_level, Session.free_plays.in_current_week(current_week_start))
+          },
+          free_play_month: {
+            players: top_player_by_sessions_in_period(users_in_level, Session.free_plays.in_current_month(current_month_start))
+          },
+          training_week: {
+            players: top_player_by_sessions_in_period(users_in_level, Session.trainings.in_current_week(current_week_start))
+          },
+          training_month: {
+            players: top_player_by_sessions_in_period(users_in_level, Session.trainings.in_current_month(current_month_start))
+          },
+          inactivity: {
+            players: most_inactive_player(users_in_level)
+          }
+        }
+      end
+    end
+
     private
 
     attr_reader :timezone

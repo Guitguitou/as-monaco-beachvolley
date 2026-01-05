@@ -17,4 +17,6 @@ import SelectController from "controllers/select_controller"
 application.register("select", SelectController)
 import CollapseController from "controllers/collapse_controller"
 application.register("collapse", CollapseController)
+import TabsController from "controllers/tabs_controller"
+application.register("tabs", TabsController)
 eagerLoadControllersFrom("controllers", application)

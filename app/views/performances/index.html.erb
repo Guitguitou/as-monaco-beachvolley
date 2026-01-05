@@ -8,100 +8,197 @@
     <p class="text-gray-600 text-lg">Les badges qui font transpirer (ou culpabiliser).</p>
   </div>
 
-  <!-- Stats Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-    <!-- Section A: Records all-time -->
-    <div class="space-y-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Records all-time (tous types de sessions)</h2>
-      
-      <%= render PodiumComponent.new(
-        players: @stats[:all_time][:male],
-        title: "Le marathonien du sable",
-        icon: "trophy"
-      ) %>
+  <!-- Tabs -->
+  <div class="mb-6 border-b border-gray-200" data-controller="tabs">
+    <nav class="flex space-x-8 justify-center" aria-label="Tabs">
+      <button
+        type="button"
+        data-tabs-target="tab"
+        data-action="click->tabs#switch"
+        data-tab="all"
+        class="py-4 px-1 border-b-2 border-asmbv-red font-medium text-sm text-asmbv-red"
+      >
+        Tous
+      </button>
+      <button
+        type="button"
+        data-tabs-target="tab"
+        data-action="click->tabs#switch"
+        data-tab="groups"
+        class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+      >
+        Par groupe
+      </button>
+    </nav>
+  </div>
 
-      <%= render PodiumComponent.new(
-        players: @stats[:all_time][:female],
-        title: "La machine à plongeons",
-        icon: "trophy"
-      ) %>
+  <!-- Tab Content: All -->
+  <div data-tabs-target="panel" data-panel="all" class="tab-panel">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Section A: Records all-time -->
+      <div class="space-y-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Records all-time (tous types de sessions)</h2>
+        
+        <%= render PodiumComponent.new(
+          players: @stats[:all_time][:male],
+          title: "Le marathonien du sable",
+          icon: "trophy"
+        ) %>
+
+        <%= render PodiumComponent.new(
+          players: @stats[:all_time][:female],
+          title: "La machine à plongeons",
+          icon: "trophy"
+        ) %>
+      </div>
+
+      <!-- Section B: Jeu libre -->
+      <div class="space-y-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Jeu libre (semaine / mois)</h2>
+        
+        <%= render PodiumComponent.new(
+          players: @stats[:free_play_week][:male],
+          title: "Roi du jeu libre (cette semaine)",
+          icon: "crown"
+        ) %>
+
+        <%= render PodiumComponent.new(
+          players: @stats[:free_play_week][:female],
+          title: "Reine du jeu libre (cette semaine)",
+          icon: "crown"
+        ) %>
+
+        <%= render PodiumComponent.new(
+          players: @stats[:free_play_month][:male],
+          title: "Résident officiel du terrain (ce mois-ci)",
+          icon: "home"
+        ) %>
+
+        <%= render PodiumComponent.new(
+          players: @stats[:free_play_month][:female],
+          title: "Résidente officielle du terrain (ce mois-ci)",
+          icon: "home"
+        ) %>
+      </div>
+
+      <!-- Section C: Entraînement -->
+      <div class="space-y-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Entraînement (semaine / mois)</h2>
+        
+        <%= render PodiumComponent.new(
+          players: @stats[:training_week][:male],
+          title: "Élève modèle (cette semaine)",
+          icon: "book-open"
+        ) %>
+
+        <%= render PodiumComponent.new(
+          players: @stats[:training_week][:female],
+          title: "Élève modèle (cette semaine)",
+          icon: "book-open"
+        ) %>
+
+        <%= render PodiumComponent.new(
+          players: @stats[:training_month][:male],
+          title: "Major de promo (ce mois-ci)",
+          icon: "graduation-cap"
+        ) %>
+
+        <%= render PodiumComponent.new(
+          players: @stats[:training_month][:female],
+          title: "Major de promo (ce mois-ci)",
+          icon: "graduation-cap"
+        ) %>
+      </div>
+
+      <!-- Section D: Inactivité -->
+      <div class="space-y-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Le frigo (inactivité)</h2>
+        
+        <%= render PodiumComponent.new(
+          players: @stats[:inactivity][:male],
+          title: "Porté disparu",
+          icon: "snowflake",
+          empty_message: "Aucune donnée"
+        ) %>
+
+        <%= render PodiumComponent.new(
+          players: @stats[:inactivity][:female],
+          title: "Portée disparue",
+          icon: "snowflake",
+          empty_message: "Aucune donnée"
+        ) %>
+      </div>
     </div>
+  </div>
 
-    <!-- Section B: Jeu libre -->
-    <div class="space-y-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Jeu libre (semaine / mois)</h2>
-      
-      <%= render PodiumComponent.new(
-        players: @stats[:free_play_week][:male],
-        title: "Roi du jeu libre (cette semaine)",
-        icon: "crown"
-      ) %>
+  <!-- Tab Content: By Group -->
+  <div data-tabs-target="panel" data-panel="groups" class="tab-panel hidden">
+    <% if @stats_by_group.any? %>
+      <% @stats_by_group.each do |level_id, group_stats| %>
+        <div class="mb-12">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <%= level_badge(group_stats[:level]) %>
+            <span><%= group_stats[:level_name] %></span>
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Records all-time -->
+            <div class="space-y-6">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">Records all-time</h3>
+              <%= render PodiumComponent.new(
+                players: group_stats[:all_time][:players],
+                title: "Le marathonien du sable",
+                icon: "trophy"
+              ) %>
+            </div>
 
-      <%= render PodiumComponent.new(
-        players: @stats[:free_play_week][:female],
-        title: "Reine du jeu libre (cette semaine)",
-        icon: "crown"
-      ) %>
+            <!-- Jeu libre -->
+            <div class="space-y-6">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">Jeu libre</h3>
+              <%= render PodiumComponent.new(
+                players: group_stats[:free_play_week][:players],
+                title: "Roi/Reine du jeu libre (cette semaine)",
+                icon: "crown"
+              ) %>
+              <%= render PodiumComponent.new(
+                players: group_stats[:free_play_month][:players],
+                title: "Résident(e) officiel(le) (ce mois-ci)",
+                icon: "home"
+              ) %>
+            </div>
 
-      <%= render PodiumComponent.new(
-        players: @stats[:free_play_month][:male],
-        title: "Résident officiel du terrain (ce mois-ci)",
-        icon: "home"
-      ) %>
+            <!-- Entraînement -->
+            <div class="space-y-6">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">Entraînement</h3>
+              <%= render PodiumComponent.new(
+                players: group_stats[:training_week][:players],
+                title: "Élève modèle (cette semaine)",
+                icon: "book-open"
+              ) %>
+              <%= render PodiumComponent.new(
+                players: group_stats[:training_month][:players],
+                title: "Major de promo (ce mois-ci)",
+                icon: "graduation-cap"
+              ) %>
+            </div>
 
-      <%= render PodiumComponent.new(
-        players: @stats[:free_play_month][:female],
-        title: "Résidente officielle du terrain (ce mois-ci)",
-        icon: "home"
-      ) %>
-    </div>
-
-    <!-- Section C: Entraînement -->
-    <div class="space-y-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Entraînement (semaine / mois)</h2>
-      
-      <%= render PodiumComponent.new(
-        players: @stats[:training_week][:male],
-        title: "Élève modèle (cette semaine)",
-        icon: "book-open"
-      ) %>
-
-      <%= render PodiumComponent.new(
-        players: @stats[:training_week][:female],
-        title: "Élève modèle (cette semaine)",
-        icon: "book-open"
-      ) %>
-
-      <%= render PodiumComponent.new(
-        players: @stats[:training_month][:male],
-        title: "Major de promo (ce mois-ci)",
-        icon: "graduation-cap"
-      ) %>
-
-      <%= render PodiumComponent.new(
-        players: @stats[:training_month][:female],
-        title: "Major de promo (ce mois-ci)",
-        icon: "graduation-cap"
-      ) %>
-    </div>
-
-    <!-- Section D: Inactivité -->
-    <div class="space-y-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Le frigo (inactivité)</h2>
-      
-      <%= render PodiumComponent.new(
-        players: @stats[:inactivity][:male],
-        title: "Porté disparu",
-        icon: "snowflake",
-        empty_message: "Aucune donnée"
-      ) %>
-
-      <%= render PodiumComponent.new(
-        players: @stats[:inactivity][:female],
-        title: "Portée disparue",
-        icon: "snowflake",
-        empty_message: "Aucune donnée"
-      ) %>
-    </div>
+            <!-- Inactivité -->
+            <div class="space-y-6">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">Le frigo</h3>
+              <%= render PodiumComponent.new(
+                players: group_stats[:inactivity][:players],
+                title: "Porté(e) disparu(e)",
+                icon: "snowflake",
+                empty_message: "Aucune donnée"
+              ) %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="text-center py-12">
+        <p class="text-gray-400 italic">Aucun groupe disponible</p>
+      </div>
+    <% end %>
   </div>
 </div>
