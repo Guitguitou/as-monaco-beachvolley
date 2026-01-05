@@ -10,8 +10,15 @@ export default class extends Controller {
   }
 
   switch(event) {
+    event.preventDefault()
+    event.stopPropagation()
+    
     const tabName = event.currentTarget?.dataset?.tab
-    if (!tabName) return
+    if (!tabName) {
+      console.error("No tab name found")
+      return
+    }
+    
     this.showTab(tabName)
   }
 

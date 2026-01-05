@@ -9,31 +9,32 @@
   </div>
 
   <!-- Tabs -->
-  <div class="mb-6 border-b border-gray-200" data-controller="tabs">
-    <nav class="flex space-x-8 justify-center" aria-label="Tabs">
-      <button
-        type="button"
-        data-tabs-target="tab"
-        data-action="click->tabs#switch"
-        data-tab="all"
-        class="py-4 px-1 border-b-2 border-asmbv-red font-medium text-sm text-asmbv-red"
-      >
-        Tous
-      </button>
-      <button
-        type="button"
-        data-tabs-target="tab"
-        data-action="click->tabs#switch"
-        data-tab="groups"
-        class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
-      >
-        Par groupe
-      </button>
-    </nav>
-  </div>
+  <div data-controller="tabs">
+    <div class="mb-6 border-b border-gray-200">
+      <nav class="flex space-x-8 justify-center" aria-label="Tabs">
+        <button
+          type="button"
+          data-tabs-target="tab"
+          data-action="click->tabs#switch"
+          data-tab="all"
+          class="py-4 px-1 border-b-2 border-asmbv-red font-medium text-sm text-asmbv-red"
+        >
+          Tous
+        </button>
+        <button
+          type="button"
+          data-tabs-target="tab"
+          data-action="click->tabs#switch"
+          data-tab="groups"
+          class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        >
+          Par groupe
+        </button>
+      </nav>
+    </div>
 
-  <!-- Tab Content: All -->
-  <div data-tabs-target="panel" data-panel="all" class="tab-panel">
+    <!-- Tab Content: All -->
+    <div data-tabs-target="panel" data-panel="all" class="tab-panel">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <!-- Section A: Records all-time -->
       <div class="space-y-6">
@@ -129,10 +130,10 @@
         ) %>
       </div>
     </div>
-  </div>
+    </div>
 
-  <!-- Tab Content: By Group -->
-  <div data-tabs-target="panel" data-panel="groups" class="tab-panel hidden">
+    <!-- Tab Content: By Group -->
+    <div data-tabs-target="panel" data-panel="groups" class="tab-panel hidden">
     <% if @stats_by_group.any? %>
       <% @stats_by_group.each do |level_id, group_stats| %>
         <div class="mb-12">
@@ -200,5 +201,6 @@
         <p class="text-gray-400 italic">Aucun groupe disponible</p>
       </div>
     <% end %>
+    </div>
   </div>
 </div>
