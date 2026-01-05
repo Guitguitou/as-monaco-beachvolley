@@ -311,6 +311,70 @@
             </div>
           </div>
             </div>
+
+            <!-- Classement complet du groupe -->
+            <div class="mt-12">
+              <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <%= lucide_icon("list", class: "w-6 h-6 text-asmbv-red") %>
+                Classement complet - <%= group_stats[:level_name] %>
+              </h2>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Records all-time -->
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800 mb-4">Records all-time</h3>
+                  <%= render RankingComponent.new(
+                    players: group_stats[:all_time][:full_ranking],
+                    title: "Tous les temps"
+                  ) %>
+                </div>
+
+                <!-- Jeu libre cette semaine -->
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800 mb-4">Jeu libre - Cette semaine</h3>
+                  <%= render RankingComponent.new(
+                    players: group_stats[:free_play_week][:full_ranking],
+                    title: "Cette semaine"
+                  ) %>
+                </div>
+
+                <!-- Jeu libre ce mois -->
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800 mb-4">Jeu libre - Ce mois</h3>
+                  <%= render RankingComponent.new(
+                    players: group_stats[:free_play_month][:full_ranking],
+                    title: "Ce mois"
+                  ) %>
+                </div>
+
+                <!-- Entraînement cette semaine -->
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800 mb-4">Entraînement - Cette semaine</h3>
+                  <%= render RankingComponent.new(
+                    players: group_stats[:training_week][:full_ranking],
+                    title: "Cette semaine"
+                  ) %>
+                </div>
+
+                <!-- Entraînement ce mois -->
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800 mb-4">Entraînement - Ce mois</h3>
+                  <%= render RankingComponent.new(
+                    players: group_stats[:training_month][:full_ranking],
+                    title: "Ce mois"
+                  ) %>
+                </div>
+
+                <!-- Inactivité -->
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800 mb-4">Le frigo</h3>
+                  <%= render RankingComponent.new(
+                    players: group_stats[:inactivity][:full_ranking],
+                    title: "Inactivité"
+                  ) %>
+                </div>
+              </div>
+            </div>
           </div>
         <% end %>
       </div>
