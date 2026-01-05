@@ -42,14 +42,14 @@
         
         <%= render PodiumComponent.new(
           players: @stats[:all_time][:male],
-          title: "Le marathonien du sable",
-          icon: "trophy"
+          title: "Le sable lui dit bonjour",
+          icon: "home"
         ) %>
 
         <%= render PodiumComponent.new(
           players: @stats[:all_time][:female],
-          title: "La machine à plongeons",
-          icon: "trophy"
+          title: "Le sable, c'est sa résidence principale",
+          icon: "home"
         ) %>
       </div>
 
@@ -59,26 +59,26 @@
         
         <%= render PodiumComponent.new(
           players: @stats[:free_play_week][:male],
-          title: "Roi du jeu libre (cette semaine)",
-          icon: "crown"
+          title: "C'est pas une addiction, c'est un mode de vie",
+          icon: "activity"
         ) %>
 
         <%= render PodiumComponent.new(
           players: @stats[:free_play_week][:female],
-          title: "Reine du jeu libre (cette semaine)",
-          icon: "crown"
+          title: "C'est pas une addiction, c'est un mode de vie",
+          icon: "activity"
         ) %>
 
         <%= render PodiumComponent.new(
           players: @stats[:free_play_month][:male],
-          title: "Résident officiel du terrain (ce mois-ci)",
-          icon: "home"
+          title: "Est en CDI à la turbie",
+          icon: "file-text"
         ) %>
 
         <%= render PodiumComponent.new(
           players: @stats[:free_play_month][:female],
-          title: "Résidente officielle du terrain (ce mois-ci)",
-          icon: "home"
+          title: "Est en CDI à la turbie",
+          icon: "file-text"
         ) %>
       </div>
 
@@ -148,8 +148,8 @@
               <h3 class="text-lg font-semibold text-gray-800 mb-4">Records all-time</h3>
               <%= render PodiumComponent.new(
                 players: group_stats[:all_time][:players],
-                title: "Le marathonien du sable",
-                icon: "trophy"
+                title: "Le sable lui dit bonjour",
+                icon: "home"
               ) %>
             </div>
 
@@ -158,13 +158,13 @@
               <h3 class="text-lg font-semibold text-gray-800 mb-4">Jeu libre</h3>
               <%= render PodiumComponent.new(
                 players: group_stats[:free_play_week][:players],
-                title: "Roi/Reine du jeu libre (cette semaine)",
-                icon: "crown"
+                title: "C'est pas une addiction, c'est un mode de vie",
+                icon: "activity"
               ) %>
               <%= render PodiumComponent.new(
                 players: group_stats[:free_play_month][:players],
-                title: "Résident(e) officiel(le) (ce mois-ci)",
-                icon: "home"
+                title: "Est en CDI à la turbie",
+                icon: "file-text"
               ) %>
             </div>
 
