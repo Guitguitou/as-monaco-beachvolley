@@ -21,6 +21,7 @@
         <%= nav_link "Calendrier", sessions_path, icon: "calendar", extra_classes: 'sidebar-link' %>
         <%= nav_link "Stages", stages_path, icon: "flag", extra_classes: 'sidebar-link' %>
         <%= nav_link "Mes sessions", me_sessions_path, icon: "volleyball", extra_classes: 'sidebar-link' %>
+        <%= nav_link "Performances & Stats", performances_path, icon: "bar-chart-3", extra_classes: 'sidebar-link' %>
         <%= nav_link "Packs", packs_path, icon: "credit-card", extra_classes: 'sidebar-link' %>
         <% if current_user.coach? || current_user.admin? %>
           <%= nav_link "Entraînements (coach)", coach_trainings_path, icon: "book-open", extra_classes: 'sidebar-link' %>

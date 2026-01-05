@@ -1,0 +1,244 @@
+<div class="container mx-auto px-4 py-6 max-w-7xl">
+  <!-- Header -->
+  <div class="mb-8 text-center">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
+      <%= lucide_icon("bar-chart-3", class: "w-8 h-8 text-asmbv-red") %>
+      Performances & Stats
+    </h1>
+    <p class="text-gray-600 text-lg">Les badges qui font transpirer (ou culpabiliser).</p>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Section A: Records all-time -->
+    <div class="space-y-4">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Records all-time (tous types de sessions)</h2>
+      
+      <!-- All-time Male -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Le marathonien du sable</h3>
+          <span class="text-2xl">🏆</span>
+        </div>
+        <% if @stats[:all_time][:male].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:all_time][:male][:name] %></p>
+            <p class="text-gray-600 mt-1"><%= pluralize(@stats[:all_time][:male][:count], "session") %></p>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+
+      <!-- All-time Female -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">La machine à plongeons</h3>
+          <span class="text-2xl">🏆</span>
+        </div>
+        <% if @stats[:all_time][:female].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:all_time][:female][:name] %></p>
+            <p class="text-gray-600 mt-1"><%= pluralize(@stats[:all_time][:female][:count], "session") %></p>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Section B: Jeu libre -->
+    <div class="space-y-4">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Jeu libre (semaine / mois)</h2>
+      
+      <!-- Jeu libre semaine Male -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Roi du jeu libre (cette semaine)</h3>
+          <span class="text-xl">👑</span>
+        </div>
+        <% if @stats[:free_play_week][:male].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:free_play_week][:male][:name] %></p>
+            <p class="text-gray-600 mt-1"><%= pluralize(@stats[:free_play_week][:male][:count], "session") %> cette semaine</p>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+
+      <!-- Jeu libre semaine Female -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Reine du jeu libre (cette semaine)</h3>
+          <span class="text-xl">👑</span>
+        </div>
+        <% if @stats[:free_play_week][:female].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:free_play_week][:female][:name] %></p>
+            <p class="text-gray-600 mt-1"><%= pluralize(@stats[:free_play_week][:female][:count], "session") %> cette semaine</p>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+
+      <!-- Jeu libre mois Male -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Résident officiel du terrain (ce mois-ci)</h3>
+          <span class="text-xl">🏠</span>
+        </div>
+        <% if @stats[:free_play_month][:male].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:free_play_month][:male][:name] %></p>
+            <p class="text-gray-600 mt-1"><%= pluralize(@stats[:free_play_month][:male][:count], "session") %> ce mois-ci</p>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+
+      <!-- Jeu libre mois Female -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Résidente officielle du terrain (ce mois-ci)</h3>
+          <span class="text-xl">🏠</span>
+        </div>
+        <% if @stats[:free_play_month][:female].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:free_play_month][:female][:name] %></p>
+            <p class="text-gray-600 mt-1"><%= pluralize(@stats[:free_play_month][:female][:count], "session") %> ce mois-ci</p>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Section C: Entraînement -->
+    <div class="space-y-4">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Entraînement (semaine / mois)</h2>
+      
+      <!-- Entraînement semaine Male -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Élève modèle (cette semaine)</h3>
+          <span class="text-xl">📚</span>
+        </div>
+        <% if @stats[:training_week][:male].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:training_week][:male][:name] %></p>
+            <p class="text-gray-600 mt-1"><%= pluralize(@stats[:training_week][:male][:count], "session") %> cette semaine</p>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+
+      <!-- Entraînement semaine Female -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Élève modèle (cette semaine)</h3>
+          <span class="text-xl">📚</span>
+        </div>
+        <% if @stats[:training_week][:female].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:training_week][:female][:name] %></p>
+            <p class="text-gray-600 mt-1"><%= pluralize(@stats[:training_week][:female][:count], "session") %> cette semaine</p>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+
+      <!-- Entraînement mois Male -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Major de promo (ce mois-ci)</h3>
+          <span class="text-xl">🎓</span>
+        </div>
+        <% if @stats[:training_month][:male].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:training_month][:male][:name] %></p>
+            <p class="text-gray-600 mt-1"><%= pluralize(@stats[:training_month][:male][:count], "session") %> ce mois-ci</p>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+
+      <!-- Entraînement mois Female -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Major de promo (ce mois-ci)</h3>
+          <span class="text-xl">🎓</span>
+        </div>
+        <% if @stats[:training_month][:female].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:training_month][:female][:name] %></p>
+            <p class="text-gray-600 mt-1"><%= pluralize(@stats[:training_month][:female][:count], "session") %> ce mois-ci</p>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Section D: Inactivité -->
+    <div class="space-y-4">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Le frigo (inactivité)</h2>
+      
+      <!-- Inactivité Male -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Porté disparu</h3>
+          <span class="text-xl">❄️</span>
+        </div>
+        <% if @stats[:inactivity][:male].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:inactivity][:male][:name] %></p>
+            <% if @stats[:inactivity][:male][:last_session_at].present? %>
+              <p class="text-gray-600 mt-1">
+                Dernière session : <%= @stats[:inactivity][:male][:last_session_at].in_time_zone("Europe/Paris").strftime("%d/%m/%Y") %>
+              </p>
+              <% if @stats[:inactivity][:male][:days_since].present? %>
+                <p class="text-gray-600">Il y a <%= pluralize(@stats[:inactivity][:male][:days_since], "jour") %></p>
+              <% end %>
+            <% else %>
+              <p class="text-gray-600 mt-1">Jamais joué</p>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+
+      <!-- Inactivité Female -->
+      <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Portée disparue</h3>
+          <span class="text-xl">❄️</span>
+        </div>
+        <% if @stats[:inactivity][:female].present? %>
+          <div class="mt-2">
+            <p class="text-2xl font-bold text-gray-900"><%= @stats[:inactivity][:female][:name] %></p>
+            <% if @stats[:inactivity][:female][:last_session_at].present? %>
+              <p class="text-gray-600 mt-1">
+                Dernière session : <%= @stats[:inactivity][:female][:last_session_at].in_time_zone("Europe/Paris").strftime("%d/%m/%Y") %>
+              </p>
+              <% if @stats[:inactivity][:female][:days_since].present? %>
+                <p class="text-gray-600">Il y a <%= pluralize(@stats[:inactivity][:female][:days_since], "jour") %></p>
+              <% end %>
+            <% else %>
+              <p class="text-gray-600 mt-1">Jamais joué</p>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-gray-400 italic">Aucune donnée</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
