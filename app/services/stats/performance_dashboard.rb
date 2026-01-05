@@ -33,24 +33,25 @@ module Stats
             full_ranking: full_ranking_by_sessions(users_in_level)
           },
           free_play_week: {
-            players: top_player_by_sessions_in_period(users_in_level, Session.free_plays.in_current_week(current_week_start)),
-            full_ranking: full_ranking_by_sessions_in_period(users_in_level, Session.free_plays.in_current_week(current_week_start))
+            players: top_player_by_sessions_in_period(users_in_level, Session.free_plays.in_current_week(current_week_start))
           },
           free_play_month: {
-            players: top_player_by_sessions_in_period(users_in_level, Session.free_plays.in_current_month(current_month_start)),
-            full_ranking: full_ranking_by_sessions_in_period(users_in_level, Session.free_plays.in_current_month(current_month_start))
+            players: top_player_by_sessions_in_period(users_in_level, Session.free_plays.in_current_month(current_month_start))
+          },
+          free_play_total: {
+            full_ranking: full_ranking_by_sessions_in_period(users_in_level, Session.free_plays)
           },
           training_week: {
-            players: top_player_by_sessions_in_period(users_in_level, Session.trainings.in_current_week(current_week_start)),
-            full_ranking: full_ranking_by_sessions_in_period(users_in_level, Session.trainings.in_current_week(current_week_start))
+            players: top_player_by_sessions_in_period(users_in_level, Session.trainings.in_current_week(current_week_start))
           },
           training_month: {
-            players: top_player_by_sessions_in_period(users_in_level, Session.trainings.in_current_month(current_month_start)),
-            full_ranking: full_ranking_by_sessions_in_period(users_in_level, Session.trainings.in_current_month(current_month_start))
+            players: top_player_by_sessions_in_period(users_in_level, Session.trainings.in_current_month(current_month_start))
+          },
+          training_total: {
+            full_ranking: full_ranking_by_sessions_in_period(users_in_level, Session.trainings)
           },
           inactivity: {
-            players: most_inactive_player(users_in_level),
-            full_ranking: full_ranking_inactivity(users_in_level)
+            players: most_inactive_player(users_in_level)
           }
         }
       end
