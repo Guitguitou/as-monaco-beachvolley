@@ -16,7 +16,6 @@ export default class extends Controller {
   }
 
   showTab(tabName) {
-
     // Update tab buttons
     this.tabTargets.forEach(tab => {
       const isActive = tab.dataset.tab === tabName
