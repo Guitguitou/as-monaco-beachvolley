@@ -111,7 +111,7 @@ module Stats
         .joins(:user, :session)
         .where(users: { id: user_ids })
         .group("users.id", "users.first_name", "users.last_name")
-        .order("COUNT(registrations.id) DESC")
+        .order("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC")
         .limit(3)
         .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
 
@@ -140,7 +140,7 @@ module Stats
         .where(users: { id: user_ids })
         .where(session_id: session_ids)
         .group("users.id", "users.first_name", "users.last_name")
-        .order("COUNT(registrations.id) DESC")
+        .order("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC")
         .limit(3)
         .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
 
