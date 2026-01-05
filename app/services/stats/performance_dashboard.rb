@@ -1,0 +1,173 @@
+# frozen_string_literal: true
+
+module Stats
+  class PerformanceDashboard
+    def initialize(timezone: "Europe/Paris")
+      @timezone = ActiveSupport::TimeZone[timezone]
+    end
+
+    def call
+      {
+        all_time: all_time_stats,
+        free_play_week: free_play_week_stats,
+        free_play_month: free_play_month_stats,
+        training_week: training_week_stats,
+        training_month: training_month_stats,
+        inactivity: inactivity_stats
+      }
+    end
+
+    private
+
+    attr_reader :timezone
+
+    def all_time_stats
+      {
+        male: top_player_by_sessions(User.players.male),
+        female: top_player_by_sessions(User.players.female)
+      }
+    end
+
+    def free_play_week_stats
+      week_start = current_week_start
+      sessions = Session.free_plays.in_current_week(week_start)
+      {
+        male: top_player_by_sessions_in_period(User.players.male, sessions),
+        female: top_player_by_sessions_in_period(User.players.female, sessions)
+      }
+    end
+
+    def free_play_month_stats
+      month_start = current_month_start
+      sessions = Session.free_plays.in_current_month(month_start)
+      {
+        male: top_player_by_sessions_in_period(User.players.male, sessions),
+        female: top_player_by_sessions_in_period(User.players.female, sessions)
+      }
+    end
+
+    def training_week_stats
+      week_start = current_week_start
+      sessions = Session.trainings.in_current_week(week_start)
+      {
+        male: top_player_by_sessions_in_period(User.players.male, sessions),
+        female: top_player_by_sessions_in_period(User.players.female, sessions)
+      }
+    end
+
+    def training_month_stats
+      month_start = current_month_start
+      sessions = Session.trainings.in_current_month(month_start)
+      {
+        male: top_player_by_sessions_in_period(User.players.male, sessions),
+        female: top_player_by_sessions_in_period(User.players.female, sessions)
+      }
+    end
+
+    def inactivity_stats
+      {
+        male: most_inactive_player(User.players.male),
+        female: most_inactive_player(User.players.female)
+      }
+    end
+
+    def top_player_by_sessions(users_scope)
+      result = Registration
+        .valid
+        .joins(:user, :session)
+        .where(users: { id: users_scope.select(:id) })
+        .group("users.id", "users.first_name", "users.last_name")
+        .order("COUNT(registrations.id) DESC")
+        .limit(1)
+        .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
+        .first
+
+      return nil if result.blank?
+
+      user_id, first_name, last_name, count = result
+      {
+        user: User.find(user_id),
+        count: count,
+        name: "#{first_name} #{last_name}".strip
+      }
+    end
+
+    def top_player_by_sessions_in_period(users_scope, sessions_scope)
+      session_ids = sessions_scope.select(:id)
+      return nil if session_ids.empty?
+
+      result = Registration
+        .valid
+        .joins(:user)
+        .where(users: { id: users_scope.select(:id) })
+        .where(session_id: session_ids)
+        .group("users.id", "users.first_name", "users.last_name")
+        .order("COUNT(registrations.id) DESC")
+        .limit(1)
+        .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
+        .first
+
+      return nil if result.blank?
+
+      user_id, first_name, last_name, count = result
+      {
+        user: User.find(user_id),
+        count: count,
+        name: "#{first_name} #{last_name}".strip
+      }
+    end
+
+    def most_inactive_player(users_scope)
+      # Get all players in scope
+      all_players = users_scope.to_a
+      return nil if all_players.empty?
+
+      # Find the last session date for each user who has played
+      users_with_sessions = Registration
+        .valid
+        .joins(:user, :session)
+        .where(users: { id: users_scope.select(:id) })
+        .group("users.id")
+        .maximum("sessions.start_at")
+
+      # Find users who never played
+      users_without_sessions = all_players.reject { |u| users_with_sessions.key?(u.id) }
+
+      # If there are users who never played, return the first one
+      if users_without_sessions.any?
+        user = users_without_sessions.first
+        return {
+          user: user,
+          last_session_at: nil,
+          days_since: nil,
+          name: user.full_name
+        }
+      end
+
+      # Otherwise, find the user with the oldest last session
+      return nil if users_with_sessions.blank?
+
+      user_id, last_session_at = users_with_sessions.min_by { |_uid, date| date || Time.at(0) }
+      return nil if user_id.blank?
+
+      user = User.find(user_id)
+      days_since = last_session_at ? ((timezone.now - last_session_at.in_time_zone(timezone)) / 1.day).round : nil
+
+      {
+        user: user,
+        last_session_at: last_session_at,
+        days_since: days_since,
+        name: user.full_name
+      }
+    end
+
+    def current_week_start
+      timezone.now.beginning_of_week(:monday)
+    end
+
+    def current_month_start
+      timezone.now.beginning_of_month
+    end
+  end
+end
+

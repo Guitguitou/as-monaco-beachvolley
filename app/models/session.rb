@@ -46,6 +46,14 @@ class Session < ApplicationRecord
   scope :upcoming, -> { where("start_at >= ?", Time.current) }
   scope :in_week, ->(week_start) { where(start_at: week_start..(week_start + 7.days)) }
   scope :in_month, ->(month_start) { where(start_at: month_start..month_start.end_of_month) }
+  scope :in_current_week, ->(week_start = nil) { 
+    week_start ||= Time.zone.now.beginning_of_week(:monday)
+    in_week(week_start)
+  }
+  scope :in_current_month, ->(month_start = nil) { 
+    month_start ||= Time.zone.now.beginning_of_month
+    in_month(month_start)
+  }
   scope :in_year, ->(year_start) { where(start_at: year_start..year_start.end_of_year) }
   scope :trainings, -> { where(session_type: 'entrainement') }
   scope :free_plays, -> { where(session_type: 'jeu_libre') }

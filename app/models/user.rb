@@ -36,6 +36,9 @@ class User < ApplicationRecord
   scope :with_enough_credits, lambda { |session_record|
     joins(:balance).where('balances.amount >= ?', session_record.price)
   }
+  scope :players, -> { where.not(admin: true).where.not(coach: true).where.not(responsable: true) }
+  scope :male, -> { joins(:levels).where(levels: { gender: "male" }).distinct }
+  scope :female, -> { joins(:levels).where(levels: { gender: "female" }).distinct }
 
   # Devise: Prevent login when account is disabled
   # Non-activated users can login but have limited access

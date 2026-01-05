@@ -23,6 +23,8 @@ class Registration < ApplicationRecord
   validate :no_schedule_conflict
   validate :weekly_training_limit
 
+  scope :valid, -> { where(status: :confirmed) }
+
   def can_register?
     # Opening rules with 24h priority for competition license
     # Skip deadline check if allow_deadline_bypass is true (for admins/coaches)
