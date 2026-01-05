@@ -103,10 +103,14 @@ module Stats
     end
 
     def top_player_by_sessions(users_scope)
+      # Get user IDs directly to avoid issues with joins in the scope
+      user_ids = users_scope.distinct.pluck(:id)
+      return [] if user_ids.empty?
+
       results = Registration
         .valid
         .joins(:user, :session)
-        .where(users: { id: users_scope.select(:id) })
+        .where(users: { id: user_ids })
         .group("users.id", "users.first_name", "users.last_name")
         .order("COUNT(registrations.id) DESC")
         .limit(3)
@@ -124,13 +128,17 @@ module Stats
     end
 
     def top_player_by_sessions_in_period(users_scope, sessions_scope)
-      session_ids = sessions_scope.select(:id)
+      # Get user IDs directly to avoid issues with joins in the scope
+      user_ids = users_scope.distinct.pluck(:id)
+      return [] if user_ids.empty?
+
+      session_ids = sessions_scope.pluck(:id)
       return [] if session_ids.empty?
 
       results = Registration
         .valid
         .joins(:user)
-        .where(users: { id: users_scope.select(:id) })
+        .where(users: { id: user_ids })
         .where(session_id: session_ids)
         .group("users.id", "users.first_name", "users.last_name")
         .order("COUNT(registrations.id) DESC")
@@ -149,20 +157,20 @@ module Stats
     end
 
     def most_inactive_player(users_scope)
-      # Get all players in scope
-      all_players = users_scope.to_a
-      return [] if all_players.empty?
+      # Get user IDs directly to avoid issues with joins in the scope
+      user_ids = users_scope.distinct.pluck(:id)
+      return [] if user_ids.empty?
 
       # Find the last session date for each user who has played
       users_with_sessions = Registration
         .valid
         .joins(:user, :session)
-        .where(users: { id: users_scope.select(:id) })
+        .where(users: { id: user_ids })
         .group("users.id")
         .maximum("sessions.start_at")
 
       # Find users who never played
-      users_without_sessions = all_players.reject { |u| users_with_sessions.key?(u.id) }
+      users_without_sessions = User.where(id: user_ids).where.not(id: users_with_sessions.keys).to_a
 
       # Build results array
       results = []
@@ -197,11 +205,15 @@ module Stats
     end
 
     def most_inactive_player_with_sessions(users_scope)
+      # Get user IDs directly to avoid issues with joins in the scope
+      user_ids = users_scope.distinct.pluck(:id)
+      return [] if user_ids.empty?
+
       # Only include users who have at least one session
       users_with_sessions = Registration
         .valid
         .joins(:user, :session)
-        .where(users: { id: users_scope.select(:id) })
+        .where(users: { id: user_ids })
         .group("users.id")
         .maximum("sessions.start_at")
 
@@ -226,11 +238,14 @@ module Stats
     end
 
     def top_player_by_sessions_all_players
-      # Include ALL players (with or without level) - no gender filter
+      # Include ALL players - no gender filter
+      user_ids = User.players.pluck(:id)
+      return [] if user_ids.empty?
+
       results = Registration
         .valid
         .joins(:user, :session)
-        .where(users: { id: User.players.select(:id) })
+        .where(users: { id: user_ids })
         .group("users.id", "users.first_name", "users.last_name")
         .order("COUNT(registrations.id) DESC")
         .limit(3)
@@ -248,14 +263,17 @@ module Stats
     end
 
     def top_player_by_sessions_in_period_all_players(sessions_scope)
-      session_ids = sessions_scope.select(:id)
+      user_ids = User.players.pluck(:id)
+      return [] if user_ids.empty?
+
+      session_ids = sessions_scope.pluck(:id)
       return [] if session_ids.empty?
 
-      # Include ALL players (with or without level) - no gender filter
+      # Include ALL players - no gender filter
       results = Registration
         .valid
         .joins(:user)
-        .where(users: { id: User.players.select(:id) })
+        .where(users: { id: user_ids })
         .where(session_id: session_ids)
         .group("users.id", "users.first_name", "users.last_name")
         .order("COUNT(registrations.id) DESC")
