@@ -182,11 +182,12 @@ module Stats
         .valid
         .joins(:user, :session)
         .where(users: { id: user_ids })
+        .where.not(users: { last_name: "Test" })
         .group("users.id")
         .maximum("sessions.start_at")
 
-      # Find users who never played
-      users_without_sessions = User.where(id: user_ids).where.not(id: users_with_sessions.keys).to_a
+      # Find users who never played (excluding Test users)
+      users_without_sessions = User.where(id: user_ids).where.not(last_name: "Test").where.not(id: users_with_sessions.keys).to_a
 
       # Build results array
       results = []
@@ -230,6 +231,7 @@ module Stats
         .valid
         .joins(:user, :session)
         .where(users: { id: user_ids })
+        .where.not(users: { last_name: "Test" })
         .group("users.id")
         .maximum("sessions.start_at")
 
@@ -270,6 +272,7 @@ module Stats
         .valid
         .joins(:user, :session)
         .where(users: { id: user_ids })
+        .where.not(users: { last_name: "Test" })
         .group("users.id")
         .maximum("sessions.start_at")
 
@@ -370,6 +373,7 @@ module Stats
         .valid
         .joins(:user, :session)
         .where(users: { id: user_ids })
+        .where.not(users: { last_name: "Test" })
         .group("users.id", "users.first_name", "users.last_name")
         .order("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC")
         .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
@@ -405,6 +409,7 @@ module Stats
         .valid
         .joins(:user)
         .where(users: { id: user_ids })
+        .where.not(users: { last_name: "Test" })
         .where(session_id: session_ids)
         .group("users.id", "users.first_name", "users.last_name")
         .order("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC")
@@ -432,11 +437,12 @@ module Stats
         .valid
         .joins(:user, :session)
         .where(users: { id: user_ids })
+        .where.not(users: { last_name: "Test" })
         .group("users.id")
         .maximum("sessions.start_at")
 
-      # Find users who never played
-      users_without_sessions = User.where(id: user_ids).where.not(id: users_with_sessions.keys).to_a
+      # Find users who never played (excluding Test users)
+      users_without_sessions = User.where(id: user_ids).where.not(last_name: "Test").where.not(id: users_with_sessions.keys).to_a
 
       # Build results array
       results = []
