@@ -8,10 +8,10 @@
     <div class="flex items-end justify-center gap-2 md:gap-4">
       <!-- 2ème place -->
       <% if second_place %>
-        <div class="flex flex-col items-center flex-1 max-w-[120px]">
+        <div class="flex flex-col items-center flex-1">
           <div class="w-full bg-gray-200 rounded-t-lg p-3 mb-2 min-h-[80px] flex flex-col items-center justify-end">
             <span class="text-2xl mb-1"><%= medal_emoji(2) %></span>
-            <p class="text-sm font-semibold text-gray-900 text-center truncate w-full" title="<%= second_place[:name] %>"><%= second_place[:name] %></p>
+            <p class="text-sm font-semibold text-gray-900 text-center break-words w-full" title="<%= second_place[:name] %>"><%= second_place[:name] %></p>
             <p class="text-xs text-gray-600 mt-1">
               <% if second_place[:count] %>
                 <%= pluralize(second_place[:count], "session") %>
@@ -28,10 +28,10 @@
 
       <!-- 1ère place -->
       <% if first_place %>
-        <div class="flex flex-col items-center flex-1 max-w-[140px]">
+        <div class="flex flex-col items-center flex-1">
           <div class="w-full bg-gradient-to-b from-yellow-400 to-yellow-500 rounded-t-lg p-4 mb-2 min-h-[100px] flex flex-col items-center justify-end shadow-md">
             <span class="text-3xl mb-1"><%= medal_emoji(1) %></span>
-            <p class="text-sm font-bold text-gray-900 text-center truncate w-full" title="<%= first_place[:name] %>"><%= first_place[:name] %></p>
+            <p class="text-sm font-bold text-gray-900 text-center break-words w-full" title="<%= first_place[:name] %>"><%= first_place[:name] %></p>
             <p class="text-xs text-gray-800 mt-1 font-semibold">
               <% if first_place[:count] %>
                 <%= pluralize(first_place[:count], "session") %>
@@ -48,10 +48,10 @@
 
       <!-- 3ème place -->
       <% if third_place %>
-        <div class="flex flex-col items-center flex-1 max-w-[120px]">
+        <div class="flex flex-col items-center flex-1">
           <div class="w-full bg-amber-200 rounded-t-lg p-3 mb-2 min-h-[60px] flex flex-col items-center justify-end">
             <span class="text-xl mb-1"><%= medal_emoji(3) %></span>
-            <p class="text-sm font-semibold text-gray-900 text-center truncate w-full" title="<%= third_place[:name] %>"><%= third_place[:name] %></p>
+            <p class="text-sm font-semibold text-gray-900 text-center break-words w-full" title="<%= third_place[:name] %>"><%= third_place[:name] %></p>
             <p class="text-xs text-gray-600 mt-1">
               <% if third_place[:count] %>
                 <%= pluralize(third_place[:count], "session") %>
