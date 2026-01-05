@@ -52,31 +52,28 @@ module Stats
     attr_reader :timezone
 
     def all_time_stats
-      # Include all players (with or without level) but try to separate by gender when possible
-      all_players = User.players
+      # Include all players (with or without level) - no gender filter
       {
-        male: top_player_by_sessions_with_gender(all_players, "male"),
-        female: top_player_by_sessions_with_gender(all_players, "female")
+        male: top_player_by_sessions_all_players,
+        female: top_player_by_sessions_all_players
       }
     end
 
     def free_play_week_stats
       week_start = current_week_start
       sessions = Session.free_plays.in_current_week(week_start)
-      all_players = User.players
       {
-        male: top_player_by_sessions_in_period_with_gender(all_players, sessions, "male"),
-        female: top_player_by_sessions_in_period_with_gender(all_players, sessions, "female")
+        male: top_player_by_sessions_in_period_all_players(sessions),
+        female: top_player_by_sessions_in_period_all_players(sessions)
       }
     end
 
     def free_play_month_stats
       month_start = current_month_start
       sessions = Session.free_plays.in_current_month(month_start)
-      all_players = User.players
       {
-        male: top_player_by_sessions_in_period_with_gender(all_players, sessions, "male"),
-        female: top_player_by_sessions_in_period_with_gender(all_players, sessions, "female")
+        male: top_player_by_sessions_in_period_all_players(sessions),
+        female: top_player_by_sessions_in_period_all_players(sessions)
       }
     end
 
@@ -228,28 +225,12 @@ module Stats
       results.first(3)
     end
 
-    def top_player_by_sessions_with_gender(users_scope, gender)
-      # Get user IDs: those with the specified gender level, or those without any level
-      user_ids_with_gender = User.players
-        .joins(:user_levels, user_levels: :level)
-        .where(levels: { gender: gender })
-        .distinct
-        .pluck(:id)
-
-      user_ids_without_level = User.players
-        .left_joins(:user_levels)
-        .where(user_levels: { id: nil })
-        .pluck(:id)
-
-      # Combine both sets
-      all_user_ids = (user_ids_with_gender + user_ids_without_level).uniq
-
-      return [] if all_user_ids.empty?
-
+    def top_player_by_sessions_all_players
+      # Include ALL players (with or without level) - no gender filter
       results = Registration
         .valid
         .joins(:user, :session)
-        .where(users: { id: all_user_ids })
+        .where(users: { id: User.players.select(:id) })
         .group("users.id", "users.first_name", "users.last_name")
         .order("COUNT(registrations.id) DESC")
         .limit(3)
@@ -266,31 +247,15 @@ module Stats
       end
     end
 
-    def top_player_by_sessions_in_period_with_gender(users_scope, sessions_scope, gender)
+    def top_player_by_sessions_in_period_all_players(sessions_scope)
       session_ids = sessions_scope.select(:id)
       return [] if session_ids.empty?
 
-      # Get user IDs: those with the specified gender level, or those without any level
-      user_ids_with_gender = User.players
-        .joins(:user_levels, user_levels: :level)
-        .where(levels: { gender: gender })
-        .distinct
-        .pluck(:id)
-
-      user_ids_without_level = User.players
-        .left_joins(:user_levels)
-        .where(user_levels: { id: nil })
-        .pluck(:id)
-
-      # Combine both sets
-      all_user_ids = (user_ids_with_gender + user_ids_without_level).uniq
-
-      return [] if all_user_ids.empty?
-
+      # Include ALL players (with or without level) - no gender filter
       results = Registration
         .valid
         .joins(:user)
-        .where(users: { id: all_user_ids })
+        .where(users: { id: User.players.select(:id) })
         .where(session_id: session_ids)
         .group("users.id", "users.first_name", "users.last_name")
         .order("COUNT(registrations.id) DESC")
