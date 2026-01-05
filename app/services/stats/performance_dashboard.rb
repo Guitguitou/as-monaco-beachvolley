@@ -102,8 +102,8 @@ module Stats
     end
 
     def top_player_by_sessions(users_scope)
-      # Get user IDs directly to avoid issues with joins in the scope
-      user_ids = users_scope.distinct.pluck(:id)
+      # Get user IDs using select distinct to avoid issues with joins
+      user_ids = users_scope.select("DISTINCT users.id").pluck(:id)
       return [] if user_ids.empty?
 
       results = Registration
@@ -127,8 +127,8 @@ module Stats
     end
 
     def top_player_by_sessions_in_period(users_scope, sessions_scope)
-      # Get user IDs directly to avoid issues with joins in the scope
-      user_ids = users_scope.distinct.pluck(:id)
+      # Get user IDs using select distinct to avoid issues with joins
+      user_ids = users_scope.select("DISTINCT users.id").pluck(:id)
       return [] if user_ids.empty?
 
       session_ids = sessions_scope.pluck(:id)
@@ -156,8 +156,8 @@ module Stats
     end
 
     def most_inactive_player(users_scope)
-      # Get user IDs directly to avoid issues with joins in the scope
-      user_ids = users_scope.distinct.pluck(:id)
+      # Get user IDs using select distinct to avoid issues with joins
+      user_ids = users_scope.select("DISTINCT users.id").pluck(:id)
       return [] if user_ids.empty?
 
       # Find the last session date for each user who has played
