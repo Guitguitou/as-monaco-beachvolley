@@ -52,7 +52,7 @@
              </div>
       <div class="hidden lg:flex lg:flex-1 lg:justify-end">
         <% if user_signed_in? %>
-          <%= link_to "Mon espace", me_sessions_path, class: "text-sm/6 font-semibold text-white hover:text-gray-200" %>
+          <%= link_to "Mon espace", performances_path, class: "text-sm/6 font-semibold text-white hover:text-gray-200" %>
         <% else %>
           <%= link_to "Se connecter", new_user_session_path, class: "text-sm/6 font-semibold text-white hover:text-gray-200" %>
         <% end %>
@@ -88,7 +88,7 @@
         </p>
         <div class="mt-10 flex items-center justify-center gap-x-6">
           <% if user_signed_in? %>
-            <%= button("Mon espace", variant: :primary, size: :large, href: me_sessions_path) %>
+            <%= button("Mon espace", variant: :primary, size: :large, href: performances_path) %>
           <% else %>
             <%= button("Me connecter", variant: :primary, size: :large, href: new_user_session_path) %>
           <% end %>
