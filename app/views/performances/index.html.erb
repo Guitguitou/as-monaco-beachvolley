@@ -57,58 +57,90 @@
       <div class="space-y-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Jeu libre (semaine / mois)</h2>
         
-        <%= render PodiumComponent.new(
-          players: @stats[:free_play_week][:male],
-          title: "C'est pas une addiction, c'est un mode de vie",
-          icon: "activity"
-        ) %>
+        <div class="space-y-4">
+          <div class="flex items-center gap-3 my-4">
+            <div class="flex-1 border-t border-gray-300"></div>
+            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
+            <div class="flex-1 border-t border-gray-300"></div>
+          </div>
+          
+          <%= render PodiumComponent.new(
+            players: @stats[:free_play_week][:male],
+            title: "C'est pas une addiction, c'est un mode de vie",
+            icon: "activity"
+          ) %>
 
-        <%= render PodiumComponent.new(
-          players: @stats[:free_play_week][:female],
-          title: "C'est pas une addiction, c'est un mode de vie",
-          icon: "activity"
-        ) %>
+          <%= render PodiumComponent.new(
+            players: @stats[:free_play_week][:female],
+            title: "C'est pas une addiction, c'est un mode de vie",
+            icon: "activity"
+          ) %>
+        </div>
 
-        <%= render PodiumComponent.new(
-          players: @stats[:free_play_month][:male],
-          title: "Est en CDI à la turbie",
-          icon: "file-text"
-        ) %>
+        <div class="space-y-4">
+          <div class="flex items-center gap-3 my-4">
+            <div class="flex-1 border-t border-gray-300"></div>
+            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
+            <div class="flex-1 border-t border-gray-300"></div>
+          </div>
+          
+          <%= render PodiumComponent.new(
+            players: @stats[:free_play_month][:male],
+            title: "Est en CDI à la turbie",
+            icon: "file-text"
+          ) %>
 
-        <%= render PodiumComponent.new(
-          players: @stats[:free_play_month][:female],
-          title: "Est en CDI à la turbie",
-          icon: "file-text"
-        ) %>
+          <%= render PodiumComponent.new(
+            players: @stats[:free_play_month][:female],
+            title: "Est en CDI à la turbie",
+            icon: "file-text"
+          ) %>
+        </div>
       </div>
 
       <!-- Section C: Entraînement -->
       <div class="space-y-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Entraînement (semaine / mois)</h2>
         
-        <%= render PodiumComponent.new(
-          players: @stats[:training_week][:male],
-          title: "Élève modèle (cette semaine)",
-          icon: "book-open"
-        ) %>
+        <div class="space-y-4">
+          <div class="flex items-center gap-3 my-4">
+            <div class="flex-1 border-t border-gray-300"></div>
+            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
+            <div class="flex-1 border-t border-gray-300"></div>
+          </div>
+          
+          <%= render PodiumComponent.new(
+            players: @stats[:training_week][:male],
+            title: "Élève modèle (cette semaine)",
+            icon: "book-open"
+          ) %>
 
-        <%= render PodiumComponent.new(
-          players: @stats[:training_week][:female],
-          title: "Élève modèle (cette semaine)",
-          icon: "book-open"
-        ) %>
+          <%= render PodiumComponent.new(
+            players: @stats[:training_week][:female],
+            title: "Élève modèle (cette semaine)",
+            icon: "book-open"
+          ) %>
+        </div>
 
-        <%= render PodiumComponent.new(
-          players: @stats[:training_month][:male],
-          title: "Major de promo (ce mois-ci)",
-          icon: "graduation-cap"
-        ) %>
+        <div class="space-y-4">
+          <div class="flex items-center gap-3 my-4">
+            <div class="flex-1 border-t border-gray-300"></div>
+            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
+            <div class="flex-1 border-t border-gray-300"></div>
+          </div>
+          
+          <%= render PodiumComponent.new(
+            players: @stats[:training_month][:male],
+            title: "Major de promo (ce mois-ci)",
+            icon: "graduation-cap"
+          ) %>
 
-        <%= render PodiumComponent.new(
-          players: @stats[:training_month][:female],
-          title: "Major de promo (ce mois-ci)",
-          icon: "graduation-cap"
-        ) %>
+          <%= render PodiumComponent.new(
+            players: @stats[:training_month][:female],
+            title: "Major de promo (ce mois-ci)",
+            icon: "graduation-cap"
+          ) %>
+        </div>
       </div>
 
       <!-- Section D: Inactivité -->
@@ -156,31 +188,67 @@
             <!-- Jeu libre -->
             <div class="space-y-6">
               <h3 class="text-lg font-semibold text-gray-800 mb-4">Jeu libre</h3>
-              <%= render PodiumComponent.new(
-                players: group_stats[:free_play_week][:players],
-                title: "C'est pas une addiction, c'est un mode de vie",
-                icon: "activity"
-              ) %>
-              <%= render PodiumComponent.new(
-                players: group_stats[:free_play_month][:players],
-                title: "Est en CDI à la turbie",
-                icon: "file-text"
-              ) %>
+              
+              <div class="space-y-4">
+                <div class="flex items-center gap-3 my-4">
+                  <div class="flex-1 border-t border-gray-300"></div>
+                  <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
+                  <div class="flex-1 border-t border-gray-300"></div>
+                </div>
+                
+                <%= render PodiumComponent.new(
+                  players: group_stats[:free_play_week][:players],
+                  title: "C'est pas une addiction, c'est un mode de vie",
+                  icon: "activity"
+                ) %>
+              </div>
+
+              <div class="space-y-4">
+                <div class="flex items-center gap-3 my-4">
+                  <div class="flex-1 border-t border-gray-300"></div>
+                  <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
+                  <div class="flex-1 border-t border-gray-300"></div>
+                </div>
+                
+                <%= render PodiumComponent.new(
+                  players: group_stats[:free_play_month][:players],
+                  title: "Est en CDI à la turbie",
+                  icon: "file-text"
+                ) %>
+              </div>
             </div>
 
             <!-- Entraînement -->
             <div class="space-y-6">
               <h3 class="text-lg font-semibold text-gray-800 mb-4">Entraînement</h3>
-              <%= render PodiumComponent.new(
-                players: group_stats[:training_week][:players],
-                title: "Élève modèle (cette semaine)",
-                icon: "book-open"
-              ) %>
-              <%= render PodiumComponent.new(
-                players: group_stats[:training_month][:players],
-                title: "Major de promo (ce mois-ci)",
-                icon: "graduation-cap"
-              ) %>
+              
+              <div class="space-y-4">
+                <div class="flex items-center gap-3 my-4">
+                  <div class="flex-1 border-t border-gray-300"></div>
+                  <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
+                  <div class="flex-1 border-t border-gray-300"></div>
+                </div>
+                
+                <%= render PodiumComponent.new(
+                  players: group_stats[:training_week][:players],
+                  title: "Élève modèle (cette semaine)",
+                  icon: "book-open"
+                ) %>
+              </div>
+
+              <div class="space-y-4">
+                <div class="flex items-center gap-3 my-4">
+                  <div class="flex-1 border-t border-gray-300"></div>
+                  <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
+                  <div class="flex-1 border-t border-gray-300"></div>
+                </div>
+                
+                <%= render PodiumComponent.new(
+                  players: group_stats[:training_month][:players],
+                  title: "Major de promo (ce mois-ci)",
+                  icon: "graduation-cap"
+                ) %>
+              </div>
             </div>
 
             <!-- Inactivité -->
