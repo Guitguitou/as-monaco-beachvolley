@@ -208,11 +208,11 @@
             class="group-panel <%= index == 0 ? '' : 'hidden' %>"
           >
             <div class="mt-8 space-y-12">
-              <!-- Tous les podiums -->
-              <div class="space-y-12">
-                <!-- Section Records all-time -->
+              <!-- Tous les podiums côte à côte -->
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Section A: Records all-time -->
                 <div class="space-y-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-6">Records all-time</h3>
+                  <h2 class="text-xl font-semibold text-gray-800 mb-4">Records all-time</h2>
                   
                   <div class="flex items-center gap-3 my-4">
                     <div class="flex-1 border-t border-gray-300"></div>
@@ -220,100 +220,82 @@
                     <div class="flex-1 border-t border-gray-300"></div>
                   </div>
                   
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <%= render PodiumComponent.new(
+                    players: group_stats[:all_time][:players],
+                    title: "Le sable lui dit bonjour",
+                    icon: "home"
+                  ) %>
+                </div>
+
+                <!-- Section B: Jeu libre -->
+                <div class="space-y-6">
+                  <h2 class="text-xl font-semibold text-gray-800 mb-4">Jeu libre</h2>
+                  
+                  <div class="space-y-4">
+                    <div class="flex items-center gap-3 my-4">
+                      <div class="flex-1 border-t border-gray-300"></div>
+                      <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
+                      <div class="flex-1 border-t border-gray-300"></div>
+                    </div>
+                    
                     <%= render PodiumComponent.new(
-                      players: group_stats[:all_time][:players],
-                      title: "Le sable lui dit bonjour",
-                      icon: "home"
+                      players: group_stats[:free_play_week][:players],
+                      title: "C'est pas une addiction, c'est un mode de vie",
+                      icon: "activity"
+                    ) %>
+                  </div>
+
+                  <div class="space-y-4">
+                    <div class="flex items-center gap-3 my-4">
+                      <div class="flex-1 border-t border-gray-300"></div>
+                      <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
+                      <div class="flex-1 border-t border-gray-300"></div>
+                    </div>
+                    
+                    <%= render PodiumComponent.new(
+                      players: group_stats[:free_play_month][:players],
+                      title: "Est en CDI à la turbie",
+                      icon: "file-text"
                     ) %>
                   </div>
                 </div>
 
-                <!-- Section Jeu libre -->
+                <!-- Section C: Entraînement -->
                 <div class="space-y-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-6">Jeu libre</h3>
+                  <h2 class="text-xl font-semibold text-gray-800 mb-4">Entraînement</h2>
                   
-                  <div class="space-y-8">
-                    <!-- Cette semaine -->
-                    <div>
-                      <div class="flex items-center gap-3 my-4">
-                        <div class="flex-1 border-t border-gray-300"></div>
-                        <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
-                        <div class="flex-1 border-t border-gray-300"></div>
-                      </div>
-                      
-                      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        <%= render PodiumComponent.new(
-                          players: group_stats[:free_play_week][:players],
-                          title: "C'est pas une addiction, c'est un mode de vie",
-                          icon: "activity"
-                        ) %>
-                      </div>
+                  <div class="space-y-4">
+                    <div class="flex items-center gap-3 my-4">
+                      <div class="flex-1 border-t border-gray-300"></div>
+                      <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
+                      <div class="flex-1 border-t border-gray-300"></div>
                     </div>
+                    
+                    <%= render PodiumComponent.new(
+                      players: group_stats[:training_week][:players],
+                      title: "Élève modèle (cette semaine)",
+                      icon: "book-open"
+                    ) %>
+                  </div>
 
-                    <!-- Ce mois -->
-                    <div>
-                      <div class="flex items-center gap-3 my-4">
-                        <div class="flex-1 border-t border-gray-300"></div>
-                        <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
-                        <div class="flex-1 border-t border-gray-300"></div>
-                      </div>
-                      
-                      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        <%= render PodiumComponent.new(
-                          players: group_stats[:free_play_month][:players],
-                          title: "Est en CDI à la turbie",
-                          icon: "file-text"
-                        ) %>
-                      </div>
+                  <div class="space-y-4">
+                    <div class="flex items-center gap-3 my-4">
+                      <div class="flex-1 border-t border-gray-300"></div>
+                      <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
+                      <div class="flex-1 border-t border-gray-300"></div>
                     </div>
+                    
+                    <%= render PodiumComponent.new(
+                      players: group_stats[:training_month][:players],
+                      title: "Major de promo (ce mois-ci)",
+                      icon: "graduation-cap"
+                    ) %>
                   </div>
                 </div>
 
-                <!-- Section Entraînement -->
+                <!-- Section D: Inactivité -->
                 <div class="space-y-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-6">Entraînement</h3>
-                  
-                  <div class="space-y-8">
-                    <!-- Cette semaine -->
-                    <div>
-                      <div class="flex items-center gap-3 my-4">
-                        <div class="flex-1 border-t border-gray-300"></div>
-                        <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
-                        <div class="flex-1 border-t border-gray-300"></div>
-                      </div>
-                      
-                      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        <%= render PodiumComponent.new(
-                          players: group_stats[:training_week][:players],
-                          title: "Élève modèle (cette semaine)",
-                          icon: "book-open"
-                        ) %>
-                      </div>
-                    </div>
-
-                    <!-- Ce mois -->
-                    <div>
-                      <div class="flex items-center gap-3 my-4">
-                        <div class="flex-1 border-t border-gray-300"></div>
-                        <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
-                        <div class="flex-1 border-t border-gray-300"></div>
-                      </div>
-                      
-                      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        <%= render PodiumComponent.new(
-                          players: group_stats[:training_month][:players],
-                          title: "Major de promo (ce mois-ci)",
-                          icon: "graduation-cap"
-                        ) %>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Section Inactivité -->
-                <div class="space-y-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-6">Le frigo</h3>
+                  <h2 class="text-xl font-semibold text-gray-800 mb-4">Le frigo</h2>
                   
                   <div class="flex items-center gap-3 my-4">
                     <div class="flex-1 border-t border-gray-300"></div>
@@ -321,48 +303,42 @@
                     <div class="flex-1 border-t border-gray-300"></div>
                   </div>
                   
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <%= render PodiumComponent.new(
-                      players: group_stats[:inactivity][:players],
-                      title: "Porté(e) disparu(e)",
-                      icon: "snowflake",
-                      empty_message: "Aucune donnée"
-                    ) %>
-                  </div>
+                  <%= render PodiumComponent.new(
+                    players: group_stats[:inactivity][:players],
+                    title: "Porté(e) disparu(e)",
+                    icon: "snowflake",
+                    empty_message: "Aucune donnée"
+                  ) %>
                 </div>
               </div>
 
-              <!-- Section Classements complets -->
-              <div class="mt-16 space-y-12">
+              <!-- Section Classements complets côte à côte -->
+              <div class="mt-16">
                 <h2 class="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
                   <%= lucide_icon("list", class: "w-6 h-6 text-asmbv-red") %>
                   Classements complets
                 </h2>
 
-                <!-- Records all-time -->
-                <div class="space-y-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-4">Records all-time</h3>
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <!-- Records all-time -->
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Records all-time</h3>
                     <%= render RankingComponent.new(
                       players: group_stats[:all_time][:full_ranking]
                     ) %>
                   </div>
-                </div>
 
-                <!-- Jeu libre total -->
-                <div class="space-y-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-4">Jeu libre</h3>
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <!-- Jeu libre total -->
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Jeu libre</h3>
                     <%= render RankingComponent.new(
                       players: group_stats[:free_play_total][:full_ranking]
                     ) %>
                   </div>
-                </div>
 
-                <!-- Entraînement total -->
-                <div class="space-y-6">
-                  <h3 class="text-xl font-bold text-gray-900 mb-4">Entraînement</h3>
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <!-- Entraînement total -->
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Entraînement</h3>
                     <%= render RankingComponent.new(
                       players: group_stats[:training_total][:full_ranking]
                     ) %>
