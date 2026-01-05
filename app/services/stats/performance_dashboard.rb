@@ -20,8 +20,9 @@ module Stats
     def by_group
       levels = Level.all.order(:name)
       levels.each_with_object({}) do |level, result|
-        # Get user IDs directly from UserLevel to avoid issues with joins
-        user_ids = UserLevel.where(level_id: level.id).joins(:user).merge(User.players).pluck(:user_id)
+        # Get user IDs directly from UserLevel - include all users with this level
+        # (not just "players" as coaches/responsables can also have levels and registrations)
+        user_ids = UserLevel.where(level_id: level.id).joins(:user).pluck(:user_id)
         users_in_level = User.where(id: user_ids)
         
         result[level.id] = {
