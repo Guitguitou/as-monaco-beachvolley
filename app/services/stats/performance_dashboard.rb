@@ -53,8 +53,8 @@ module Stats
 
     def all_time_stats
       {
-        male: top_player_by_sessions(players_with_or_without_level.male),
-        female: top_player_by_sessions(players_with_or_without_level.female)
+        male: top_player_by_sessions(players_including_no_level.male),
+        female: top_player_by_sessions(players_including_no_level.female)
       }
     end
 
@@ -62,8 +62,8 @@ module Stats
       week_start = current_week_start
       sessions = Session.free_plays.in_current_week(week_start)
       {
-        male: top_player_by_sessions_in_period(players_with_or_without_level.male, sessions),
-        female: top_player_by_sessions_in_period(players_with_or_without_level.female, sessions)
+        male: top_player_by_sessions_in_period(players_including_no_level.male, sessions),
+        female: top_player_by_sessions_in_period(players_including_no_level.female, sessions)
       }
     end
 
@@ -71,8 +71,8 @@ module Stats
       month_start = current_month_start
       sessions = Session.free_plays.in_current_month(month_start)
       {
-        male: top_player_by_sessions_in_period(players_with_or_without_level.male, sessions),
-        female: top_player_by_sessions_in_period(players_with_or_without_level.female, sessions)
+        male: top_player_by_sessions_in_period(players_including_no_level.male, sessions),
+        female: top_player_by_sessions_in_period(players_including_no_level.female, sessions)
       }
     end
 
@@ -224,9 +224,26 @@ module Stats
       results.first(3)
     end
 
-    def players_with_or_without_level
-      # Include players with or without level (left join to include users without levels)
-      User.players.left_joins(:user_levels)
+    def players_including_no_level
+      # Return an object that provides .male and .female scopes
+      # that include users with or without levels
+      PlayersIncludingNoLevel.new
+    end
+
+    class PlayersIncludingNoLevel
+      def male
+        # Users with male level OR users without any level
+        User.players.left_joins(user_levels: :level)
+          .where("levels.gender = ? OR user_levels.id IS NULL", "male")
+          .distinct
+      end
+
+      def female
+        # Users with female level OR users without any level
+        User.players.left_joins(user_levels: :level)
+          .where("levels.gender = ? OR user_levels.id IS NULL", "female")
+          .distinct
+      end
     end
 
     def current_week_start
