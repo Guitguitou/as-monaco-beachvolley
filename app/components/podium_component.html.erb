@@ -1,0 +1,96 @@
+<div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide"><%= title %></h3>
+    <span class="text-2xl"><%= lucide_icon(icon, class: "w-6 h-6 text-asmbv-red") %></span>
+  </div>
+
+  <% if has_players? %>
+    <div class="flex items-end justify-center gap-2 md:gap-4">
+      <!-- 2ème place -->
+      <% if second_place %>
+        <div class="flex flex-col items-center flex-1 max-w-[120px]">
+          <div class="w-full bg-gray-200 rounded-t-lg p-3 mb-2 min-h-[80px] flex flex-col items-center justify-end">
+            <span class="text-2xl mb-1"><%= medal_emoji(2) %></span>
+            <p class="text-sm font-semibold text-gray-900 text-center truncate w-full" title="<%= second_place[:name] %>"><%= second_place[:name] %></p>
+            <p class="text-xs text-gray-600 mt-1">
+              <% if second_place[:count] %>
+                <%= pluralize(second_place[:count], "session") %>
+              <% elsif second_place[:days_since] %>
+                Il y a <%= pluralize(second_place[:days_since], "jour") %>
+              <% elsif second_place[:last_session_at].nil? %>
+                Jamais joué
+              <% end %>
+            </p>
+          </div>
+          <div class="text-xs font-bold text-gray-500">2</div>
+        </div>
+      <% end %>
+
+      <!-- 1ère place -->
+      <% if first_place %>
+        <div class="flex flex-col items-center flex-1 max-w-[140px]">
+          <div class="w-full bg-gradient-to-b from-yellow-400 to-yellow-500 rounded-t-lg p-4 mb-2 min-h-[100px] flex flex-col items-center justify-end shadow-md">
+            <span class="text-3xl mb-1"><%= medal_emoji(1) %></span>
+            <p class="text-sm font-bold text-gray-900 text-center truncate w-full" title="<%= first_place[:name] %>"><%= first_place[:name] %></p>
+            <p class="text-xs text-gray-800 mt-1 font-semibold">
+              <% if first_place[:count] %>
+                <%= pluralize(first_place[:count], "session") %>
+              <% elsif first_place[:days_since] %>
+                Il y a <%= pluralize(first_place[:days_since], "jour") %>
+              <% elsif first_place[:last_session_at].nil? %>
+                Jamais joué
+              <% end %>
+            </p>
+          </div>
+          <div class="text-xs font-bold text-gray-500">1</div>
+        </div>
+      <% end %>
+
+      <!-- 3ème place -->
+      <% if third_place %>
+        <div class="flex flex-col items-center flex-1 max-w-[120px]">
+          <div class="w-full bg-amber-200 rounded-t-lg p-3 mb-2 min-h-[60px] flex flex-col items-center justify-end">
+            <span class="text-xl mb-1"><%= medal_emoji(3) %></span>
+            <p class="text-sm font-semibold text-gray-900 text-center truncate w-full" title="<%= third_place[:name] %>"><%= third_place[:name] %></p>
+            <p class="text-xs text-gray-600 mt-1">
+              <% if third_place[:count] %>
+                <%= pluralize(third_place[:count], "session") %>
+              <% elsif third_place[:days_since] %>
+                Il y a <%= pluralize(third_place[:days_since], "jour") %>
+              <% elsif third_place[:last_session_at].nil? %>
+                Jamais joué
+              <% end %>
+            </p>
+          </div>
+          <div class="text-xs font-bold text-gray-500">3</div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Affichage pour inactivité avec dates -->
+    <% if first_place && (first_place[:last_session_at] || first_place[:days_since]) %>
+      <div class="mt-4 pt-4 border-t border-gray-200 text-center space-y-1">
+        <% if first_place[:last_session_at] %>
+          <p class="text-xs text-gray-500">
+            Dernière session : <%= first_place[:last_session_at].in_time_zone("Europe/Paris").strftime("%d/%m/%Y") %>
+          </p>
+        <% end %>
+        <% if second_place && second_place[:last_session_at] %>
+          <p class="text-xs text-gray-400">
+            2ème : <%= second_place[:last_session_at].in_time_zone("Europe/Paris").strftime("%d/%m/%Y") %>
+          </p>
+        <% end %>
+        <% if third_place && third_place[:last_session_at] %>
+          <p class="text-xs text-gray-400">
+            3ème : <%= third_place[:last_session_at].in_time_zone("Europe/Paris").strftime("%d/%m/%Y") %>
+          </p>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="text-center py-8">
+      <p class="text-gray-400 italic"><%= empty_message %></p>
+    </div>
+  <% end %>
+</div>
+
