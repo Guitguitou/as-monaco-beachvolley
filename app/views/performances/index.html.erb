@@ -212,6 +212,13 @@
             <!-- Records all-time -->
             <div class="space-y-6">
               <h3 class="text-lg font-semibold text-gray-800 mb-4">Records all-time</h3>
+              
+              <div class="flex items-center gap-3 my-4">
+                <div class="flex-1 border-t border-gray-300"></div>
+                <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">All Time</span>
+                <div class="flex-1 border-t border-gray-300"></div>
+              </div>
+              
               <%= render PodiumComponent.new(
                 players: group_stats[:all_time][:players],
                 title: "Le sable lui dit bonjour",
@@ -288,6 +295,13 @@
             <!-- Inactivité -->
             <div class="space-y-6">
               <h3 class="text-lg font-semibold text-gray-800 mb-4">Le frigo</h3>
+              
+              <div class="flex items-center gap-3 my-4">
+                <div class="flex-1 border-t border-gray-300"></div>
+                <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">All Time</span>
+                <div class="flex-1 border-t border-gray-300"></div>
+              </div>
+              
               <%= render PodiumComponent.new(
                 players: group_stats[:inactivity][:players],
                 title: "Porté(e) disparu(e)",
