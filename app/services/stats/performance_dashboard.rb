@@ -72,55 +72,55 @@ module Stats
     end
 
     def top_player_by_sessions(users_scope)
-      result = Registration
+      results = Registration
         .valid
         .joins(:user, :session)
         .where(users: { id: users_scope.select(:id) })
         .group("users.id", "users.first_name", "users.last_name")
         .order("COUNT(registrations.id) DESC")
-        .limit(1)
+        .limit(3)
         .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
-        .first
 
-      return nil if result.blank?
+      return [] if results.blank?
 
-      user_id, first_name, last_name, count = result
-      {
-        user: User.find(user_id),
-        count: count,
-        name: "#{first_name} #{last_name}".strip
-      }
+      results.map do |user_id, first_name, last_name, count|
+        {
+          user: User.find(user_id),
+          count: count,
+          name: "#{first_name} #{last_name}".strip
+        }
+      end
     end
 
     def top_player_by_sessions_in_period(users_scope, sessions_scope)
       session_ids = sessions_scope.select(:id)
-      return nil if session_ids.empty?
+      return [] if session_ids.empty?
 
-      result = Registration
+      results = Registration
         .valid
         .joins(:user)
         .where(users: { id: users_scope.select(:id) })
         .where(session_id: session_ids)
         .group("users.id", "users.first_name", "users.last_name")
         .order("COUNT(registrations.id) DESC")
-        .limit(1)
+        .limit(3)
         .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
-        .first
 
-      return nil if result.blank?
+      return [] if results.blank?
 
-      user_id, first_name, last_name, count = result
-      {
-        user: User.find(user_id),
-        count: count,
-        name: "#{first_name} #{last_name}".strip
-      }
+      results.map do |user_id, first_name, last_name, count|
+        {
+          user: User.find(user_id),
+          count: count,
+          name: "#{first_name} #{last_name}".strip
+        }
+      end
     end
 
     def most_inactive_player(users_scope)
       # Get all players in scope
       all_players = users_scope.to_a
-      return nil if all_players.empty?
+      return [] if all_players.empty?
 
       # Find the last session date for each user who has played
       users_with_sessions = Registration
@@ -133,10 +133,12 @@ module Stats
       # Find users who never played
       users_without_sessions = all_players.reject { |u| users_with_sessions.key?(u.id) }
 
-      # If there are users who never played, return the first one
-      if users_without_sessions.any?
-        user = users_without_sessions.first
-        return {
+      # Build results array
+      results = []
+
+      # Add users who never played first (most inactive)
+      users_without_sessions.each do |user|
+        results << {
           user: user,
           last_session_at: nil,
           days_since: nil,
@@ -144,21 +146,23 @@ module Stats
         }
       end
 
-      # Otherwise, find the user with the oldest last session
-      return nil if users_with_sessions.blank?
+      # Add users with sessions, sorted by oldest last session first
+      if users_with_sessions.any?
+        sorted_users = users_with_sessions.sort_by { |_uid, date| date || Time.at(0) }
+        sorted_users.each do |user_id, last_session_at|
+          user = User.find(user_id)
+          days_since = last_session_at ? ((timezone.now - last_session_at.in_time_zone(timezone)) / 1.day).round : nil
+          results << {
+            user: user,
+            last_session_at: last_session_at,
+            days_since: days_since,
+            name: user.full_name
+          }
+        end
+      end
 
-      user_id, last_session_at = users_with_sessions.min_by { |_uid, date| date || Time.at(0) }
-      return nil if user_id.blank?
-
-      user = User.find(user_id)
-      days_since = last_session_at ? ((timezone.now - last_session_at.in_time_zone(timezone)) / 1.day).round : nil
-
-      {
-        user: user,
-        last_session_at: last_session_at,
-        days_since: days_since,
-        name: user.full_name
-      }
+      # Return top 3 most inactive
+      results.first(3)
     end
 
     def current_week_start
