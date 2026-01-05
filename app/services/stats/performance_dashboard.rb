@@ -80,8 +80,8 @@ module Stats
       week_start = current_week_start
       sessions = Session.trainings.in_current_week(week_start)
       {
-        male: top_player_by_sessions_in_period(User.players.male, sessions),
-        female: top_player_by_sessions_in_period(User.players.female, sessions)
+        male: top_player_by_sessions_in_period_by_gender(sessions, "male"),
+        female: top_player_by_sessions_in_period_by_gender(sessions, "female")
       }
     end
 
@@ -89,15 +89,15 @@ module Stats
       month_start = current_month_start
       sessions = Session.trainings.in_current_month(month_start)
       {
-        male: top_player_by_sessions_in_period(User.players.male, sessions),
-        female: top_player_by_sessions_in_period(User.players.female, sessions)
+        male: top_player_by_sessions_in_period_by_gender(sessions, "male"),
+        female: top_player_by_sessions_in_period_by_gender(sessions, "female")
       }
     end
 
     def inactivity_stats
       {
-        male: most_inactive_player_with_sessions(User.players.male),
-        female: most_inactive_player_with_sessions(User.players.female)
+        male: most_inactive_player_with_sessions_by_gender("male"),
+        female: most_inactive_player_with_sessions_by_gender("female")
       }
     end
 
@@ -206,6 +206,45 @@ module Stats
     def most_inactive_player_with_sessions(users_scope)
       # Get user IDs directly to avoid issues with joins in the scope
       user_ids = users_scope.distinct.pluck(:id)
+      return [] if user_ids.empty?
+
+      # Only include users who have at least one session
+      users_with_sessions = Registration
+        .valid
+        .joins(:user, :session)
+        .where(users: { id: user_ids })
+        .group("users.id")
+        .maximum("sessions.start_at")
+
+      return [] if users_with_sessions.blank?
+
+      # Sort by oldest last session first (most inactive)
+      sorted_users = users_with_sessions.sort_by { |_uid, date| date || Time.at(0) }
+      
+      results = sorted_users.map do |user_id, last_session_at|
+        user = User.find(user_id)
+        days_since = last_session_at ? ((timezone.now - last_session_at.in_time_zone(timezone)) / 1.day).round : nil
+        {
+          user: user,
+          last_session_at: last_session_at,
+          days_since: days_since,
+          name: user.full_name
+        }
+      end
+
+      # Return top 3 most inactive
+      results.first(3)
+    end
+
+    def most_inactive_player_with_sessions_by_gender(gender)
+      # Get user IDs for the specific gender by joining through user_levels
+      user_ids = User.players
+        .joins(:user_levels)
+        .joins("INNER JOIN levels ON levels.id = user_levels.level_id")
+        .where(levels: { gender: gender })
+        .distinct
+        .pluck(:id)
+
       return [] if user_ids.empty?
 
       # Only include users who have at least one session
