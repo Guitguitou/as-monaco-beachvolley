@@ -35,6 +35,8 @@ Rails.application.routes.draw do
     resources :sessions, only: [:index, :show]
   end
 
+  get "performances", to: "performances#index", as: :performances
+
   namespace :coach do
     resources :trainings, only: [:index]
   end
