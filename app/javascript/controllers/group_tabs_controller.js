@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["tab", "panel", "mobileMenu", "mobileButton", "mobileOverlay", "mobileMenuItem", "mobileButtonLabel"]
+  static targets = ["tab", "panel", "mobileMenu", "mobileButton", "mobileOverlay", "mobileMenuItem", "mobileButtonLabel", "mobileButtonBadge"]
 
   connect() {
     this.opened = false
@@ -77,6 +77,8 @@ export default class extends Controller {
         const levelColor = this.getLevelColorFromItem(item)
         const checkIcon = item.querySelector(".check-icon")
         const groupName = item.querySelector("span.font-medium")?.textContent || ""
+        const levelBadge = item.querySelector("span[style*='background-color']")
+        const levelName = levelBadge?.textContent?.trim() || ""
         
         if (isActive) {
           item.classList.add("active")
@@ -86,9 +88,13 @@ export default class extends Controller {
             checkIcon.classList.remove("hidden")
             checkIcon.querySelector("svg").style.color = levelColor
           }
-          // Update mobile button label
+          // Update mobile button label and badge
           if (this.hasMobileButtonLabelTarget) {
             this.mobileButtonLabelTarget.textContent = groupName
+          }
+          if (this.hasMobileButtonBadgeTarget) {
+            this.mobileButtonBadgeTarget.textContent = levelName
+            this.mobileButtonBadgeTarget.style.backgroundColor = levelColor
           }
         } else {
           item.classList.remove("active")
