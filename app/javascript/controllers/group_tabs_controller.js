@@ -1,9 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["tab", "panel"]
+  static targets = ["tab", "panel", "mobileMenu", "mobileButton", "mobileOverlay", "mobileMenuItem", "mobileButtonLabel"]
 
   connect() {
+    this.opened = false
     const firstTab = this.tabTargets[0]?.dataset?.group
     if (firstTab) {
       this.showGroup(firstTab)
@@ -16,6 +17,40 @@ export default class extends Controller {
     const groupId = event.currentTarget?.dataset?.group
     if (!groupId) return
     this.showGroup(groupId)
+    // Close mobile menu if open
+    if (this.opened) {
+      this.closeMobileMenu()
+    }
+  }
+
+  toggleMobileMenu() {
+    this.opened ? this.closeMobileMenu() : this.openMobileMenu()
+  }
+
+  openMobileMenu() {
+    if (this.hasMobileMenuTarget) {
+      this.mobileMenuTarget.classList.remove("hidden")
+    }
+    if (this.hasMobileOverlayTarget) {
+      this.mobileOverlayTarget.classList.remove("hidden")
+    }
+    if (this.hasMobileButtonTarget) {
+      this.mobileButtonTarget.classList.add("active")
+    }
+    this.opened = true
+  }
+
+  closeMobileMenu() {
+    if (this.hasMobileMenuTarget) {
+      this.mobileMenuTarget.classList.add("hidden")
+    }
+    if (this.hasMobileOverlayTarget) {
+      this.mobileOverlayTarget.classList.add("hidden")
+    }
+    if (this.hasMobileButtonTarget) {
+      this.mobileButtonTarget.classList.remove("active")
+    }
+    this.opened = false
   }
 
   showGroup(groupId) {
@@ -34,6 +69,37 @@ export default class extends Controller {
         tab.style.color = "#6b7280"
       }
     })
+
+    // Update mobile menu items
+    if (this.hasMobileMenuItemTargets) {
+      this.mobileMenuItemTargets.forEach(item => {
+        const isActive = item.dataset.group === groupId
+        const levelColor = this.getLevelColorFromItem(item)
+        const checkIcon = item.querySelector(".check-icon")
+        const groupName = item.querySelector("span.font-medium")?.textContent || ""
+        
+        if (isActive) {
+          item.classList.add("active")
+          item.style.borderLeftColor = levelColor
+          item.style.backgroundColor = `${levelColor}15`
+          if (checkIcon) {
+            checkIcon.classList.remove("hidden")
+            checkIcon.querySelector("svg").style.color = levelColor
+          }
+          // Update mobile button label
+          if (this.hasMobileButtonLabelTarget) {
+            this.mobileButtonLabelTarget.textContent = groupName
+          }
+        } else {
+          item.classList.remove("active")
+          item.style.borderLeftColor = "transparent"
+          item.style.backgroundColor = "transparent"
+          if (checkIcon) {
+            checkIcon.classList.add("hidden")
+          }
+        }
+      })
+    }
 
     // Update panels
     this.panelTargets.forEach(panel => {
@@ -62,6 +128,14 @@ export default class extends Controller {
       }
     }
     return "#ef4444" // fallback color
+  }
+
+  getLevelColorFromItem(item) {
+    const color = item.dataset.levelColor
+    if (color) {
+      return color
+    }
+    return "#ef4444"
   }
 }
 
