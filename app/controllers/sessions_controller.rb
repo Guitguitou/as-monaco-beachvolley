@@ -86,6 +86,11 @@ class SessionsController < ApplicationController
   def cancel
     authorize! :cancel, @session
 
+    # Règle 4: Notifier tous les utilisateurs inscrits avant de détruire la session
+    session_name = @session.title || @session.session_type.humanize
+    session_date = @session.start_at.strftime("%d/%m/%Y")
+    registered_users = @session.registrations.confirmed.includes(:user).map(&:user)
+
     ActiveRecord::Base.transaction do
       # Refund all participants for non-private sessions
       @session.registrations.includes(:user).find_each do |registration|
@@ -103,6 +108,16 @@ class SessionsController < ApplicationController
       # Detach transactions from this session to avoid FK issues, then destroy
       CreditTransaction.where(session_id: @session.id).update_all(session_id: nil)
       @session.destroy!
+    end
+
+    # Envoyer les notifications après la destruction (pour éviter les erreurs si la session n'existe plus)
+    registered_users.each do |user|
+      SendPushNotificationJob.perform_later(
+        user.id,
+        title: "Session annulée",
+        body: "La session #{session_name} du #{session_date} est annulée",
+        url: Rails.application.routes.url_helpers.sessions_path
+      )
     end
 
     redirect_to sessions_path, notice: "Session annulée et remboursée ✅"

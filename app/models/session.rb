@@ -155,7 +155,18 @@ class Session < ApplicationRecord
       amount = coaching_prive? ? 0 : price.to_i
       # Skip if user cannot pay now
       next unless amount.positive?
-      next unless reg.user.balance.amount >= amount
+
+      # Check if user has enough credits
+      if reg.user.balance.amount < amount
+        # Règle 2: Notifier l'utilisateur qu'il n'a pas assez de crédits
+        SendPushNotificationJob.perform_later(
+          reg.user.id,
+          title: "Pas assez de crédits",
+          body: "Tu n'as pas assez de crédits pour passer en liste principale.",
+          url: Rails.application.routes.url_helpers.session_path(self)
+        )
+        next
+      end
 
       promotion_succeeded = false
       begin
@@ -164,6 +175,19 @@ class Session < ApplicationRecord
           reg.save!
           TransactionService.new(reg.user, self, amount).create_transaction if amount.positive?
           promotion_succeeded = true
+        end
+
+        # Règle 1: Notifier l'utilisateur qu'il passe en liste principale
+        if promotion_succeeded
+          session_name = self.title || session_type.humanize
+          session_date = start_at.strftime("%d/%m/%Y")
+          session_time = start_at.strftime("%Hh%M")
+          SendPushNotificationJob.perform_later(
+            reg.user.id,
+            title: "Tu passes en liste principale !",
+            body: "Quelqu'un s'est désinscrit de la session #{session_name} du #{session_date} à #{session_time}, tu viens de passer en liste principale",
+            url: Rails.application.routes.url_helpers.session_path(self)
+          )
         end
       rescue ActiveRecord::RecordInvalid
         promotion_succeeded = false
