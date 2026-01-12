@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_14_113332) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_06_100250) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pgcrypto"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -106,6 +107,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_14_113332) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "notification_rules", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "event_type", null: false
+    t.jsonb "conditions", default: {}
+    t.boolean "enabled", default: true, null: false
+    t.text "title_template"
+    t.text "body_template"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["enabled"], name: "index_notification_rules_on_enabled"
+    t.index ["event_type"], name: "index_notification_rules_on_event_type"
+  end
+
   create_table "packs", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
@@ -123,6 +137,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_14_113332) do
     t.index ["stage_id"], name: "index_packs_on_stage_id"
   end
 
+  create_table "plans_hebdomadaires", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "plan_mensuel_id", null: false
+    t.date "debut_semaine", null: false
+    t.decimal "jours_homme", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["plan_mensuel_id", "debut_semaine"], name: "index_plans_hebdomadaires_on_plan_mensuel_id_and_debut_semaine", unique: true
+    t.index ["plan_mensuel_id"], name: "index_plans_hebdomadaires_on_plan_mensuel_id"
+  end
+
+  create_table "plans_mensuels", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.date "mois", null: false
+    t.integer "cible_ca_cents", default: 0, null: false
+    t.decimal "jours_homme", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["mois"], name: "index_plans_mensuels_on_mois", unique: true
+  end
+
+  create_table "push_subscriptions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "endpoint", null: false
+    t.string "p256dh", null: false
+    t.string "auth", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "endpoint"], name: "index_push_subscriptions_on_user_id_and_endpoint", unique: true
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+  end
+
   create_table "registrations", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "session_id", null: false
@@ -135,6 +179,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_14_113332) do
     t.index ["status", "created_at"], name: "index_registrations_on_status_and_created_at"
     t.index ["user_id", "session_id"], name: "index_registrations_on_user_id_and_session_id", unique: true
     t.index ["user_id"], name: "index_registrations_on_user_id"
+  end
+
+  create_table "regles_statuts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "statut", null: false
+    t.integer "categorie_couleur", null: false
+    t.boolean "compte_comme_fait", default: false, null: false
+    t.integer "ordre", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ordre"], name: "index_regles_statuts_on_ordre"
+    t.index ["statut"], name: "index_regles_statuts_on_statut", unique: true
   end
 
   create_table "session_levels", force: :cascade do |t|
@@ -183,6 +238,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_14_113332) do
     t.index ["main_coach_id"], name: "index_stages_on_main_coach_id"
   end
 
+  create_table "tickets_production", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "plan_hebdomadaire_id", null: false
+    t.string "cle_jira", null: false
+    t.string "url_jira", null: false
+    t.string "titre"
+    t.integer "valeur_cents", default: 0, null: false
+    t.string "statut", null: false
+    t.date "prevu_le", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["plan_hebdomadaire_id"], name: "index_tickets_production_on_plan_hebdomadaire_id"
+    t.index ["prevu_le"], name: "index_tickets_production_on_prevu_le"
+    t.index ["statut"], name: "index_tickets_production_on_statut"
+  end
+
   create_table "user_levels", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "level_id", null: false
@@ -226,11 +296,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_14_113332) do
   add_foreign_key "balances", "users"
   add_foreign_key "credit_purchases", "packs"
   add_foreign_key "credit_purchases", "users"
-  add_foreign_key "credit_transactions", "sessions", on_delete: :nullify
+  add_foreign_key "credit_transactions", "sessions"
   add_foreign_key "credit_transactions", "users"
   add_foreign_key "late_cancellations", "sessions"
   add_foreign_key "late_cancellations", "users"
   add_foreign_key "packs", "stages"
+  add_foreign_key "plans_hebdomadaires", "plans_mensuels", column: "plan_mensuel_id"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "registrations", "sessions"
   add_foreign_key "registrations", "users"
   add_foreign_key "session_levels", "levels"
@@ -238,6 +310,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_14_113332) do
   add_foreign_key "sessions", "users"
   add_foreign_key "stages", "users", column: "assistant_coach_id"
   add_foreign_key "stages", "users", column: "main_coach_id"
+  add_foreign_key "tickets_production", "plans_hebdomadaires", column: "plan_hebdomadaire_id"
   add_foreign_key "user_levels", "levels"
   add_foreign_key "user_levels", "users"
 end
