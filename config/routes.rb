@@ -69,6 +69,9 @@ Rails.application.routes.draw do
     resource :payments, only: [:show] do
       post :buy_10_eur, on: :collection
     end
+    
+    # Notification rules management
+    resources :notification_rules
   end
   
   # Public stages
@@ -86,6 +89,15 @@ Rails.application.routes.draw do
   # Webhooks
   namespace :webhooks do
     post 'sherlock', to: 'sherlock#receive'
+  end
+
+  # Push notifications API
+  namespace :api do
+    resources :push_subscriptions, only: [:create] do
+      collection do
+        delete :destroy
+      end
+    end
   end
   
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
