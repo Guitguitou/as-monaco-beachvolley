@@ -19,6 +19,7 @@ class User < ApplicationRecord
   has_many :registrations, dependent: :destroy
   has_many :confirmed_registrations, -> { where(status: Registration.statuses[:confirmed]) }, class_name: 'Registration'
   has_many :sessions_registered, through: :confirmed_registrations, source: :session
+  has_many :push_subscriptions, dependent: :destroy
 
   # Callbacks
   after_create :init_balance
