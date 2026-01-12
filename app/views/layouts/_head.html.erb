@@ -24,4 +24,9 @@
   <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
   <%= javascript_importmap_tags %>
   <%= yield :head if content_for?(:head) %>
+
+  <!-- Push Notifications -->
+  <% if user_signed_in? && vapid_public_key.present? %>
+    <meta name="vapid-public-key" content="<%= vapid_public_key %>">
+  <% end %>
 </head>

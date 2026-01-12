@@ -137,4 +137,9 @@ module ApplicationHelper
       label
     end
   end
+
+  # Get VAPID public key for push notifications
+  def vapid_public_key
+    ENV["VAPID_PUBLIC_KEY"] || Rails.application.credentials.dig(:vapid, :public_key) || ""
+  end
 end
