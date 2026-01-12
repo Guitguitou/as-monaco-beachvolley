@@ -94,3 +94,6 @@ gem "activestorage-cloudinary-service"
 
 # Load .env in Rails
 gem "dotenv-rails", groups: [:development, :test]
+
+# Web Push notifications
+gem "webpush"
