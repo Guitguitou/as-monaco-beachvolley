@@ -62,7 +62,14 @@ scalingo --app votre-app env-set SHERLOCK_RETURN_URL_CANCEL=https://votre-app.os
 scalingo --app votre-app env-set SHERLOCK_WEBHOOK_TOKEN=votre_token_secret
 scalingo --app votre-app env-set APP_HOST=https://votre-app.osc-fr1.scalingo.io
 scalingo --app votre-app env-set CURRENCY=EUR
+
+# Notifications Push (générer les clés avec: bin/rails vapid:generate)
+scalingo --app votre-app env-set VAPID_PUBLIC_KEY="votre_cle_publique"
+scalingo --app votre-app env-set VAPID_PRIVATE_KEY="votre_cle_privee"
+scalingo --app votre-app env-set VAPID_SUBJECT="mailto:votre-email@example.com"
 ```
 
-Note : `REDIS_URL` est automatiquement configurée par l'addon Redis de Scalingo.
+Note : 
+- `REDIS_URL` est automatiquement configurée par l'addon Redis de Scalingo.
+- Voir `SCALINGO_PUSH_NOTIFICATIONS.md` pour la configuration complète des notifications push.
 
