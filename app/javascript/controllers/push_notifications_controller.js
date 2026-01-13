@@ -6,9 +6,12 @@ export default class extends Controller {
     vapidPublicKey: String
   }
 
+  static targets = ["enableButton"]
+
   connect() {
     this.checkSupport()
     this.registerServiceWorker()
+    this.updateButtonVisibility()
   }
 
   async checkSupport() {
@@ -30,13 +33,68 @@ export default class extends Controller {
       const registration = await navigator.serviceWorker.register("/service-worker.js")
       console.log("Service Worker registered:", registration)
 
-      // Check if we already have permission
-      const permission = await Notification.requestPermission()
+      // Check current permission status (without prompting)
+      const permission = Notification.permission
+      
       if (permission === "granted") {
+        // Already granted, subscribe automatically
         await this.subscribe(registration)
+      } else if (permission === "default") {
+        // Permission not yet asked, don't ask automatically
+        // User will need to click a button to enable notifications
+        console.log("Notification permission not yet requested. User can enable via button.")
+      } else {
+        // Permission denied
+        console.log("Notification permission denied by user.")
       }
+      
+      this.updateButtonVisibility()
     } catch (error) {
       console.error("Service Worker registration failed:", error)
+    }
+  }
+
+  // Method to request permission (called by user action, e.g., button click)
+  async requestPermission() {
+    try {
+      const permission = await Notification.requestPermission()
+      
+      if (permission === "granted") {
+        const registration = await navigator.serviceWorker.ready
+        await this.subscribe(registration)
+        this.updateButtonVisibility()
+        
+        // Show success message (optional)
+        if (window.Turbo) {
+          // You could use Turbo Flash messages here if available
+          console.log("Notifications activées avec succès !")
+        }
+        
+        return true
+      } else {
+        console.log("Notification permission denied")
+        alert("Les notifications ont été refusées. Vous pouvez les activer plus tard dans les paramètres de votre navigateur.")
+        this.updateButtonVisibility()
+        return false
+      }
+    } catch (error) {
+      console.error("Error requesting notification permission:", error)
+      return false
+    }
+  }
+
+  updateButtonVisibility() {
+    if (!this.hasEnableButtonTarget) return
+    
+    const permission = Notification.permission
+    const button = this.enableButtonTarget
+    
+    if (permission === "default") {
+      // Permission not yet asked, show button
+      button.style.display = "flex"
+    } else {
+      // Permission already granted or denied, hide button
+      button.style.display = "none"
     }
   }
 

@@ -122,7 +122,8 @@ class PushNotificationService
     end
 
     def default_icon
-      asset_url("icon.png") || asset_url("icon.svg")
+      # Utilise le logo de l'app pour les notifications
+      asset_url("logo.png") || "/logo.png"
     end
 
     def root_url

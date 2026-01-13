@@ -12,12 +12,18 @@ self.addEventListener("push", function(event) {
 
   const options = {
     body: data.body || "Nouvelle notification",
-    icon: data.icon || "/icon.png",
-    badge: data.badge || "/icon.png",
+    icon: data.icon || "/logo.png", // Utilise le logo de l'app
+    badge: data.badge || "/logo.png", // Badge dans la barre de notification
+    image: data.image || null, // Image grande (optionnelle, pour certaines plateformes)
     data: data.data || {},
-    tag: data.tag || "default",
-    requireInteraction: data.requireInteraction || false,
-    vibrate: data.vibrate || [200, 100, 200]
+    tag: data.tag || "default", // Permet de regrouper les notifications similaires
+    requireInteraction: data.requireInteraction || false, // Notification reste visible jusqu'à interaction
+    vibrate: data.vibrate || [200, 100, 200], // Vibration sur mobile
+    silent: data.silent || false, // Notification silencieuse
+    timestamp: Date.now(), // Timestamp de la notification
+    actions: data.actions || [], // Actions rapides (optionnel, selon le navigateur)
+    dir: "ltr", // Direction du texte
+    lang: "fr" // Langue
   }
 
   event.waitUntil(

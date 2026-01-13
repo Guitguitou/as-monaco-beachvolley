@@ -57,7 +57,17 @@
       <% end %>
     </nav>
 
-    <div class="border-t border-gray-200 pt-4 mt-auto">
+    <div class="border-t border-gray-200 pt-4 mt-auto space-y-2">
+      <% if user_signed_in? && vapid_public_key.present? %>
+        <button type="button" 
+                data-action="click->push-notifications#requestPermission"
+                data-push-notifications-target="enableButton"
+                class="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium text-sm"
+                style="display: none;">
+          <%= lucide_icon('bell', class: 'w-5 h-5 text-asmbv-red') %>
+          <span>Activer les notifications</span>
+        </button>
+      <% end %>
       <%= link_to destroy_user_session_path,
             data: { turbo_method: :delete },
             class: "flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium" do %>

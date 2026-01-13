@@ -153,18 +153,22 @@ class Session < ApplicationRecord
     waitlisted_queue.each do |reg|
       # Compute amount as if confirming (waitlisted required_credits returns 0)
       amount = coaching_prive? ? 0 : price.to_i
-      # Skip if user cannot pay now
-      next unless amount.positive?
-
-      # Check if user has enough credits
-      if reg.user.balance.amount < amount
+      
+      # For non-private sessions, check if user has enough credits
+      # For private coachings, amount is 0 so we can always promote
+      if amount.positive? && reg.user.balance.amount < amount
         # Règle 2: Notifier l'utilisateur qu'il n'a pas assez de crédits
-        SendPushNotificationJob.perform_later(
-          reg.user.id,
-          title: "Pas assez de crédits",
-          body: "Tu n'as pas assez de crédits pour passer en liste principale.",
-          url: Rails.application.routes.url_helpers.session_path(self)
-        )
+        begin
+          SendPushNotificationJob.perform_later(
+            reg.user.id,
+            title: "Pas assez de crédits",
+            body: "Tu n'as pas assez de crédits pour passer en liste principale.",
+            url: Rails.application.routes.url_helpers.session_path(self)
+          )
+        rescue StandardError => e
+          Rails.logger.error "Failed to enqueue notification job: #{e.message}"
+          # Don't block the process if notification fails
+        end
         next
       end
 
@@ -179,15 +183,20 @@ class Session < ApplicationRecord
 
         # Règle 1: Notifier l'utilisateur qu'il passe en liste principale
         if promotion_succeeded
-          session_name = self.title || session_type.humanize
-          session_date = start_at.strftime("%d/%m/%Y")
-          session_time = start_at.strftime("%Hh%M")
-          SendPushNotificationJob.perform_later(
-            reg.user.id,
-            title: "Tu passes en liste principale !",
-            body: "Quelqu'un s'est désinscrit de la session #{session_name} du #{session_date} à #{session_time}, tu viens de passer en liste principale",
-            url: Rails.application.routes.url_helpers.session_path(self)
-          )
+          begin
+            session_name = self.title || session_type.humanize
+            session_date = start_at.strftime("%d/%m/%Y")
+            session_time = start_at.strftime("%Hh%M")
+            SendPushNotificationJob.perform_later(
+              reg.user.id,
+              title: "Tu passes en liste principale !",
+              body: "Quelqu'un s'est désinscrit de la session #{session_name} du #{session_date} à #{session_time}, tu viens de passer en liste principale",
+              url: Rails.application.routes.url_helpers.session_path(self)
+            )
+          rescue StandardError => e
+            Rails.logger.error "Failed to enqueue notification job: #{e.message}"
+            # Don't block the process if notification fails
+          end
         end
       rescue ActiveRecord::RecordInvalid
         promotion_succeeded = false
