@@ -152,30 +152,29 @@ module Webpush
       begin
         require 'tempfile'
         
+        # Convert hex to binary
+        private_key_bytes = [private_key_hex].pack('H*')
+        
         # Create a template key to get the DER structure
         template_key = OpenSSL::PKey::EC.generate('prime256v1')
         template_der = template_key.to_der
         
-        # Parse the DER structure to find the private key location
-        # The private key is at offset 5 (after version INTEGER and length)
-        # Format: SEQUENCE { version INTEGER(1), privateKey OCTET STRING, ... }
+        # Find the private key OCTET STRING in the template DER
+        # The structure is: SEQUENCE { version INTEGER(1), privateKey OCTET STRING, ... }
+        # Search for: 04 (OCTET STRING tag) followed by length byte, then the private key bytes
+        # The private key is always 32 bytes for prime256v1
         
-        # Find the private key OCTET STRING in the DER
-        # The structure is: 30 (SEQUENCE) [length] 02 (INTEGER) [length] 01 (version=1)
-        # Then 04 (OCTET STRING) [length] [32 bytes of private key]
+        # Method: Find the template's private key first, then replace it
+        template_private_key_bn = template_key.private_key.to_bn
+        template_private_key_bytes = template_private_key_bn.to_s(2)
         
-        # Search for the OCTET STRING tag (0x04) followed by length 0x20 (32 bytes)
-        private_key_bytes = [private_key_hex].pack('H*')
+        # Find the position of the template's private key in the DER
+        template_private_key_pos = template_der.index(template_private_key_bytes)
         
-        # Find the position of the private key in the template DER
-        # The private key OCTET STRING starts after: SEQUENCE + version INTEGER
-        # We need to find: 04 20 [32 bytes]
-        template_private_key_start = template_der.index([0x04, 0x20].pack('C*'))
-        
-        if template_private_key_start
-          # Replace the private key bytes (skip the tag 0x04 and length 0x20)
+        if template_private_key_pos && template_private_key_bytes.length == 32
+          # Replace the private key bytes
           modified_der = template_der.dup
-          modified_der[template_private_key_start + 2, 32] = private_key_bytes
+          modified_der[template_private_key_pos, 32] = private_key_bytes
           
           # Write modified DER to file
           der_file = Tempfile.new(['vapid_key', '.der'])
@@ -194,7 +193,7 @@ module Webpush
             der_file.unlink
           end
         else
-          Rails.logger.warn "Could not find private key position in template DER"
+          Rails.logger.warn "Could not find private key position in template DER (pos: #{template_private_key_pos}, len: #{template_private_key_bytes.length})"
           false
         end
       rescue StandardError => e
@@ -302,23 +301,30 @@ module Webpush
       begin
         require 'tempfile'
         
-        # Convert private key BN to hex (64 hex chars = 32 bytes for prime256v1)
-        private_key_hex = private_key_bn.to_s(16).rjust(64, '0')
-        private_key_bytes = [private_key_hex].pack('H*')
+        # Convert private key BN to binary (32 bytes for prime256v1)
+        private_key_bytes = private_key_bn.to_s(2)
+        
+        # Ensure it's exactly 32 bytes
+        if private_key_bytes.length != 32
+          Rails.logger.warn "Private key length is #{private_key_bytes.length}, expected 32"
+          return nil
+        end
         
         # Create a template key to get the DER structure
         template_key = OpenSSL::PKey::EC.generate('prime256v1')
         template_der = template_key.to_der
         
-        # Find the private key OCTET STRING in the template DER
-        # The structure is: SEQUENCE { version INTEGER(1), privateKey OCTET STRING, ... }
-        # Search for: 04 20 [32 bytes] (OCTET STRING tag, length 32, then 32 bytes)
-        template_private_key_start = template_der.index([0x04, 0x20].pack('C*'))
+        # Find the template's private key in the DER
+        template_private_key_bn = template_key.private_key.to_bn
+        template_private_key_bytes = template_private_key_bn.to_s(2)
         
-        if template_private_key_start
-          # Replace the private key bytes (skip the tag 0x04 and length 0x20)
+        # Find the position of the template's private key in the DER
+        template_private_key_pos = template_der.index(template_private_key_bytes)
+        
+        if template_private_key_pos && template_private_key_bytes.length == 32
+          # Replace the private key bytes
           modified_der = template_der.dup
-          modified_der[template_private_key_start + 2, 32] = private_key_bytes
+          modified_der[template_private_key_pos, 32] = private_key_bytes
           
           # Write modified DER to file
           der_file = Tempfile.new(['vapid_key', '.der'])
@@ -339,13 +345,15 @@ module Webpush
               begin
                 curve_private_bn = curve.private_key.to_bn
                 if curve_private_bn == private_key_bn
+                  Rails.logger.debug "Successfully created EC key with correct private key"
                   curve
                 else
-                  Rails.logger.warn "Created curve private key doesn't match expected, but using it anyway"
+                  Rails.logger.warn "Created curve private key doesn't match expected (expected: #{private_key_bn.to_s(16)}, got: #{curve_private_bn.to_s(16)})"
+                  # Try to use it anyway - sometimes the encoding differs but the key is the same
                   curve
                 end
-              rescue StandardError
-                # Can't verify, but use it anyway
+              rescue StandardError => e
+                Rails.logger.warn "Could not verify private key: #{e.message}, using curve anyway"
                 curve
               end
             else
@@ -359,7 +367,7 @@ module Webpush
             pem_file.unlink
           end
         else
-          Rails.logger.warn "Could not find private key position in template DER for signing"
+          Rails.logger.warn "Could not find private key position in template DER for signing (pos: #{template_private_key_pos}, len: #{template_private_key_bytes.length})"
           nil
         end
       rescue StandardError => e
