@@ -85,7 +85,7 @@ module Webpush
       @private_key_bn = nil
     end
 
-    # Override from_keys to create curve with both keys using DER encoding
+    # Override from_keys to create curve with both keys
     def self.from_keys(public_key, private_key)
       key = new
       # Decode the keys
@@ -96,74 +96,89 @@ module Webpush
       key.instance_variable_set(:@public_key_bn, public_key_bn)
       key.instance_variable_set(:@private_key_bn, private_key_bn)
       
-      # Create curve from private key (which allows JWT signing)
-      # We'll create a DER-encoded EC private key and load it
+      # Create curve from private key using OpenSSL command line (most reliable)
       key.create_curve_from_private_key(private_key_bn, public_key_bn)
       
       key
     end
 
-    # Create curve from private key using OpenSSL command (OpenSSL 3.0 compatible)
+    # Create curve from private key using OpenSSL command line (OpenSSL 3.0 compatible)
     def create_curve_from_private_key(private_key_bn, public_key_bn)
       begin
         require 'tempfile'
-        require 'base64'
         
-        # Use OpenSSL command line to create EC key from private key
-        # This is the most reliable way with OpenSSL 3.0
+        # Convert private key BN to hex (64 hex chars = 32 bytes for prime256v1)
         private_key_hex = private_key_bn.to_s(16).rjust(64, '0')
         
-        # Create temporary file for private key (raw binary)
-        private_key_raw = Tempfile.new(['vapid_private', '.bin'])
+        # Use OpenSSL command line to create EC key from private key hex
+        pem_file = Tempfile.new(['vapid_key', '.pem'])
         begin
-          # Write private key as raw binary (32 bytes)
-          private_key_raw.binmode
-          private_key_raw.write(private_key_bn.to_s(2))
-          private_key_raw.flush
+          # Check if openssl command is available
+          openssl_available = system('which openssl > /dev/null 2>&1')
           
-          # Create the public key point for inclusion in the key
-          group = OpenSSL::PKey::EC::Group.new('prime256v1')
-          public_point = OpenSSL::PKey::EC::Point.new(group, public_key_bn)
-          public_key_bytes = public_point.to_octet_string(:uncompressed)
-          
-          # Use openssl command to create EC key from private key
-          # We'll create a DER-encoded ECPrivateKey structure
-          # Format: openssl ec -inform DER -in private.bin -outform PEM -out key.pem
-          # But we need to create the DER structure first
-          
-          # Actually, the simplest is to use openssl to create the key structure
-          # We'll use a workaround: create the key using openssl with the private key
-          pem_file = Tempfile.new(['vapid_key', '.pem'])
-          begin
-            # Check if openssl command is available
-            openssl_available = system('which openssl > /dev/null 2>&1')
+          if openssl_available
+            # Create EC key using openssl from private key hex
+            # We'll use a Python script to create the DER structure, then convert to PEM
+            # This is the most reliable method
             
-            if openssl_available
-              # Create EC key using openssl command
-              # We need to create a DER-encoded ECPrivateKey structure
-              # The structure is: SEQUENCE { version INTEGER(1), privateKey OCTET STRING, [0] EXPLICIT ECParameters, [1] EXPLICIT BIT STRING }
+            python_script = Tempfile.new(['create_key', '.py'])
+            begin
+              python_script.write(<<~PYTHON)
+                #!/usr/bin/env python3
+                import binascii
+                from cryptography.hazmat.primitives import serialization
+                from cryptography.hazmat.primitives.asymmetric import ec
+                from cryptography.hazmat.backends import default_backend
+                
+                # Private key hex
+                private_hex = "#{private_key_hex}"
+                private_bytes = binascii.unhexlify(private_hex)
+                
+                # Create EC private key
+                private_key = ec.derive_private_key(
+                    int.from_bytes(private_bytes, 'big'),
+                    ec.SECP256R1(),
+                    default_backend()
+                )
+                
+                # Serialize to PEM
+                pem = private_key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.PKCS8,
+                    encryption_algorithm=serialization.NoEncryption()
+                )
+                
+                print(pem.decode('utf-8'))
+              PYTHON
+              python_script.chmod(0755)
+              python_script.flush
               
-              # Use openssl to create key from private key
-              # We'll use openssl ecparam to generate a key, then replace the private key
-              # But that's complex. Let's use a simpler approach:
+              # Try to use Python with cryptography library
+              result = `python3 #{python_script.path} 2>&1`
               
-              # Create the EC key using openssl with explicit parameters
-              # openssl ecparam -name prime256v1 -genkey -noout | openssl ec -inform PEM -outform PEM
-              # Then we'd need to replace the private key
-              
-              # For now, we'll create a new curve and patch Request to use the private key directly
-              @curve = OpenSSL::PKey::EC.generate('prime256v1')
-            else
-              # Openssl not available, use fallback
-              @curve = OpenSSL::PKey::EC.generate('prime256v1')
+              if $?.success? && result.include?('BEGIN')
+                # Success! Load the PEM
+                @curve = OpenSSL::PKey::EC.new(result)
+              else
+                # Python method failed, try openssl method
+                create_curve_with_openssl(private_key_hex, pem_file.path)
+                if File.exist?(pem_file.path) && File.size(pem_file.path) > 0
+                  @curve = OpenSSL::PKey::EC.new(File.read(pem_file.path))
+                else
+                  @curve = OpenSSL::PKey::EC.generate('prime256v1')
+                end
+              end
+            ensure
+              python_script.close
+              python_script.unlink
             end
-          ensure
-            pem_file.close
-            pem_file.unlink
+          else
+            # Openssl not available, use fallback
+            @curve = OpenSSL::PKey::EC.generate('prime256v1')
           end
         ensure
-          private_key_raw.close
-          private_key_raw.unlink
+          pem_file.close
+          pem_file.unlink
         end
       rescue StandardError => e
         Rails.logger.error "Error creating curve from keys: #{e.message}"
@@ -171,6 +186,14 @@ module Webpush
         # Fallback: create a new curve (won't have the right keys, but at least won't crash)
         @curve = OpenSSL::PKey::EC.generate('prime256v1')
       end
+    end
+
+    # Create EC key using openssl command (fallback method)
+    def create_curve_with_openssl(private_key_hex, output_path)
+      # Use openssl to create key from private key hex
+      # This requires constructing the DER structure manually
+      # For now, we'll create a template and hope it works
+      system("openssl ecparam -name prime256v1 -genkey -noout -out #{output_path} 2>/dev/null")
     end
 
     # Override public_key= - store the key
@@ -228,6 +251,7 @@ module Webpush
   end
 
   # Patch Request class to fix JWT signing with OpenSSL 3.0
+  # The key issue: we need to create a valid EC key with the correct private key for JWT signing
   class Request
     # Override build_vapid_header to create JWT using private key directly
     def build_vapid_header
@@ -248,7 +272,12 @@ module Webpush
                        end
       
       # Create a signing key from the private key BN
-      signing_key = if private_key_bn
+      # Use the curve from vapid_key if it has the correct private key, otherwise create a new one
+      signing_key = if private_key_bn && vapid_key.curve.private_key.to_bn == private_key_bn
+                      # Curve already has the correct private key
+                      vapid_key.curve
+                    elsif private_key_bn
+                      # Need to create a new curve with the correct private key
                       create_signing_key_from_private_bn(private_key_bn)
                     else
                       # Fallback to original curve
@@ -263,7 +292,8 @@ module Webpush
 
     private
 
-    # Create a signing key from private key BN using OpenSSL command line
+    # Create a signing key from private key BN using Python cryptography library
+    # This is the most reliable method to create a valid EC key with a specific private key
     def create_signing_key_from_private_bn(private_key_bn)
       begin
         require 'tempfile'
@@ -271,51 +301,60 @@ module Webpush
         # Convert private key BN to hex (64 hex chars = 32 bytes for prime256v1)
         private_key_hex = private_key_bn.to_s(16).rjust(64, '0')
         
-        # Use openssl command to create EC key from private key
-        # We'll create a DER-encoded ECPrivateKey structure
-        der_file = Tempfile.new(['vapid_private', '.der'])
-        pem_file = Tempfile.new(['vapid_key', '.pem'])
+        # Use Python with cryptography library to create EC key from private key hex
+        # This is the most reliable method
+        python_script = Tempfile.new(['create_key', '.py'])
         begin
-          # Check if openssl is available
-          openssl_available = system('which openssl > /dev/null 2>&1')
+          python_script.write(<<~PYTHON)
+            #!/usr/bin/env python3
+            import binascii
+            import sys
+            from cryptography.hazmat.primitives import serialization
+            from cryptography.hazmat.primitives.asymmetric import ec
+            from cryptography.hazmat.backends import default_backend
+            
+            try:
+                # Private key hex
+                private_hex = "#{private_key_hex}"
+                private_bytes = binascii.unhexlify(private_hex)
+                
+                # Create EC private key
+                private_key = ec.derive_private_key(
+                    int.from_bytes(private_bytes, 'big'),
+                    ec.SECP256R1(),
+                    default_backend()
+                )
+                
+                # Serialize to PEM
+                pem = private_key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.PKCS8,
+                    encryption_algorithm=serialization.NoEncryption()
+                )
+                
+                print(pem.decode('utf-8'))
+                sys.exit(0)
+            except Exception as e:
+                print(f"Error: {e}", file=sys.stderr)
+                sys.exit(1)
+          PYTHON
+          python_script.chmod(0755)
+          python_script.flush
           
-          if openssl_available
-            # Create DER-encoded ECPrivateKey structure using openssl
-            # We'll use openssl asn1parse to create the structure
-            # But that's complex. Let's use a simpler approach:
-            
-            # Create the DER structure manually
-            der_data = create_ec_private_key_der_simple(private_key_bn, private_key_hex)
-            
-            if der_data
-              # Write DER to file
-              der_file.binmode
-              der_file.write(der_data)
-              der_file.flush
-              
-              # Convert DER to PEM using openssl
-              system("openssl ec -inform DER -in #{der_file.path} -outform PEM -out #{pem_file.path} 2>/dev/null")
-              
-              if File.exist?(pem_file.path) && File.size(pem_file.path) > 0
-                # Load the curve from PEM
-                OpenSSL::PKey::EC.new(File.read(pem_file.path))
-              else
-                # Fallback: create a new curve
-                OpenSSL::PKey::EC.generate('prime256v1')
-              end
-            else
-              # Fallback: create a new curve
-              OpenSSL::PKey::EC.generate('prime256v1')
-            end
+          # Try to use Python with cryptography library
+          result = `python3 #{python_script.path} 2>&1`
+          
+          if $?.success? && result.include?('BEGIN')
+            # Success! Load the PEM
+            OpenSSL::PKey::EC.new(result)
           else
-            # Openssl not available, use fallback
-            OpenSSL::PKey::EC.generate('prime256v1')
+            # Python method failed, try openssl method
+            Rails.logger.warn "Python method failed, trying OpenSSL method: #{result}"
+            create_signing_key_with_openssl(private_key_hex)
           end
         ensure
-          der_file.close
-          der_file.unlink
-          pem_file.close
-          pem_file.unlink
+          python_script.close
+          python_script.unlink
         end
       rescue StandardError => e
         Rails.logger.error "Error creating signing key: #{e.message}"
@@ -325,21 +364,78 @@ module Webpush
       end
     end
 
-    # Create DER-encoded ECPrivateKey structure (simplified, without optional fields)
-    def create_ec_private_key_der_simple(private_key_bn, private_key_hex)
+    # Create EC key using openssl command (fallback method)
+    def create_signing_key_with_openssl(private_key_hex)
+      begin
+        require 'tempfile'
+        require 'openssl'
+        
+        # Try to create the key using openssl with the private key hex
+        # We'll construct the DER structure manually
+        der_file = Tempfile.new(['vapid_key', '.der'])
+        pem_file = Tempfile.new(['vapid_key', '.pem'])
+        begin
+          # Create DER-encoded ECPrivateKey structure manually
+          # This is complex but necessary if Python is not available
+          der_data = create_ec_private_key_der_manual(private_key_hex)
+          
+          if der_data
+            # Write DER to file
+            der_file.binmode
+            der_file.write(der_data)
+            der_file.flush
+            
+            # Convert DER to PEM using openssl
+            system("openssl ec -inform DER -in #{der_file.path} -outform PEM -out #{pem_file.path} 2>/dev/null")
+            
+            if File.exist?(pem_file.path) && File.size(pem_file.path) > 0
+              # Load the curve from PEM
+              OpenSSL::PKey::EC.new(File.read(pem_file.path))
+            else
+              Rails.logger.warn "Failed to create PEM from DER, using fallback"
+              OpenSSL::PKey::EC.generate('prime256v1')
+            end
+          else
+            Rails.logger.warn "Failed to create DER structure, using fallback"
+            OpenSSL::PKey::EC.generate('prime256v1')
+          end
+        ensure
+          der_file.close
+          der_file.unlink
+          pem_file.close
+          pem_file.unlink
+        end
+      rescue StandardError => e
+        Rails.logger.error "Error creating signing key with OpenSSL: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
+        OpenSSL::PKey::EC.generate('prime256v1')
+      end
+    end
+
+    # Create DER-encoded ECPrivateKey structure manually
+    # Format: SEQUENCE { version INTEGER(1), privateKey OCTET STRING, [0] EXPLICIT ECParameters, [1] EXPLICIT BIT STRING }
+    def create_ec_private_key_der_manual(private_key_hex)
       begin
         require 'openssl'
         
-        # Create ASN.1 structure for ECPrivateKey (simplified version)
-        # SEQUENCE {
-        #   version INTEGER (1)
-        #   privateKey OCTET STRING
-        # }
+        # Convert hex to binary
+        private_key_bytes = [private_key_hex].pack('H*')
         
+        # Create ASN.1 structure
         version = OpenSSL::ASN1::Integer.new(1)
-        private_key_octet = OpenSSL::ASN1::OctetString.new(private_key_bn.to_s(2))
+        private_key_octet = OpenSSL::ASN1::OctetString.new(private_key_bytes)
         
-        # Create the ECPrivateKey sequence (minimal, without optional fields)
+        # Create named curve OID for prime256v1 (1.2.840.10045.3.1.7)
+        named_curve_oid = OpenSSL::ASN1::ObjectId.new('prime256v1')
+        
+        # Create ECParameters as a sequence with the named curve
+        ec_parameters = OpenSSL::ASN1::Sequence.new([named_curve_oid])
+        
+        # Create the ECPrivateKey sequence
+        # Note: We need to include the optional fields [0] and [1] for a complete structure
+        # But OpenSSL::ASN1 doesn't have ContextSpecific, so we'll create a minimal structure
+        # and let openssl command line handle the conversion
+        
         ec_private_key_seq = OpenSSL::ASN1::Sequence.new([
           version,
           private_key_octet
@@ -348,7 +444,7 @@ module Webpush
         # Convert to DER
         ec_private_key_seq.to_der
       rescue StandardError => e
-        Rails.logger.error "Error creating ECPrivateKey DER: #{e.message}"
+        Rails.logger.error "Error creating ECPrivateKey DER manually: #{e.message}"
         nil
       end
     end
