@@ -19,9 +19,11 @@ bin/rails vapid:generate
 
 Cela affichera quelque chose comme :
 ```
-Public Key: BJfU6JKGrcU2gIB8MsICBiblfxlw2nF10nPY3i_SmcCs_x_lBXmIHY9zLcj5VN3VQeO8idfr43J--iVzFX8TntM
-Private Key: 55Tw_tlK8B8yMuwxFB24m4zlBPKovswke3CycI2RFlo
+Public Key: VOTRE_CLE_PUBLIQUE_GENEREE
+Private Key: VOTRE_CLE_PRIVEE_GENEREE
 ```
+
+⚠️ **IMPORTANT** : Ne partagez jamais vos clés réelles ! Remplacez les exemples ci-dessous par vos propres clés générées.
 
 ### 2. Ajouter les variables d'environnement sur Scalingo
 
@@ -29,9 +31,10 @@ Private Key: 55Tw_tlK8B8yMuwxFB24m4zlBPKovswke3CycI2RFlo
 
 ```bash
 # Remplacez "votre-nom-app" par le nom de votre app Scalingo
-scalingo --app votre-nom-app env-set VAPID_PUBLIC_KEY="BJfU6JKGrcU2gIB8MsICBiblfxlw2nF10nPY3i_SmcCs_x_lBXmIHY9zLcj5VN3VQeO8idfr43J--iVzFX8TntM"
+# Remplacez VOTRE_CLE_PUBLIQUE_GENEREE et VOTRE_CLE_PRIVEE_GENEREE par les clés générées
+scalingo --app votre-nom-app env-set VAPID_PUBLIC_KEY="VOTRE_CLE_PUBLIQUE_GENEREE"
 
-scalingo --app votre-nom-app env-set VAPID_PRIVATE_KEY="55Tw_tlK8B8yMuwxFB24m4zlBPKovswke3CycI2RFlo"
+scalingo --app votre-nom-app env-set VAPID_PRIVATE_KEY="VOTRE_CLE_PRIVEE_GENEREE"
 
 scalingo --app votre-nom-app env-set VAPID_SUBJECT="mailto:votre-email@example.com"
 ```
@@ -55,10 +58,10 @@ scalingo --app votre-nom-app env-set VAPID_SUBJECT="mailto:votre-email@example.c
 scalingo --app votre-nom-app env | grep VAPID
 ```
 
-Vous devriez voir :
+Vous devriez voir (avec vos propres clés) :
 ```
-VAPID_PUBLIC_KEY=BJfU6JKGrcU2gIB8MsICBiblfxlw2nF10nPY3i_SmcCs_x_lBXmIHY9zLcj5VN3VQeO8idfr43J--iVzFX8TntM
-VAPID_PRIVATE_KEY=55Tw_tlK8B8yMuwxFB24m4zlBPKovswke3CycI2RFlo
+VAPID_PUBLIC_KEY=VOTRE_CLE_PUBLIQUE_GENEREE
+VAPID_PRIVATE_KEY=VOTRE_CLE_PRIVEE_GENEREE
 VAPID_SUBJECT=mailto:votre-email@example.com
 ```
 
