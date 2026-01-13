@@ -45,5 +45,34 @@ module Webpush
 
       aes128gcmheader + ciphertext
     end
+
+    private
+
+    def encrypt_payload(plaintext, content_encryption_key, nonce)
+      cipher = OpenSSL::Cipher.new('aes-128-gcm')
+      cipher.encrypt
+      cipher.key = content_encryption_key
+      cipher.iv = nonce
+      text = cipher.update(plaintext)
+      padding = cipher.update("\2\0")
+      e_text = text + padding + cipher.final
+      e_tag = cipher.auth_tag
+
+      e_text + e_tag
+    end
+
+    def convert16bit(key)
+      [key.to_s(16)].pack('H*')
+    end
+
+    def assert_arguments(message, p256dh, auth)
+      raise ArgumentError, 'message cannot be blank' if blank?(message)
+      raise ArgumentError, 'p256dh cannot be blank' if blank?(p256dh)
+      raise ArgumentError, 'auth cannot be blank' if blank?(auth)
+    end
+
+    def blank?(value)
+      value.nil? || value.empty?
+    end
   end
 end
