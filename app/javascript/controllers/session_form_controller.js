@@ -63,7 +63,7 @@ export default class extends Controller {
     } else if (value === "jeu_libre") {
       this.userGroupResponsableTarget.classList.remove("hidden")
       this.userGroupResponsableTarget.querySelector("select").disabled = false
-    } else if (value === "tournoi") {
+    } else if (value === "tournoi" || value === "stage") {
       this.userGroupAllTarget.classList.remove("hidden")
       this.userGroupAllTarget.querySelector("select").disabled = false
     }

@@ -10,7 +10,8 @@ module ApplicationHelper
       'entrainement' => 'Entraînement',
       'jeu_libre' => 'Jeu libre',
       'tournoi' => 'Tournoi',
-      'coaching_prive' => 'Coaching privé'
+      'coaching_prive' => 'Coaching privé',
+      'stage' => 'Stage'
     }
     labels[session_type] || session_type.humanize
   end
@@ -20,7 +21,8 @@ module ApplicationHelper
       'entrainement' => 'dumbbell',
       'jeu_libre' => 'volleyball',
       'tournoi' => 'trophy',
-      'coaching_prive' => 'shield-user'
+      'coaching_prive' => 'shield-user',
+      'stage' => 'calendar'
     }
     icons[session_type] || 'volleyball'
   end
@@ -30,7 +32,8 @@ module ApplicationHelper
       'entrainement' => 'bg-green-100 text-green-800',
       'jeu_libre' => 'bg-blue-100 text-blue-800',
       'tournoi' => 'bg-purple-100 text-purple-800',
-      'coaching_prive' => 'bg-orange-100 text-orange-800'
+      'coaching_prive' => 'bg-orange-100 text-orange-800',
+      'stage' => 'bg-yellow-100 text-yellow-800'
     }
     classes[session_type] || 'bg-gray-100 text-gray-800'
   end

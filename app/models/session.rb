@@ -2,10 +2,12 @@ class Session < ApplicationRecord
   TRAINING_PRICE = 400
   FREE_PLAY_PRICE = 300
   PRIVATE_COACHING_PRICE = 1500
+  STAGE_PRICE = 0
   PRICE_BY_TYPE = {
     "entrainement" => TRAINING_PRICE,
     "jeu_libre" => FREE_PLAY_PRICE,
-    "coaching_prive" => PRIVATE_COACHING_PRICE
+    "coaching_prive" => PRIVATE_COACHING_PRICE,
+    "stage" => STAGE_PRICE
   }.freeze
   belongs_to :user
   has_many :session_levels, dependent: :destroy
@@ -21,7 +23,8 @@ class Session < ApplicationRecord
     entrainement: "entrainement",
     jeu_libre: "jeu_libre",
     tournoi: "tournoi",
-    coaching_prive: "coaching_prive"
+    coaching_prive: "coaching_prive",
+    stage: "stage"
   }
 
   enum :terrain, {
@@ -133,6 +136,8 @@ class Session < ApplicationRecord
     when "tournoi"
       title
     when "coaching_prive"
+      title
+    when "stage"
       title
     else
       title
