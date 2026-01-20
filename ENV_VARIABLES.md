@@ -25,6 +25,20 @@ SHERLOCK_RETURN_URL_CANCEL=http://localhost:3000/checkout/cancel
 SHERLOCK_WEBHOOK_TOKEN=
 ```
 
+## Brevo (emails transactionnels)
+
+```bash
+# Clé API Brevo
+BREVO_API_KEY=
+
+# Expéditeur par défaut des emails transactionnels
+BREVO_SENDER_EMAIL=
+BREVO_SENDER_NAME="AS Monaco Beach Volley"
+
+# ID du template Brevo pour la confirmation de paiement
+BREVO_TEMPLATE_PAYMENT_SUCCESS=
+```
+
 ## Application
 
 ```bash
@@ -45,6 +59,10 @@ REDIS_URL=redis://localhost:6379/1
 SHERLOCK_GATEWAY=fake
 SHERLOCK_RETURN_URL_SUCCESS=http://localhost:3000/checkout/success
 SHERLOCK_RETURN_URL_CANCEL=http://localhost:3000/checkout/cancel
+BREVO_API_KEY=your_brevo_api_key
+BREVO_SENDER_EMAIL=notifications@example.com
+BREVO_SENDER_NAME="AS Monaco Beach Volley"
+BREVO_TEMPLATE_PAYMENT_SUCCESS=1
 APP_HOST=http://localhost:3000
 CURRENCY=EUR
 ```
@@ -62,6 +80,10 @@ scalingo --app votre-app env-set SHERLOCK_RETURN_URL_CANCEL=https://votre-app.os
 scalingo --app votre-app env-set SHERLOCK_WEBHOOK_TOKEN=votre_token_secret
 scalingo --app votre-app env-set APP_HOST=https://votre-app.osc-fr1.scalingo.io
 scalingo --app votre-app env-set CURRENCY=EUR
+scalingo --app votre-app env-set BREVO_API_KEY=votre_cle_api
+scalingo --app votre-app env-set BREVO_SENDER_EMAIL=notifications@votre-domaine
+scalingo --app votre-app env-set BREVO_SENDER_NAME="AS Monaco Beach Volley"
+scalingo --app votre-app env-set BREVO_TEMPLATE_PAYMENT_SUCCESS=123
 
 # Notifications Push (générer les clés avec: bin/rails vapid:generate)
 scalingo --app votre-app env-set VAPID_PUBLIC_KEY="votre_cle_publique"
