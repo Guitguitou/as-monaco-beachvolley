@@ -24,7 +24,7 @@ Système complet de paiement en ligne permettant aux utilisateurs d'acheter des 
 - ✅ Vérification signature HMAC
 - ✅ Traitement asynchrone via `SherlockCallbackJob`
 - ✅ Service `HandleCallback` pour normaliser les statuts
-- ✅ `PostPaymentFulfillmentJob` pour actions post-paiement
+- ✅ `PostPaymentFulfillmentJob` pour actions post-paiement (email Brevo)
 
 ### 4. Interface Admin
 - ✅ Page `/admin/payments`
@@ -51,6 +51,10 @@ Système complet de paiement en ligne permettant aux utilisateurs d'acheter des 
    # Dans .env
    REDIS_URL=redis://localhost:6379/1
    SHERLOCK_GATEWAY=fake
+   BREVO_API_KEY=your_brevo_api_key
+   BREVO_SENDER_EMAIL=notifications@example.com
+   BREVO_SENDER_NAME="AS Monaco Beach Volley"
+   BREVO_TEMPLATE_PAYMENT_SUCCESS=1
    APP_HOST=http://localhost:3000
    CURRENCY=EUR
    ```
@@ -82,6 +86,10 @@ Système complet de paiement en ligne permettant aux utilisateurs d'acheter des 
    scalingo --app votre-app env-set SHERLOCK_RETURN_URL_CANCEL=https://votre-app.osc-fr1.scalingo.io/checkout/cancel
    scalingo --app votre-app env-set SHERLOCK_WEBHOOK_TOKEN=votre_token_secret
    scalingo --app votre-app env-set APP_HOST=https://votre-app.osc-fr1.scalingo.io
+   scalingo --app votre-app env-set BREVO_API_KEY=votre_cle_api
+   scalingo --app votre-app env-set BREVO_SENDER_EMAIL=notifications@votre-domaine
+   scalingo --app votre-app env-set BREVO_SENDER_NAME="AS Monaco Beach Volley"
+   scalingo --app votre-app env-set BREVO_TEMPLATE_PAYMENT_SUCCESS=123
    ```
 
 2. **Configurer le webhook chez LCL** :
@@ -115,7 +123,7 @@ Système complet de paiement en ligne permettant aux utilisateurs d'acheter des 
    ↓
 9. CreditTransaction créée
    ↓
-10. PostPaymentFulfillmentJob (email, analytics)
+10. PostPaymentFulfillmentJob (email Brevo, analytics)
 ```
 
 ## 🔐 Sécurité
@@ -176,7 +184,7 @@ app/
 ## 🎯 Prochaines évolutions
 
 ### Court terme
-- [ ] Emails de confirmation (via PostPaymentFulfillmentJob)
+- [x] Emails de confirmation (via PostPaymentFulfillmentJob + Brevo)
 - [ ] Analytics/Sentry sur les paiements
 - [ ] Page admin pour voir tous les paiements
 
@@ -198,6 +206,14 @@ app/
 - **Guide détaillé** : Voir `setup_real_sherlock.md`
 - **Migration Sidekiq** : Voir `MIGRATION_SIDEKIQ.md`
 - **Déploiement Scalingo** : Voir `SCALINGO_DEPLOYMENT.md`
+
+## 📧 Emails Brevo (confirmation paiement)
+
+- Le job `PostPaymentFulfillmentJob` envoie un email de confirmation via Brevo dès que le paiement est crédité.
+- Template transactionnel Brevo attendu :
+  - Variables : `user_first_name`, `user_last_name`, `purchase_reference`, `credits`, `amount_eur`, `paid_at_iso`
+  - Expéditeur : `BREVO_SENDER_EMAIL` / `BREVO_SENDER_NAME`
+- L'email est envoyé uniquement si le `CreditPurchase` est rattaché à un utilisateur.
 
 ## 🆘 Troubleshooting
 

@@ -97,3 +97,6 @@ gem "dotenv-rails", groups: [:development, :test]
 
 # Web Push notifications
 gem "webpush"
+
+# Transactional emails (Brevo)
+gem "sib-api-v3-sdk"
