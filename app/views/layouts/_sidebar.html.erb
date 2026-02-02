@@ -20,6 +20,7 @@
       <% if current_user.activated? %>
         <%= nav_link "Performances & Stats", performances_path, icon: "bar-chart-3", extra_classes: 'sidebar-link' %>
         <%= nav_link "Calendrier", sessions_path, icon: "calendar", extra_classes: 'sidebar-link' %>
+        <%= nav_link "Trouver des joueurs", player_listings_path, icon: "users", extra_classes: 'sidebar-link', badge: player_listings_badge_count %>
         <%= nav_link "Stages", stages_path, icon: "flag", extra_classes: 'sidebar-link' %>
         <%= nav_link "Mes sessions", me_sessions_path, icon: "volleyball", extra_classes: 'sidebar-link' %>
         <%= nav_link "Packs", packs_path, icon: "credit-card", extra_classes: 'sidebar-link' %>

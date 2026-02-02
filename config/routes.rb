@@ -76,6 +76,15 @@ Rails.application.routes.draw do
   
   # Public stages
   resources :stages, only: [:index, :show]
+
+  # Player listings (find players)
+  resources :player_listings, only: [:index, :create, :update, :destroy]
+  resources :player_requests, only: [:create] do
+    member do
+      patch :accept
+      patch :decline
+    end
+  end
   
   # Packs (for users to buy)
   resources :packs, only: [:index] do

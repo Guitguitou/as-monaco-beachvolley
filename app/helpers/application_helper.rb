@@ -38,7 +38,7 @@ module ApplicationHelper
     classes[session_type] || 'bg-gray-100 text-gray-800'
   end
 
-  def nav_link(name, path, icon:, extra_classes: nil)
+  def nav_link(name, path, icon:, extra_classes: nil, badge: nil)
     active = current_page?(path)
 
     base_classes = [
@@ -52,7 +52,20 @@ module ApplicationHelper
     link_to path, class: base_classes.join(" ") do
       concat lucide_icon(icon, class: "w-4 h-4 shrink-0 #{active ? 'text-asmbv-red' : 'text-gray-500'}") # 👈 icône uniforme
       concat content_tag(:span, name) # pas de classe spéciale -> hérite de text-[15px]/leading-5
+      if badge.to_i.positive?
+        concat content_tag(
+          :span,
+          badge.to_i,
+          class: "ml-auto inline-flex items-center justify-center rounded-full bg-asmbv-red text-white text-[11px] font-semibold px-2 py-0.5"
+        )
+      end
     end
+  end
+
+  def player_listings_badge_count
+    return 0 unless user_signed_in? && current_user&.activated?
+
+    PlayerMatchingService.new(current_user).badge_count
   end
 
   def humanize_credit_transaction_type(transaction_type)

@@ -20,6 +20,9 @@ class User < ApplicationRecord
   has_many :confirmed_registrations, -> { where(status: Registration.statuses[:confirmed]) }, class_name: 'Registration'
   has_many :sessions_registered, through: :confirmed_registrations, source: :session
   has_many :push_subscriptions, dependent: :destroy
+  has_many :player_listings, dependent: :destroy
+  has_many :player_requests_sent, class_name: "PlayerRequest", foreign_key: :from_user_id, dependent: :destroy
+  has_many :player_requests_received, class_name: "PlayerRequest", foreign_key: :to_user_id, dependent: :destroy
 
   # Callbacks
   after_create :init_balance

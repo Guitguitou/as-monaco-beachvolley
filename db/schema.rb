@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_06_100250) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_20_120020) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -154,6 +154,47 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_06_100250) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["mois"], name: "index_plans_mensuels_on_mois", unique: true
+  end
+
+  create_table "player_listing_levels", force: :cascade do |t|
+    t.bigint "player_listing_id", null: false
+    t.bigint "level_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["level_id"], name: "index_player_listing_levels_on_level_id"
+    t.index ["player_listing_id", "level_id"], name: "index_player_listing_levels_on_player_listing_id_and_level_id", unique: true
+    t.index ["player_listing_id"], name: "index_player_listing_levels_on_player_listing_id"
+  end
+
+  create_table "player_listings", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "session_id"
+    t.string "listing_type", null: false
+    t.string "gender"
+    t.date "date"
+    t.time "starts_at"
+    t.time "ends_at"
+    t.string "status", default: "active", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["session_id"], name: "index_player_listings_on_session_id"
+    t.index ["status", "listing_type", "date"], name: "index_player_listings_on_status_and_listing_type_and_date"
+    t.index ["user_id"], name: "index_player_listings_on_user_id"
+  end
+
+  create_table "player_requests", force: :cascade do |t|
+    t.bigint "player_listing_id", null: false
+    t.bigint "from_user_id", null: false
+    t.bigint "to_user_id", null: false
+    t.string "status", default: "pending", null: false
+    t.text "message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["from_user_id"], name: "index_player_requests_on_from_user_id"
+    t.index ["player_listing_id"], name: "index_player_requests_on_player_listing_id"
+    t.index ["to_user_id", "status"], name: "index_player_requests_on_to_user_id_and_status"
+    t.index ["to_user_id"], name: "index_player_requests_on_to_user_id"
   end
 
   create_table "push_subscriptions", force: :cascade do |t|
@@ -302,6 +343,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_06_100250) do
   add_foreign_key "late_cancellations", "users"
   add_foreign_key "packs", "stages"
   add_foreign_key "plans_hebdomadaires", "plans_mensuels", column: "plan_mensuel_id"
+  add_foreign_key "player_listing_levels", "levels"
+  add_foreign_key "player_listing_levels", "player_listings"
+  add_foreign_key "player_listings", "sessions"
+  add_foreign_key "player_listings", "users"
+  add_foreign_key "player_requests", "player_listings"
+  add_foreign_key "player_requests", "users", column: "from_user_id"
+  add_foreign_key "player_requests", "users", column: "to_user_id"
   add_foreign_key "push_subscriptions", "users"
   add_foreign_key "registrations", "sessions"
   add_foreign_key "registrations", "users"
