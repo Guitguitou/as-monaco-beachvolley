@@ -41,6 +41,14 @@ class Ability
 
         # View own credit history
         can :read, CreditTransaction, user_id: user.id
+
+        # Player listings / requests
+        can :read, PlayerListing
+        can [:create, :update, :destroy], PlayerListing, user_id: user.id
+        can :create, PlayerRequest
+        can :read, PlayerRequest, to_user_id: user.id
+        can :read, PlayerRequest, from_user_id: user.id
+        can :update, PlayerRequest, to_user_id: user.id
       end
     end
 
