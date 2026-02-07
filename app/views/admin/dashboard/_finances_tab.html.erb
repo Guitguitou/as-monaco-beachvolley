@@ -1,7 +1,7 @@
 <!-- KPIs Financiers -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
   <!-- CA Semaine -->
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
         <div class="w-8 h-8 bg-green-600 rounded-md flex items-center justify-center">
@@ -16,10 +16,10 @@
         <p class="text-xs text-gray-500">Achats de crédits</p>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- CA Mois -->
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
         <div class="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center">
@@ -34,10 +34,10 @@
         <p class="text-xs text-gray-500">Achats de crédits</p>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Salaires Coachs Mois -->
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
         <div class="w-8 h-8 bg-orange-500 rounded-md flex items-center justify-center">
@@ -52,10 +52,10 @@
         <p class="text-xs text-gray-500">Charges</p>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Bénéfice Mois -->
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
         <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
@@ -70,13 +70,13 @@
         <p class="text-xs text-gray-500">CA - Salaires</p>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <!-- Tableaux de Différences CA - Salaires -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
   <!-- Différence Semaine -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">📈</span>
@@ -106,10 +106,10 @@
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Différence Mois -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">📊</span>
@@ -139,10 +139,10 @@
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Différence Année -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">📈</span>
@@ -172,13 +172,13 @@
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <!-- Détail des Revenus par Type -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <!-- Revenus par Type de Session (Information visuelle) -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">🏐</span>
@@ -209,10 +209,10 @@
         <p class="text-gray-500 text-center py-4">Aucun revenu de session ce mois</p>
       <% end %>
     </div>
-  </div>
+  <% end %>
 
   <!-- CA par Type d'Achat -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">📦</span>
@@ -242,5 +242,5 @@
         <p class="text-gray-500 text-center py-4">Aucun CA ce mois</p>
       <% end %>
     </div>
-  </div>
+  <% end %>
 </div>

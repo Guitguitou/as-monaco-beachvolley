@@ -4,6 +4,7 @@
   --color-asmbv-red: #e21e22;
   --color-asmbv-red-light: #fef2f2;
   --color-asmbv-red-dark: #b91c1c;
+  --color-sand-light: #f6f0e4;
 }
 
 @layer components {
@@ -19,6 +20,10 @@
 
   .bg-asmbv-red-dark {
     background-color: var(--color-asmbv-red-dark) !important;
+  }
+
+  .bg-sand-light {
+    background-color: var(--color-sand-light) !important;
   }
 
   /* Text */

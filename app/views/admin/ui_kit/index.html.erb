@@ -12,5 +12,61 @@
       <%= button "Tertiary", variant: :tertiary %>
     </div>
   </section>
+
+  <section class="space-y-4">
+    <h2 class="text-xl font-semibold text-gray-900">Cards</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <%= render CardComponent.new do %>
+        <div class="space-y-2">
+          <div class="text-sm text-gray-500">Default</div>
+          <div class="text-lg font-semibold text-gray-900">Titre de card</div>
+          <p class="text-sm text-gray-600">Texte descriptif court pour illustrer le contenu.</p>
+        </div>
+      <% end %>
+
+      <%= render CardComponent.new(variant: :flat) do %>
+        <div class="space-y-2">
+          <div class="text-sm text-gray-500">Flat</div>
+          <div class="text-lg font-semibold text-gray-900">Sans ombre</div>
+          <p class="text-sm text-gray-600">Même base, sans shadow.</p>
+        </div>
+      <% end %>
+
+      <%= render CardComponent.new(variant: :elevated) do %>
+        <div class="space-y-2">
+          <div class="text-sm text-gray-500">Elevated</div>
+          <div class="text-lg font-semibold text-gray-900">Avec relief</div>
+          <p class="text-sm text-gray-600">Ombrage un peu plus marqué.</p>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="space-y-4">
+    <h2 class="text-xl font-semibold text-gray-900">Tabs</h2>
+    <%= render TabsComponent.new(tabs: [
+      { id: "overview", label: "Vue d’ensemble" },
+      { id: "sessions", label: "Sessions" },
+      { id: "finances", label: "Finances" }
+    ]) do %>
+      <div data-tabs-target="panel" data-panel="overview">
+        <%= render CardComponent.new do %>
+          <div class="text-sm text-gray-700">Contenu de l’onglet Vue d’ensemble.</div>
+        <% end %>
+      </div>
+
+      <div data-tabs-target="panel" data-panel="sessions" class="hidden">
+        <%= render CardComponent.new do %>
+          <div class="text-sm text-gray-700">Contenu de l’onglet Sessions.</div>
+        <% end %>
+      </div>
+
+      <div data-tabs-target="panel" data-panel="finances" class="hidden">
+        <%= render CardComponent.new do %>
+          <div class="text-sm text-gray-700">Contenu de l’onglet Finances.</div>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
 </div>
 

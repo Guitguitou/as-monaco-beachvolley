@@ -1,6 +1,6 @@
 <!-- KPIs de la semaine -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
         <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
@@ -12,9 +12,9 @@
         <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:trainings_count] %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
         <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
@@ -26,9 +26,9 @@
         <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:free_plays_count] %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
         <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
@@ -40,13 +40,13 @@
         <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:private_coachings_count] %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <!-- Sessions à venir -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
   <!-- Entraînements à venir -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">🏋️</span>
@@ -82,10 +82,10 @@
         <p class="text-gray-500 text-center py-4">Aucun entraînement à venir</p>
       <% end %>
     </div>
-  </div>
+  <% end %>
 
   <!-- Jeux libres à venir -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">🎮</span>
@@ -121,10 +121,10 @@
         <p class="text-gray-500 text-center py-4">Aucun jeu libre à venir</p>
       <% end %>
     </div>
-  </div>
+  <% end %>
 
   <!-- Coachings privés à venir -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">👥</span>
@@ -160,11 +160,11 @@
         <p class="text-gray-500 text-center py-4">Aucun coaching privé à venir</p>
       <% end %>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <!-- Désinscriptions hors délai -->
-<div class="bg-white rounded-lg shadow">
+<%= render CardComponent.new(padding: :none) do %>
   <div class="px-6 py-4 border-b border-gray-200">
     <h3 class="text-lg font-medium text-gray-900 flex items-center">
       <span class="mr-2">⚠️</span>
@@ -202,4 +202,4 @@
       <p class="text-gray-500 text-center py-4">Aucune désinscription hors délai</p>
     <% end %>
   </div>
-</div>
+<% end %>

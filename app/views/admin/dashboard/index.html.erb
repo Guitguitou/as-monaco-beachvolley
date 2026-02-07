@@ -1,8 +1,19 @@
 <div class="py-8 px-4 sm:px-6 lg:px-8">
   <h1 class="text-3xl font-bold text-asmbv-red mb-8">Dashboard Administrateur</h1>
 
-  <%= render Admin::DashboardTabsComponent.new(active_tab: @active_tab) do %>
+  <%= render TabsComponent.new(
+        tabs: [
+          { id: "overview", label: "Vue d'ensemble", path: admin_root_path(tab: "overview") },
+          { id: "sessions", label: "Sessions", path: admin_root_path(tab: "sessions") },
+          { id: "finances", label: "Finances", path: admin_root_path(tab: "finances") },
+          { id: "packs", label: "Packs", path: admin_root_path(tab: "packs") },
+          { id: "coaches", label: "Coachs", path: admin_root_path(tab: "coaches") },
+          { id: "alerts", label: "Alertes", path: admin_root_path(tab: "alerts") }
+        ],
+        active_tab: @active_tab,
+        interactive: false
+      ) do %>
     <%= render "#{@active_tab}_tab" %>
-            <% end %>
+  <% end %>
 </div>
 

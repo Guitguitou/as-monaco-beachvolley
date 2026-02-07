@@ -11,7 +11,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-gray-50 min-h-screen admin">
+  <body class="bg-sand-light min-h-screen admin">
     <% if user_signed_in? && (current_user.admin? || current_user.financial_manager?) %>
       <div data-controller="admin-sidebar" class="flex min-h-screen">
         <!-- Sidebar -->
