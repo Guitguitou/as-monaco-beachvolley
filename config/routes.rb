@@ -43,6 +43,7 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root to: "dashboard#index"
+    get "ui_kit", to: "ui_kit#index"
 
     resources :users do
       post :adjust_credits, on: :member
