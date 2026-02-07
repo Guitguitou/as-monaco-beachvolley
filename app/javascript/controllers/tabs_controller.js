@@ -4,9 +4,10 @@ export default class extends Controller {
   static targets = ["tab", "panel"]
 
   connect() {
+    const initial = this.element.dataset.initialTab
     // Show first tab by default
     const firstTab = this.tabTargets[0]?.dataset?.tab || "all"
-    this.showTab(firstTab)
+    this.showTab(initial || firstTab)
   }
 
   switch(event) {
