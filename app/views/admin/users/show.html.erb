@@ -12,21 +12,23 @@
     </div>
     <div class="flex items-center gap-2">
       <% if @user.disabled? %>
-        <%= button_to enable_admin_user_path(@user), method: :post,
-              class: "inline-flex items-center gap-1 rounded-md bg-green-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-green-500" do %>
-          <%= lucide_icon('unlock', size: 16) %> Réactiver
-        <% end %>
+        <%= button "Réactiver",
+              variant: :success,
+              size: :small,
+              href: enable_admin_user_path(@user),
+              data: { turbo_method: :post } %>
       <% else %>
-        <%= button_to disable_admin_user_path(@user), method: :post,
-              data: { turbo_confirm: "Désactiver ce compte ?" },
-              class: "inline-flex items-center gap-1 rounded-md bg-red-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-500" do %>
-          <%= lucide_icon('lock', size: 16) %> Désactiver
-        <% end %>
+        <%= button "Désactiver",
+              variant: :danger,
+              size: :small,
+              href: disable_admin_user_path(@user),
+              data: { turbo_method: :post, turbo_confirm: "Désactiver ce compte ?" } %>
       <% end %>
-      <%= link_to edit_admin_user_path(@user),
-            class: "inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red" do %>
-        <%= lucide_icon("edit", size: 16) %> Modifier
-      <% end %>
+      <%= button "Modifier",
+            variant: :secondary,
+            size: :small,
+            href: edit_admin_user_path(@user),
+            icon: :edit %>
     </div>
   </div>
 

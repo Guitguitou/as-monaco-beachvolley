@@ -29,12 +29,15 @@ class ButtonComponent < ViewComponent::Base
       "M10 19l-7-7m0 0l7-7m-7 7h18"
     when :arrow_right
       "M14 5l7 7m0 0l-7 7m7-7H3"
+    when :eye
+      "M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7Zm9.542 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
     end
   end
 
   def classes
     base = "font-medium rounded-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200"
-    "#{base} #{variant_classes} #{size_classes}"
+    size = icon_only? ? icon_only_classes : size_classes
+    "#{base} #{variant_classes} #{size}"
   end
 
   private
@@ -73,5 +76,13 @@ class ButtonComponent < ViewComponent::Base
     else
       "px-4 py-2 text-sm"
     end
+  end
+
+  def icon_only?
+    options[:icon_only]
+  end
+
+  def icon_only_classes
+    "w-8 h-8 p-2 inline-flex items-center justify-center"
   end
 end

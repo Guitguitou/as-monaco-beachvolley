@@ -1,8 +1,12 @@
-<%= content_tag tag_name, options.except(:icon).merge(class: classes) do %>
+<%= content_tag tag_name, options.except(:icon, :icon_only).merge(class: classes) do %>
   <% if options[:icon] %>
-    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="w-4 h-4 inline <%= options[:icon_only] ? "" : "mr-2" %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= icon_path %>"></path>
     </svg>
   <% end %>
-  <%= content %>
+  <% if options[:icon_only] %>
+    <span class="sr-only"><%= content %></span>
+  <% else %>
+    <%= content %>
+  <% end %>
 <% end %>

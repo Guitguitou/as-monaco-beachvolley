@@ -9,20 +9,19 @@
       <%= form_with url: duplicate_admin_session_path(@session), method: :post, local: true, class: "flex items-center gap-2" do %>
         <label class="text-sm text-gray-700">Répéter (semaines):</label>
         <%= number_field_tag :weeks, 3, min: 1, max: 20, class: "w-20 border rounded px-2 py-1" %>
-        <%= button_tag type: :submit, class: "inline-flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-white bg-gray-800 hover:bg-gray-700 rounded" do %>
-          <%= lucide_icon("copy", size: 16) %>
-          Dupliquer
-        <% end %>
+        <%= button "Dupliquer", variant: :secondary, size: :small, type: :submit %>
       <% end %>
-      <%= link_to edit_admin_session_path(@session),
-            class: "inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
-        <%= lucide_icon("edit", size: 16) %> Modifier
-      <% end %>
-      <%= link_to admin_session_path(@session),
-            data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ?" },
-            class: "inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100" do %>
-        <%= lucide_icon("trash", size: 16) %> Supprimer
-      <% end %>
+      <%= button "Modifier",
+            variant: :secondary,
+            size: :small,
+            href: edit_admin_session_path(@session),
+            icon: :edit %>
+      <%= button "Supprimer",
+            variant: :danger,
+            size: :small,
+            href: admin_session_path(@session),
+            icon: :delete,
+            data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ?" } %>
     </div>
   </div>
 

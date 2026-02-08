@@ -1,16 +1,13 @@
-<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("layers") %> Groupes de niveau
-  </h1>
-
-  <%= link_to new_admin_level_path,
-        class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
-    <%= lucide_icon("plus", size: 18) %> Nouveau groupe
+<%= render Admin::PageComponent.new(title: "Groupes de niveau", icon: "layers") do |page| %>
+  <% page.with_actions do %>
+    <%= button "Nouveau groupe",
+          variant: :primary,
+          href: new_admin_level_path,
+          icon: :plus %>
   <% end %>
-</div>
 
-<div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
+  <%= render Admin::TableComponent.new do %>
+    <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
         <th class="px-4 sm:px-6 py-3 text-left">Nom</th>
@@ -38,19 +35,31 @@
           </td>
 
           <!-- Actions -->
-          <td class="px-4 sm:px-6 py-4 text-right space-x-2">
-            <%= link_to admin_level_path(level),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red transition-colors" do %>
-              <%= lucide_icon("eye", size: 16) %> Voir
-            <% end %>
-
-            <%= link_to edit_admin_level_path(level),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red-dark transition-colors" do %>
-              <%= lucide_icon("edit", size: 16) %>
-            <% end %>
+          <td class="px-4 sm:px-6 py-4">
+            <div class="flex items-center justify-end gap-2">
+              <%= button "Voir",
+                    variant: :tertiary,
+                    size: :small,
+                    href: admin_level_path(level),
+                    icon: :eye,
+                    icon_only: true %>
+              <%= button "Modifier",
+                    variant: :tertiary,
+                    size: :small,
+                    href: edit_admin_level_path(level),
+                    icon: :edit,
+                    icon_only: true %>
+            </div>
           </td>
         </tr>
       <% end %>
     </tbody>
-  </table>
-</div>
+    </table>
+  <% end %>
+
+  <%= render Admin::PaginationComponent.new(
+        current_page: @current_page,
+        total_pages: @total_pages,
+        params: params
+      ) %>
+<% end %>

@@ -5,8 +5,18 @@ module Admin
     layout "dashboard"
     before_action :set_level, only: [:show, :edit, :update, :destroy]
 
+    PER_PAGE = 25
+
     def index
       @levels = Level.all.order(:name)
+      @total_levels_count = @levels.count
+      @total_pages = (@total_levels_count.to_f / PER_PAGE).ceil
+      requested_page = params.fetch(:page, 1).to_i
+      @current_page = [requested_page, 1].max
+      upper_bound = [@total_pages, 1].max
+      @current_page = [@current_page, upper_bound].min
+      offset = (@current_page - 1) * PER_PAGE
+      @levels = @levels.limit(PER_PAGE).offset(offset)
     end
 
     def show; end

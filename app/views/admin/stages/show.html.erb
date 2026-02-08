@@ -6,10 +6,11 @@
       <h1 class="text-2xl font-bold text-gray-900"><%= @stage.title %></h1>
     </div>
     <div class="flex gap-2 items-center">
-      <%= link_to edit_admin_stage_path(@stage),
-            class: "inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
-        <%= lucide_icon("edit", size: 16) %> Modifier
-      <% end %>
+      <%= button "Modifier",
+            variant: :secondary,
+            size: :small,
+            href: edit_admin_stage_path(@stage),
+            icon: :edit %>
     </div>
   </div>
 

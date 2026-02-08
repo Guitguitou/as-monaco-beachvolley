@@ -1,16 +1,13 @@
-<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("package") %> Gestion des Packs
-  </h1>
-
-  <%= link_to new_admin_pack_path,
-        class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
-    <%= lucide_icon("plus", size: 18) %> Nouveau pack
+<%= render Admin::PageComponent.new(title: "Gestion des Packs", icon: "package") do |page| %>
+  <% page.with_actions do %>
+    <%= button "Nouveau pack",
+          variant: :primary,
+          href: new_admin_pack_path,
+          icon: :plus %>
   <% end %>
-</div>
 
-<div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
+  <%= render Admin::TableComponent.new do %>
+    <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
         <th class="px-4 sm:px-6 py-3 text-left">Nom</th>
@@ -90,35 +87,45 @@
           </td>
 
           <!-- Actions -->
-          <td class="px-4 sm:px-6 py-4 text-right space-x-2">
-            <%= link_to edit_admin_pack_path(pack),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red transition-colors" do %>
-              <%= lucide_icon("edit", size: 16) %>
-              <span class="hidden sm:inline">Modifier</span>
-            <% end %>
-
-            <%= button_to admin_pack_path(pack),
-                  method: :delete,
-                  data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer ce pack ?" },
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors" do %>
-              <%= lucide_icon("trash-2", size: 16) %>
-            <% end %>
+          <td class="px-4 sm:px-6 py-4">
+            <div class="flex items-center justify-end gap-2">
+              <%= button "Modifier",
+                    variant: :tertiary,
+                    size: :small,
+                    href: edit_admin_pack_path(pack),
+                    icon: :edit,
+                    icon_only: true %>
+              <%= button "Supprimer",
+                    variant: :tertiary,
+                    size: :small,
+                    href: admin_pack_path(pack),
+                    icon: :delete,
+                    icon_only: true,
+                    data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer ce pack ?" } %>
+            </div>
           </td>
         </tr>
       <% end %>
     </tbody>
-  </table>
-</div>
+    </table>
+  <% end %>
 
-<% if @packs.empty? %>
-  <div class="text-center py-12 bg-white rounded-xl border border-gray-200 mt-6">
-    <div class="flex flex-col items-center gap-3">
-      <%= lucide_icon("package", size: 48, class: "text-gray-300") %>
-      <p class="text-gray-500 text-lg">Aucun pack pour le moment</p>
-      <%= link_to new_admin_pack_path,
-            class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark transition-colors" do %>
-        <%= lucide_icon("plus", size: 18) %> Créer le premier pack
-      <% end %>
+  <%= render Admin::PaginationComponent.new(
+        current_page: @current_page,
+        total_pages: @total_pages,
+        params: params
+      ) %>
+
+  <% if @packs.empty? %>
+    <div class="text-center py-12 bg-white border border-gray-200 mt-6">
+      <div class="flex flex-col items-center gap-3">
+        <%= lucide_icon("package", size: 48, class: "text-gray-300") %>
+        <p class="text-gray-500 text-lg">Aucun pack pour le moment</p>
+        <%= button "Créer le premier pack",
+              variant: :primary,
+              href: new_admin_pack_path,
+              icon: :plus %>
+      </div>
     </div>
-  </div>
+  <% end %>
 <% end %>

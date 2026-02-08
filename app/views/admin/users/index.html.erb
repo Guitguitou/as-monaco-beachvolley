@@ -1,27 +1,21 @@
-<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("users") %>
-    Joueurs
-  </h1>
-
-  <%= link_to new_admin_user_path,
-        class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
-    <%= lucide_icon("plus", size: 18) %>
-    Nouveau joueur
+<%= render Admin::PageComponent.new(title: "Joueurs", icon: "users") do |page| %>
+  <% page.with_actions do %>
+    <%= button "Nouveau joueur",
+          variant: :primary,
+          href: new_admin_user_path,
+          icon: :plus %>
   <% end %>
-</div>
 
-<%= render 'filters' %>
+  <% page.with_toolbar do %>
+    <%= render "filters" %>
+  <% end %>
 
-<div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
+  <%= render Admin::TableComponent.new do %>
+    <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
         <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">
           <%= sortable_link_to "Nom", :name, preserve: { q: params[:q], gender: params[:gender], license_type: params[:license_type] } %>
-        </th>
-        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium hidden sm:table-cell">
-          <%= sortable_link_to "Email", :email, preserve: { q: params[:q], gender: params[:gender], license_type: params[:license_type] } %>
         </th>
         <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">Rôles</th>
         <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">
@@ -41,7 +35,7 @@
           </td>
 
           <!-- Email -->
-          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden sm:table-cell"><%= user.email %></td>
+          
 
           <!-- Rôles -->
           <td class="px-4 sm:px-6 py-4 space-x-1">
@@ -97,83 +91,31 @@
           </td>
 
           <!-- Actions -->
-          <td class="px-4 sm:px-6 py-4 text-right space-x-2">
-            <%= link_to admin_user_path(user),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red transition-colors" do %>
-              <%= lucide_icon("eye", size: 16) %>
-              <span class="hidden sm:inline">Voir</span>
-            <% end %>
-
-            <%= link_to edit_admin_user_path(user),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red-dark transition-colors" do %>
-              <%= lucide_icon("edit", size: 16) %>
-              <span class="hidden sm:inline">Modifier</span>
-            <% end %>
+          <td class="px-4 sm:px-6 py-4">
+            <div class="flex items-center justify-end gap-2">
+              <%= button "Voir",
+                    variant: :tertiary,
+                    size: :small,
+                    href: admin_user_path(user),
+                    icon: :eye,
+                    icon_only: true %>
+              <%= button "Modifier",
+                    variant: :tertiary,
+                    size: :small,
+                    href: edit_admin_user_path(user),
+                    icon: :edit,
+                    icon_only: true %>
+            </div>
           </td>
         </tr>
       <% end %>
     </tbody>
-  </table>
-</div>
+    </table>
+  <% end %>
 
-<%# Pagination controls (numbered) %>
-<% if @total_pages && @total_pages > 1 %>
-  <nav class="mt-4 flex items-center justify-between text-sm text-gray-700" aria-label="Pagination">
-    <div>
-      <% if @current_page > 1 %>
-        <%= link_to({ action: :index, page: @current_page - 1, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                    class: "inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50") do %>
-          <%= lucide_icon("chevron-left", size: 16) %>
-          Précédent
-        <% end %>
-      <% else %>
-        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-200 text-gray-400">
-          <%= lucide_icon("chevron-left", size: 16) %>
-          Précédent
-        </span>
-      <% end %>
-    </div>
-
-    <ol class="flex items-center gap-1">
-      <%# Build a compact page list: first, last, and a window around current %>
-      <% window = 2
-         pages = [1, @total_pages]
-         range_start = [@current_page - window, 1].max
-         range_end = [@current_page + window, @total_pages].min
-         pages += (range_start..range_end).to_a
-         pages = pages.uniq.sort
-      %>
-      <% pages.each_with_index do |page, idx| %>
-        <% if idx > 0 && page - pages[idx - 1] > 1 %>
-          <li class="px-2 text-gray-400">…</li>
-        <% end %>
-        <% if page == @current_page %>
-          <li>
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-asmbv-red text-white font-semibold"><%= page %></span>
-          </li>
-        <% else %>
-          <li>
-            <%= link_to page,
-                        { action: :index, page: page, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                        class: "inline-flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 bg-white hover:bg-gray-50" %>
-          </li>
-        <% end %>
-      <% end %>
-    </ol>
-
-    <div>
-      <% if @current_page < @total_pages %>
-        <%= link_to({ action: :index, page: @current_page + 1, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                    class: "inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50") do %>
-          Suivant
-          <%= lucide_icon("chevron-right", size: 16) %>
-        <% end %>
-      <% else %>
-        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-200 text-gray-400">
-          Suivant
-          <%= lucide_icon("chevron-right", size: 16) %>
-        </span>
-      <% end %>
-    </div>
-  </nav>
+  <%= render Admin::PaginationComponent.new(
+        current_page: @current_page,
+        total_pages: @total_pages,
+        params: params
+      ) %>
 <% end %>

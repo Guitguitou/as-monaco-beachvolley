@@ -66,8 +66,6 @@
   </div>
 
   <div>
-    <%= f.submit class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
-      <%= lucide_icon("save", size: 16) %> Enregistrer
-    <% end %>
+    <%= button "Enregistrer", variant: :primary, type: :submit, icon: :save %>
   </div>
 <% end %>

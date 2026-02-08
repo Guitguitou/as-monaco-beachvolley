@@ -1,0 +1,52 @@
+<% return if total_pages <= 1 %>
+<nav class="mt-4 flex items-center justify-between text-sm text-gray-700" aria-label="Pagination">
+  <div>
+    <% if current_page > 1 %>
+      <%= link_to page_link(current_page - 1),
+                  class: "inline-flex items-center gap-1 px-3 py-1.5 border border-gray-300 bg-white hover:bg-gray-50" do %>
+        <%= lucide_icon("chevron-left", size: 16) %>
+        Précédent
+      <% end %>
+    <% else %>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 border border-gray-200 text-gray-400">
+        <%= lucide_icon("chevron-left", size: 16) %>
+        Précédent
+      </span>
+    <% end %>
+  </div>
+
+  <ol class="flex items-center gap-1">
+    <% pages.each_with_index do |page_number, idx| %>
+      <% if idx > 0 && page_number - pages[idx - 1] > 1 %>
+        <li class="px-2 text-gray-400">…</li>
+      <% end %>
+      <% if page_number == current_page %>
+        <li>
+          <span class="inline-flex items-center justify-center w-8 h-8 bg-asmbv-red text-white font-semibold"><%= page_number %></span>
+        </li>
+      <% else %>
+        <li>
+          <%= link_to page_number,
+                      page_link(page_number),
+                      class: "inline-flex items-center justify-center w-8 h-8 border border-gray-300 bg-white hover:bg-gray-50" %>
+        </li>
+      <% end %>
+    <% end %>
+  </ol>
+
+  <div>
+    <% if current_page < total_pages %>
+      <%= link_to page_link(current_page + 1),
+                  class: "inline-flex items-center gap-1 px-3 py-1.5 border border-gray-300 bg-white hover:bg-gray-50" do %>
+        Suivant
+        <%= lucide_icon("chevron-right", size: 16) %>
+      <% end %>
+    <% else %>
+      <span class="inline-flex items-center gap-1 px-3 py-1.5 border border-gray-200 text-gray-400">
+        Suivant
+        <%= lucide_icon("chevron-right", size: 16) %>
+      </span>
+    <% end %>
+  </div>
+</nav>
+

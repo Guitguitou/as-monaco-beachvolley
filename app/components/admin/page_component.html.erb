@@ -1,0 +1,25 @@
+<div class="space-y-4">
+  <div class="flex items-center justify-between flex-col gap-3 sm:flex-row sm:gap-0">
+    <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
+      <% if icon.present? %>
+        <%= lucide_icon(icon) %>
+      <% end %>
+      <%= title %>
+    </h1>
+
+    <% if actions %>
+      <div class="flex items-center gap-2">
+        <%= actions %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="min-h-[48px]">
+    <%= toolbar if toolbar %>
+  </div>
+
+  <div>
+    <%= content %>
+  </div>
+</div>
+

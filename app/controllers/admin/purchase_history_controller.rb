@@ -4,6 +4,8 @@ module Admin
     before_action :authenticate_user!
     before_action :ensure_admin!
 
+    PER_PAGE = 25
+
     def index
       base_scope = CreditPurchase.includes(:user, :pack).order(created_at: :desc)
       
@@ -11,15 +13,24 @@ module Admin
       @status_filter = params[:status].to_s
       case @status_filter
       when 'paid'
-        @credit_purchases = base_scope.paid_status.limit(100)
+        @credit_purchases = base_scope.paid_status
       when 'pending'
-        @credit_purchases = base_scope.pending_status.limit(100)
+        @credit_purchases = base_scope.pending_status
       when 'failed'
-        @credit_purchases = base_scope.where(status: ['failed', 'cancelled']).limit(100)
+        @credit_purchases = base_scope.where(status: ['failed', 'cancelled'])
       else
         # Par défaut, tous les achats
-        @credit_purchases = base_scope.limit(100)
+        @credit_purchases = base_scope
       end
+
+      @total_purchases_count = @credit_purchases.count
+      @total_pages = (@total_purchases_count.to_f / PER_PAGE).ceil
+      requested_page = params.fetch(:page, 1).to_i
+      @current_page = [requested_page, 1].max
+      upper_bound = [@total_pages, 1].max
+      @current_page = [@current_page, upper_bound].min
+      offset = (@current_page - 1) * PER_PAGE
+      @credit_purchases = @credit_purchases.limit(PER_PAGE).offset(offset)
       
       # Stats (toujours sur tous les achats)
       @total_revenue = CreditPurchase.paid_status.sum(:amount_cents) / 100.0

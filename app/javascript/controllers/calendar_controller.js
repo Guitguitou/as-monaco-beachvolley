@@ -19,31 +19,39 @@ export default class extends Controller {
 
     const isMobile = window.matchMedia('(max-width: 640px)').matches
     const headerToolbar = isMobile
-      ? { left: 'prev,next', center: 'title', right: 'timeGridWeek,timeGridDay' }
-      : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridThreeDay,timeGridDay' }
+      ? { left: 'prev,next', center: 'title', right: 'dayGridWeek,dayGridDay' }
+      : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,dayGridWeek,dayGridThreeDay,dayGridDay' }
 
     const calendar = new window.FullCalendar.Calendar(calendarEl, {
-      initialView: isMobile ? 'timeGridWeek' : 'timeGridWeek',
+      initialView: isMobile ? 'dayGridWeek' : 'dayGridWeek',
       ...(initialDate ? { initialDate } : {}),
       firstDay: 1,
       headerToolbar,
       locale: 'fr',
-      buttonText: { today: "Aujourd'hui", month: 'Mois', week: 'Semaine', day: 'Jour', timeGridThreeDay: '3 jours' },
+      buttonText: {
+        today: "Aujourd'hui",
+        month: 'Mois',
+        dayGridWeek: 'Semaine',
+        dayGridDay: 'Jour',
+        dayGridThreeDay: '3 jours'
+      },
       views: {
-        timeGridThreeDay: { type: 'timeGrid', duration: { days: 3 } }
+        dayGridThreeDay: { type: 'dayGrid', duration: { days: 3 } }
       },
       allDaySlot: false,
       slotMinTime: '08:00:00',
       slotMaxTime: '23:00:00',
       slotDuration: '00:30:00',
       slotLabelFormat: { hour: 'numeric', minute: '2-digit', meridiem: false, hour12: false },
-      height: isMobile ? 'auto' : 'calc(100vh - 280px)',
+      height: isMobile ? 'auto' : 'calc(100vh - 200px)',
       nowIndicator: true,
       stickyHeaderDates: true,
       eventOverlap: true,
       scrollTime: isMobile ? '07:30:00' : '08:00:00',
       expandRows: true,
       dayMaxEvents: false,
+      eventOrder: 'start,terrain',
+      eventOrderStrict: true,
       slotLabelClassNames: ['text-sm', 'text-gray-600', 'font-medium'],
       eventDisplay: 'block',
       dayHeaderFormat: isMobile ? { weekday: 'short', day: 'numeric', month: 'numeric' } : undefined,
@@ -52,7 +60,8 @@ export default class extends Controller {
       eventContent(arg) {
         const isMobile = window.matchMedia('(max-width: 640px)').matches
         const timeText = arg.timeText
-        const title = (isMobile ? (arg.event.extendedProps.shortTitle || arg.event.title) : arg.event.title) || ''
+        const sessionType = arg.event.extendedProps.sessionTypeLabel || ''
+        const groups = arg.event.extendedProps.groupsLabel || ''
         const coach = arg.event.extendedProps.coachName || ''
 
         const root = document.createElement('div')
@@ -62,23 +71,30 @@ export default class extends Controller {
         time.className = 'fc-asmbv-time'
         time.textContent = timeText
 
-        const titleEl = document.createElement('div')
-        titleEl.className = 'fc-asmbv-title'
-        titleEl.textContent = title
+        const typeEl = document.createElement('div')
+        typeEl.className = 'fc-asmbv-type'
+        typeEl.textContent = sessionType
+
+        const groupsEl = document.createElement('div')
+        groupsEl.className = 'fc-asmbv-groups'
+        groupsEl.textContent = groups
 
         const coachEl = document.createElement('div')
         coachEl.className = 'fc-asmbv-coach'
         coachEl.textContent = coach
 
         root.appendChild(time)
-        root.appendChild(titleEl)
+        root.appendChild(typeEl)
+        root.appendChild(groupsEl)
         root.appendChild(coachEl)
         return { domNodes: [root] }
       },
-      eventDidMount(info) {
+      eventDidMount: (info) => {
         const isMobile = window.matchMedia('(max-width: 640px)').matches
-        info.el.style.backgroundColor = info.event.extendedProps.backgroundColor
-        info.el.style.borderColor = info.event.extendedProps.borderColor
+        const todayBackground = '#fff8f7'
+        const baseBackground = info.event.extendedProps.backgroundColor
+        info.el.style.backgroundColor = this.applyAlphaColor(baseBackground, 0.85)
+        info.el.style.borderColor = todayBackground
         info.el.style.color = info.event.extendedProps.textColor
 
         // style "carte"
@@ -106,7 +122,8 @@ export default class extends Controller {
         }
 
         const time = info.el.querySelector('.fc-asmbv-time')
-        const title = info.el.querySelector('.fc-asmbv-title')
+        const type = info.el.querySelector('.fc-asmbv-type')
+        const groups = info.el.querySelector('.fc-asmbv-groups')
         const coach = info.el.querySelector('.fc-asmbv-coach')
 
         if (time) {
@@ -121,18 +138,29 @@ export default class extends Controller {
           }
         }
 
-        if (title) {
-          title.style.fontSize = isMobile ? '11px' : '13px'
-          title.style.fontWeight = '600'
-          title.style.lineHeight = '1.2'
-          title.style.flex = '1'
-          title.style.minHeight = '0'
-          // line-clamp 2 sur desktop, 1 sur mobile pour économiser l'espace
-          title.style.display = '-webkit-box'
-          title.style.webkitLineClamp = isMobile ? '1' : '2'
-          title.style.webkitBoxOrient = 'vertical'
-          title.style.overflow = 'hidden'
-          title.style.textOverflow = 'ellipsis'
+        if (type) {
+          type.style.fontSize = isMobile ? '11px' : '13px'
+          type.style.fontWeight = '600'
+          type.style.lineHeight = '1.2'
+          type.style.flexShrink = '0'
+          type.style.display = '-webkit-box'
+          type.style.webkitLineClamp = '1'
+          type.style.webkitBoxOrient = 'vertical'
+          type.style.overflow = 'hidden'
+          type.style.textOverflow = 'ellipsis'
+        }
+
+        if (groups) {
+          groups.style.fontSize = isMobile ? '10px' : '12px'
+          groups.style.opacity = '0.95'
+          groups.style.lineHeight = '1.2'
+          groups.style.flex = '1'
+          groups.style.minHeight = '0'
+          groups.style.display = '-webkit-box'
+          groups.style.webkitLineClamp = isMobile ? '1' : '2'
+          groups.style.webkitBoxOrient = 'vertical'
+          groups.style.overflow = 'hidden'
+          groups.style.textOverflow = 'ellipsis'
         }
 
         if (coach) {
@@ -149,7 +177,7 @@ export default class extends Controller {
         }
 
         // min height douce pour les events courts - ajusté pour mobile
-        info.el.style.minHeight = isMobile ? '40px' : '60px'
+        info.el.style.minHeight = isMobile ? '56px' : '80px'
         // Sur mobile, hauteur maximale pour éviter les débordements
         if (isMobile) {
           info.el.style.maxHeight = '100%'
@@ -259,6 +287,36 @@ export default class extends Controller {
 
     // Keep in sync when navigating browser history
     window.addEventListener('popstate', () => this.applyTerrainFromUrl())
+  }
+
+  applyAlphaColor(color, alpha) {
+    if (!color) return color
+    const trimmed = color.trim()
+
+    if (trimmed.startsWith("#")) {
+      const hex = trimmed.replace("#", "")
+      if (hex.length === 3) {
+        const r = parseInt(hex[0] + hex[0], 16)
+        const g = parseInt(hex[1] + hex[1], 16)
+        const b = parseInt(hex[2] + hex[2], 16)
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`
+      }
+      if (hex.length === 6) {
+        const r = parseInt(hex.slice(0, 2), 16)
+        const g = parseInt(hex.slice(2, 4), 16)
+        const b = parseInt(hex.slice(4, 6), 16)
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`
+      }
+    }
+
+    const rgbMatch = trimmed.match(/^rgba?\((.+)\)$/i)
+    if (rgbMatch) {
+      const parts = rgbMatch[1].split(",").map(part => part.trim())
+      const [r, g, b] = parts
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`
+    }
+
+    return color
   }
 
   applyTerrainFromUrl() {

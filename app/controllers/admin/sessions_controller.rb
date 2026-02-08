@@ -7,6 +7,8 @@ module Admin
     load_and_authorize_resource
     before_action :set_session, only: [:show, :edit, :update, :destroy, :duplicate]
 
+    PER_PAGE = 25
+
     def index
       # Optional filters
       if params[:coach_id].present?
@@ -38,6 +40,14 @@ module Admin
       end
 
       @sessions = @sessions.order(start_at: :desc)
+      @total_sessions_count = @sessions.count
+      @total_pages = (@total_sessions_count.to_f / PER_PAGE).ceil
+      requested_page = params.fetch(:page, 1).to_i
+      @current_page = [requested_page, 1].max
+      upper_bound = [@total_pages, 1].max
+      @current_page = [@current_page, upper_bound].min
+      offset = (@current_page - 1) * PER_PAGE
+      @sessions = @sessions.limit(PER_PAGE).offset(offset)
     end
 
     def show

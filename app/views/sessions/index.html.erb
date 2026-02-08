@@ -29,16 +29,9 @@
       bg, border, text = ['#e5e7eb', '#d1d5db', '#111827'] # gris par défaut
     end
 
-    short = s.display_name
-      .gsub(/Entra[iî]nement/i, 'Entr.')
-      .gsub(/\s*–\s*/, ' ')
-      .gsub(/\s+Groupe\s*/i, 'G')
-      .gsub(/\s+Mixte/i, ' Mx')
-
     {
       id: s.id,
       title: s.display_name,
-      shortTitle: short,     # <-- ajouté
       start: s.start_at.iso8601,
       end: s.end_at.iso8601,
       url: session_path(s),
@@ -46,7 +39,10 @@
       borderColor: border,
       textColor: text,
       terrain: s.terrain,
-      coachName: s.user&.full_name || '-'
+      coachName: s.user&.full_name || '-',
+      sessionType: s.session_type,
+      sessionTypeLabel: get_session_type_label(s.session_type),
+      groupsLabel: s.levels.map(&:display_name).join(", ")
     }
   end.to_json
 %>
