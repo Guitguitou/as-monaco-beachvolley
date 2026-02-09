@@ -14,6 +14,12 @@
         <%= lucide_icon("mail", size: 16) %>
         Changer mon email
       <% end %>
+      <%= link_to destroy_user_session_path,
+            data: { turbo_method: :delete },
+            class: "inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
+        <%= lucide_icon("log-out", size: 16) %>
+        Déconnexion
+      <% end %>
     </div>
   </div>
 
@@ -36,6 +42,11 @@
         <%= lucide_icon("user", class: "w-4 h-4 inline mr-2") %>
         Profil
       <% end %>
+      <%= link_to profile_path(tab: 'my_sessions'),
+          class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-asmbv-red text-asmbv-red' if @active_tab == 'my_sessions'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'my_sessions'}" do %>
+        <%= lucide_icon("volleyball", class: "w-4 h-4 inline mr-2") %>
+        Mes sessions
+      <% end %>
       <% if @user.coach? %>
         <%= link_to profile_path(tab: 'trainings'), 
             class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-asmbv-red text-asmbv-red' if @active_tab == 'trainings'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'trainings'}" do %>
@@ -49,6 +60,8 @@
   <!-- Tab Content -->
   <% if @active_tab == 'profile' %>
     <%= render 'profile_tab' %>
+  <% elsif @active_tab == 'my_sessions' %>
+    <%= render 'my_sessions_tab' %>
   <% elsif @active_tab == 'trainings' && @user.coach? %>
     <%= render 'coach_trainings_tab' %>
   <% end %>

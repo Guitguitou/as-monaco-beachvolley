@@ -1,9 +1,12 @@
 <!-- Library Tab Content -->
+<% trainings_base_path ||= coach_trainings_path %>
+<% trainings_tab_param ||= 'tab' %>
+
 <div class="space-y-6">
   <!-- Filter Section -->
   <div class="bg-white rounded-lg shadow p-4">
-    <%= form_with url: coach_trainings_path(tab: 'library'), method: :get, local: true, class: "flex items-center gap-4" do %>
-      <%= hidden_field_tag :tab, 'library' %>
+    <%= form_with url: trainings_base_path, method: :get, local: true, class: "flex items-center gap-4" do %>
+      <%= hidden_field_tag trainings_tab_param, 'library' %>
       <div class="flex items-center gap-2">
         <label class="text-sm font-medium text-gray-700">Mes sessions uniquement</label>
         <%= check_box_tag :only_mine, 1, params[:only_mine].present?, class: "h-4 w-4 text-asmbv-red focus:ring-asmbv-red border-gray-300 rounded" %>

@@ -1,20 +1,12 @@
 <!-- Layout pour utilisateurs connectés -->
-<div class="flex min-h-screen" 
+<div class="min-h-screen"
      <% if user_signed_in? && vapid_public_key.present? %>
-     data-controller="push-notifications" 
+     data-controller="push-notifications"
      data-push-notifications-vapid-public-key-value="<%= vapid_public_key %>"
      <% end %>>
-  <!-- Mobile top navbar -->
-  <%= render "layouts/mobile_header" %>
+  <%= render "layouts/navbar" %>
 
-  <!-- Sidebar -->
-  <%= render "layouts/sidebar" %>
-
-  <!-- Overlay mobile -->
-  <div data-sidebar-target="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden" data-action="click->sidebar#close"></div>
-
-  <!-- Main content -->
-  <main class="flex-1 p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8">
+  <main class="p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8">
     <%= yield %>
   </main>
 </div>

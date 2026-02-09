@@ -55,6 +55,19 @@ module ApplicationHelper
     end
   end
 
+  def nav_link_navbar(name, path, icon: nil)
+    active = current_page?(path)
+    base_classes = [
+      "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium border-b-2 transition-colors",
+      (active ? "text-asmbv-red border-asmbv-red" : "text-gray-700 border-transparent hover:text-asmbv-red hover:border-asmbv-red hover:bg-gray-100")
+    ]
+
+    link_to path, class: base_classes.join(" ") do
+      concat lucide_icon(icon, class: "w-4 h-4") if icon.present?
+      concat content_tag(:span, name)
+    end
+  end
+
   def humanize_credit_transaction_type(transaction_type)
     case transaction_type
     when "purchase"

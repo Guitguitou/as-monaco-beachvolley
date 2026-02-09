@@ -233,8 +233,8 @@ class Session < ApplicationRecord
     return unless session_type == 'entrainement'
     return if cancellation_deadline_at.present?
     return if start_at.blank?
-    # Default: noon on the training day
-    self.cancellation_deadline_at = start_at.change(hour: 12, min: 0)
+    # Default: 22:00 on the day before the training
+    self.cancellation_deadline_at = (start_at - 1.day).change(hour: 22, min: 0)
   end
 
   def default_price
