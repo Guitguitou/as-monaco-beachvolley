@@ -78,7 +78,9 @@
         <div class="lg:hidden" data-controller="dropdown">
           <button type="button"
                   data-action="click->dropdown#toggle"
-                  class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-asmbv-red">
+                  class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-asmbv-red"
+                  aria-label="Ouvrir le menu">
+            <%= lucide_icon("menu", class: "w-5 h-5") %>
             Menu
           </button>
           <div data-dropdown-target="content"
@@ -88,7 +90,9 @@
               <span class="font-semibold text-gray-900">Menu</span>
               <button type="button"
                       data-action="click->dropdown#toggle"
-                      class="px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100">
+                      class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100"
+                      aria-label="Fermer le menu">
+                <%= lucide_icon("x", class: "w-5 h-5") %>
                 Fermer
               </button>
             </div>
