@@ -1,0 +1,9 @@
+<p>Bonjour <%= @user.first_name.presence || @user.email %>.</p>
+
+<p>La session <strong><%= @session_name %></strong> du <strong><%= @session_date %></strong> a été annulée.</p>
+
+<p>Les crédits éventuellement débités ont été recrédités sur ton compte.</p>
+
+<p><%= link_to "Voir les autres sessions", @sessions_url %></p>
+
+<p>À bientôt,<br>L'équipe AS Monaco Beach Volley</p>

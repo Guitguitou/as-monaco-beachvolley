@@ -186,7 +186,7 @@ class Session < ApplicationRecord
           promotion_succeeded = true
         end
 
-        # Règle 1: Notifier l'utilisateur qu'il passe en liste principale
+        # Règle 1: Notifier l'utilisateur qu'il passe en liste principale (push + email)
         if promotion_succeeded
           begin
             session_name = self.title || session_type.humanize
@@ -198,6 +198,7 @@ class Session < ApplicationRecord
               body: "Quelqu'un s'est désinscrit de la session #{session_name} du #{session_date} à #{session_time}, tu viens de passer en liste principale",
               url: Rails.application.routes.url_helpers.session_path(self)
             )
+            SessionMailer.promoted_to_main_list(reg.user, self).deliver_later
           rescue StandardError => e
             Rails.logger.error "Failed to enqueue notification job: #{e.message}"
             # Don't block the process if notification fails

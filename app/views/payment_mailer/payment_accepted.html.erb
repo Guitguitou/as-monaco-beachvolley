@@ -1,0 +1,17 @@
+<p>Bonjour <%= @user.first_name.presence || @user.email %>.</p>
+
+<p>Votre paiement a bien été accepté.</p>
+
+<p>
+  <strong><%= @credit_purchase.credits %></strong> crédits ont été ajoutés à votre compte
+  (montant : <%= number_to_currency(@credit_purchase.amount_eur, unit: "€", separator: ",", format: "%n %u") %>).
+</p>
+
+<p>Référence : <%= @credit_purchase.sherlock_transaction_reference %></p>
+
+<p>
+  <%= link_to "Voir les packs et recharger", packs_url %> |
+  <%= link_to "Mon espace", root_url %>
+</p>
+
+<p>À bientôt,<br>L'équipe AS Monaco Beach Volley</p>

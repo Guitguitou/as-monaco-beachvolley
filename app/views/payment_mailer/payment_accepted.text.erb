@@ -1,0 +1,12 @@
+Bonjour <%= @user.first_name.presence || @user.email %>.
+
+Votre paiement a bien été accepté.
+
+<%= @credit_purchase.credits %> crédits ont été ajoutés à votre compte (montant : <%= "%.2f" % @credit_purchase.amount_eur %> €).
+Référence : <%= @credit_purchase.sherlock_transaction_reference %>
+
+Voir les packs : <%= packs_url %>
+Mon espace : <%= root_url %>
+
+À bientôt,
+L'équipe AS Monaco Beach Volley
