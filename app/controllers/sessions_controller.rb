@@ -110,7 +110,7 @@ class SessionsController < ApplicationController
       @session.destroy!
     end
 
-    # Envoyer les notifications après la destruction (pour éviter les erreurs si la session n'existe plus)
+    # Envoyer les notifications après la destruction (push + email)
     registered_users.each do |user|
       begin
         SendPushNotificationJob.perform_later(
@@ -119,6 +119,7 @@ class SessionsController < ApplicationController
           body: "La session #{session_name} du #{session_date} est annulée",
           url: Rails.application.routes.url_helpers.sessions_path
         )
+        SessionMailer.session_cancelled(user, session_name: session_name, session_date: session_date).deliver_later
       rescue StandardError => e
         Rails.logger.error "Failed to enqueue notification job for user #{user.id}: #{e.message}"
         # Don't block the process if notification fails

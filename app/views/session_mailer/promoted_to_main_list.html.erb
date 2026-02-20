@@ -1,0 +1,13 @@
+<p>Bonjour <%= @user.first_name.presence || @user.email %>.</p>
+
+<p>Bonne nouvelle : tu viens de passer en liste principale.</p>
+
+<p>
+  Quelqu'un s'est désinscrit de la session <strong><%= @session_name %></strong>
+  du <strong><%= @session_date %></strong> à <strong><%= @session_time %></strong>.
+  Ta place est confirmée.
+</p>
+
+<p><%= link_to "Voir la session", @session_url %></p>
+
+<p>À bientôt sur le sable,<br>L'équipe AS Monaco Beach Volley</p>
