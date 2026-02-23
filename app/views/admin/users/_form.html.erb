@@ -1,4 +1,6 @@
 <%= form_with model: [:admin, @user], class: "space-y-6 max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md" do |f| %>
+  <%= render "shared/form_errors", object: @user %>
+
   <!-- Nom / Prénom -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>

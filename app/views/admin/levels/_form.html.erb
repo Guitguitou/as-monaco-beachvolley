@@ -1,4 +1,6 @@
 <%= form_with model: level, url: url, method: method, class: "space-y-6 max-w-md bg-white p-6 rounded-lg shadow-md" do |f| %>
+  <%= render "shared/form_errors", object: level %>
+
   <!-- Nom du groupe -->
   <div>
     <%= f.label :name, "Nom du groupe", class: "block text-sm font-medium text-gray-900" %>

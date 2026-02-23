@@ -18,6 +18,12 @@ fr:
     day_names: [dimanche, lundi, mardi, mercredi, jeudi, vendredi, samedi]
     abbr_day_names: [dim, lun, mar, mer, jeu, ven, sam]
 
+  errors:
+    messages:
+      not_saved:
+        one: "1 erreur a empêché l'enregistrement de ce(tte) %{resource} :"
+        other: "%{count} erreurs ont empêché l'enregistrement de ce(tte) %{resource} :"
+
   activerecord:
     errors:
       messages:

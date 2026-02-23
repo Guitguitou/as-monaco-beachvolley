@@ -6,6 +6,7 @@
               url: user_password_path, 
               local: true,
               html: { class: "space-y-6" } do |f| %>
+    <%= render "devise/shared/error_messages", resource: resource %>
 
     <!-- Email -->
     <div>

@@ -2,6 +2,8 @@
               url: stage.persisted? ? admin_stage_path(stage) : admin_stages_path,
               method: stage.persisted? ? :put : :post,
               class: "space-y-6 bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto" do |f| %>
+  <%= render "shared/form_errors", object: stage %>
+
   <div class="grid grid-cols-1 gap-6">
     <div>
       <%= f.label :title, "Titre", class: "block text-sm font-medium text-gray-900" %>
