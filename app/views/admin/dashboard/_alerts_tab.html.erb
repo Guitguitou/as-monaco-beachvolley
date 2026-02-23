@@ -1,8 +1,40 @@
+<!-- Désinscriptions hors délai -->
 <div class="bg-white rounded-lg shadow">
   <div class="px-6 py-4 border-b border-gray-200">
-    <h3 class="text-lg font-medium text-gray-900">Alertes</h3>
+    <h3 class="text-lg font-medium text-gray-900 flex items-center">
+      <span class="mr-2">⚠️</span>
+      Désinscriptions hors délai
+      <span class="ml-2 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+        <%= @alerts[:late_cancellations]&.size.to_i %>
+      </span>
+    </h3>
   </div>
   <div class="p-6">
-    <p class="text-gray-500">Fonctionnalité en cours de développement...</p>
+    <% if @alerts[:late_cancellations]&.any? %>
+      <div class="space-y-3">
+        <% @alerts[:late_cancellations].each do |cancellation| %>
+          <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex-1">
+              <p class="font-medium text-gray-900">
+                <%= cancellation.user&.first_name %> <%= cancellation.user&.last_name %>
+              </p>
+              <p class="text-sm text-gray-600">
+                Nombre de désinscriptions hors délai: <%= cancellation.cancellations_count %>
+              </p>
+              <p class="text-xs text-gray-500">
+                Dernière annulation le <%= l(cancellation.last_cancelled_at, format: :short) %>
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-red-600 font-medium">
+                Hors délai
+              </p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-gray-500 text-center py-4">Aucune désinscription hors délai</p>
+    <% end %>
   </div>
 </div>

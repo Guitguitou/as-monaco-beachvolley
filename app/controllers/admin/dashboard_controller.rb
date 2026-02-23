@@ -216,7 +216,7 @@ module Admin
               when "stage" then scope.where(session_type: "stage")
               else scope
               end
-      scope.ordered_by_start
+      scope.order(start_at: :desc)
     end
 
     def week_range
