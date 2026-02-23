@@ -12,16 +12,16 @@
       <p class="text-sm text-gray-600">Formulaire d'inscription à l'association.</p>
     </a>
 
-    <!-- Achat de crédits -->
-    <a href="https://www.helloasso.com/associations/association-d-aide-a-l-as-monaco-volley-ball/boutiques/as-monaco-beach-volley" target="_blank" rel="noopener" class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block">
+    <!-- Boutique -->
+    <%= link_to packs_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
       <div class="mb-2 flex items-center gap-2">
         <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
           <%= lucide_icon 'credit-card', class: 'h-5 w-5 text-asmbv-red' %>
         </div>
-        <h3 class="font-medium">Achat de crédits</h3>
+        <h3 class="font-medium">Boutique</h3>
       </div>
-      <p class="text-sm text-gray-600">Achetez vos crédits via HelloAsso.</p>
-    </a>
+      <p class="text-sm text-gray-600">Crédits, licences, inscriptions tournoi et équipements.</p>
+    <% end %>
 
     <!-- Communauté WhatsApp -->
     <a href="https://chat.whatsapp.com/J05V2o3sPhdAwoPto5DiVo" target="_blank" rel="noopener" class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block">
