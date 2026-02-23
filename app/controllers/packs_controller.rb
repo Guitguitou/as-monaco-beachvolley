@@ -17,6 +17,8 @@ class PacksController < ApplicationController
     @credits_packs = accessible_packs.select(&:pack_type_credits?)
     @licence_packs = accessible_packs.select(&:pack_type_licence?)
     @stage_packs = accessible_packs.select(&:pack_type_stage?)
+    @inscription_tournoi_packs = accessible_packs.select(&:pack_type_inscription_tournoi?)
+    @equipements_packs = accessible_packs.select(&:pack_type_equipements?)
     
     # Afficher la notice si user non activé
     @show_activation_notice = user_signed_in? && !current_user.activated?
@@ -34,8 +36,8 @@ class PacksController < ApplicationController
     # Vérification des permissions CanCanCan
     if user_signed_in?
       authorize! :buy, @pack
-    elsif !@pack.pack_type_licence?
-      # Seules les licences sont achetables sans connexion
+    elsif !@pack.buyable_without_login?
+      # Crédits et stages requièrent une connexion
       redirect_to new_user_session_path, alert: "Vous devez être connecté pour acheter ce pack"
       return
     end

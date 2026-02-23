@@ -2,10 +2,14 @@
 
 <p>Votre paiement a bien été accepté.</p>
 
-<p>
-  <strong><%= @credit_purchase.credits %></strong> crédits ont été ajoutés à votre compte
-  (montant : <%= number_to_currency(@credit_purchase.amount_eur, unit: "€", separator: ",", format: "%n %u") %>).
-</p>
+<% if @credit_purchase.credits_pack? && @credit_purchase.credits.to_i.positive? %>
+  <p>
+    <strong><%= @credit_purchase.credits %></strong> crédits ont été ajoutés à votre compte
+    (montant : <%= number_to_currency(@credit_purchase.amount_eur, unit: "€", separator: ",", format: "%n %u") %>).
+  </p>
+<% else %>
+  <p>Montant : <%= number_to_currency(@credit_purchase.amount_eur, unit: "€", separator: ",", format: "%n %u") %>.</p>
+<% end %>
 
 <p>Référence : <%= @credit_purchase.sherlock_transaction_reference %></p>
 

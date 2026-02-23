@@ -24,8 +24,8 @@ class Ability
 
       # Non-activated users: limited access to licenses, stages and infos
       if !user.activated?
-        can :read, Pack, pack_type: ['licence', 'stage']
-        can :buy, Pack, pack_type: ['licence', 'stage']
+        can :read, Pack, pack_type: ['licence', 'stage', 'inscription_tournoi', 'equipements']
+        can :buy, Pack, pack_type: ['licence', 'stage', 'inscription_tournoi', 'equipements']
         can :read, Stage
         # Access to infos pages (handled in routes, no specific permission needed)
       else

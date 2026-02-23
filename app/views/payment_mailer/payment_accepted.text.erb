@@ -2,7 +2,11 @@ Bonjour <%= @user.first_name.presence || @user.email %>.
 
 Votre paiement a bien été accepté.
 
+<% if @credit_purchase.credits_pack? && @credit_purchase.credits.to_i.positive? %>
 <%= @credit_purchase.credits %> crédits ont été ajoutés à votre compte (montant : <%= "%.2f" % @credit_purchase.amount_eur %> €).
+<% else %>
+Montant : <%= "%.2f" % @credit_purchase.amount_eur %> €.
+<% end %>
 Référence : <%= @credit_purchase.sherlock_transaction_reference %>
 
 Voir les packs : <%= packs_url %>

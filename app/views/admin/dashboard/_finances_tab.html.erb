@@ -228,7 +228,9 @@
                 <%= case pack_type
                     when 'credits' then 'Packs de Crédits'
                     when 'stage' then 'Packs de Stage'
-                    when 'license' then 'Packs de Licence'
+                    when 'licence' then 'Packs de Licence'
+                    when 'inscription_tournoi' then 'Inscriptions tournoi'
+                    when 'equipements' then 'Équipements'
                     else pack_type.humanize
                     end %>
               </span>

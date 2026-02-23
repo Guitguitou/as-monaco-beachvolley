@@ -23,5 +23,15 @@ FactoryBot.define do
       pack_type { "licence" }
       credits { nil }
     end
+
+    trait :inscription_tournoi do
+      pack_type { "inscription_tournoi" }
+      credits { nil }
+    end
+
+    trait :equipements do
+      pack_type { "equipements" }
+      credits { nil }
+    end
   end
 end

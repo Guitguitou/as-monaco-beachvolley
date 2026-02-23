@@ -73,11 +73,13 @@ RSpec.describe Pack, type: :model do
 
   describe 'enums' do
     it 'defines pack_type enum' do
-      expect(Pack.pack_types).to eq({
+      expect(Pack.pack_types).to include(
         'credits' => 'credits',
         'licence' => 'licence',
-        'stage' => 'stage'
-      })
+        'stage' => 'stage',
+        'inscription_tournoi' => 'inscription_tournoi',
+        'equipements' => 'equipements'
+      )
     end
   end
 

@@ -6,9 +6,11 @@ class PaymentMailer < ApplicationMailer
     @user = credit_purchase.user
     return if @user.nil?
 
-    mail(
-      to: @user.email,
-      subject: "Paiement accepté – #{credit_purchase.credits} crédits reçus"
-    )
+    subject = if credit_purchase.credits_pack? && credit_purchase.credits.to_i.positive?
+      "Paiement accepté – #{credit_purchase.credits} crédits reçus"
+    else
+      "Paiement accepté"
+    end
+    mail(to: @user.email, subject: subject)
   end
 end

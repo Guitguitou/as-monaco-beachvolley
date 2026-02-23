@@ -32,6 +32,10 @@ class CreditPurchase < ApplicationRecord
         process_stage_purchase
       elsif licence_pack?
         process_licence_purchase
+      elsif inscription_tournoi_pack?
+        process_inscription_tournoi_purchase
+      elsif equipements_pack?
+        process_equipements_purchase
       else
         raise 'Type de pack non reconnu'
       end
@@ -57,6 +61,14 @@ class CreditPurchase < ApplicationRecord
   # Détermine si c'est un pack de licence
   def licence_pack?
     pack&.pack_type_licence?
+  end
+
+  def inscription_tournoi_pack?
+    pack&.pack_type_inscription_tournoi?
+  end
+
+  def equipements_pack?
+    pack&.pack_type_equipements?
   end
 
   # Calculer le montant en euros
@@ -109,6 +121,16 @@ class CreditPurchase < ApplicationRecord
       # et activer le compte ultérieurement quand ils se connectent/créent un compte
       Rails.logger.info('Licence pack purchased by anonymous user - stored in sherlock_fields')
     end
+  end
+
+  def process_inscription_tournoi_purchase
+    user_info = user ? "user #{user.id}" : "anonymous user"
+    Rails.logger.info("Inscription tournoi pack purchased: #{pack.name} by #{user_info}")
+  end
+
+  def process_equipements_purchase
+    user_info = user ? "user #{user.id}" : "anonymous user"
+    Rails.logger.info("Equipements pack purchased: #{pack.name} by #{user_info}")
   end
 
   # Générer une référence unique

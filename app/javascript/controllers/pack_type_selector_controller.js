@@ -41,7 +41,9 @@ export default class extends Controller {
         }
         break
       case "licence":
-        // No additional fields needed for licence
+      case "inscription_tournoi":
+      case "equipements":
+        // No additional fields needed
         break
     }
   }

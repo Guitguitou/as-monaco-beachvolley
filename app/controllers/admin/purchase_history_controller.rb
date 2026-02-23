@@ -108,7 +108,9 @@ module Admin
                            when 'credits' then 'Crédits'
                            when 'licence' then 'Licence'
                            when 'stage' then 'Stage'
-                           else 'N/A'
+                           when 'inscription_tournoi' then 'Inscription tournoi'
+                           when 'equipements' then 'Équipements'
+                           else purchase.pack&.pack_type.presence && purchase.pack.pack_type.humanize || 'N/A'
                            end
 
           csv << [

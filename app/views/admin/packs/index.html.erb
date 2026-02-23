@@ -41,9 +41,21 @@
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
                 <%= lucide_icon("badge-check", size: 14) %> Licence
               </span>
-            <% else %>
+            <% elsif pack.pack_type_stage? %>
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-semibold">
                 <%= lucide_icon("flag", size: 14) %> Stage
+              </span>
+            <% elsif pack.pack_type_inscription_tournoi? %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold">
+                <%= lucide_icon("trophy", size: 14) %> Inscription tournoi
+              </span>
+            <% elsif pack.pack_type_equipements? %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-xs font-semibold">
+                <%= lucide_icon("shirt", size: 14) %> Équipements
+              </span>
+            <% else %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
+                <%= pack.pack_type.humanize %>
               </span>
             <% end %>
           </td>

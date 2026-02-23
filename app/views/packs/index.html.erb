@@ -12,6 +12,7 @@
           <ul class="list-disc list-inside space-y-1 ml-2">
             <li>Consulter et acheter des <strong>licences</strong> pour activer votre compte</li>
             <li>Consulter et vous inscrire aux <strong>stages</strong></li>
+            <li>Consulter et acheter <strong>inscriptions tournoi</strong> et <strong>équipements</strong></li>
             <li>Consulter les règles et informations</li>
           </ul>
           <p class="mt-3 font-medium">💡 Achetez votre licence ci-dessous pour débloquer toutes les fonctionnalités !</p>
@@ -251,8 +252,114 @@
   </div>
 <% end %>
 
+<%# Packs inscription tournoi %>
+<% if @inscription_tournoi_packs&.any? %>
+  <div class="mb-12">
+    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+      <%= lucide_icon("trophy", size: 24, class: "text-amber-600") %>
+      Inscriptions tournoi
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <% @inscription_tournoi_packs.each do |pack| %>
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+          <div class="p-4 border-b border-gray-100">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900"><%= pack.name %></h3>
+                <% if pack.description.present? %>
+                  <p class="text-sm text-gray-600 mt-1"><%= pack.description %></p>
+                <% end %>
+              </div>
+              <%= lucide_icon("trophy", size: 24, class: "text-gray-400") %>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span class="text-2xl font-bold text-gray-900"><%= pack.amount_eur.to_i %></span>
+              <span class="text-lg text-gray-600">€</span>
+              <% if pack.amount_eur != pack.amount_eur.to_i %>
+                <span class="text-sm text-gray-500"><%= sprintf("%.2f", pack.amount_eur).split('.')[1] %></span>
+              <% end %>
+            </div>
+          </div>
+          <div class="flex-1 p-4 flex flex-col">
+            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
+              <div class="flex items-center gap-2 text-gray-600">
+                <%= lucide_icon("trophy", size: 16, class: "text-gray-500") %>
+                <span class="text-sm font-medium">Inscription tournoi</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
+              <%= lucide_icon("info", size: 14, class: "text-gray-400") %>
+              <span>Réservez votre place pour le tournoi</span>
+            </div>
+            <%= button_to buy_pack_path(pack),
+                  method: :post,
+                  class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
+                  data: { turbo: false } do %>
+              <%= lucide_icon("shopping-cart", size: 16) %>
+              Acheter
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<%# Packs équipements %>
+<% if @equipements_packs&.any? %>
+  <div class="mb-12">
+    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+      <%= lucide_icon("shirt", size: 24, class: "text-slate-600") %>
+      Équipements
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <% @equipements_packs.each do |pack| %>
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+          <div class="p-4 border-b border-gray-100">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900"><%= pack.name %></h3>
+                <% if pack.description.present? %>
+                  <p class="text-sm text-gray-600 mt-1"><%= pack.description %></p>
+                <% end %>
+              </div>
+              <%= lucide_icon("shirt", size: 24, class: "text-gray-400") %>
+            </div>
+            <div class="flex items-baseline gap-1">
+              <span class="text-2xl font-bold text-gray-900"><%= pack.amount_eur.to_i %></span>
+              <span class="text-lg text-gray-600">€</span>
+              <% if pack.amount_eur != pack.amount_eur.to_i %>
+                <span class="text-sm text-gray-500"><%= sprintf("%.2f", pack.amount_eur).split('.')[1] %></span>
+              <% end %>
+            </div>
+          </div>
+          <div class="flex-1 p-4 flex flex-col">
+            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
+              <div class="flex items-center gap-2 text-gray-600">
+                <%= lucide_icon("shirt", size: 16, class: "text-gray-500") %>
+                <span class="text-sm font-medium">Équipement</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
+              <%= lucide_icon("info", size: 14, class: "text-gray-400") %>
+              <span>Commande d'équipement club</span>
+            </div>
+            <%= button_to buy_pack_path(pack),
+                  method: :post,
+                  class: "w-full inline-flex items-center justify-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
+                  data: { turbo: false } do %>
+              <%= lucide_icon("shopping-cart", size: 16) %>
+              Acheter
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
 <%# Message si aucun pack ni stage %>
-<% if @credits_packs.empty? && @licence_packs.empty? && @stage_packs.empty? %>
+<% if @credits_packs.empty? && @licence_packs.empty? && @stage_packs.empty? && @inscription_tournoi_packs.to_a.empty? && @equipements_packs.to_a.empty? %>
   <div class="text-center py-16 bg-white rounded-xl border border-gray-200 shadow-sm">
     <div class="flex flex-col items-center gap-4">
       <%= lucide_icon("package", size: 64, class: "text-gray-300") %>
