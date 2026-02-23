@@ -39,17 +39,39 @@ module Admin
       @kpis = kpis_service.week_kpis
       @upcoming_sessions = kpis_service.upcoming_sessions
       @alerts = alerts_service.all_alerts
+
+      # Inscrits par mois (jeu libre + entrainement) avec navigation
+      @stats_year = (params[:stats_year].presence || Time.current.year).to_i
+      @stats_month = (params[:stats_month].presence || Time.current.month).to_i.clamp(1, 12)
+      stats_month_start = Time.zone.parse("#{@stats_year}-#{@stats_month}-01").in_time_zone("Europe/Paris").beginning_of_month
+      participants = kpis_service.monthly_participants(stats_month_start)
+      @participants_jeu_libre = participants[:jeu_libre]
+      @participants_entrainement = participants[:entrainement]
     end
 
     def render_sessions_tab
       kpis_service = Reporting::Kpis.new
       alerts_service = Reporting::Alerts.new
-      
       @kpis = kpis_service.week_kpis
-      @upcoming_sessions = kpis_service.upcoming_sessions
       @alerts = alerts_service.all_alerts
-      @filters = session_filters
-      @sessions = filtered_sessions
+
+      @sessions_sub_tab = params[:session_type].to_s.presence || "upcoming"
+
+      if @sessions_sub_tab == "upcoming"
+        @upcoming_sessions_flat = Session.upcoming
+          .where("start_at >= ?", Time.current)
+          .includes(:registrations, :user)
+          .ordered_by_start
+          .limit(100)
+      else
+        @sessions_period = params[:period].presence || "week"
+        @period_anchor = parse_period_anchor
+        range = period_range(@sessions_period, @period_anchor)
+        @sessions_by_type = sessions_for_type_and_range(@sessions_sub_tab, range)
+        @period_label = period_label(@sessions_period, @period_anchor)
+        @prev_period_params = prev_period_params
+        @next_period_params = next_period_params
+      end
     end
 
     def render_finances_tab
@@ -105,43 +127,96 @@ module Admin
       @alerts = alerts_service.all_alerts
     end
 
-    def session_filters
-      {
-        date_range: params[:date_range] || 'week',
-        session_type: params[:session_type] || '',
-        coach_id: params[:coach_id] || ''
-      }
+    def parse_period_anchor
+      tz = "Europe/Paris"
+      now = Time.current.in_time_zone(tz)
+      case @sessions_period
+      when "week"
+        if params[:period_anchor].present?
+          Time.zone.parse(params[:period_anchor]).in_time_zone(tz).beginning_of_week(:monday)
+        else
+          now.beginning_of_week(:monday)
+        end
+      when "month"
+        if params[:period_anchor].present?
+          # format YYYY-MM or YYYY-MM-DD
+          Time.zone.parse("#{params[:period_anchor]}-01").in_time_zone(tz).beginning_of_month
+        else
+          now.beginning_of_month
+        end
+      when "year"
+        y = params[:period_anchor].presence || now.year
+        Time.zone.parse("#{y}-01-01").in_time_zone(tz).beginning_of_year
+      else
+        now.beginning_of_week(:monday)
+      end
     end
 
-    def filtered_sessions
-      sessions = Session.includes(:registrations, :user, :levels)
-      
-      # Filter by date range using scopes
-      case session_filters[:date_range]
-      when 'week'
-        sessions = sessions.in_week(week_range.begin)
-      when 'month'
-        sessions = sessions.in_month(month_range.begin)
-      when 'year'
-        sessions = sessions.in_year(year_range.begin)
+    def period_range(period, anchor)
+      case period
+      when "week"
+        anchor..anchor.end_of_week(:monday)
+      when "month"
+        anchor..anchor.end_of_month
+      when "year"
+        anchor..anchor.end_of_year
+      else
+        anchor..anchor.end_of_week(:monday)
       end
-      
-      # Filter by session type using scopes
-      case session_filters[:session_type]
-      when 'entrainement'
-        sessions = sessions.trainings
-      when 'jeu_libre'
-        sessions = sessions.free_plays
-      when 'coaching_prive'
-        sessions = sessions.private_coachings
+    end
+
+    def period_label(period, anchor)
+      case period
+      when "week"
+        I18n.l(anchor, format: :short) + " – " + I18n.l(anchor.end_of_week(:monday), format: :short)
+      when "month"
+        I18n.l(anchor, format: :month_and_year)
+      when "year"
+        anchor.year.to_s
+      else
+        I18n.l(anchor, format: :short)
       end
-      
-      # Filter by coach
-      if session_filters[:coach_id].present?
-        sessions = sessions.where(user_id: session_filters[:coach_id])
+    end
+
+    def prev_period_params
+      base = { tab: "sessions", session_type: @sessions_sub_tab, period: @sessions_period }
+      case @sessions_period
+      when "week"
+        base.merge(period_anchor: (@period_anchor - 1.week).strftime("%Y-%m-%d"))
+      when "month"
+        base.merge(period_anchor: (@period_anchor - 1.month).strftime("%Y-%m"))
+      when "year"
+        base.merge(period_anchor: (@period_anchor.year - 1).to_s)
+      else
+        base
       end
-      
-      sessions.ordered_by_start.limit(50)
+    end
+
+    def next_period_params
+      base = { tab: "sessions", session_type: @sessions_sub_tab, period: @sessions_period }
+      case @sessions_period
+      when "week"
+        base.merge(period_anchor: (@period_anchor + 1.week).strftime("%Y-%m-%d"))
+      when "month"
+        base.merge(period_anchor: (@period_anchor + 1.month).strftime("%Y-%m"))
+      when "year"
+        base.merge(period_anchor: (@period_anchor.year + 1).to_s)
+      else
+        base
+      end
+    end
+
+    def sessions_for_type_and_range(session_type, range)
+      scope = Session.where(start_at: range).includes(:registrations, :user)
+      scope = case session_type
+              when "entrainement" then scope.trainings
+              when "jeu_libre" then scope.free_plays
+              when "coaching_prive" then scope.private_coachings
+              when "tournoi" then scope.where(session_type: "tournoi")
+              when "stage" then scope.where(session_type: "stage")
+              else scope
+              end
+      scope.ordered_by_start
     end
 
     def week_range

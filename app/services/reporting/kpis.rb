@@ -24,6 +24,17 @@ module Reporting
       end
     end
 
+    # Nombre total de personnes inscrites (confirmed) par type sur un mois donné
+    def monthly_participants(month_start)
+      range = month_start..month_start.end_of_month
+      {
+        jeu_libre: Registration.confirmed.joins(:session)
+          .where(sessions: { session_type: "jeu_libre", start_at: range }).count,
+        entrainement: Registration.confirmed.joins(:session)
+          .where(sessions: { session_type: "entrainement", start_at: range }).count
+      }
+    end
+
     # Sessions à venir (7 prochains jours)
     def upcoming_sessions(limit: 7)
       upcoming_range = @current_time..(@current_time + 7.days)

@@ -23,7 +23,12 @@ RSpec.describe "Admin::Dashboard", type: :request do
       end
 
       it "shows sessions tab" do
-        get admin_root_path, params: { tab: 'sessions' }
+        get admin_root_path, params: { tab: "sessions" }
+        expect(response).to have_http_status(:success)
+      end
+
+      it "shows sessions tab with type and period" do
+        get admin_root_path, params: { tab: "sessions", session_type: "entrainement", period: "month" }
         expect(response).to have_http_status(:success)
       end
 

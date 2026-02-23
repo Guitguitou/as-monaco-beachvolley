@@ -1,167 +1,136 @@
-<!-- KPIs de la semaine -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
-          <span class="text-white text-sm font-medium">🏋️</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Entraînements (semaine)</p>
-        <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:trainings_count] %></p>
-      </div>
-    </div>
-  </div>
+<% session_type_tabs = [
+  [ "upcoming", "Sessions prévues", "" ],
+  [ "entrainement", "Entrainements", "entrainement" ],
+  [ "jeu_libre", "Jeux libres", "jeu_libre" ],
+  [ "coaching_prive", "Coachings privés", "coaching_prive" ]
+] %>
 
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
-          <span class="text-white text-sm font-medium">🎮</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Jeux libres (semaine)</p>
-        <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:free_plays_count] %></p>
-      </div>
-    </div>
-  </div>
-
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
-          <span class="text-white text-sm font-medium">👥</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Coachings privés (semaine)</p>
-        <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:private_coachings_count] %></p>
-      </div>
-    </div>
-  </div>
+<!-- Sous-onglets par type -->
+<div class="border-b border-gray-200 mb-6">
+  <nav class="flex gap-4" aria-label="Type de session">
+    <% session_type_tabs.each do |(id, label, param_value)| %>
+      <% active = (param_value.blank? && @sessions_sub_tab == "upcoming") || @sessions_sub_tab == param_value %>
+      <%= link_to label,
+                  admin_root_path(tab: "sessions", session_type: param_value),
+                  class: "py-3 px-1 border-b-2 text-sm font-medium #{active ? 'border-asmbv-red text-asmbv-red' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
+    <% end %>
+  </nav>
 </div>
 
-<!-- Sessions à venir -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-  <!-- Entraînements à venir -->
-  <div class="bg-white rounded-lg shadow">
+<% if @sessions_sub_tab == "upcoming" %>
+  <!-- Sessions prévues (à partir d'aujourd'hui) -->
+  <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
     <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900 flex items-center">
-        <span class="mr-2">🏋️</span>
-        Entraînements à venir
-      </h3>
+      <h3 class="text-lg font-medium text-gray-900">Sessions prévues</h3>
     </div>
-    <div class="p-6">
-      <% if @upcoming_sessions['entrainement']&.any? %>
-        <div class="space-y-3">
-          <% @upcoming_sessions['entrainement'].each do |session| %>
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div class="flex-1">
-                <p class="font-medium text-gray-900"><%= session.title %></p>
-                <p class="text-sm text-gray-500">
-                  <%= session.start_at.strftime("%d/%m - %H:%M") %> - <%= session.terrain %>
-                </p>
-                <p class="text-xs text-gray-400">
-                  Coach: <%= session.user.first_name %> <%= session.user.last_name %>
-                </p>
-              </div>
-              <div class="text-right">
-                <p class="text-sm text-gray-500">
-                  <%= session.registrations.confirmed.count %>/<%= session.max_players || '∞' %> places
-                </p>
-                <p class="text-xs text-gray-400">
-                  <%= number_to_currency(session.price / 100.0, unit: "€", separator: ",", delimiter: "") %>
-                </p>
-              </div>
-            </div>
-          <% end %>
-        </div>
+    <div class="overflow-x-auto">
+      <% if @upcoming_sessions_flat.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsable</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participants</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @upcoming_sessions_flat.each do |session| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                  <%= l(session.start_at, format: :short) %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium
+                    <%= case session.session_type
+                        when 'entrainement' then 'bg-blue-100 text-blue-800'
+                        when 'jeu_libre' then 'bg-green-100 text-green-800'
+                        when 'coaching_prive' then 'bg-purple-100 text-purple-800'
+                        else 'bg-gray-100 text-gray-800'
+                        end %>">
+                    <%= session.session_type.humanize %>
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-900"><%= session.title %></td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                  <%= link_to session.user&.full_name, admin_session_path(session), class: "text-asmbv-red hover:underline" %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                  <%= session.registrations.confirmed.count %>/<%= session.max_players || "∞" %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                  <%= link_to "Voir", admin_session_path(session), class: "text-asmbv-red hover:underline" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       <% else %>
-        <p class="text-gray-500 text-center py-4">Aucun entraînement à venir</p>
+        <p class="px-6 py-8 text-center text-gray-500">Aucune session prévue.</p>
       <% end %>
     </div>
+  </div>
+<% else %>
+  <!-- Vue par type : période + tableau -->
+  <div class="mb-6 flex flex-wrap items-center gap-4">
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-medium text-gray-700">Période :</span>
+      <%= link_to "Semaine", admin_root_path(tab: "sessions", session_type: @sessions_sub_tab, period: "week"), class: "px-3 py-1.5 rounded text-sm #{@sessions_period == 'week' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+      <%= link_to "Mois", admin_root_path(tab: "sessions", session_type: @sessions_sub_tab, period: "month"), class: "px-3 py-1.5 rounded text-sm #{@sessions_period == 'month' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+      <%= link_to "Année", admin_root_path(tab: "sessions", session_type: @sessions_sub_tab, period: "year"), class: "px-3 py-1.5 rounded text-sm #{@sessions_period == 'year' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+    </div>
+    <span class="text-sm text-gray-600"><%= @period_label %></span>
+    <nav class="flex items-center gap-2" aria-label="Navigation par période">
+      <%= link_to "Période précédente", admin_root_path(@prev_period_params), class: "text-sm text-asmbv-red hover:underline" %>
+      <%= link_to "Période suivante", admin_root_path(@next_period_params), class: "text-sm text-asmbv-red hover:underline" %>
+    </nav>
   </div>
 
-  <!-- Jeux libres à venir -->
-  <div class="bg-white rounded-lg shadow">
+  <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
     <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900 flex items-center">
-        <span class="mr-2">🎮</span>
-        Jeux libres à venir
+      <h3 class="text-lg font-medium text-gray-900">
+        <%= case @sessions_sub_tab
+            when "entrainement" then "Entrainements"
+            when "jeu_libre" then "Jeux libres"
+            when "coaching_prive" then "Coachings privés"
+            else @sessions_sub_tab.humanize
+            end %>
       </h3>
     </div>
-    <div class="p-6">
-      <% if @upcoming_sessions['jeu_libre']&.any? %>
-        <div class="space-y-3">
-          <% @upcoming_sessions['jeu_libre'].each do |session| %>
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div class="flex-1">
-                <p class="font-medium text-gray-900"><%= session.title %></p>
-                <p class="text-sm text-gray-500">
-                  <%= session.start_at.strftime("%d/%m - %H:%M") %> - <%= session.terrain %>
-                </p>
-                <p class="text-xs text-gray-400">
-                  Responsable: <%= session.user.first_name %> <%= session.user.last_name %>
-                </p>
-              </div>
-              <div class="text-right">
-                <p class="text-sm text-gray-500">
-                  <%= session.registrations.confirmed.count %>/<%= session.max_players || '∞' %> places
-                </p>
-                <p class="text-xs text-gray-400">
-                  <%= number_to_currency(session.price / 100.0, unit: "€", separator: ",", delimiter: "") %>
-                </p>
-              </div>
-            </div>
-          <% end %>
-        </div>
+    <div class="overflow-x-auto">
+      <% if @sessions_by_type.any? %>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jour</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre de participants</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsable</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @sessions_by_type.each do |session| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                  <%= l(session.start_at, format: :short) %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                  <%= session.registrations.confirmed.count %>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                  <%= link_to session.user&.full_name, admin_session_path(session), class: "text-asmbv-red hover:underline" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       <% else %>
-        <p class="text-gray-500 text-center py-4">Aucun jeu libre à venir</p>
+        <p class="px-6 py-8 text-center text-gray-500">Aucune session sur cette période.</p>
       <% end %>
     </div>
   </div>
-
-  <!-- Coachings privés à venir -->
-  <div class="bg-white rounded-lg shadow">
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900 flex items-center">
-        <span class="mr-2">👥</span>
-        Coachings privés à venir
-      </h3>
-    </div>
-    <div class="p-6">
-      <% if @upcoming_sessions['coaching_prive']&.any? %>
-        <div class="space-y-3">
-          <% @upcoming_sessions['coaching_prive'].each do |session| %>
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div class="flex-1">
-                <p class="font-medium text-gray-900"><%= session.title %></p>
-                <p class="text-sm text-gray-500">
-                  <%= session.start_at.strftime("%d/%m - %H:%M") %> - <%= session.terrain %>
-                </p>
-                <p class="text-xs text-gray-400">
-                  Coach: <%= session.user.first_name %> <%= session.user.last_name %>
-                </p>
-              </div>
-              <div class="text-right">
-                <p class="text-sm text-gray-500">
-                  <%= session.registrations.confirmed.count %>/<%= session.max_players || '∞' %> places
-                </p>
-                <p class="text-xs text-gray-400">
-                  <%= number_to_currency(session.price / 100.0, unit: "€", separator: ",", delimiter: "") %>
-                </p>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      <% else %>
-        <p class="text-gray-500 text-center py-4">Aucun coaching privé à venir</p>
-      <% end %>
-    </div>
-  </div>
-</div>
+<% end %>
 
 <!-- Désinscriptions hors délai -->
 <div class="bg-white rounded-lg shadow">

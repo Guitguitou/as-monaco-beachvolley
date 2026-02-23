@@ -57,6 +57,54 @@
   </div>
 </div>
 
+<!-- Inscrits par mois (jeu libre + entrainement) -->
+<% stats_month_date = Date.new(@stats_year, @stats_month, 1) %>
+<% prev_month = stats_month_date - 1.month %>
+<% next_month = stats_month_date + 1.month %>
+<% next_month_future = next_month > Date.current %>
+<div class="mb-8">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-medium text-gray-900">Inscrits par mois</h3>
+    <nav class="flex items-center gap-2" aria-label="Navigation par mois">
+      <%= link_to "Mois précédent", admin_root_path(tab: "overview", stats_year: prev_month.year, stats_month: prev_month.month), class: "text-sm text-asmbv-red hover:underline" %>
+      <span class="text-sm font-medium text-gray-700"><%= l(stats_month_date, format: :month_and_year) %></span>
+      <% if next_month_future %>
+        <%= link_to "Mois suivant", admin_root_path(tab: "overview", stats_year: next_month.year, stats_month: next_month.month), class: "text-sm text-asmbv-red hover:underline" %>
+      <% else %>
+        <span class="text-sm text-gray-400">Mois suivant</span>
+      <% end %>
+    </nav>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+            <span class="text-white text-sm font-medium">🎮</span>
+          </div>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-500">Inscrits en jeu libre (mois)</p>
+          <p class="text-2xl font-semibold text-gray-900"><%= @participants_jeu_libre %></p>
+        </div>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+            <span class="text-white text-sm font-medium">🏋️</span>
+          </div>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-500">Inscrits en entrainement (mois)</p>
+          <p class="text-2xl font-semibold text-gray-900"><%= @participants_entrainement %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Financial KPIs -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
   <div class="bg-white rounded-lg shadow p-6">
