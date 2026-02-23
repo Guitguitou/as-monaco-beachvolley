@@ -50,7 +50,7 @@ class SessionsController < ApplicationController
 
     if @session.save
       sync_participants(@session)
-      redirect_to sessions_path, notice: "Session créée avec succès."
+      redirect_to sessions_path(date: @session.start_at.strftime("%Y-%m-%d"), terrain: params[:terrain].presence), notice: "Session créée avec succès."
     else
       render :new, status: :unprocessable_entity
     end
@@ -71,7 +71,7 @@ class SessionsController < ApplicationController
     if @session.save
       # Only sync participants if the form included participant_ids
       sync_participants(@session) if params.dig(:session, :participant_ids).present?
-      redirect_to sessions_path, notice: "Session mise à jour avec succès."
+      redirect_to sessions_path(date: @session.start_at.strftime("%Y-%m-%d"), terrain: params[:terrain].presence), notice: "Session mise à jour avec succès."
     else
       render :edit, status: :unprocessable_entity
       flash.now[:alert] = "Erreur lors de la mise à jour de la session: #{@session.errors.full_messages.join(', ')}"
