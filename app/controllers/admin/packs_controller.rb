@@ -51,7 +51,7 @@ module Admin
     end
 
     def pack_params
-      params.require(:pack).permit(:name, :description, :pack_type, :amount_cents, :credits, :stage_id, :active, :position)
+      params.require(:pack).permit(:name, :description, :pack_type, :amount_cents, :credits, :stage_id, :active, :position, :public)
     end
 
     def ensure_admin!

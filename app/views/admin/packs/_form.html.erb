@@ -99,6 +99,12 @@
       <%= f.check_box :active, class: "rounded border-gray-300 text-asmbv-red focus:ring-asmbv-red" %>
       <%= f.label :active, "Pack actif (visible pour les utilisateurs)", class: "text-sm font-medium text-gray-900" %>
     </div>
+
+    <div class="flex items-center gap-2">
+      <%= f.check_box :public, class: "rounded border-gray-300 text-asmbv-red focus:ring-asmbv-red" %>
+      <%= f.label :public, "Accessible hors connexion (visible et achetable sans se connecter)", class: "text-sm font-medium text-gray-900" %>
+    </div>
+    <p class="text-xs text-gray-500">Par défaut, un pack n’est visible et achetable que pour les utilisateurs connectés.</p>
   </div>
 
   <div>

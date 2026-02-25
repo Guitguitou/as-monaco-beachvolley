@@ -5,12 +5,12 @@ class PacksController < ApplicationController
     # Charger tous les packs actifs
     all_packs = Pack.active.ordered
     
-    # CanCanCan filtre selon les permissions (activated? pour credits/stages)
+    # Connecté : CanCanCan filtre selon les permissions
+    # Non connecté : uniquement les packs marqués "public" par l’admin
     if user_signed_in?
       accessible_packs = all_packs.select { |pack| can?(:read, pack) }
     else
-      # Utilisateurs non connectés : tous les packs visibles (achat redirige vers login sauf licences)
-      accessible_packs = all_packs
+      accessible_packs = all_packs.select(&:public?)
     end
     
     # Regrouper par type
@@ -36,8 +36,8 @@ class PacksController < ApplicationController
     # Vérification des permissions CanCanCan
     if user_signed_in?
       authorize! :buy, @pack
-    elsif !@pack.buyable_without_login?
-      # Crédits et stages requièrent une connexion
+    elsif !@pack.public?
+      # Hors connexion : seuls les packs "public" sont achetables
       redirect_to new_user_session_path, alert: "Vous devez être connecté pour acheter ce pack"
       return
     end

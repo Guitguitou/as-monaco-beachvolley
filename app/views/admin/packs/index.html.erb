@@ -19,6 +19,7 @@
         <th class="px-4 sm:px-6 py-3 text-left hidden md:table-cell">Crédits</th>
         <th class="px-4 sm:px-6 py-3 text-left hidden lg:table-cell">Stage</th>
         <th class="px-4 sm:px-6 py-3 text-left hidden xl:table-cell">Position</th>
+        <th class="px-4 sm:px-6 py-3 text-left hidden lg:table-cell">Hors connexion</th>
         <th class="px-4 sm:px-6 py-3 text-left">Statut</th>
         <th class="px-4 sm:px-6 py-3 text-right w-16 sm:w-24">Actions</th>
       </tr>
@@ -86,6 +87,15 @@
           <!-- Position -->
           <td class="px-4 sm:px-6 py-4 text-gray-700 hidden xl:table-cell">
             <%= pack.position %>
+          </td>
+
+          <!-- Hors connexion -->
+          <td class="px-4 sm:px-6 py-4 hidden lg:table-cell">
+            <% if pack.public? %>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold">Oui</span>
+            <% else %>
+              <span class="text-gray-400">Non</span>
+            <% end %>
           </td>
 
           <!-- Statut -->

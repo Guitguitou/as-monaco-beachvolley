@@ -23,6 +23,7 @@ class Pack < ApplicationRecord
 
   # Scopes
   scope :active, -> { where(active: true) }
+  scope :public_packs, -> { where(public: true) }
   scope :ordered, -> { order(:position, :created_at) }
   scope :credits_packs, -> { where(pack_type: :credits) }
   scope :stage_packs, -> { where(pack_type: :stage) }
@@ -65,8 +66,8 @@ class Pack < ApplicationRecord
     (credits.to_f / amount_eur).round(2)
   end
 
-  # Packs achetables sans être connecté (licence, inscription tournoi, équipements)
+  # Packs visibles et achetables hors connexion : l’admin décide via le champ public
   def buyable_without_login?
-    pack_type_licence? || pack_type_inscription_tournoi? || pack_type_equipements?
+    public?
   end
 end
