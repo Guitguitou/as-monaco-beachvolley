@@ -79,6 +79,7 @@ Rails.application.routes.draw do
 
   # Player listings (find players)
   resources :player_listings, only: [:index, :create, :update, :destroy]
+  resource :player_suggestions_preferences, only: [:update]
   resources :player_requests, only: [:create] do
     member do
       patch :accept

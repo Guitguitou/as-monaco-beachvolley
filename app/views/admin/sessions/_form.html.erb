@@ -160,6 +160,16 @@
     <% end %>
   </div>
 
+  <div>
+    <label class="inline-flex items-start gap-2 text-sm text-gray-700">
+      <%= f.check_box :open_for_matching, class: "mt-0.5 h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+      <span>
+        Session ouverte pour matching
+        <span class="block text-xs text-gray-500">Visible dans "Pour toi" avec notifications ciblees.</span>
+      </span>
+    </label>
+  </div>
+
   <!-- Prix (crédits) -->
   <div>
     <%= f.label :price, "Prix (crédits)", class: "block text-sm font-medium text-gray-900" %>

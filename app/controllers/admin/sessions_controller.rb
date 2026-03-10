@@ -55,6 +55,7 @@ module Admin
       else
         if @session.save
           sync_participants(@session)
+          NotifyPlayerSuggestionsJob.perform_later(event_type: "session_opened", session_id: @session.id) if @session.open_for_matching?
           redirect_to admin_session_path(@session), notice: "Session créée avec succès."
         else
           render :new, status: :unprocessable_entity
@@ -67,10 +68,21 @@ module Admin
     end
 
     def update
+      previous_open_for_matching = @session.open_for_matching?
+      previous_max_players = @session.max_players
       @session.assign_attributes(session_params)
       if @session.save
         # Only sync participants if the form included participant_ids to avoid unintended removals
         sync_participants(@session) if params.dig(:session, :participant_ids).present?
+
+        if @session.open_for_matching? && (!previous_open_for_matching || @session.saved_change_to_open_for_matching?)
+          NotifyPlayerSuggestionsJob.perform_later(event_type: "session_opened", session_id: @session.id)
+        end
+
+        if @session.open_for_matching? && previous_max_players.present? && @session.max_players.to_i > previous_max_players.to_i
+          NotifyPlayerSuggestionsJob.perform_later(event_type: "session_spot_released", session_id: @session.id)
+        end
+
         redirect_to admin_session_path(@session), notice: "Session mise à jour avec succès."
       else
         render :edit, status: :unprocessable_entity
@@ -107,7 +119,7 @@ module Admin
     def session_params
       params.require(:session).permit(
         :title, :description, :start_at, :end_at, :session_type, :max_players, :terrain, :user_id, :price,
-        :cancellation_deadline_at, :registration_opens_at, :coach_notes,
+        :cancellation_deadline_at, :registration_opens_at, :coach_notes, :open_for_matching,
         level_ids: [], participant_ids: []
       )
     end

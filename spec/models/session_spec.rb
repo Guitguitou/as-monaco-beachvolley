@@ -90,5 +90,18 @@ RSpec.describe Session, type: :model do
         expect(result.to_a).to eq([session_2, session_3, session_1])
       end
     end
+
+    describe '.open_for_matching_upcoming' do
+      it 'returns only future sessions explicitly opened for matching' do
+        opened_upcoming = create(:session, user: coach, open_for_matching: true, start_at: current_time + 2.days, end_at: current_time + 2.days + 90.minutes)
+        closed_upcoming = create(:session, user: coach, open_for_matching: false, start_at: current_time + 3.days, end_at: current_time + 3.days + 90.minutes, terrain: 'Terrain 2')
+        opened_past = create(:session, user: coach, open_for_matching: true, start_at: current_time - 1.day, end_at: current_time - 1.day + 90.minutes, terrain: 'Terrain 3')
+
+        result = Session.open_for_matching_upcoming
+
+        expect(result).to include(opened_upcoming)
+        expect(result).not_to include(closed_upcoming, opened_past)
+      end
+    end
   end
 end

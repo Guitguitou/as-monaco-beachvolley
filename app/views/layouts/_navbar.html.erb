@@ -14,6 +14,7 @@
         <% if current_user.activated? %>
           <%= nav_link_navbar "Performances", performances_path %>
           <%= nav_link_navbar "Calendrier", sessions_path %>
+          <%= nav_link_navbar "On joue ?", player_listings_path %>
           <%= nav_link_navbar "Stages", stages_path %>
           <%= nav_link_navbar "Boutique", packs_path %>
           <%= nav_link_navbar "Profil", profile_path %>
@@ -103,6 +104,9 @@
                 <% end %>
                 <%= link_to sessions_path, class: "flex items-center px-4 py-3 rounded-lg hover:bg-gray-100 font-medium" do %>
                   Calendrier
+                <% end %>
+                <%= link_to player_listings_path, class: "flex items-center px-4 py-3 rounded-lg hover:bg-gray-100 font-medium" do %>
+                  On joue ?
                 <% end %>
                 <%= link_to stages_path, class: "flex items-center px-4 py-3 rounded-lg hover:bg-gray-100 font-medium" do %>
                   Stages

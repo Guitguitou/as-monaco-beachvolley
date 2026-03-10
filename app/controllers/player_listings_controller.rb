@@ -13,7 +13,8 @@ class PlayerListingsController < ApplicationController
     authorize! :create, @player_listing
 
     if @player_listing.save
-      redirect_to player_listings_path, notice: "Annonce créée avec succès."
+      NotifyPlayerSuggestionsJob.perform_later(event_type: "listing_created", listing_id: @player_listing.id) if @player_listing.active?
+      redirect_to player_listings_path, notice: "Disponibilite publiee."
     else
       build_index_context
       render :index, status: :unprocessable_entity
@@ -25,7 +26,8 @@ class PlayerListingsController < ApplicationController
     authorize! :update, @player_listing
 
     if @player_listing.update(player_listing_params)
-      redirect_to player_listings_path, notice: "Annonce mise à jour."
+      NotifyPlayerSuggestionsJob.perform_later(event_type: "listing_created", listing_id: @player_listing.id) if @player_listing.active?
+      redirect_to player_listings_path, notice: "Disponibilite mise a jour."
     else
       build_index_context
       render :index, status: :unprocessable_entity
@@ -37,7 +39,7 @@ class PlayerListingsController < ApplicationController
     authorize! :destroy, @player_listing
 
     @player_listing.destroy
-    redirect_to player_listings_path, notice: "Annonce supprimée."
+    redirect_to player_listings_path, notice: "Disponibilite supprimee."
   end
 
   private
@@ -52,10 +54,13 @@ class PlayerListingsController < ApplicationController
   def build_index_context
     @player_listing ||= current_user.player_listings.new
     @my_listings = current_user.player_listings.includes(:levels, :session).order(created_at: :desc)
-    @matches = PlayerMatchingService.new(current_user).matches
+    @player_suggestions = PlayerSuggestionsService.new(current_user).summary(limit: 5)
+    @suggested_players = @player_suggestions[:players]
+    @open_sessions = @player_suggestions[:open_sessions]
     @incoming_requests = PlayerRequest.pending.where(to_user: current_user).includes(:player_listing, :from_user)
     @outgoing_requests = PlayerRequest.pending.where(from_user: current_user).includes(:player_listing, :to_user)
     @levels = Level.all
     @sessions = Session.upcoming.ordered_by_start
+    @confirmed_session_ids = current_user.confirmed_registrations.pluck(:session_id)
   end
 end

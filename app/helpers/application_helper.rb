@@ -78,7 +78,7 @@ module ApplicationHelper
   def player_listings_badge_count
     return 0 unless user_signed_in? && current_user&.activated?
 
-    PlayerMatchingService.new(current_user).badge_count
+    PlayerSuggestionsService.new(current_user).badge_count
   end
 
   def humanize_credit_transaction_type(transaction_type)

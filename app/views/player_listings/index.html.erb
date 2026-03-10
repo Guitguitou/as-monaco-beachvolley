@@ -1,51 +1,100 @@
-<div class="max-w-5xl mx-auto space-y-8">
-  <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-semibold text-gray-900">Trouver des joueurs</h1>
+<div class="max-w-6xl mx-auto space-y-8">
+  <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">Partenaires & sessions ouvertes</h1>
+      <p class="text-sm text-gray-500">Une vue simple pour te rendre dispo et trouver des opportunites.</p>
+    </div>
+    <%= button_to player_suggestions_preferences_path,
+          method: :patch,
+          params: { enabled: !current_user.player_suggestions_push_enabled? },
+          class: "inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50" do %>
+      <%= current_user.player_suggestions_push_enabled? ? "Desactiver les push 'Pour toi'" : "Activer les push 'Pour toi'" %>
+    <% end %>
   </div>
 
   <div class="bg-white rounded-lg shadow-md p-6 space-y-4">
-    <h2 class="text-lg font-semibold text-gray-900">Créer une annonce</h2>
+    <h2 class="text-lg font-semibold text-gray-900">Pour toi</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="space-y-3">
+        <h3 class="text-sm font-semibold text-gray-700">Sessions ouvertes</h3>
+        <% if @open_sessions.any? %>
+          <% @open_sessions.each do |session| %>
+            <div class="border border-gray-200 rounded-md p-3 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold text-gray-900"><%= session.title %></div>
+                <span class="text-xs text-gray-500"><%= session.terrain %></span>
+              </div>
+              <div class="text-xs text-gray-500">
+                <%= I18n.l(session.start_at, format: :short) %> - <%= session.end_at.strftime("%H:%M") %>
+              </div>
+              <div class="text-xs text-gray-600">
+                Niveaux: <%= session.levels.any? ? session.levels.map(&:display_name).join(", ") : "Tous" %>
+              </div>
+              <div class="text-xs text-gray-600">
+                Places: <%= session.max_players.present? ? "#{[session.max_players - session.registrations.confirmed.count, 0].max} restantes" : "Illimitees" %>
+              </div>
+              <% if @confirmed_session_ids.include?(session.id) %>
+                <span class="inline-flex rounded-md bg-green-100 px-2 py-1 text-xs font-medium text-green-800">Deja inscrit</span>
+              <% elsif session.full? %>
+                <span class="inline-flex rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700">Complete</span>
+              <% else %>
+                <%= button_to "Je suis interesse", session_registrations_path(session),
+                      method: :post,
+                      class: "inline-flex items-center rounded-md bg-asmbv-red px-3 py-1.5 text-xs font-semibold text-white hover:bg-asmbv-red-dark" %>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-500">Aucune session ouverte compatible pour le moment.</p>
+        <% end %>
+      </div>
 
+      <div class="space-y-3">
+        <h3 class="text-sm font-semibold text-gray-700">Joueurs compatibles</h3>
+        <% if @suggested_players.any? %>
+          <% @suggested_players.each do |listing| %>
+            <div class="border border-gray-200 rounded-md p-3 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="text-sm font-semibold text-gray-900"><%= listing.user.full_name %></div>
+                <div class="text-xs text-gray-500"><%= listing.listing_type.humanize %></div>
+              </div>
+              <div class="text-xs text-gray-500">
+                <%= I18n.l(listing.effective_start_at.to_date, format: :short) %> •
+                <%= listing.effective_start_at.strftime("%H:%M") %> - <%= listing.effective_end_at.strftime("%H:%M") %>
+              </div>
+              <%= button_to "Contacter", player_requests_path(player_listing_id: listing.id),
+                    method: :post,
+                    class: "inline-flex items-center rounded-md bg-asmbv-red px-3 py-1.5 text-xs font-semibold text-white hover:bg-asmbv-red-dark" %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-500">Aucun joueur compatible pour l'instant.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-md p-6 space-y-4">
+    <h2 class="text-lg font-semibold text-gray-900">Je suis dispo</h2>
     <%= form_with model: @player_listing, url: player_listings_path, class: "space-y-4" do |f| %>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
           <%= f.label :listing_type, "Type", class: "block text-sm font-medium text-gray-900" %>
           <%= f.select :listing_type,
                 options_for_select(PlayerListing.listing_types.keys.map { |t| [t.humanize, t] }, @player_listing.listing_type),
                 {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
         </div>
-
-        <div>
-          <%= f.label :session_id, "Session (optionnel)", class: "block text-sm font-medium text-gray-900" %>
-          <%= f.select :session_id,
-                options_for_select(@sessions.map { |s| ["#{s.title} (#{I18n.l(s.start_at, format: :short)})", s.id] }, @player_listing.session_id),
-                { include_blank: "Aucune" },
-                class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
-          <p class="text-xs text-gray-500 mt-1">Si une session est sélectionnée, la date et l'horaire sont repris automatiquement.</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <%= f.label :gender, "Genre", class: "block text-sm font-medium text-gray-900" %>
-          <%= f.select :gender,
-                options_for_select(PlayerListing.genders.keys.map { |g| [g.humanize, g] }, @player_listing.gender),
-                { include_blank: "Tous" },
-                class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
-        </div>
         <div>
           <%= f.label :date, "Jour", class: "block text-sm font-medium text-gray-900" %>
           <%= f.date_field :date, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
         </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <%= f.label :starts_at, "Début", class: "block text-sm font-medium text-gray-900" %>
-            <%= f.time_field :starts_at, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
-          </div>
-          <div>
-            <%= f.label :ends_at, "Fin", class: "block text-sm font-medium text-gray-900" %>
-            <%= f.time_field :ends_at, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
-          </div>
+        <div>
+          <%= f.label :starts_at, "Debut", class: "block text-sm font-medium text-gray-900" %>
+          <%= f.time_field :starts_at, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
+        </div>
+        <div>
+          <%= f.label :ends_at, "Fin", class: "block text-sm font-medium text-gray-900" %>
+          <%= f.time_field :ends_at, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
         </div>
       </div>
 
@@ -61,145 +110,89 @@
         </div>
       </div>
 
-      <div>
-        <%= f.label :notes, "Notes", class: "block text-sm font-medium text-gray-900" %>
-        <%= f.text_area :notes, rows: 2,
-              class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
-      </div>
+      <details class="border border-gray-200 rounded-md p-3">
+        <summary class="cursor-pointer text-sm font-medium text-gray-700">Options avancees</summary>
+        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <%= f.label :session_id, "Session liee (optionnel)", class: "block text-sm font-medium text-gray-900" %>
+            <%= f.select :session_id,
+                  options_for_select(@sessions.map { |s| ["#{s.title} (#{I18n.l(s.start_at, format: :short)})", s.id] }, @player_listing.session_id),
+                  { include_blank: "Aucune" },
+                  class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
+          </div>
+          <div>
+            <%= f.label :gender, "Genre", class: "block text-sm font-medium text-gray-900" %>
+            <%= f.select :gender,
+                  options_for_select(PlayerListing.genders.keys.map { |g| [g.humanize, g] }, @player_listing.gender),
+                  { include_blank: "Tous" },
+                  class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
+          </div>
+          <div class="md:col-span-2">
+            <%= f.label :notes, "Notes", class: "block text-sm font-medium text-gray-900" %>
+            <%= f.text_area :notes, rows: 2,
+                  class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900" %>
+          </div>
+        </div>
+      </details>
 
-      <div>
-        <%= f.submit "Publier", class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white hover:bg-asmbv-red-dark" %>
-      </div>
+      <%= f.submit "Me rendre visible", class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white hover:bg-asmbv-red-dark" %>
     <% end %>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2 space-y-6">
-      <div class="bg-white rounded-lg shadow-md p-6 space-y-3">
-        <h2 class="text-lg font-semibold text-gray-900">Matchs disponibles</h2>
-        <% if @matches.any? %>
-          <div class="space-y-3">
-            <% @matches.each do |listing| %>
-              <div class="border border-gray-200 rounded-md p-3 flex flex-col gap-2">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <div class="text-sm font-semibold text-gray-900"><%= listing.user.full_name %></div>
-                    <div class="text-xs text-gray-500"><%= listing.listing_type.humanize %></div>
-                  </div>
-                  <div class="text-xs text-gray-500">
-                    <% if listing.effective_start_at.present? && listing.effective_end_at.present? %>
-                      <%= I18n.l(listing.effective_start_at.to_date, format: :short) %> •
-                      <%= listing.effective_start_at.strftime("%H:%M") %> - <%= listing.effective_end_at.strftime("%H:%M") %>
-                    <% end %>
-                  </div>
-                </div>
-                <div class="text-xs text-gray-600">
-                  Niveaux:
-                  <% levels = listing.levels.presence || listing.session&.levels %>
-                  <%= levels.present? ? levels.map(&:display_name).join(", ") : "Tous" %>
-                </div>
-                <div>
-                  <%= button_to "Contacter", player_requests_path(player_listing_id: listing.id),
-                        method: :post,
-                        class: "inline-flex items-center rounded-md bg-asmbv-red px-3 py-1.5 text-xs font-semibold text-white hover:bg-asmbv-red-dark" %>
-                </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-lg shadow-md p-6 space-y-3">
+      <h2 class="text-lg font-semibold text-gray-900">Mes demandes</h2>
+      <% if @incoming_requests.any? %>
+        <div class="space-y-3">
+          <% @incoming_requests.each do |request| %>
+            <div class="border border-gray-200 rounded-md p-3 space-y-2">
+              <div class="text-sm font-semibold text-gray-900"><%= request.from_user.full_name %></div>
+              <div class="flex items-center gap-2">
+                <%= button_to "Accepter", accept_player_request_path(request), method: :patch, class: "inline-flex items-center rounded-md bg-asmbv-red px-2 py-1 text-xs font-semibold text-white hover:bg-asmbv-red-dark" %>
+                <%= button_to "Refuser", decline_player_request_path(request), method: :patch, class: "inline-flex items-center rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
               </div>
-            <% end %>
-          </div>
-        <% else %>
-          <p class="text-sm text-gray-500">Pas de matchs pour le moment.</p>
-        <% end %>
-      </div>
-
-      <div class="bg-white rounded-lg shadow-md p-6 space-y-3">
-        <h2 class="text-lg font-semibold text-gray-900">Mes annonces</h2>
-        <% if @my_listings.any? %>
-          <div class="space-y-3">
-            <% @my_listings.each do |listing| %>
-              <div class="border border-gray-200 rounded-md p-3 flex flex-col gap-2">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <div class="text-sm font-semibold text-gray-900"><%= listing.listing_type.humanize %></div>
-                    <div class="text-xs text-gray-500">
-                      <% if listing.session.present? %>
-                        Session: <%= listing.session.title %>
-                      <% elsif listing.date.present? %>
-                        <%= I18n.l(listing.date, format: :short) %>
-                        <% if listing.starts_at.present? && listing.ends_at.present? %>
-                          • <%= listing.starts_at.strftime("%H:%M") %> - <%= listing.ends_at.strftime("%H:%M") %>
-                        <% end %>
-                      <% end %>
-                    </div>
-                  </div>
-                  <span class="text-xs text-gray-500"><%= listing.status.humanize %></span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <% if listing.active? %>
-                    <%= button_to "Clore", player_listing_path(listing),
-                          method: :patch,
-                          params: { player_listing: { status: "closed" } },
-                          class: "inline-flex items-center rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
-                  <% else %>
-                    <%= button_to "Réouvrir", player_listing_path(listing),
-                          method: :patch,
-                          params: { player_listing: { status: "active" } },
-                          class: "inline-flex items-center rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
-                  <% end %>
-                  <%= button_to "Supprimer", player_listing_path(listing),
-                        method: :delete,
-                        data: { confirm: "Supprimer cette annonce ?" },
-                        class: "inline-flex items-center rounded-md border border-red-200 px-2 py-1 text-xs text-red-700 hover:bg-red-50" %>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        <% else %>
-          <p class="text-sm text-gray-500">Aucune annonce publiée.</p>
-        <% end %>
-      </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-500">Aucune demande recue.</p>
+      <% end %>
+      <% if @outgoing_requests.any? %>
+        <div class="pt-2 border-t border-gray-100 space-y-2">
+          <h3 class="text-sm font-semibold text-gray-700">Envoyees</h3>
+          <% @outgoing_requests.each do |request| %>
+            <div class="text-sm text-gray-600"><%= request.to_user.full_name %> - En attente</div>
+          <% end %>
+        </div>
+      <% end %>
     </div>
 
-    <div class="space-y-6">
-      <div class="bg-white rounded-lg shadow-md p-6 space-y-3">
-        <h2 class="text-lg font-semibold text-gray-900">Demandes reçues</h2>
-        <% if @incoming_requests.any? %>
-          <div class="space-y-3">
-            <% @incoming_requests.each do |request| %>
-              <div class="border border-gray-200 rounded-md p-3 space-y-2">
-                <div class="text-sm font-semibold text-gray-900"><%= request.from_user.full_name %></div>
-                <div class="text-xs text-gray-500"><%= request.player_listing.listing_type.humanize %></div>
-                <div class="flex items-center gap-2">
-                  <%= button_to "Accepter", accept_player_request_path(request),
-                        method: :patch,
-                        class: "inline-flex items-center rounded-md bg-asmbv-red px-2 py-1 text-xs font-semibold text-white hover:bg-asmbv-red-dark" %>
-                  <%= button_to "Refuser", decline_player_request_path(request),
-                        method: :patch,
-                        class: "inline-flex items-center rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
+    <div class="bg-white rounded-lg shadow-md p-6 space-y-3">
+      <h2 class="text-lg font-semibold text-gray-900">Mes disponibilites</h2>
+      <% if @my_listings.any? %>
+        <div class="space-y-3">
+          <% @my_listings.each do |listing| %>
+            <div class="border border-gray-200 rounded-md p-3 flex items-center justify-between gap-2">
+              <div>
+                <div class="text-sm font-semibold text-gray-900"><%= listing.listing_type.humanize %></div>
+                <div class="text-xs text-gray-500">
+                  <%= I18n.l(listing.effective_start_at.to_date, format: :short) %> • <%= listing.effective_start_at.strftime("%H:%M") %> - <%= listing.effective_end_at.strftime("%H:%M") %>
                 </div>
               </div>
-            <% end %>
-          </div>
-        <% else %>
-          <p class="text-sm text-gray-500">Aucune demande en attente.</p>
-        <% end %>
-      </div>
-
-      <div class="bg-white rounded-lg shadow-md p-6 space-y-3">
-        <h2 class="text-lg font-semibold text-gray-900">Demandes envoyées</h2>
-        <% if @outgoing_requests.any? %>
-          <div class="space-y-3">
-            <% @outgoing_requests.each do |request| %>
-              <div class="border border-gray-200 rounded-md p-3">
-                <div class="text-sm font-semibold text-gray-900"><%= request.to_user.full_name %></div>
-                <div class="text-xs text-gray-500"><%= request.player_listing.listing_type.humanize %></div>
-                <div class="text-xs text-gray-500">En attente</div>
+              <div class="flex items-center gap-2">
+                <% if listing.active? %>
+                  <%= button_to "Clore", player_listing_path(listing), method: :patch, params: { player_listing: { status: "closed" } }, class: "inline-flex items-center rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
+                <% else %>
+                  <%= button_to "Reouvrir", player_listing_path(listing), method: :patch, params: { player_listing: { status: "active" } }, class: "inline-flex items-center rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-700 hover:bg-gray-50" %>
+                <% end %>
+                <%= button_to "Supprimer", player_listing_path(listing), method: :delete, data: { confirm: "Supprimer cette disponibilite ?" }, class: "inline-flex items-center rounded-md border border-red-200 px-2 py-1 text-xs text-red-700 hover:bg-red-50" %>
               </div>
-            <% end %>
-          </div>
-        <% else %>
-          <p class="text-sm text-gray-500">Aucune demande en attente.</p>
-        <% end %>
-      </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-500">Aucune disponibilite active.</p>
+      <% end %>
     </div>
   </div>
 </div>

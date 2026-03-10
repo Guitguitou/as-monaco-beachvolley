@@ -85,6 +85,9 @@ class RegistrationsController < ApplicationController
                       else
                         "Désinscription réussie ✅"
                       end
+        if @session.open_for_matching? && registration.confirmed?
+          NotifyPlayerSuggestionsJob.perform_later(event_type: "session_spot_released", session_id: @session.id)
+        end
         redirect_to session_path(params[:session_id]), notice: notice_msg
       rescue StandardError => e
         redirect_to session_path(params[:session_id]), alert: "Erreur lors de la désinscription: #{e.message}"

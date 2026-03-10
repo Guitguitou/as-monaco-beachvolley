@@ -50,6 +50,9 @@ class SessionsController < ApplicationController
 
     if @session.save
       sync_participants(@session)
+      if @session.open_for_matching?
+        NotifyPlayerSuggestionsJob.perform_later(event_type: "session_opened", session_id: @session.id)
+      end
       redirect_to sessions_path(date: @session.start_at.strftime("%Y-%m-%d"), terrain: params[:terrain].presence), notice: "Session créée avec succès."
     else
       render :new, status: :unprocessable_entity
@@ -61,6 +64,8 @@ class SessionsController < ApplicationController
   end
 
   def update
+    previous_open_for_matching = @session.open_for_matching?
+    previous_max_players = @session.max_players
     update_params = normalized_session_params
     # Restrict coach_notes editing to admins or the coach responsible for the session
     if update_params.key?(:coach_notes)
@@ -71,6 +76,15 @@ class SessionsController < ApplicationController
     if @session.save
       # Only sync participants if the form included participant_ids
       sync_participants(@session) if params.dig(:session, :participant_ids).present?
+
+      if @session.open_for_matching? && (!previous_open_for_matching || @session.saved_change_to_open_for_matching?)
+        NotifyPlayerSuggestionsJob.perform_later(event_type: "session_opened", session_id: @session.id)
+      end
+
+      if @session.open_for_matching? && previous_max_players.present? && @session.max_players.to_i > previous_max_players.to_i
+        NotifyPlayerSuggestionsJob.perform_later(event_type: "session_spot_released", session_id: @session.id)
+      end
+
       redirect_to sessions_path(date: @session.start_at.strftime("%Y-%m-%d"), terrain: params[:terrain].presence), notice: "Session mise à jour avec succès."
     else
       render :edit, status: :unprocessable_entity
@@ -150,7 +164,7 @@ class SessionsController < ApplicationController
   def session_params
     params.require(:session).permit(
       :title, :description, :start_at, :end_at, 
-      :session_type, :max_players, :terrain, :user_id, :price, :cancellation_deadline_at, :coach_notes,
+      :session_type, :max_players, :terrain, :user_id, :price, :cancellation_deadline_at, :coach_notes, :open_for_matching,
       participant_ids: [],
       registrations_attributes: [:id, :user_id, :_destroy],
       level_ids: []

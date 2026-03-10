@@ -23,6 +23,7 @@ class User < ApplicationRecord
   has_many :player_listings, dependent: :destroy
   has_many :player_requests_sent, class_name: "PlayerRequest", foreign_key: :from_user_id, dependent: :destroy
   has_many :player_requests_received, class_name: "PlayerRequest", foreign_key: :to_user_id, dependent: :destroy
+  has_many :player_suggestion_notifications, dependent: :destroy
 
   # Callbacks
   after_create :init_balance
@@ -78,6 +79,10 @@ class User < ApplicationRecord
 
   def full_name
     "#{first_name} #{last_name}"
+  end
+
+  def player_suggestions_push_enabled?
+    player_suggestions_push_enabled
   end
 
   # Returns the current credit balance (maintained by CreditTransaction callbacks)

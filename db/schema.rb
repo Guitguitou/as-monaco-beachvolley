@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_26_113000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -198,6 +198,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
     t.index ["to_user_id"], name: "index_player_requests_on_to_user_id"
   end
 
+  create_table "player_suggestion_notifications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "event_type", null: false
+    t.string "fingerprint", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "created_at"], name: "index_player_suggestion_notifications_on_user_and_created_at"
+    t.index ["user_id", "fingerprint"], name: "index_player_suggestion_notifications_on_user_and_fingerprint"
+    t.index ["user_id"], name: "index_player_suggestion_notifications_on_user_id"
+  end
+
   create_table "push_subscriptions", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "endpoint", null: false
@@ -258,6 +269,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
     t.datetime "cancellation_deadline_at"
     t.datetime "registration_opens_at"
     t.text "coach_notes"
+    t.boolean "open_for_matching", default: false, null: false
+    t.index ["open_for_matching", "start_at"], name: "index_sessions_on_open_for_matching_and_start_at"
     t.index ["registration_opens_at"], name: "index_sessions_on_registration_opens_at"
     t.index ["session_type", "start_at"], name: "index_sessions_on_type_and_start_at"
     t.index ["start_at", "session_type"], name: "index_sessions_on_start_at_and_type"
@@ -323,6 +336,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
     t.datetime "disabled_at"
     t.datetime "activated_at"
     t.boolean "financial_manager", default: false, null: false
+    t.boolean "player_suggestions_push_enabled", default: true, null: false
     t.index ["activated_at"], name: "index_users_on_activated_at"
     t.index ["admin", "id"], name: "index_users_on_admin_and_id"
     t.index ["coach", "id"], name: "index_users_on_coach_and_id"
@@ -351,6 +365,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
   add_foreign_key "player_requests", "player_listings"
   add_foreign_key "player_requests", "users", column: "from_user_id"
   add_foreign_key "player_requests", "users", column: "to_user_id"
+  add_foreign_key "player_suggestion_notifications", "users"
   add_foreign_key "push_subscriptions", "users"
   add_foreign_key "registrations", "sessions"
   add_foreign_key "registrations", "users"

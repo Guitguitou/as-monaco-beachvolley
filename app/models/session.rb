@@ -67,6 +67,8 @@ class Session < ApplicationRecord
   scope :upcoming_trainings, -> { upcoming.trainings.ordered_by_start }
   scope :upcoming_free_plays, -> { upcoming.free_plays.ordered_by_start }
   scope :upcoming_private_coachings, -> { upcoming.private_coachings.ordered_by_start }
+  scope :open_for_matching, -> { where(open_for_matching: true) }
+  scope :open_for_matching_upcoming, -> { open_for_matching.upcoming.ordered_by_start }
   
   # Scopes pour les sessions passées
   scope :past, -> { where("start_at < ?", Time.current) }

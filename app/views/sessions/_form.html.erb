@@ -154,6 +154,16 @@
           <% end %>
         </div>
 
+        <div class="sm:col-span-2">
+          <label class="inline-flex items-start gap-2 text-sm text-gray-700">
+            <%= f.check_box :open_for_matching, class: "mt-0.5 h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+            <span>
+              Session ouverte pour trouver des joueurs
+              <span class="block text-xs text-gray-500">Affiche la session dans "Pour toi" et peut envoyer des notifications ciblees.</span>
+            </span>
+          </label>
+        </div>
+
         <!-- Prix (crédits) -->
         <div>
           <%= f.label :price, "Prix (crédits)", class: "block text-sm font-medium text-gray-900" %>
