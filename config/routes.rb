@@ -25,6 +25,7 @@ Rails.application.routes.draw do
     get '/regles-inscription', action: :registration_rules, as: :infos_registration_rules
   end
   resources :sessions do
+    get :calendar, on: :member, defaults: { format: :ics }
     post :cancel, on: :member
     resources :registrations, only: [:create, :destroy]
   end

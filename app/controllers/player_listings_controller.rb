@@ -62,5 +62,10 @@ class PlayerListingsController < ApplicationController
     @levels = Level.all
     @sessions = Session.upcoming.ordered_by_start
     @confirmed_session_ids = current_user.confirmed_registrations.pluck(:session_id)
+    # Sessions à venir (entrainement, jeu libre, tournoi) pour l'onglet "Mes sessions"
+    @upcoming_sessions = Session.upcoming
+      .where(session_type: %w[entrainement jeu_libre tournoi])
+      .ordered_by_start
+      .includes(:levels, :user)
   end
 end

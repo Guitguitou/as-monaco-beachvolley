@@ -21,4 +21,8 @@ import TabsController from "controllers/tabs_controller"
 application.register("tabs", TabsController)
 import GroupTabsController from "controllers/group_tabs_controller"
 application.register("group-tabs", GroupTabsController)
+import PlayerListingWizardController from "controllers/player_listing_wizard_controller"
+application.register("player-listing-wizard", PlayerListingWizardController)
+import PlayerListingTutorialController from "controllers/player_listing_tutorial_controller"
+application.register("player-listing-tutorial", PlayerListingTutorialController)
 eagerLoadControllersFrom("controllers", application)

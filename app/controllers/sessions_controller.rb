@@ -3,7 +3,7 @@
 class SessionsController < ApplicationController
   before_action :authenticate_user!
   load_and_authorize_resource
-  before_action :set_session, only: [:show, :edit, :update, :destroy]
+  before_action :set_session, only: [:show, :edit, :update, :destroy, :calendar]
   before_action :set_session_for_cancel, only: [:cancel]
   before_action :set_session_for_duplicate, only: []
 
@@ -95,6 +95,12 @@ class SessionsController < ApplicationController
   def destroy
     @session.destroy
     redirect_to admin_sessions_path, notice: "Session supprimée avec succès."
+  end
+
+  def calendar
+    authorize! :read, @session
+    ics = IcalService.new(@session).to_ics
+    send_data ics, filename: "session-#{@session.id}.ics", type: "text/calendar", disposition: "attachment"
   end
 
   def cancel

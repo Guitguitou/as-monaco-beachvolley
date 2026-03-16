@@ -171,4 +171,34 @@ module ApplicationHelper
   def vapid_public_key
     ENV["VAPID_PUBLIC_KEY"] || Rails.application.credentials.dig(:vapid, :public_key) || ""
   end
+
+  # Add to calendar: ICS download link for a session
+  def add_to_calendar_link(session, css_class: nil)
+    url = calendar_session_path(session, format: :ics)
+    css_class ||= "inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+    link_to url, class: css_class do
+      concat lucide_icon("calendar-plus", class: "w-4 h-4")
+      concat "Ajouter au calendrier"
+    end
+  end
+
+  # WhatsApp link: pre-filled message to create a group for session coordination
+  def whatsapp_session_link(session, css_class: nil)
+    title = session.title.presence || session.session_type.humanize
+    date_str = session.start_at.strftime("%d/%m/%Y")
+    time_str = session.start_at.strftime("%Hh%M")
+    participants = session.participants.map(&:full_name).join(", ")
+    session_url = session_url(session)
+
+    text = "Session #{title} - #{date_str} #{time_str}\n"
+    text += "Participants : #{participants}\n" if participants.present?
+    text += "Creons un groupe pour coordonner ?\n#{session_url}"
+
+    url = "https://wa.me/?text=#{ERB::Util.url_encode(text)}"
+    css_class ||= "inline-flex items-center gap-2 rounded-md border border-green-600 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-50"
+    link_to url, target: "_blank", rel: "noopener noreferrer", class: css_class do
+      concat lucide_icon("message-circle", class: "w-4 h-4")
+      concat "Groupe WhatsApp"
+    end
+  end
 end

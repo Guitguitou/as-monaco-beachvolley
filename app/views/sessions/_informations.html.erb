@@ -17,6 +17,12 @@
           <div class="text-gray-600">
             <%= l @session.start_at, format: :default %> - <%= l @session.end_at, format: :time %>
           </div>
+          <div class="mt-2 flex flex-wrap gap-2">
+            <%= add_to_calendar_link(@session) %>
+            <% if @session.participants.any? %>
+              <%= whatsapp_session_link(@session) %>
+            <% end %>
+          </div>
         </div>
       </div>
 
