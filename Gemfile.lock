@@ -207,7 +207,6 @@ GEM
     matrix (0.4.3)
     mcp (0.8.0)
       json-schema (>= 4.1)
-    method_source (1.1.0)
     mini_mime (1.1.5)
     minitest (6.0.2)
       drb (~> 2.0)
@@ -462,10 +461,10 @@ GEM
     unicode-emoji (4.2.0)
     uri (1.1.1)
     useragent (0.16.11)
-    view_component (3.24.0)
-      activesupport (>= 5.2.0, < 8.2)
+    view_component (4.5.0)
+      actionview (>= 7.1.0)
+      activesupport (>= 7.1.0)
       concurrent-ruby (~> 1)
-      method_source (~> 1.0)
     view_component-contrib (0.2.5)
       ruby-next-core (>= 0.15.0)
       view_component
@@ -535,7 +534,7 @@ DEPENDENCIES
   thruster
   turbo-rails
   tzinfo-data
-  view_component (~> 3.9)
+  view_component (~> 4.5)
   view_component-contrib
   web-console
   webpush
