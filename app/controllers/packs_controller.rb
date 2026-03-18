@@ -82,7 +82,8 @@ class PacksController < ApplicationController
     email = guest[:email].to_s.strip.downcase
 
     if User.exists?(email:)
-      redirect_to new_user_session_path, alert: "Cet email existe déjà. Connectez-vous pour acheter ce pack."
+      flash.now[:alert] = "Cet email existe déjà. Connectez-vous pour acheter ce pack."
+      render :guest_info, status: :unprocessable_entity
       return
     end
 
@@ -97,6 +98,9 @@ class PacksController < ApplicationController
 
     user.send_reset_password_instructions
     user
+  rescue ActiveRecord::RecordInvalid => e
+    flash.now[:alert] = e.record.errors.full_messages.to_sentence
+    render :guest_info, status: :unprocessable_entity
   end
 
   def guest_identity_params

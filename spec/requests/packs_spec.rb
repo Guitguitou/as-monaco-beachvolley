@@ -49,7 +49,8 @@ RSpec.describe "Packs", type: :request do
         guest: { email: "existing@example.com", first_name: "Jean", last_name: "Dupont" }
       }
 
-      expect(response).to redirect_to(new_user_session_path)
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.body).to include("Cet email existe déjà")
     end
   end
 

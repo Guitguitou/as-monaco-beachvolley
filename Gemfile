@@ -28,6 +28,7 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 # Use Redis for caching and Sidekiq
 gem "redis", "~> 5.0"
 gem "solid_cable"
+gem "connection_pool", "~> 2.4"
 
 # Use Sidekiq for background jobs
 gem "sidekiq"

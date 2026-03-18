@@ -3,8 +3,14 @@
     <h1 class="text-xl font-bold text-gray-900 mb-2">Finaliser l’achat</h1>
     <p class="text-sm text-gray-600 mb-6">
       Pour vous donner l’accès et retrouver votre paiement, on a besoin de vos informations.
-      Un email de création d’accès vous sera envoyé après cette étape.
+      Si vous n’avez pas encore de compte, il sera créé automatiquement et vous recevrez un email pour définir votre mot de passe.
     </p>
+
+    <% if flash.now[:alert].present? %>
+      <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <%= flash.now[:alert] %>
+      </div>
+    <% end %>
 
     <%= form_with url: buy_pack_path(@pack), method: :post, data: { turbo: false }, class: "space-y-4" do |f| %>
       <div>
@@ -39,6 +45,8 @@
       <div class="pt-2 flex flex-col sm:flex-row gap-3">
         <%= f.submit "Continuer vers le paiement",
               class: "inline-flex items-center justify-center rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all" %>
+        <%= link_to "Se connecter", new_user_session_path(email: params.dig(:guest, :email)),
+              class: "inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all" %>
         <%= link_to "Retour aux packs", packs_path,
               class: "inline-flex items-center justify-center rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-all" %>
       </div>
