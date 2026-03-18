@@ -1,0 +1,103 @@
+---
+description: Rails testing strategy, RSpec conventions, test pyramid, factories, mocking, and bug-fix testing rules
+globs:
+  - "spec/**/*.rb"
+  - "app/**/*.rb"
+  - "lib/**/*.rb"
+alwaysApply: true
+---
+
+This project values fast, reliable, maintainable, and explicit tests. Favor the lowest useful level of testing: unit tests first, integration tests when necessary, and very few end-to-end tests.
+
+## Testing strategy
+
+- Respect the test pyramid: many unit tests, some integration tests, very few end-to-end tests.
+- Tests must provide fast feedback and stay easy to maintain.
+- Always try to test at the lowest meaningful level possible: unit before integration, integration before end-to-end.
+- Prefer focused tests over broad, expensive test coverage.
+- Choose the test type that gives enough confidence with the lowest maintenance cost.
+
+## Unit tests
+
+- Use unit tests for models, services, helpers, POROs, and domain logic.
+- Test one method, class, or business rule in isolation.
+- Unit tests should be fast, deterministic, and self-contained.
+- Avoid direct ActiveRecord queries in pure unit tests when isolation is the goal.
+- Prefer mocks, doubles, `instance_double`, or `build_stubbed` when database persistence is not required.
+- Use simple and explicit factories when test data is needed.
+- Prefer `described_class` and `subject` when they improve readability.
+- Keep examples concise, readable, and clearly named.
+- A unit test should run without relying on the database, external APIs, network access, or real background processing whenever possible.
+
+## Integration tests
+
+- Use integration tests for requests, controllers, and real interactions between Rails layers.
+- Prefer one clear happy-path integration test per feature to confirm the main flow works end to end inside the app.
+- Integration tests should validate real interactions between controllers, services, models, and the database.
+- Do not mock internal Rails components such as controllers or models in integration tests.
+- Use `get`, `post`, `patch`, `put`, and `delete` to simulate real HTTP requests.
+- Always verify the response status and the expected business outcome.
+- Mock only true external dependencies such as third-party APIs, webhooks, or external services.
+- Keep created test data to the strict minimum needed for the scenario.
+
+## End-to-end system tests
+
+- Use system tests with Capybara to simulate full user journeys.
+- Reserve end-to-end tests for truly critical paths such as login, account creation, checkout, or payment.
+- Keep system tests to a strict minimum because they are slow and fragile.
+- Do not duplicate behavior already well covered by unit or integration tests.
+- Use stable and explicit selectors, preferably `data-testid` or other resilient hooks.
+- Prefer robust assertions on user-visible behavior over brittle UI implementation details.
+
+## Bug fixing rules
+
+- Before fixing a bug, write a test that fails without the fix and passes with it.
+- Write the bug-reproduction test at the lowest useful level possible, usually unit first.
+- Briefly document the cause of the bug in the test description or context.
+- Keep the regression test focused on the broken behavior being protected.
+
+## General RSpec conventions
+
+- Always use `RSpec.describe` with the appropriate spec type when relevant.
+- Spec filenames must follow the `_spec.rb` convention.
+- Use `let`, `let!`, and `before` sparingly and avoid unnecessary test magic.
+- Prefer clarity and readability over overly clever or overly compact test setup.
+- Group examples with explicit `describe` and `context` blocks.
+- Use `shared_examples` only for behavior that is genuinely shared and improved by extraction.
+- Keep test structure obvious enough that another developer can understand the scenario quickly.
+
+## RSpec example structure
+
+- Do not split one business scenario into many tiny `it` blocks when they all depend on the same setup.
+- Each `it` should represent one understandable business scenario.
+- Group assertions that belong to the same scenario in the same example.
+- Avoid multiplying isolated one-liner examples for scenarios that are really one flow.
+- Reserve one-liner `it { ... }` syntax for very simple validations or expectations.
+
+## Factories and mocking practices
+
+- Prefer `FactoryBot.create(:model)` for integration tests where persistence matters.
+- Prefer `build_stubbed` or `instance_double` for unit tests when persistence is unnecessary.
+- Mock all external APIs, webhooks, mail delivery integrations, and similar external dependencies.
+- Never depend on real network access, external files, or real waiting time in tests.
+- Factories should be explicit and avoid unnecessary hidden callbacks or surprising defaults.
+- Keep factories simple and predictable.
+- Use doubles to isolate behavior, not to mirror the full implementation.
+
+## Test maintenance and structure
+
+- Organize specs in the appropriate folders such as `spec/models`, `spec/services`, `spec/requests`, and `spec/system`.
+- Tests must be independent from one another.
+- Every spec should be runnable in isolation without depending on execution order.
+- Remove or refactor obsolete tests when the implementation changes.
+- One test should verify one meaningful business behavior.
+- Keep the test suite coherent, trustworthy, and easy to evolve over time.
+
+## Expected behavior when generating or editing tests
+
+- Choose the lowest relevant test level that provides enough confidence.
+- Do not introduce a system test when a request spec or unit test would be sufficient.
+- Prefer tests that are explicit about intent, setup, action, and expected outcome.
+- Keep test setup minimal and relevant to the behavior under test.
+- When fixing bugs, add the regression test first.
+- When refactoring, preserve or improve confidence in behavior without inflating the test suite unnecessarily.
