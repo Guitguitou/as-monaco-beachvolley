@@ -49,7 +49,7 @@ gem "thruster", require: false
 
 gem "view_component", "~> 3.9"
 gem "view_component-contrib"
-gem "devise", "~> 4.9"
+gem "devise", "~> 5.0"
 gem 'lucide-rails'
 gem 'cancancan'
 
