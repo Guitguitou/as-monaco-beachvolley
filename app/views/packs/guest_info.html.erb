@@ -1,0 +1,48 @@
+<div class="max-w-xl mx-auto">
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <h1 class="text-xl font-bold text-gray-900 mb-2">Finaliser l’achat</h1>
+    <p class="text-sm text-gray-600 mb-6">
+      Pour vous donner l’accès et retrouver votre paiement, on a besoin de vos informations.
+      Un email de création d’accès vous sera envoyé après cette étape.
+    </p>
+
+    <%= form_with url: buy_pack_path(@pack), method: :post, data: { turbo: false }, class: "space-y-4" do |f| %>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <%= f.email_field "guest[email]",
+              value: params.dig(:guest, :email),
+              required: true,
+              autocomplete: "email",
+              class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" %>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+          <%= f.text_field "guest[first_name]",
+                value: params.dig(:guest, :first_name),
+                required: true,
+                autocomplete: "given-name",
+                class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" %>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+          <%= f.text_field "guest[last_name]",
+                value: params.dig(:guest, :last_name),
+                required: true,
+                autocomplete: "family-name",
+                class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" %>
+        </div>
+      </div>
+
+      <div class="pt-2 flex flex-col sm:flex-row gap-3">
+        <%= f.submit "Continuer vers le paiement",
+              class: "inline-flex items-center justify-center rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all" %>
+        <%= link_to "Retour aux packs", packs_path,
+              class: "inline-flex items-center justify-center rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-all" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

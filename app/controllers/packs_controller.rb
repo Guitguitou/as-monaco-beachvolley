@@ -1,5 +1,5 @@
 class PacksController < ApplicationController
-  before_action :authenticate_user!, except: [:index, :buy]
+  skip_before_action :authenticate_user!, only: [:index, :buy]
 
   def index
     # Charger tous les packs actifs
@@ -42,26 +42,22 @@ class PacksController < ApplicationController
       return
     end
 
-    # Créer le CreditPurchase avec le pack
-    if user_signed_in?
-      @credit_purchase = current_user.credit_purchases.create!(
-        pack: @pack,
-        amount_cents: @pack.amount_cents,
-        currency: 'EUR',
-        credits: @pack.credits || 0, # 0 pour les stages et licences
-        status: :pending
-      )
-    else
-      # Pour les utilisateurs non connectés, créer un achat temporaire
-      @credit_purchase = CreditPurchase.create!(
-        user: nil,
-        pack: @pack,
-        amount_cents: @pack.amount_cents,
-        currency: 'EUR',
-        credits: @pack.credits || 0,
-        status: :pending
-      )
-    end
+    user_for_purchase =
+      if user_signed_in?
+        current_user
+      else
+        ensure_guest_user!
+      end
+
+    return if performed? # ensure_guest_user! peut render/redirect
+
+    @credit_purchase = user_for_purchase.credit_purchases.create!(
+      pack: @pack,
+      amount_cents: @pack.amount_cents,
+      currency: "EUR",
+      credits: @pack.credits || 0, # 0 pour les stages et licences
+      status: :pending
+    )
 
     # Générer le formulaire HTML de redirection vers la gateway
     payment_html = Sherlock::CreatePayment.new(@credit_purchase).call
@@ -74,4 +70,36 @@ class PacksController < ApplicationController
   end
 
   # CanCanCan gère les permissions via app/models/ability.rb
+  private
+
+  def ensure_guest_user!
+    if params[:guest].blank?
+      render :guest_info, status: :ok
+      return
+    end
+
+    guest = guest_identity_params
+    email = guest[:email].to_s.strip.downcase
+
+    if User.exists?(email:)
+      redirect_to new_user_session_path, alert: "Cet email existe déjà. Connectez-vous pour acheter ce pack."
+      return
+    end
+
+    password = Devise.friendly_token.first(24)
+    user = User.create!(
+      email:,
+      first_name: guest[:first_name],
+      last_name: guest[:last_name],
+      password:,
+      password_confirmation: password
+    )
+
+    user.send_reset_password_instructions
+    user
+  end
+
+  def guest_identity_params
+    params.require(:guest).permit(:email, :first_name, :last_name)
+  end
 end

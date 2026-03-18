@@ -28,7 +28,8 @@ Rails.application.configure do
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
 
-  # Disable Host Authorization middleware in test environment
+  # Disable Host Authorization middleware in test environment.
+  # Note: Rails 8 still blocks non-allowed hosts unless disabled here.
   config.hosts = nil
 
   # Store uploaded files on the local file system in a temporary directory.

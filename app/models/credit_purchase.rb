@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class CreditPurchase < ApplicationRecord
-  belongs_to :user, optional: true
+  belongs_to :user
   belongs_to :pack, optional: true
 
   # Statuts possibles
