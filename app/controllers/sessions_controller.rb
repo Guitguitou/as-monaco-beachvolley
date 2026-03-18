@@ -8,8 +8,28 @@ class SessionsController < ApplicationController
   before_action :set_session_for_duplicate, only: []
 
   def index
+    @view = params[:view].presence_in(%w[grid calendar]) || "grid"
+
+    # Calendar (existing behavior)
     @sessions = Session.order(start_at: :desc)
     @sessions = @sessions.terrain(params[:terrain]) if params[:terrain].present?
+
+    return unless @view == "grid"
+
+    # Grid view data
+    @sessions_grid = Session.upcoming.ordered_by_start.includes(:levels, :user)
+    @sessions_grid = @sessions_grid.terrain(params[:terrain]) if params[:terrain].present?
+
+    session_ids = @sessions_grid.pluck(:id)
+    @registrations_by_session_id = current_user
+      .registrations
+      .where(session_id: session_ids)
+      .index_by(&:session_id)
+
+    @user_level_ids = current_user.levels.pluck(:id)
+    @user_balance_amount = current_user.balance&.amount.to_i
+
+    @conflict_session_ids = conflict_session_ids_for(session_ids)
   end
 
   def show
@@ -145,6 +165,26 @@ class SessionsController < ApplicationController
 
   def set_session_for_duplicate
     @session = Session.find(params[:id])
+  end
+
+  def conflict_session_ids_for(candidate_session_ids)
+    confirmed = current_user.sessions_registered.select(:start_at, :end_at)
+    return [] if confirmed.blank?
+
+    # Build an OR of overlap predicates:
+    # existing.start < candidate.end AND existing.end > candidate.start
+    overlap_sql = []
+    overlap_params = []
+    confirmed.each do |s|
+      overlap_sql << "(start_at < ? AND end_at > ?)"
+      overlap_params << s.end_at
+      overlap_params << s.start_at
+    end
+
+    Session
+      .where(id: candidate_session_ids)
+      .where(overlap_sql.join(" OR "), *overlap_params)
+      .pluck(:id)
   end
 
   def session_params

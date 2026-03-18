@@ -1,0 +1,48 @@
+<% sessions = Array(@sessions_grid) %>
+
+<% if sessions.empty? %>
+  <div class="mt-6 bg-white rounded-lg shadow-sm p-6 text-center">
+    <p class="text-sm text-gray-500">Aucune session à venir.</p>
+  </div>
+<% else %>
+  <% conflict_ids = Array(@conflict_session_ids).map(&:to_i).to_h { |id| [id, true] } %>
+  <% regs = @registrations_by_session_id || {} %>
+  <% user_level_ids = Array(@user_level_ids).map(&:to_i) %>
+  <% user_balance = @user_balance_amount.to_i %>
+
+  <% prioritized = sessions.sort_by do |s|
+       reg = regs[s.id]
+       registered_rank = reg&.confirmed? ? 0 : (reg&.waitlisted? ? 1 : 2)
+       relevant = if s.entrainement? && s.levels.any?
+                    (s.level_ids & user_level_ids).any?
+                  else
+                    true
+                  end
+       relevant_rank = relevant ? 0 : 1
+       [registered_rank, relevant_rank, s.start_at]
+     end %>
+
+  <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <% prioritized.each do |session| %>
+      <% reg = regs[session.id] %>
+      <% open_ok, open_reason = session.registration_open_state_for(current_user) %>
+      <% not_enough_credits = !session.coaching_prive? && user_balance < session.price.to_i %>
+      <% conflict = conflict_ids[session.id] %>
+      <% relevant = if session.entrainement? && session.levels.any?
+                      (session.level_ids & user_level_ids).any?
+                    else
+                      true
+                    end %>
+
+      <%= render "grid_card",
+            session: session,
+            registration: reg,
+            conflict: conflict,
+            relevant: relevant,
+            not_enough_credits: not_enough_credits,
+            open_ok: open_ok,
+            open_reason: open_reason %>
+    <% end %>
+  </div>
+<% end %>
+

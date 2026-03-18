@@ -38,6 +38,28 @@ module ApplicationHelper
     classes[session_type] || 'bg-gray-100 text-gray-800'
   end
 
+  def sessions_type_bg_class(session)
+    classes = {
+      "entrainement" => "bg-green-50",
+      "jeu_libre" => "bg-blue-50",
+      "tournoi" => "bg-purple-50",
+      "coaching_prive" => "bg-orange-50",
+      "stage" => "bg-yellow-50"
+    }
+    classes[session.session_type] || "bg-white"
+  end
+
+  def sessions_type_border_class(session)
+    classes = {
+      "entrainement" => "border-green-200 hover:border-green-300",
+      "jeu_libre" => "border-blue-200 hover:border-blue-300",
+      "tournoi" => "border-purple-200 hover:border-purple-300",
+      "coaching_prive" => "border-orange-200 hover:border-orange-300",
+      "stage" => "border-yellow-200 hover:border-yellow-300"
+    }
+    classes[session.session_type] || "border-gray-200 hover:border-gray-300"
+  end
+
   def nav_link(name, path, icon:, extra_classes: nil)
     active = current_page?(path)
 
