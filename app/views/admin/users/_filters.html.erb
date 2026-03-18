@@ -1,16 +1,40 @@
 <div class="mb-4">
-  <%= form_with url: admin_users_path, method: :get, local: true, class: "flex flex-wrap items-end gap-3" do %>
+  <%= form_with url: admin_users_path, method: :get, local: true, class: "flex flex-wrap items-end gap-3" do |f| %>
     <div class="flex flex-col">
-      <label class="block text-xs font-medium text-gray-600 mb-1">Recherche nom/email</label>
-      <%= text_field_tag :q, params[:q], placeholder: "Ex: Dupont", class: "border rounded px-2 py-1 w-56" %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :q,
+        type: :text_field,
+        label: "Recherche nom/email",
+        required: false,
+        show_label: true,
+        input_class: "border rounded px-2 py-1 w-56",
+        html_options: { value: params[:q], placeholder: "Ex: Dupont" }
+      ) %>
     </div>
     <div>
-      <label class="block text-xs font-medium text-gray-600 mb-1">Genre</label>
-      <%= select_tag :gender, options_for_select([["Tous", ""], ["Féminin", "female"], ["Masculin", "male"], ["Mixte", "mixed"]], params[:gender]), class: "border rounded px-2 py-1" %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :gender,
+        type: :select,
+        label: "Genre",
+        required: false,
+        input_class: "border rounded px-2 py-1",
+        options: options_for_select([["Tous", ""], ["Féminin", "female"], ["Masculin", "male"], ["Mixte", "mixed"]], params[:gender]),
+        select_options: { include_blank: false }
+      ) %>
     </div>
     <div>
-      <label class="block text-xs font-medium text-gray-600 mb-1">Type de licence</label>
-      <%= select_tag :license_type, options_for_select([["Toutes", ""], ["Libre", "libre"], ["Compétition", "competition"]], params[:license_type]), class: "border rounded px-2 py-1" %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :license_type,
+        type: :select,
+        label: "Type de licence",
+        required: false,
+        input_class: "border rounded px-2 py-1",
+        options: options_for_select([["Toutes", ""], ["Libre", "libre"], ["Compétition", "competition"]], params[:license_type]),
+        select_options: { include_blank: false }
+      ) %>
     </div>
     <div>
       <%= submit_tag "Filtrer", class: "inline-flex items-center gap-1 rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-700" %>

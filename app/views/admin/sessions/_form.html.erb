@@ -10,61 +10,45 @@
 
   <!-- Titre -->
   <div>
-    <%= f.label :title, "Titre", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.text_field :title, required: true,
-          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 
-                  text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 
-                  focus:ring-asmbv-red sm:text-sm" %>
-    <% if session.errors[:title].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= session.errors[:title].first %></p>
-    <% end %>
+    <%= render FormFieldComponent.new(form: f, attribute: :title, type: :text_field, label: "Titre", required: true) %>
   </div>
 
   <!-- Description -->
   <div>
-    <%= f.label :description, "Description", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.text_area :description, rows: 3,
-          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 
-                  text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 
-                  focus:ring-asmbv-red sm:text-sm" %>
-    <% if session.errors[:description].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= session.errors[:description].first %></p>
-    <% end %>
+    <%= render FormFieldComponent.new(form: f, attribute: :description, type: :text_area, label: "Description", html_options: { rows: 3 }) %>
   </div>
 
   <!-- Notes entraîneur (entrainement uniquement, privé coach/admin) -->
   <div>
-    <%= f.label :coach_notes, "Notes entraîneur (privé)", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.text_area :coach_notes, rows: 4,
-          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 
-                  text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 
-                  focus:ring-asmbv-red sm:text-sm" %>
+    <%= render FormFieldComponent.new(form: f, attribute: :coach_notes, type: :text_area, label: "Notes entraîneur (privé)", html_options: { rows: 4 }) %>
     <p class="text-xs text-gray-500 mt-1">Visible uniquement par les coachs et les admins. Utilisez-le pour le thème, les retours, etc.</p>
   </div>
 
   <!-- Type de session -->
   <div>
-    <%= f.label :session_type, "Type de session", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.select :session_type, 
-          options_for_select(Session.session_types.keys.map { |t| [t.humanize, t] }, session.session_type),
-          {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
-                      text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
-             data: { session_form_target: "type", action: "session-form#onTypeChange" } %>
-    <% if session.errors[:session_type].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= session.errors[:session_type].first %></p>
-    <% end %>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :session_type,
+      type: :select,
+      label: "Type de session",
+      required: false,
+      select_options: { include_blank: false },
+      options: options_for_select(Session.session_types.keys.map { |t| [t.humanize, t] }, session.session_type),
+      html_options: { data: { session_form_target: "type", action: "session-form#onTypeChange" } }
+    ) %>
   </div>
 
   <!-- Terrain -->
   <div>
-    <%= f.label :terrain, "Terrain", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.select :terrain,
-          options_for_select(Session.terrains.keys.map { |t| ["Terrain #{t.to_s.split('_').last}", t] }, session.terrain),
-          {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
-                      text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-    <% if session.errors[:terrain].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= session.errors[:terrain].first %></p>
-    <% end %>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :terrain,
+      type: :select,
+      label: "Terrain",
+      required: false,
+      select_options: { include_blank: false },
+      options: options_for_select(Session.terrains.keys.map { |t| ["Terrain #{t.to_s.split('_').last}", t] }, session.terrain)
+    ) %>
   </div>
 
   <!-- Option admin: créer sur les 3 terrains -->
@@ -78,47 +62,72 @@
 
   <!-- Coach / Responsable / Organisateur -->
   <div class="hidden" data-session-form-target="userGroupCoach">
-    <%= f.label :user_id, "Coach", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.select :user_id, options_from_collection_for_select(User.coachs, :id, :full_name, session.user_id),
-          {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
-                      text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-    <% if session.errors[:user_id].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= session.errors[:user_id].first %></p>
-    <% end %>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :user_id,
+      type: :select,
+      label: "Coach",
+      required: false,
+      select_options: { include_blank: false },
+      options: options_from_collection_for_select(User.coachs, :id, :full_name, session.user_id)
+    ) %>
   </div>
 
   <div class="hidden" data-session-form-target="userGroupResponsable">
-    <%= f.label :user_id, "Responsable", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.select :user_id, options_from_collection_for_select(User.responsables, :id, :full_name, session.user_id),
-          {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
-                      text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :user_id,
+      type: :select,
+      label: "Responsable",
+      required: false,
+      select_options: { include_blank: false },
+      options: options_from_collection_for_select(User.responsables, :id, :full_name, session.user_id)
+    ) %>
   </div>
 
   <div class="hidden" data-session-form-target="userGroupAll">
-    <%= f.label :user_id, "Organisateur", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.select :user_id, options_from_collection_for_select(User.all, :id, :full_name, session.user_id),
-          {}, class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
-                      text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :user_id,
+      type: :select,
+      label: "Organisateur",
+      required: false,
+      select_options: { include_blank: false },
+      options: options_from_collection_for_select(User.all, :id, :full_name, session.user_id)
+    ) %>
   </div>
 
   <!-- Dates -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <%= f.label :start_at, "Début", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.datetime_local_field :start_at,
-            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
-                    text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
-            step: 900,
-            data: { session_form_target: "startAt", action: "change->session-form#onStartChange input->session-form#onStartChange blur->session-form#onStartChange" } %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :start_at,
+        type: :datetime_local_field,
+        label: "Début",
+        required: false,
+        html_options: {
+          step: 900,
+          data: {
+            session_form_target: "startAt",
+            action: "change->session-form#onStartChange input->session-form#onStartChange blur->session-form#onStartChange"
+          }
+        }
+      ) %>
     </div>
 
     <div>
-      <%= f.label :end_at, "Fin", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.datetime_local_field :end_at,
-            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
-                    text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
-            step: 900,
-            data: { session_form_target: "endAt", action: "input->session-form#onEndChange change->session-form#onEndChange" } %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :end_at,
+        type: :datetime_local_field,
+        label: "Fin",
+        required: false,
+        html_options: {
+          step: 900,
+          data: { session_form_target: "endAt", action: "input->session-form#onEndChange change->session-form#onEndChange" }
+        }
+      ) %>
       <%= hidden_field_tag "session[end_at]", session.end_at&.strftime('%Y-%m-%dT%H:%M'), data: { session_form_target: "endAtHidden" } %>
     </div>
   </div>
@@ -127,49 +136,51 @@
   <div>
     <%# Affiché seulement si type = entrainement %>
     <div class="mt-4" data-session-form-target="registrationOpensWrapper" <%= session.session_type == 'entrainement' ? '' : 'style="display:none"' %>>
-      <%= f.label :registration_opens_at, "Ouverture des inscriptions", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.datetime_local_field :registration_opens_at,
-            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
-            step: 900 %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :registration_opens_at,
+        type: :datetime_local_field,
+        label: "Ouverture des inscriptions",
+        required: false,
+        html_options: { step: 900 }
+      ) %>
       <p class="text-xs text-gray-500 mt-1">Par défaut: 7 jours avant le début. Priorité compétition pendant 24h après l’ouverture.</p>
-    <% if session.errors[:registration_opens_at].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= session.errors[:registration_opens_at].first %></p>
-    <% end %>
     </div>
   </div>
 
   <!-- Deadline de désinscription (optionnel, défaut midi le jour J pour entraînements) -->
   <div>
-    <%= f.label :cancellation_deadline_at, "Date limite de désinscription", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.datetime_local_field :cancellation_deadline_at,
-          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :cancellation_deadline_at,
+      type: :datetime_local_field,
+      label: "Date limite de désinscription",
+      required: false
+    ) %>
     <p class="text-xs text-gray-500 mt-1">Après cette date/heure, la désinscription ne rembourse pas automatiquement.</p>
-    <% if session.errors[:cancellation_deadline_at].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= session.errors[:cancellation_deadline_at].first %></p>
-    <% end %>
   </div>
 
   <!-- Nombre de joueurs -->
   <div>
-    <%= f.label :max_players, "Nombre maximum de joueurs", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.number_field :max_players,
-          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2
-                  text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-    <% if session.errors[:max_players].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= session.errors[:max_players].first %></p>
-    <% end %>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :max_players,
+      type: :number_field,
+      label: "Nombre maximum de joueurs",
+      required: false
+    ) %>
   </div>
 
   <!-- Prix (crédits) -->
   <div>
-    <%= f.label :price, "Prix (crédits)", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.number_field :price, min: 0, step: 1, readonly: true,
-          class: "mt-1 block w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2
-                  text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
-          data: { session_form_target: "price" } %>
-    <% if session.errors[:price].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= session.errors[:price].first %></p>
-    <% end %>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :price,
+      type: :number_field,
+      label: "Prix (crédits)",
+      input_class: "block w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+      html_options: { min: 0, step: 1, readonly: true, data: { session_form_target: "price" } }
+    ) %>
   </div>
 
   <!-- Niveaux -->

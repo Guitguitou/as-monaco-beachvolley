@@ -11,30 +11,27 @@
       <% if @minimum_password_length %>
         <p class="mt-1 text-sm text-gray-500">(<%= @minimum_password_length %> caractères minimum)</p>
       <% end %>
-      <div class="mt-2">
-        <%= f.password_field :password, 
-              autofocus: true, 
-              autocomplete: "new-password", 
-              class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
-                      placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-      </div>
-      <% if resource.errors[:password].any? %>
-        <p class="mt-1 text-sm text-red-600"><%= resource.errors[:password].first %></p>
-      <% end %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :password,
+        type: :password_field,
+        required: false,
+        show_label: false,
+        html_options: { autofocus: true, autocomplete: "new-password" }
+      ) %>
     </div>
 
     <!-- Confirmation -->
     <div>
       <%= f.label :password_confirmation, "Confirmer le mot de passe", class: "block text-sm font-medium text-gray-900" %>
-      <div class="mt-2">
-        <%= f.password_field :password_confirmation, 
-              autocomplete: "new-password", 
-              class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
-                      placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-      </div>
-      <% if resource.errors[:password_confirmation].any? %>
-        <p class="mt-1 text-sm text-red-600"><%= resource.errors[:password_confirmation].first %></p>
-      <% end %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :password_confirmation,
+        type: :password_field,
+        required: false,
+        show_label: false,
+        html_options: { autocomplete: "new-password" }
+      ) %>
     </div>
 
     <!-- Bouton -->

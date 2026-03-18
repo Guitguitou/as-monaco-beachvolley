@@ -24,7 +24,14 @@
               <h3 class="text-lg font-semibold text-gray-900 mb-3">Notes entraîneur</h3>
               <div class="mb-3 text-sm text-gray-600">Thème, retours, informations utiles (visible uniquement par les coachs et admins)</div>
               <%= form_with model: @session, url: session_path(@session), method: :put, local: true do |f| %>
-                <%= f.text_area :coach_notes, rows: 6, class: "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+                <%= render FormFieldComponent.new(
+                  form: f,
+                  attribute: :coach_notes,
+                  type: :text_area,
+                  label: "Notes entraîneur",
+                  show_label: false,
+                  html_options: { rows: 6 }
+                ) %>
                 <div class="mt-3 flex items-center gap-2">
                   <%= f.submit "Enregistrer les notes", class: "inline-flex items-center gap-1 rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-700" %>
                   <% if @session.coach_notes.present? %>
@@ -48,12 +55,17 @@
             <h3 class="text-lg font-semibold text-gray-900 mb-3">Ajouter un·e inscrit·e</h3>
             <%= form_with url: session_registrations_path(@session), method: :post, local: true, class: "space-y-3" do |f| %>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Utilisateur·ice</label>
-                <%= select_tag :user_id,
-                               options_from_collection_for_select(@candidate_users || [], :id, :full_name),
-                               include_blank: "Choisir...",
-                               class: "w-full border rounded px-2 py-2",
-                               data: { controller: "select", "select-placeholder-value": "Rechercher un·e joueur·se..." } %>
+                <%= render FormFieldComponent.new(
+                  form: f,
+                  attribute: :user_id,
+                  type: :select,
+                  label: "Utilisateur·ice",
+                  required: true,
+                  options: options_from_collection_for_select(@candidate_users || [], :id, :full_name),
+                  select_options: { include_blank: "Choisir..." },
+                  input_class: "w-full border rounded px-2 py-2",
+                  html_options: { data: { controller: "select", "select-placeholder-value": "Rechercher un·e joueur·se..." } }
+                ) %>
               </div>
               <% if @session.entrainement? && @session.past_registration_deadline? %>
                 <div class="text-xs text-blue-800 bg-blue-50 inline-flex items-center gap-1 px-2 py-1 rounded">

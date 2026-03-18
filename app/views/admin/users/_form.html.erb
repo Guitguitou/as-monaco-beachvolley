@@ -4,38 +4,17 @@
   <!-- Nom / Prénom -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <%= f.label :first_name, "Prénom", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.text_field :first_name,
-            required: true,
-            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
-                    placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-      <% if @user.errors[:first_name].any? %>
-        <p class="mt-1 text-sm text-red-600"><%= @user.errors[:first_name].first %></p>
-      <% end %>
+      <%= render FormFieldComponent.new(form: f, attribute: :first_name, type: :text_field, label: "Prénom", required: true) %>
     </div>
 
     <div>
-      <%= f.label :last_name, "Nom", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.text_field :last_name,
-            required: true,
-            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
-                    placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-      <% if @user.errors[:last_name].any? %>
-        <p class="mt-1 text-sm text-red-600"><%= @user.errors[:last_name].first %></p>
-      <% end %>
+      <%= render FormFieldComponent.new(form: f, attribute: :last_name, type: :text_field, label: "Nom", required: true) %>
     </div>
   </div>
 
   <!-- Email -->
   <div>
-    <%= f.label :email, "Email", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.email_field :email,
-          required: true,
-          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
-                  placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-    <% if @user.errors[:email].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= @user.errors[:email].first %></p>
-    <% end %>
+    <%= render FormFieldComponent.new(form: f, attribute: :email, type: :email_field, label: "Email", required: true) %>
   </div>
 
   <!-- Rôles -->
@@ -100,22 +79,28 @@
 
   <!-- Type de licence -->
   <div class="max-w-xs">
-    <%= f.label :license_type, "Type de licence", class: "block text-sm font-medium text-gray-900" %>
-    <%= f.select :license_type,
-          options_for_select([["—", nil], ["Libre", "libre"], ["Compétition", "competition"]], @user.license_type),
-          {},
-          class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-    <% if @user.errors[:license_type].any? %>
-      <p class="mt-1 text-sm text-red-600"><%= @user.errors[:license_type].first %></p>
-    <% end %>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :license_type,
+      type: :select,
+      label: "Type de licence",
+      required: false,
+      select_options: { include_blank: false },
+      options: options_for_select([["—", nil], ["Libre", "libre"], ["Compétition", "competition"]], @user.license_type)
+    ) %>
   </div>
 
   <!-- Rémunération (coach) -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <%= f.label :salary_per_training, "Rémunération par entraînement (€)", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.number_field :salary_per_training, step: 1, min: 0,
-            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :salary_per_training,
+        type: :number_field,
+        label: "Rémunération par entraînement (€)",
+        required: false,
+        html_options: { step: 1, min: 0 }
+      ) %>
       <p class="text-xs text-gray-500 mt-1">Applicable si l’utilisateur est coach.</p>
       <% if @user.errors[:salary_per_training_cents].any? %>
         <p class="mt-1 text-sm text-red-600"><%= @user.errors[:salary_per_training_cents].first %></p>
@@ -126,20 +111,24 @@
   <!-- Mot de passe (optionnel à la création / modification) -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div>
-      <%= f.label :password, "Mot de passe", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.password_field :password, autocomplete: "new-password",
-            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-      <% if @user.errors[:password].any? %>
-        <p class="mt-1 text-sm text-red-600"><%= @user.errors[:password].first %></p>
-      <% end %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :password,
+        type: :password_field,
+        label: "Mot de passe",
+        required: false,
+        html_options: { autocomplete: "new-password" }
+      ) %>
     </div>
     <div>
-      <%= f.label :password_confirmation, "Confirmation", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.password_field :password_confirmation, autocomplete: "new-password",
-            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-      <% if @user.errors[:password_confirmation].any? %>
-        <p class="mt-1 text-sm text-red-600"><%= @user.errors[:password_confirmation].first %></p>
-      <% end %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :password_confirmation,
+        type: :password_field,
+        label: "Confirmation",
+        required: false,
+        html_options: { autocomplete: "new-password" }
+      ) %>
     </div>
   </div>
 

@@ -5,92 +5,110 @@
 
   <div class="grid grid-cols-1 gap-6" data-controller="pack-type-selector">
     <div>
-      <%= f.label :name, "Nom du pack", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.text_field :name, required: true,
-            placeholder: "Ex: Pack Premium",
-            class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:name].any?} #{'border-gray-300' unless pack.errors[:name].any?} bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-      <% if pack.errors[:name].any? %>
-        <p class="mt-1 text-sm text-red-600"><%= pack.errors[:name].first %></p>
-      <% end %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :name,
+        type: :text_field,
+        label: "Nom du pack",
+        required: true,
+        html_options: { placeholder: "Ex: Pack Premium" }
+      ) %>
     </div>
 
     <div>
-      <%= f.label :description, "Description", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.text_area :description, rows: 4,
-            placeholder: "Décrivez les avantages de ce pack...",
-            class: "mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :description,
+        type: :text_area,
+        label: "Description",
+        html_options: { rows: 4, placeholder: "Décrivez les avantages de ce pack..." }
+      ) %>
     </div>
 
     <div>
-      <%= f.label :pack_type, "Type de pack", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.select :pack_type, 
-            Pack.pack_types.keys.map { |k| [k.humanize, k] },
-            {},
-            { 
-              class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:pack_type].any?} #{'border-gray-300' unless pack.errors[:pack_type].any?} shadow-sm focus:border-asmbv-red focus:ring-asmbv-red",
-              data: { 
-                pack_type_selector_target: "select",
-                action: "change->pack-type-selector#change"
-              }
-            } %>
-      <% if pack.errors[:pack_type].any? %>
-        <p class="mt-1 text-sm text-red-600"><%= pack.errors[:pack_type].first %></p>
-      <% else %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :pack_type,
+        type: :select,
+        label: "Type de pack",
+        required: false,
+        select_options: { include_blank: false },
+        options: Pack.pack_types.keys.map { |k| [k.humanize, k] },
+        html_options: {
+          class: "shadow-sm",
+          data: {
+            pack_type_selector_target: "select",
+            action: "change->pack-type-selector#change"
+          }
+        }
+      ) %>
+      <% unless pack.errors[:pack_type].any? %>
         <p class="mt-1 text-xs text-gray-500">Sélectionnez le type de pack</p>
       <% end %>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <div>
-        <%= f.label :amount_cents, "Montant (centimes)", class: "block text-sm font-medium text-gray-900" %>
-        <%= f.number_field :amount_cents, required: true,
-              placeholder: "1000",
-              class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:amount_cents].any?} #{'border-gray-300' unless pack.errors[:amount_cents].any?} bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-        <% if pack.errors[:amount_cents].any? %>
-          <p class="mt-1 text-sm text-red-600"><%= pack.errors[:amount_cents].first %></p>
-        <% else %>
+        <%= render FormFieldComponent.new(
+          form: f,
+          attribute: :amount_cents,
+          type: :number_field,
+          label: "Montant (centimes)",
+          required: true,
+          html_options: { placeholder: "1000" }
+        ) %>
+        <% unless pack.errors[:amount_cents].any? %>
           <p class="mt-1 text-xs text-gray-500">1000 centimes = 10 EUR</p>
         <% end %>
       </div>
 
       <div>
-        <%= f.label :credits, "Nombre de crédits", class: "block text-sm font-medium text-gray-900" %>
-        <%= f.number_field :credits,
-              placeholder: "1000",
-              class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:credits].any?} #{'border-gray-300' unless pack.errors[:credits].any?} bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
-              data: { pack_type_selector_target: "creditsField" } %>
-        <% if pack.errors[:credits].any? %>
-          <p class="mt-1 text-sm text-red-600"><%= pack.errors[:credits].first %></p>
-        <% else %>
+        <%= render FormFieldComponent.new(
+          form: f,
+          attribute: :credits,
+          type: :number_field,
+          label: "Nombre de crédits",
+          required: false,
+          html_options: {
+            placeholder: "1000",
+            data: { pack_type_selector_target: "creditsField" }
+          }
+        ) %>
+        <% unless pack.errors[:credits].any? %>
           <p class="mt-1 text-xs text-gray-500">Requis pour les packs de crédits</p>
         <% end %>
       </div>
     </div>
 
     <div data-pack-type-selector-target="stageField" style="display: none;">
-      <%= f.label :stage_id, "Stage associé", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.select :stage_id,
-            options_from_collection_for_select(@stages, :id, :title, @pack.stage_id),
-            { prompt: "Sélectionnez un stage" },
-            { 
-              class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:stage_id].any?} #{'border-gray-300' unless pack.errors[:stage_id].any?} shadow-sm focus:border-asmbv-red focus:ring-asmbv-red",
-              data: { pack_type_selector_target: "stageSelect" }
-            } %>
-      <% if pack.errors[:stage_id].any? %>
-        <p class="mt-1 text-sm text-red-600"><%= pack.errors[:stage_id].first %></p>
-      <% else %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :stage_id,
+        type: :select,
+        label: "Stage associé",
+        required: false,
+        select_options: { prompt: "Sélectionnez un stage" },
+        options: options_from_collection_for_select(@stages, :id, :title, @pack.stage_id),
+        html_options: {
+          class: "shadow-sm",
+          data: { pack_type_selector_target: "stageSelect" }
+        }
+      ) %>
+      <% unless pack.errors[:stage_id].any? %>
         <p class="mt-1 text-xs text-gray-500">Requis pour les packs de stage</p>
       <% end %>
     </div>
 
     <div>
-      <%= f.label :position, "Position (ordre d'affichage)", class: "block text-sm font-medium text-gray-900" %>
-      <%= f.number_field :position,
-            placeholder: "1",
-            class: "mt-1 block w-full rounded-md border #{'border-red-300' if pack.errors[:position].any?} #{'border-gray-300' unless pack.errors[:position].any?} bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-      <% if pack.errors[:position].any? %>
-        <p class="mt-1 text-sm text-red-600"><%= pack.errors[:position].first %></p>
-      <% else %>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :position,
+        type: :number_field,
+        label: "Position (ordre d'affichage)",
+        required: false,
+        html_options: { placeholder: "1" }
+      ) %>
+      <% unless pack.errors[:position].any? %>
         <p class="mt-1 text-xs text-gray-500">Les packs avec position plus petite s'affichent en premier</p>
       <% end %>
     </div>

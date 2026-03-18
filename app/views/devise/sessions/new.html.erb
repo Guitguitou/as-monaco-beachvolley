@@ -15,24 +15,25 @@
 
     <!-- Email -->
     <div>
-      <%= f.label :email, "Adresse email", class: "block text-sm font-medium text-gray-900" %>
-      <div class="mt-2">
-        <%= f.email_field :email, 
-              required: true, autofocus: true,
-              class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
-                      placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-      </div>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :email,
+        type: :email_field,
+        label: "Adresse email",
+        required: true,
+        html_options: { autofocus: true }
+      ) %>
     </div>
 
     <!-- Mot de passe -->
     <div>
-      <%= f.label :password, "Mot de passe", class: "block text-sm font-medium text-gray-900" %>
-      <div class="mt-2">
-        <%= f.password_field :password, 
-              required: true,
-              class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 
-                      placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm" %>
-      </div>
+      <%= render FormFieldComponent.new(
+        form: f,
+        attribute: :password,
+        type: :password_field,
+        label: "Mot de passe",
+        required: true
+      ) %>
     </div>
 
     <!-- Se souvenir de moi -->
