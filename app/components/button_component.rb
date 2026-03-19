@@ -3,9 +3,11 @@
 class ButtonComponent < ViewComponent::Base
   attr_reader :variant, :size, :options
 
-  def initialize(variant: :primary, size: :medium, **options)
+  def initialize(variant: :primary, size: :medium, shape: :square, icon_only: false, **options)
     @variant = variant
     @size = size
+    @shape = shape
+    @icon_only = icon_only
     @options = options
   end
 
@@ -33,45 +35,60 @@ class ButtonComponent < ViewComponent::Base
   end
 
   def classes
-    base = "font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200"
-    "#{base} #{variant_classes} #{size_classes}"
+    base = "inline-flex items-center justify-center gap-2 font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
+    "#{base} #{shape_classes} #{variant_classes} #{size_classes}"
   end
 
   private
 
+  attr_reader :shape, :icon_only
+
   def variant_classes
     case variant
     when :primary
-      "bg-asmbv-red hover:bg-asmbv-red-dark text-white focus:ring-asmbv-red shadow-sm"
+      "bg-asmbv-red hover:bg-asmbv-red-dark text-white focus:ring-asmbv-red"
     when :secondary
-      "bg-white border border-asmbv-red text-asmbv-red hover:bg-asmbv-red hover:text-white focus:ring-asmbv-red shadow-sm"
+      "bg-white border border-gray-300 text-gray-800 hover:bg-gray-50 focus:ring-asmbv-red"
+    when :ghost
+      "bg-white border border-gray-300 text-gray-800 hover:bg-gray-50 focus:ring-asmbv-red"
     when :tertiary
       "bg-transparent text-asmbv-red hover:bg-asmbv-red-light hover:text-asmbv-red-dark focus:ring-asmbv-red"
     when :danger
-      "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-sm"
+      "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
     when :success
-      "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500 shadow-sm"
+      "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
     when :warning
-      "bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500 shadow-sm"
+      "bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500"
     when :info
-      "bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 shadow-sm"
+      "bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500"
     else
-      "bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500 shadow-sm"
+      "bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500"
+    end
+  end
+
+  def shape_classes
+    case shape
+    when :square
+      "rounded-none"
+    when :slightly_rounded
+      "rounded-md"
+    else
+      "rounded-md"
     end
   end
 
   def size_classes
     case size
     when :small
-      "px-3 py-1.5 text-sm"
+      icon_only ? "h-9 w-9 text-sm" : "px-3 py-2 text-sm"
     when :medium
-      "px-4 py-2 text-sm"
+      icon_only ? "h-10 w-10 text-sm" : "px-4 py-2 text-sm"
     when :large
-      "px-6 py-3 text-base"
+      icon_only ? "h-11 w-11 text-base" : "px-5 py-3 text-base"
     when :xl
-      "px-8 py-4 text-lg"
+      icon_only ? "h-12 w-12 text-lg" : "px-6 py-4 text-lg"
     else
-      "px-4 py-2 text-sm"
+      icon_only ? "h-10 w-10 text-sm" : "px-4 py-2 text-sm"
     end
   end
 end

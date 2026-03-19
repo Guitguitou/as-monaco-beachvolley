@@ -1,5 +1,8 @@
-<div class="max-w-md mx-auto mt-16 bg-white p-8 rounded-lg shadow-md">
-  <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">Mot de passe oublié</h2>
+<div class="max-w-md mx-auto mt-16">
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-2xl font-bold text-center text-gray-900">Mot de passe oublié</h2>
+    <% end %>
 
   <%= form_with model: resource, 
               as: resource_name, 
@@ -22,10 +25,10 @@
     <!-- Submit -->
     <div>
       <%= f.submit "Envoyer les instructions", 
-            class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2 
-                    text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark 
-                    focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
-                    focus-visible:outline-asmbv-red transition-colors" %>
+            class: "w-full inline-flex justify-center items-center gap-2 rounded-none bg-asmbv-red px-4 py-2 
+                    text-sm font-semibold text-white hover:bg-asmbv-red-dark 
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-asmbv-red transition-colors" %>
     </div>
+  <% end %>
   <% end %>
 </div>

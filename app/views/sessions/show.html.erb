@@ -1,90 +1,161 @@
-<div class="container mx-auto px-4 py-8">
-  <div class="max-w-6xl mx-auto">
-    <!-- Breadcrumb -->
-    <nav class="flex items-center justify-between gap-2 mb-6">
-      <%= link_to sessions_path, class: "inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
-        <%= lucide_icon("arrow-left", size: 16) %> Retour au calendrier
-      <% end %>
-      <% if user_signed_in? && current_user.admin? %>
-        <%= link_to edit_admin_session_path(@session), class: "inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
-          <%= lucide_icon("edit", size: 16) %> Modifier
-        <% end %>
-      <% end %>
-    </nav>
+<% show_sidebar = current_user&.admin? || current_user == @session.user %>
 
-    <div class="">
-      <div class="lg:col-span-2">
-        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <%= render 'show_header' %>
-          <%= render 'informations' %>
-          <%= render 'participants' %>
-          <% if user_signed_in? && @session.entrainement? && (current_user.admin? || current_user == @session.user) %>
-            <hr class="my-6" />
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-3">Notes entraîneur</h3>
-              <div class="mb-3 text-sm text-gray-600">Thème, retours, informations utiles (visible uniquement par les coachs et admins)</div>
-              <%= form_with model: @session, url: session_path(@session), method: :put, local: true do |f| %>
-                <%= render FormFieldComponent.new(
-                  form: f,
-                  attribute: :coach_notes,
-                  type: :text_area,
-                  label: "Notes entraîneur",
-                  show_label: false,
-                  html_options: { rows: 6 }
-                ) %>
-                <div class="mt-3 flex items-center gap-2">
-                  <%= f.submit "Enregistrer les notes", class: "inline-flex items-center gap-1 rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-700" %>
-                  <% if @session.coach_notes.present? %>
-                    <span class="text-xs text-gray-500">Dernière mise à jour: <%= l(@session.updated_at, format: :short) %></span>
-                  <% end %>
-                </div>
-              <% end %>
-            </div>
-          <% elsif user_signed_in? && @session.entrainement? && (current_user.admin? || current_user.coach?) && @session.coach_notes.present? %>
-            <hr class="my-6" />
-            <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-3">Notes entraîneur</h3>
-              <div class="prose prose-sm max-w-none whitespace-pre-line text-gray-800"><%= @session.coach_notes %></div>
-            </div>
+<% content_for :hero do %>
+  <%= render HeroComponent.new(title: (@session.title.presence || @session.display_name), variant: :red) do |hero| %>
+    <% hero.with_meta do %>
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <%= link_to sessions_path, class: "inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white" do %>
+          <%= lucide_icon("arrow-left", class: "w-4 h-4") %>
+          Retour au calendrier
+        <% end %>
+
+        <div class="flex items-center gap-2">
+          <% if user_signed_in? && current_user.admin? %>
+            <%= link_to edit_admin_session_path(@session), class: "inline-flex items-center gap-2 rounded-none border border-white/30 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/15" do %>
+              <%= lucide_icon("edit", class: "w-4 h-4") %>
+              Modifier
+            <% end %>
           <% end %>
         </div>
       </div>
-      <% if current_user&.admin? || current_user == @session.user %>
-        <div class="lg:col-span-1">
-          <div class="bg-white rounded-lg shadow-sm p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-3">Ajouter un·e inscrit·e</h3>
-            <%= form_with url: session_registrations_path(@session), method: :post, local: true, class: "space-y-3" do |f| %>
-              <div>
-                <%= render FormFieldComponent.new(
-                  form: f,
-                  attribute: :user_id,
-                  type: :select,
-                  label: "Utilisateur·ice",
-                  required: true,
-                  options: options_from_collection_for_select(@candidate_users || [], :id, :full_name),
-                  select_options: { include_blank: "Choisir..." },
-                  input_class: "w-full border rounded px-2 py-2",
-                  html_options: { data: { controller: "select", "select-placeholder-value": "Rechercher un·e joueur·se..." } }
-                ) %>
-              </div>
-              <% if @session.entrainement? && @session.past_registration_deadline? %>
-                <div class="text-xs text-blue-800 bg-blue-50 inline-flex items-center gap-1 px-2 py-1 rounded">
-                  <%= lucide_icon("info", class: "w-3 h-3") %>
-                  Délai d'inscription dépassé (17h), mais vous pouvez inscrire.
-                </div>
-              <% end %>
-              <% if @session.full? %>
-                <%= hidden_field_tag :waitlist, true %>
-                <div class="text-xs text-yellow-800 bg-yellow-50 inline-flex items-center gap-1 px-2 py-1 rounded">
-                  <%= lucide_icon("alert-circle", class: "w-3 h-3") %>
-                  Session complète: ajout en liste d'attente.
-                </div>
-              <% end %>
-              <%= f.submit(@session.full? ? "Ajouter en attente" : "Ajouter",
-                          class: "w-full inline-flex items-center justify-center gap-1 px-3 py-2 text-sm text-white bg-asmbv-red hover:bg-asmbv-red-dark rounded") %>
-            <% end %>
+
+      <%= render "hero_meta", session: @session %>
+    <% end %>
+
+    <% hero.with_actions do %>
+      <%= render CardComponent.new(padding: :lg, class_name: "border border-white/20 bg-white") do %>
+        <%= render "hero_cta", session: @session %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
+<div class="max-w-6xl mx-auto px-4 py-10">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+    <div class="lg:col-span-2 min-w-0 space-y-6">
+      <% if @session.description.present? %>
+        <%= render CardComponent.new(padding: :lg) do |card| %>
+          <% card.with_header do %>
+            <h3 class="text-xs font-bold uppercase tracking-wide text-gray-900">Description</h3>
+          <% end %>
+          <div class="prose prose-sm max-w-none text-gray-800">
+            <%= simple_format(@session.description) %>
+          </div>
+        <% end %>
+      <% end %>
+
+      <%= render CardComponent.new(padding: :lg) do |card| %>
+        <% card.with_header do %>
+          <h3 class="text-xs font-bold uppercase tracking-wide text-gray-900">Encadrement</h3>
+        <% end %>
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 bg-asmbv-red text-white flex items-center justify-center font-extrabold rounded-none">MB</div>
+          <div class="min-w-0">
+            <div class="font-semibold text-gray-900"><%= @session.user&.full_name || "Organisateur" %></div>
+            <div class="text-sm text-gray-600"><%= @session.entrainement? ? "Entraîneur" : "Organisateur" %></div>
           </div>
         </div>
+      <% end %>
+
+      <%= render CardComponent.new(padding: :lg) do |card| %>
+        <% card.with_header do %>
+          <div class="flex items-center justify-between gap-3">
+            <h3 class="text-xs font-bold uppercase tracking-wide text-gray-900">Participants</h3>
+            <% if @session.max_players.present? %>
+              <% confirmed_count = @session.registrations.loaded? ? @session.registrations.count(&:confirmed?) : @session.registrations.confirmed.count %>
+              <%= render BadgeComponent.new(label: "#{confirmed_count}/#{@session.max_players}", variant: :neutral, size: :xs) %>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @session.max_players.present? %>
+          <% confirmed_count = @session.registrations.loaded? ? @session.registrations.count(&:confirmed?) : @session.registrations.confirmed.count %>
+          <% accent = case @session.session_type
+                     when "entrainement" then :training
+                     when "jeu_libre" then :free_play
+                     when "coaching_prive" then :private_coaching
+                     when "tournoi" then :tournament
+                     when "stage" then :stage
+                     end %>
+          <div class="mb-4">
+            <%= render ProgressBarComponent.new(value: confirmed_count, max: @session.max_players, variant: accent || :primary, height: :sm) %>
+          </div>
+        <% end %>
+
+        <%= render "participants" %>
+      <% end %>
+
+      <% if user_signed_in? && @session.entrainement? && (current_user.admin? || current_user == @session.user) %>
+        <%= render CardComponent.new(padding: :lg) do |card| %>
+          <% card.with_header do %>
+            <h3 class="text-xs font-bold uppercase tracking-wide text-gray-900">Notes entraîneur</h3>
+          <% end %>
+          <div class="mb-3 text-sm text-gray-600">Thème, retours, informations utiles (visible uniquement par les coachs et admins)</div>
+          <%= form_with model: @session, url: session_path(@session), method: :put, local: true do |f| %>
+            <%= render FormFieldComponent.new(
+              form: f,
+              attribute: :coach_notes,
+              type: :text_area,
+              label: "Notes entraîneur",
+              show_label: false,
+              html_options: { rows: 6 }
+            ) %>
+            <div class="mt-3 flex items-center gap-2">
+              <%= f.submit "Enregistrer les notes", class: "inline-flex items-center gap-1 rounded-none bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700" %>
+              <% if @session.coach_notes.present? %>
+                <span class="text-xs text-gray-500">Dernière mise à jour: <%= l(@session.updated_at, format: :short) %></span>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      <% elsif user_signed_in? && @session.entrainement? && (current_user.admin? || current_user.coach?) && @session.coach_notes.present? %>
+        <%= render CardComponent.new(padding: :lg) do |card| %>
+          <% card.with_header do %>
+            <h3 class="text-xs font-bold uppercase tracking-wide text-gray-900">Notes entraîneur</h3>
+          <% end %>
+          <div class="prose prose-sm max-w-none whitespace-pre-line text-gray-800"><%= @session.coach_notes %></div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="lg:col-span-1 min-w-0 space-y-6">
+      <%= render CardComponent.new(padding: :lg) do |card| %>
+        <% card.with_header do %>
+          <h3 class="text-xs font-bold uppercase tracking-wide text-gray-900">Informations</h3>
+        <% end %>
+        <%= render "informations" %>
+      <% end %>
+
+      <% if show_sidebar %>
+        <%= render CardComponent.new(padding: :lg, class_name: "h-fit") do |card| %>
+          <% card.with_header do %>
+            <h3 class="text-xs font-bold uppercase tracking-wide text-gray-900">Ajouter un·e inscrit·e</h3>
+          <% end %>
+          <%= form_with url: session_registrations_path(@session), method: :post, local: true, class: "space-y-3" do |f| %>
+            <div>
+              <%= render FormFieldComponent.new(
+                form: f,
+                attribute: :user_id,
+                type: :select,
+                label: "Utilisateur·ice",
+                required: true,
+                options: options_from_collection_for_select(@candidate_users || [], :id, :full_name),
+                select_options: { include_blank: "Choisir..." },
+                input_class: "w-full border border-gray-300 rounded-none px-3 py-2 focus:ring-2 focus:ring-asmbv-red focus:border-asmbv-red",
+                html_options: { data: { controller: "select", "select-placeholder-value": "Rechercher un·e joueur·se..." } }
+              ) %>
+            </div>
+            <% if @session.entrainement? && @session.past_registration_deadline? %>
+              <%= render BadgeComponent.new(label: "Délai 17h dépassé — inscription manuelle possible", variant: :info, size: :sm) %>
+            <% end %>
+            <% if @session.full? %>
+              <%= hidden_field_tag :waitlist, true %>
+              <%= render BadgeComponent.new(label: "Session complète — ajout en liste d'attente", variant: :warning, size: :sm) %>
+            <% end %>
+            <%= f.submit(@session.full? ? "Ajouter en attente" : "Ajouter",
+                        class: "w-full inline-flex items-center justify-center gap-1 rounded-none px-4 py-2 text-sm font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark") %>
+          <% end %>
+        <% end %>
       <% end %>
     </div>
   </div>

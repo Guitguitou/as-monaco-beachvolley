@@ -1,10 +1,14 @@
 <!-- Layout pour utilisateurs non connectés -->
-<!-- Header pour les joueurs -->
-<%= render "layouts/public_header" %>
+<div class="min-h-screen">
+  <%= render "layouts/navbar" %>
 
-<!-- Main content -->
-<main class="flex-1 overflow-hidden">
-  <div class="h-[calc(100vh-80px)] overflow-y-auto px-6 pt-6">
+  <% if content_for?(:hero) %>
+    <%= yield :hero %>
+  <% else %>
+    <%= render HeroComponent.new(title: default_hero_title) %>
+  <% end %>
+
+  <main class="p-4 sm:p-6 lg:p-8">
     <%= yield %>
-  </div>
-</main>
+  </main>
+</div>

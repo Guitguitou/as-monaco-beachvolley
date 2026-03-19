@@ -38,6 +38,16 @@ module ApplicationHelper
     classes[session_type] || 'bg-gray-100 text-gray-800'
   end
 
+  def session_type_badge_variant(session_type)
+    {
+      'entrainement' => :type_training,
+      'jeu_libre' => :type_free_play,
+      'tournoi' => :type_tournament,
+      'coaching_prive' => :type_private,
+      'stage' => :type_stage
+    }[session_type.to_s] || :neutral
+  end
+
   def sessions_type_bg_class(session)
     classes = {
       "entrainement" => "bg-green-50",
@@ -81,7 +91,7 @@ module ApplicationHelper
     active = current_page?(path)
     base_classes = [
       "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium border-b-2 transition-colors",
-      (active ? "text-asmbv-red border-asmbv-red" : "text-gray-700 border-transparent hover:text-asmbv-red hover:border-asmbv-red hover:bg-gray-100")
+      (active ? "text-white border-white" : "text-white/90 border-transparent hover:text-white hover:border-white/70 hover:bg-white/10")
     ]
 
     link_to path, class: base_classes.join(" ") do
@@ -125,6 +135,22 @@ module ApplicationHelper
         concat lucide_icon(icon_name, size: 14, class: 'text-gray-600')
       end
     end
+  end
+
+  def default_hero_title
+    return content_for(:page_title) if content_for?(:page_title)
+
+    overrides = {
+      "sessions#index" => "Calendrier",
+      "sessions#show" => "Session",
+      "packs#index" => "Boutique",
+      "stages#index" => "Stages",
+      "performances#index" => "Performances",
+      "users#show" => "Mon profil"
+    }
+
+    key = "#{controller_name}##{action_name}"
+    overrides[key] || "#{controller_name.humanize} #{action_name.humanize}".strip
   end
 
   # Helper to create external links that open in a new tab

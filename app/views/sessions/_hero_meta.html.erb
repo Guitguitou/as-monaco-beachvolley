@@ -1,0 +1,33 @@
+<%# locals: session: %>
+<div class="min-w-0">
+  <div class="flex items-center gap-2 flex-wrap">
+    <%= render BadgeComponent.new(
+      label: get_session_type_label(session.session_type),
+      variant: session_type_badge_variant(session.session_type),
+      icon: session_type_icon(session.session_type),
+      size: :md
+    ) %>
+    <%= render BadgeComponent.new(label: session.terrain, variant: :neutral, size: :md) %>
+    <% if session.levels.any? %>
+      <% session.levels.each do |level| %>
+        <%= render BadgeComponent.new(label: "#{level.name} - #{level.gender.humanize}", variant: :neutral, size: :md) %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="mt-4 flex items-center gap-3 text-white/90 text-sm flex-wrap">
+    <span class="inline-flex items-center gap-2">
+      <%= lucide_icon("calendar", class: "w-4 h-4") %>
+      <%= l(session.start_at.to_date, format: :long) %>
+    </span>
+    <span class="inline-flex items-center gap-2">
+      <%= lucide_icon("clock", class: "w-4 h-4") %>
+      <%= l(session.start_at, format: :time) %> - <%= l(session.end_at, format: :time) %>
+    </span>
+    <span class="inline-flex items-center gap-2">
+      <%= lucide_icon("map-pin", class: "w-4 h-4") %>
+      <%= session.terrain.to_s.split("_").last %>
+    </span>
+  </div>
+</div>
+

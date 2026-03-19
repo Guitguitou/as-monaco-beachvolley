@@ -1,9 +1,9 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
   <!-- KPIs Cards -->
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center">
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
+  <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+        <div class="w-8 h-8 bg-blue-500 rounded-none flex items-center justify-center">
           <span class="text-white text-sm font-medium">🏋️</span>
         </div>
       </div>
@@ -12,12 +12,12 @@
         <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:trainings_count] %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center">
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
+  <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+        <div class="w-8 h-8 bg-green-500 rounded-none flex items-center justify-center">
           <span class="text-white text-sm font-medium">🎮</span>
         </div>
       </div>
@@ -26,12 +26,12 @@
         <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:free_plays_count] %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center">
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
+  <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+        <div class="w-8 h-8 bg-purple-500 rounded-none flex items-center justify-center">
           <span class="text-white text-sm font-medium">👥</span>
         </div>
       </div>
@@ -40,12 +40,12 @@
         <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:private_coachings_count] %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="bg-white rounded-lg shadow p-6">
-    <div class="flex items-center">
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
+  <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
+        <div class="w-8 h-8 bg-red-500 rounded-none flex items-center justify-center">
           <span class="text-white text-sm font-medium">⚠️</span>
         </div>
       </div>
@@ -54,7 +54,7 @@
         <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:late_cancellations_count] %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <!-- Inscrits par mois (jeu libre + entrainement) -->
@@ -66,20 +66,20 @@
   <div class="flex items-center justify-between mb-4">
     <h3 class="text-lg font-medium text-gray-900">Inscrits par mois</h3>
     <nav class="flex items-center gap-2" aria-label="Navigation par mois">
-      <%= link_to "Mois précédent", admin_root_path(tab: "overview", stats_year: prev_month.year, stats_month: prev_month.month), class: "text-sm text-asmbv-red hover:underline" %>
+      <%= button("Mois précédent", variant: :ghost, size: :small, href: admin_root_path(tab: "overview", stats_year: prev_month.year, stats_month: prev_month.month)) %>
       <span class="text-sm font-medium text-gray-700"><%= l(stats_month_date, format: :month_and_year) %></span>
       <% if next_month_future %>
-        <%= link_to "Mois suivant", admin_root_path(tab: "overview", stats_year: next_month.year, stats_month: next_month.month), class: "text-sm text-asmbv-red hover:underline" %>
+        <%= button("Mois suivant", variant: :ghost, size: :small, href: admin_root_path(tab: "overview", stats_year: next_month.year, stats_month: next_month.month)) %>
       <% else %>
         <span class="text-sm text-gray-400">Mois suivant</span>
       <% end %>
     </nav>
   </div>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="bg-white rounded-lg shadow p-6">
+    <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
       <div class="flex items-center">
         <div class="flex-shrink-0">
-          <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+          <div class="w-8 h-8 bg-green-500 rounded-none flex items-center justify-center">
             <span class="text-white text-sm font-medium">🎮</span>
           </div>
         </div>
@@ -88,11 +88,11 @@
           <p class="text-2xl font-semibold text-gray-900"><%= @participants_jeu_libre %></p>
         </div>
       </div>
-    </div>
-    <div class="bg-white rounded-lg shadow p-6">
+    <% end %>
+    <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
       <div class="flex items-center">
         <div class="flex-shrink-0">
-          <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+          <div class="w-8 h-8 bg-blue-500 rounded-none flex items-center justify-center">
             <span class="text-white text-sm font-medium">🏋️</span>
           </div>
         </div>
@@ -101,16 +101,16 @@
           <p class="text-2xl font-semibold text-gray-900"><%= @participants_entrainement %></p>
         </div>
       </div>
-    </div>
+    <% end %>
   </div>
 </div>
 
 <!-- Financial KPIs -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-green-600 rounded-md flex items-center justify-center">
+        <div class="w-8 h-8 bg-green-600 rounded-none flex items-center justify-center">
           <span class="text-white text-sm font-medium">€</span>
         </div>
       </div>
@@ -119,12 +119,12 @@
         <p class="text-2xl font-semibold text-gray-900"><%= number_to_currency(@kpis[:revenue], unit: "", separator: ",", delimiter: "") %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-orange-500 rounded-md flex items-center justify-center">
+        <div class="w-8 h-8 bg-orange-500 rounded-none flex items-center justify-center">
           <span class="text-white text-sm font-medium">👥</span>
         </div>
       </div>
@@ -133,12 +133,12 @@
         <p class="text-2xl font-semibold text-gray-900"><%= number_to_currency(@kpis[:coach_salaries], unit: "", separator: ",", delimiter: "") %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-<%= @kpis[:net_profit] >= 0 ? 'green' : 'red' %>-500 rounded-md flex items-center justify-center">
+        <div class="w-8 h-8 bg-<%= @kpis[:net_profit] >= 0 ? 'green' : 'red' %>-500 rounded-none flex items-center justify-center">
           <span class="text-white text-sm font-medium">📊</span>
         </div>
       </div>
@@ -147,14 +147,16 @@
         <p class="text-2xl font-semibold text-gray-900"><%= number_to_currency(@kpis[:net_profit], unit: "", separator: ",", delimiter: "") %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <!-- Upcoming Sessions -->
-<div class="bg-white rounded-lg shadow">
-  <div class="px-6 py-4 border-b border-gray-200">
-    <h3 class="text-lg font-medium text-gray-900">Sessions à venir</h3>
-  </div>
+<%= render CardComponent.new(padding: :none, class_name: "border border-gray-200") do |card| %>
+  <% card.with_header do %>
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900">Sessions à venir</h3>
+    </div>
+  <% end %>
   <div class="p-6">
     <% if @upcoming_sessions.any? %>
       <div class="space-y-4">
@@ -170,7 +172,7 @@
             </h4>
             <div class="space-y-2">
               <% sessions.each do |session| %>
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-none border border-gray-100">
                   <div>
                     <p class="font-medium text-gray-900"><%= session.title %></p>
                     <p class="text-sm text-gray-500">
@@ -192,4 +194,4 @@
       <p class="text-gray-500 text-center py-4">Aucune session à venir</p>
     <% end %>
   </div>
-</div>
+<% end %>

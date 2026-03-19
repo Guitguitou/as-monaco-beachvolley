@@ -7,22 +7,24 @@
     
     <div class="flex items-center gap-2 w-full sm:w-auto justify-center">
       <% current_view = @view.presence || params[:view].presence || "grid" %>
-      <%= link_to sessions_path(request.query_parameters.merge(view: "grid")),
-            class: "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition #{current_view == 'grid' ? 'bg-asmbv-red text-white' : 'bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'}" do %>
-        <%= lucide_icon("layout-grid", class: "w-4 h-4") %>
-        Grille
-      <% end %>
-      <%= link_to sessions_path(request.query_parameters.merge(view: "calendar")),
-            class: "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition #{current_view == 'calendar' ? 'bg-asmbv-red text-white' : 'bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'}" do %>
-        <%= lucide_icon("calendar-days", class: "w-4 h-4") %>
-        Calendrier
-      <% end %>
+      <%= button(
+        "Grille",
+        variant: (current_view == "grid" ? :primary : :ghost),
+        size: :small,
+        href: sessions_path(request.query_parameters.merge(view: "grid")),
+        icon: nil
+      ) %>
+      <%= button(
+        "Calendrier",
+        variant: (current_view == "calendar" ? :primary : :ghost),
+        size: :small,
+        href: sessions_path(request.query_parameters.merge(view: "calendar")),
+        icon: nil
+      ) %>
     </div>
 
     <% if can?(:create, Session) %>
-      <%= link_to new_session_path, class: "bg-asmbv-red hover:bg-asmbv-red-dark text-asmbv-red-light font-semibold rounded-md px-3 sm:px-4 py-2 transition inline-flex items-center gap-2 w-full sm:w-auto justify-center" do %>
-        <%= lucide_icon("plus-circle", class: "w-5 h-5") %> Nouvelle session
-      <% end %>
+      <%= button("Nouvelle session", variant: :primary, size: :small, href: new_session_path) %>
     <% end %>
   </div>
   
@@ -73,6 +75,6 @@
   data-controller="calendar"
   data-initial-date="<%= params[:date] %>"
   data-sessions="<%= json_escape(sessions_json) %>"
-  class="mt-4 bg-white p-2 sm:p-4 rounded-md">
+  class="mt-4 bg-white p-2 sm:p-4 rounded-none">
 </div>
 <% end %>

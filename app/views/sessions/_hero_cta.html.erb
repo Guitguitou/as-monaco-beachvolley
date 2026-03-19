@@ -1,0 +1,86 @@
+<%# locals: session: %>
+<% if user_signed_in? %>
+  <% registration = Registration.new(user: current_user, session: session, status: :confirmed) %>
+  <% can_register, reason = registration.can_register_with_reason %>
+  <% waitlist_registration = Registration.new(user: current_user, session: session, status: :waitlisted) %>
+  <% can_waitlist, waitlist_reason = waitlist_registration.can_register_with_reason %>
+  <% existing_registration = current_user.registrations.find_by(session: session) %>
+
+  <% if existing_registration.nil? %>
+    <% if can_register %>
+      <%= button_to session_registrations_path(session),
+                    method: :post,
+                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none px-4 py-2 text-sm font-semibold bg-asmbv-red text-white hover:bg-asmbv-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-asmbv-red" do %>
+        <%= lucide_icon("check-circle", class: "size-5", aria: { hidden: true }) %>
+        <span>Je m'inscris</span>
+      <% end %>
+    <% elsif session.full? %>
+      <%= button_to session_registrations_path(session),
+                    method: :post,
+                    params: { waitlist: true },
+                    disabled: !can_waitlist,
+                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none px-4 py-2 text-sm font-semibold " +
+                          (can_waitlist ? "bg-gray-800 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800" : "bg-gray-300 text-gray-600 cursor-not-allowed") do %>
+        <%= lucide_icon("clock", class: "size-5", aria: { hidden: true }) %>
+        <span><%= can_waitlist ? "M'inscrire en liste d'attente" : waitlist_reason %></span>
+      <% end %>
+    <% else %>
+      <%= button_to session_registrations_path(session),
+                    method: :post,
+                    disabled: true,
+                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none px-4 py-2 text-sm font-semibold bg-gray-300 text-gray-600 cursor-not-allowed" do %>
+        <%= lucide_icon("alert-circle", class: "size-5", aria: { hidden: true }) %>
+        <span><%= reason %></span>
+      <% end %>
+    <% end %>
+  <% else %>
+    <% can_self_unsubscribe = Time.current <= session.end_at || current_user.admin? %>
+    <% if can_self_unsubscribe %>
+      <%= button_to session_registration_path(session), method: :delete,
+                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600" do %>
+        <%= lucide_icon("x-circle", class: "size-5", aria: { hidden: true }) %>
+        <span><%= existing_registration.waitlisted? ? "Quitter la liste d’attente" : "Je me désinscris" %></span>
+      <% end %>
+    <% end %>
+
+    <% if !existing_registration.waitlisted? && session.entrainement? && session.cancellation_deadline_at.present? %>
+      <div class="mt-3">
+        <% if Time.current > session.cancellation_deadline_at %>
+          <%= render BadgeComponent.new(label: "Aucun remboursement automatique (délai dépassé)", variant: :danger, size: :sm) %>
+        <% else %>
+          <%= render BadgeComponent.new(label: "Remboursement auto si désinscription avant #{l(session.cancellation_deadline_at, format: :long)}", variant: :warning, size: :sm) %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if existing_registration.waitlisted? %>
+      <% waitlisted_ids = session.registrations.waitlisted.order(:created_at).pluck(:user_id) %>
+      <% my_index = waitlisted_ids.index(current_user.id) %>
+      <% if my_index %>
+        <div class="mt-3">
+          <%= render BadgeComponent.new(label: "Position liste d'attente: ##{my_index + 1}", variant: :warning, size: :sm) %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <% if can?(:cancel, session) %>
+    <div class="mt-3">
+      <%= button_to cancel_session_path(session), method: :post,
+                    data: { turbo_confirm: "Confirmer l'annulation de la session ? Tous les crédits seront remboursés." },
+                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800" do %>
+        <%= lucide_icon("ban", class: "size-5", aria: { hidden: true }) %>
+        <span>Annuler la session</span>
+      <% end %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="text-sm font-semibold text-gray-900">Connecte-toi pour t'inscrire.</div>
+  <div class="mt-3">
+    <%= link_to new_user_session_path, class: "w-full inline-flex items-center justify-center gap-2 rounded-none px-4 py-2 text-sm font-semibold bg-asmbv-red text-white hover:bg-asmbv-red-dark" do %>
+      <%= lucide_icon("log-in", class: "size-5") %>
+      Se connecter
+    <% end %>
+  </div>
+<% end %>
+

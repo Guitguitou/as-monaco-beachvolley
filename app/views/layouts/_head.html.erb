@@ -21,8 +21,12 @@
   <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
   <!-- App styles -->
+  <%= stylesheet_link_tag "https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" %>
   <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
   <%= javascript_importmap_tags %>
+  <style>
+    .font-bebas-neue { font-family: "Bebas Neue", sans-serif; }
+  </style>
   <%= yield :head if content_for?(:head) %>
 
   <!-- Push Notifications -->

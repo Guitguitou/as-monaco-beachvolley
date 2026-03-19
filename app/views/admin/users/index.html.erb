@@ -4,16 +4,12 @@
     Joueurs
   </h1>
 
-  <%= link_to new_admin_user_path,
-        class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
-    <%= lucide_icon("plus", size: 18) %>
-    Nouveau joueur
-  <% end %>
+  <%= button("Nouveau joueur", variant: :primary, size: :medium, href: new_admin_user_path) %>
 </div>
 
 <%= render 'filters' %>
 
-<div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
   <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
@@ -46,24 +42,16 @@
           <!-- Rôles -->
           <td class="px-4 sm:px-6 py-4 space-x-1">
             <% if user.admin? %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
-                <%= lucide_icon("shield-user", size: 14) %> Admin
-              </span>
+              <%= render BadgeComponent.new(label: "Admin", variant: :warning, size: :xs) %>
             <% end %>
             <% if user.coach? %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-                <%= lucide_icon("dumbbell", size: 14) %> Coach
-              </span>
+              <%= render BadgeComponent.new(label: "Coach", variant: :success, size: :xs) %>
             <% end %>
             <% if user.responsable? %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
-                <%= lucide_icon("key-round", size: 14) %> Responsable
-              </span>
+              <%= render BadgeComponent.new(label: "Responsable", variant: :info, size: :xs) %>
             <% end %>
             <% if user.financial_manager? %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-semibold">
-                <%= lucide_icon("wallet", size: 14) %> Resp. Financier
-              </span>
+              <%= render BadgeComponent.new(label: "Resp. Financier", variant: :purple, size: :xs) %>
             <% end %>
           </td>
 
@@ -71,18 +59,12 @@
           <td class="px-4 sm:px-6 py-4">
             <% if user.license_type.present? %>
               <% if user.license_type == 'libre' %>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-asmbv-red-light text-black text-xs font-semibold">
-                  <%= lucide_icon("shield-half", size: 14) %> Libre
-                </span>
+                <%= render BadgeComponent.new(label: "Libre", variant: :neutral, size: :xs) %>
               <% else %>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-asmbv-red-light text-asmbv-red text-xs font-semibold">
-                  <%= lucide_icon("trophy", size: 14) %> Compétition
-                </span>
+                <%= render BadgeComponent.new(label: "Compétition", variant: :neutral, size: :xs) %>
               <% end %>
             <% else %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
-                <%= lucide_icon("circle-off", size: 14) %> Pas de licence
-              </span>
+              <%= render BadgeComponent.new(label: "Pas de licence", variant: :neutral, size: :xs) %>
             <% end %>
           </td>
 
@@ -122,12 +104,12 @@
     <div>
       <% if @current_page > 1 %>
         <%= link_to({ action: :index, page: @current_page - 1, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                    class: "inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50") do %>
+                    class: "inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-300 bg-white hover:bg-gray-50") do %>
           <%= lucide_icon("chevron-left", size: 16) %>
           Précédent
         <% end %>
       <% else %>
-        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-200 text-gray-400">
+        <span class="inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-200 text-gray-400">
           <%= lucide_icon("chevron-left", size: 16) %>
           Précédent
         </span>
@@ -149,13 +131,13 @@
         <% end %>
         <% if page == @current_page %>
           <li>
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-md bg-asmbv-red text-white font-semibold"><%= page %></span>
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-none bg-asmbv-red text-white font-semibold"><%= page %></span>
           </li>
         <% else %>
           <li>
             <%= link_to page,
                         { action: :index, page: page, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                        class: "inline-flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 bg-white hover:bg-gray-50" %>
+                        class: "inline-flex items-center justify-center w-8 h-8 rounded-none border border-gray-300 bg-white hover:bg-gray-50" %>
           </li>
         <% end %>
       <% end %>
@@ -164,12 +146,12 @@
     <div>
       <% if @current_page < @total_pages %>
         <%= link_to({ action: :index, page: @current_page + 1, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                    class: "inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50") do %>
+                    class: "inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-300 bg-white hover:bg-gray-50") do %>
           Suivant
           <%= lucide_icon("chevron-right", size: 16) %>
         <% end %>
       <% else %>
-        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-gray-200 text-gray-400">
+        <span class="inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-200 text-gray-400">
           Suivant
           <%= lucide_icon("chevron-right", size: 16) %>
         </span>

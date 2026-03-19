@@ -5,15 +5,11 @@
   </h1>
 
   <% if can?(:create, Session) %>
-  <%= link_to new_admin_session_path,
-        class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
-    <%= lucide_icon("plus", size: 18) %>
-    Nouvelle session
-  <% end %>
+  <%= button("Nouvelle session", variant: :primary, size: :medium, href: new_admin_session_path) %>
   <% end %>
 </div>
 
-<div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
   <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
@@ -39,29 +35,19 @@
           <td class="px-4 sm:px-6 py-4 text-gray-700 hidden md:table-cell">
             <% case session.session_type %>
             <% when "entrainement" %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-                <%= lucide_icon("dumbbell", size: 14) %> Entraînement
-              </span>
+              <%= render BadgeComponent.new(label: "Entraînement", variant: :type_training, size: :xs) %>
             <% when "coaching_prive" %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs font-semibold">
-                <%= lucide_icon("user-cog", size: 14) %> Coaching privé
-              </span>
+              <%= render BadgeComponent.new(label: "Coaching privé", variant: :type_private, size: :xs) %>
             <% when "jeu_libre" %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
-                <%= lucide_icon("volleyball", size: 14) %> Jeu libre
-              </span>
+              <%= render BadgeComponent.new(label: "Jeu libre", variant: :type_free_play, size: :xs) %>
             <% when "tournoi" %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-semibold">
-                <%= lucide_icon("trophy", size: 14) %> Tournoi
-              </span>
+              <%= render BadgeComponent.new(label: "Tournoi", variant: :type_tournament, size: :xs) %>
             <% end %>
           </td>
 
           <!-- Terrain -->
           <td class="px-4 sm:px-6 py-4 text-gray-700 hidden lg:table-cell">
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
-              <%= lucide_icon("map-pin", size: 14) %> <%= session.terrain.to_s.split('_').last %>
-            </span>
+            <%= render BadgeComponent.new(label: session.terrain.to_s.split('_').last, variant: :neutral, size: :xs) %>
           </td>
 
           <!-- Niveaux -->

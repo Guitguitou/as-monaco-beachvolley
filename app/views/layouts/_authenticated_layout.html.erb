@@ -6,7 +6,15 @@
      <% end %>>
   <%= render "layouts/navbar" %>
 
-  <main class="p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8">
+  <% unless controller_path.start_with?("admin/") %>
+    <% if content_for?(:hero) %>
+      <%= yield :hero %>
+    <% else %>
+      <%= render HeroComponent.new(title: default_hero_title) %>
+    <% end %>
+  <% end %>
+
+  <main class="p-4 sm:p-6 lg:p-8">
     <%= yield %>
   </main>
 </div>

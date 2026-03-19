@@ -1,6 +1,6 @@
 <!-- Notice pour les comptes non activés -->
 <% if @show_activation_notice %>
-  <div class="mb-6 border-l-4 border-blue-500 bg-blue-50 p-4 rounded-r-lg">
+  <div class="mb-6 border-l-4 border-blue-500 bg-blue-50 p-4 rounded-none">
     <div class="flex items-start">
       <div class="flex-shrink-0">
         <%= lucide_icon("info", size: 20, class: "text-blue-600") %>
@@ -30,9 +30,9 @@
 
 <%# Solde actuel - uniquement pour les comptes activés %>
 <% if current_user&.activated? %>
-  <div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-xl shadow-lg p-6 mb-8">
+  <div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-none border border-asmbv-red shadow p-6 mb-8">
     <div class="flex items-center gap-4">
-      <div class="p-4 bg-white/20 rounded-lg">
+      <div class="p-4 bg-white/20 rounded-none">
         <%= lucide_icon("wallet", size: 32) %>
       </div>
       <div>
@@ -52,7 +52,7 @@
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <% @credits_packs.each do |pack| %>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+        <div class="bg-white rounded-none border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
           <%# Header épuré %>
           <div class="p-4 border-b border-gray-100">
             <div class="flex items-start justify-between mb-3">
@@ -120,7 +120,7 @@
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <% @stage_packs.each do |pack| %>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+        <div class="bg-white rounded-none border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
           <%# Header épuré %>
           <div class="p-4 border-b border-gray-100">
             <div class="flex items-start justify-between mb-3">
@@ -199,7 +199,7 @@
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <% @licence_packs.each do |pack| %>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+        <div class="bg-white rounded-none border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
           <%# Header épuré %>
           <div class="p-4 border-b border-gray-100">
             <div class="flex items-start justify-between mb-3">
@@ -261,7 +261,7 @@
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <% @inscription_tournoi_packs.each do |pack| %>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+        <div class="bg-white rounded-none border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
           <div class="p-4 border-b border-gray-100">
             <div class="flex items-start justify-between mb-3">
               <div>
@@ -314,7 +314,7 @@
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <% @equipements_packs.each do |pack| %>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+        <div class="bg-white rounded-none border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
           <div class="p-4 border-b border-gray-100">
             <div class="flex items-start justify-between mb-3">
               <div>

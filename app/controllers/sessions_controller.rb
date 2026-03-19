@@ -30,6 +30,20 @@ class SessionsController < ApplicationController
     @user_balance_amount = current_user.balance&.amount.to_i
 
     @conflict_session_ids = conflict_session_ids_for(session_ids)
+
+    confirmed_counts = Registration
+      .where(session_id: session_ids, status: Registration.statuses[:confirmed])
+      .group(:session_id)
+      .count
+
+    @sessions_registered_grid = @sessions_grid.select { |s| @registrations_by_session_id.key?(s.id) }
+
+    @sessions_eligible_grid = @sessions_grid.reject { |s| @registrations_by_session_id.key?(s.id) }.select do |s|
+      eligible_for_grid?(s, confirmed_counts: confirmed_counts)
+    end
+
+    # Only show sessions that are either registered/waitlisted or eligible to register
+    @sessions_grid = @sessions_registered_grid + @sessions_eligible_grid
   end
 
   def show
@@ -185,6 +199,30 @@ class SessionsController < ApplicationController
       .where(id: candidate_session_ids)
       .where(overlap_sql.join(" OR "), *overlap_params)
       .pluck(:id)
+  end
+
+  def eligible_for_grid?(session_record, confirmed_counts:)
+    # Keep private coachings out of the “inscriptible” list
+    return false if session_record.coaching_prive?
+
+    open_ok, = session_record.registration_open_state_for(current_user)
+    return false unless open_ok
+
+    # Level constraint for trainings
+    if session_record.entrainement? && session_record.levels.any?
+      return false unless (session_record.level_ids & @user_level_ids).any?
+    end
+
+    # Capacity
+    if session_record.max_players.present?
+      confirmed = confirmed_counts[session_record.id].to_i
+      return false if confirmed >= session_record.max_players
+    end
+
+    # Credits constraint (non-private only)
+    return false if @user_balance_amount < session_record.price.to_i
+
+    true
   end
 
   def session_params

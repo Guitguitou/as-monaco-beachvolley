@@ -17,47 +17,41 @@
           input_class: "w-20 border rounded px-2 py-1",
           html_options: { value: 3, min: 1, max: 20 }
         ) %>
-        <%= button_tag type: :submit, class: "inline-flex items-center gap-1 px-3 py-1.5 text-sm font-semibold text-white bg-gray-800 hover:bg-gray-700 rounded" do %>
+        <%= button_tag type: :submit, class: "inline-flex items-center gap-1 rounded-none px-3 py-1.5 text-sm font-semibold text-white bg-gray-800 hover:bg-gray-700" do %>
           <%= lucide_icon("copy", size: 16) %>
           Dupliquer
         <% end %>
       <% end %>
       <%= link_to edit_admin_session_path(@session),
-            class: "inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
+            class: "inline-flex items-center gap-1 rounded-none border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" do %>
         <%= lucide_icon("edit", size: 16) %> Modifier
       <% end %>
       <%= link_to admin_session_path(@session),
             data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ?" },
-            class: "inline-flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100" do %>
+            class: "inline-flex items-center gap-1 rounded-none border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" do %>
         <%= lucide_icon("trash", size: 16) %> Supprimer
       <% end %>
     </div>
   </div>
 
   <!-- Infos principales -->
-  <div class="bg-white shadow rounded-lg p-6">
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Informations de la session</h2>
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-800">Informations de la session</h2>
+    <% end %>
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <div>
         <dt class="text-sm font-medium text-gray-500">Type</dt>
         <dd class="mt-1">
           <% case @session.session_type %>
           <% when "entrainement" %>
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-              <%= lucide_icon("dumbbell", size: 14) %> Entraînement
-            </span>
+            <%= render BadgeComponent.new(label: "Entraînement", variant: :type_training, size: :xs) %>
           <% when "coaching_prive" %>
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 text-xs font-semibold">
-              <%= lucide_icon("user-cog", size: 14) %> Coaching privé
-            </span>
+            <%= render BadgeComponent.new(label: "Coaching privé", variant: :type_private, size: :xs) %>
           <% when "jeu_libre" %>
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
-              <%= lucide_icon("volleyball", size: 14) %> Jeu libre
-            </span>
+            <%= render BadgeComponent.new(label: "Jeu libre", variant: :type_free_play, size: :xs) %>
           <% when "tournoi" %>
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-semibold">
-              <%= lucide_icon("trophy", size: 14) %> Tournoi
-            </span>
+            <%= render BadgeComponent.new(label: "Tournoi", variant: :type_tournament, size: :xs) %>
           <% end %>
         </dd>
       </div>
@@ -65,9 +59,7 @@
       <div>
         <dt class="text-sm font-medium text-gray-500">Terrain</dt>
         <dd class="mt-1">
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
-            <%= lucide_icon("map-pin", size: 14) %> <%= @session.terrain.to_s.split('_').last %>
-          </span>
+          <%= render BadgeComponent.new(label: @session.terrain.to_s.split('_').last, variant: :neutral, size: :xs) %>
         </dd>
       </div>
 
@@ -109,14 +101,16 @@
         </dd>
       </div>
     </dl>
-  </div>
+  <% end %>
 
   <!-- Description -->
   <% if @session.description.present? %>
-    <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">Description</h2>
+    <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do |card| %>
+      <% card.with_header do %>
+        <h2 class="text-lg font-semibold text-gray-800">Description</h2>
+      <% end %>
       <p class="text-gray-700 whitespace-pre-line"><%= @session.description %></p>
-    </div>
+    <% end %>
   <% end %>
 
   <!-- Retour -->

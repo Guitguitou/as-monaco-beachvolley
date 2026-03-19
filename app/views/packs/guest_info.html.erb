@@ -1,5 +1,5 @@
 <div class="max-w-xl mx-auto">
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+  <div class="bg-white rounded-none border border-gray-200 shadow-sm p-6">
     <h1 class="text-xl font-bold text-gray-900 mb-2">Finaliser l’achat</h1>
     <p class="text-sm text-gray-600 mb-6">
       Pour vous donner l’accès et retrouver votre paiement, on a besoin de vos informations.
@@ -7,9 +7,7 @@
     </p>
 
     <% if flash.now[:alert].present? %>
-      <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-        <%= flash.now[:alert] %>
-      </div>
+      <%= render BadgeComponent.new(label: flash.now[:alert], variant: :danger, size: :md) %>
     <% end %>
 
     <%= form_with url: buy_pack_path(@pack), method: :post, data: { turbo: false }, class: "space-y-4" do |f| %>
@@ -53,11 +51,9 @@
 
       <div class="pt-2 flex flex-col sm:flex-row gap-3">
         <%= f.submit "Continuer vers le paiement",
-              class: "inline-flex items-center justify-center rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all" %>
-        <%= link_to "Se connecter", new_user_session_path(email: params.dig(:guest, :email)),
-              class: "inline-flex items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-all" %>
-        <%= link_to "Retour aux packs", packs_path,
-              class: "inline-flex items-center justify-center rounded-md bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-200 transition-all" %>
+              class: "inline-flex items-center justify-center rounded-none bg-asmbv-red px-4 py-2 text-sm font-semibold text-white hover:bg-asmbv-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-asmbv-red transition-all" %>
+        <%= button("Se connecter", variant: :ghost, size: :medium, href: new_user_session_path(email: params.dig(:guest, :email))) %>
+        <%= button("Retour aux packs", variant: :secondary, size: :medium, href: packs_path) %>
       </div>
     <% end %>
   </div>

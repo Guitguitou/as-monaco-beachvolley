@@ -1,72 +1,84 @@
 <%# locals: session:, registration:, conflict:, relevant:, not_enough_credits:, open_ok:, open_reason: %>
-<%= link_to session_path(session),
-      class: "group block rounded-xl border p-4 shadow-sm transition hover:shadow-md #{sessions_type_border_class(session)} #{sessions_type_bg_class(session)}" do %>
-  <div class="flex items-start justify-between gap-3">
-    <div class="min-w-0">
-      <div class="text-sm font-semibold text-gray-900 truncate">
-        <%= session.title.presence || session.display_name %>
+<% accent = case session.session_type
+           when "entrainement" then :training
+           when "jeu_libre" then :free_play
+           when "coaching_prive" then :private_coaching
+           when "tournoi" then :tournament
+           when "stage" then :stage
+           end %>
+
+<%= render CardComponent.new(href: session_path(session), accent: accent, padding: :lg) do |card| %>
+  <% card.with_header do %>
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+          <%= render BadgeComponent.new(
+            label: get_session_type_label(session.session_type),
+            variant: accent ? :"type_#{accent}" : :neutral
+          ) %>
+        </div>
+        <div class="mt-2 text-[13px] font-bold text-gray-900 truncate uppercase tracking-wide">
+          <%= session.title.presence || session.display_name %>
+        </div>
+        <div class="mt-2 text-xs text-gray-700">
+          <%= l(session.start_at, format: :default).to_s.downcase %>
+        </div>
       </div>
-      <div class="mt-1 text-xs text-gray-600 flex items-center gap-2 flex-wrap">
-        <span class="inline-flex items-center gap-1">
-          <%= lucide_icon("clock", class: "w-3 h-3 text-gray-400") %>
-          <%= l(session.start_at, format: :default) %> — <%= l(session.end_at, format: :time) %>
-        </span>
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
-          <%= lucide_icon("map-pin", class: "w-3 h-3") %> <%= session.terrain.to_s.split("_").last %>
-        </span>
+
+      <div class="text-xs text-gray-600 text-right">
+        <div class="font-semibold"><%= session.terrain.to_s.split("_").last %></div>
       </div>
     </div>
+  <% end %>
 
-    <div class="text-right text-xs text-gray-600 flex-shrink-0">
-      <div class="font-semibold"><%= session.user&.full_name || "Organisateur" %></div>
-      <div><%= session.price.to_i %> crédits</div>
+  <div class="space-y-2 text-xs text-gray-700">
+    <div class="flex items-center gap-2">
+      <%= lucide_icon("clock", class: "w-4 h-4 text-asmbv-red") %>
+      <%= l(session.start_at, format: :time) %> · <%= ((session.end_at - session.start_at) / 60).to_i %> min
+    </div>
+    <div class="flex items-center gap-2">
+      <%= lucide_icon("user", class: "w-4 h-4 text-asmbv-red") %>
+      <%= session.user&.full_name || "Organisateur" %>
+    </div>
+
+    <% if session.max_players.present? %>
+      <% confirmed_count = session.registrations.loaded? ? session.registrations.count(&:confirmed?) : session.registrations.confirmed.count %>
+      <div class="flex items-center gap-2">
+        <%= lucide_icon("users", class: "w-4 h-4 text-asmbv-red") %>
+        <%= confirmed_count %>/<%= session.max_players %>
+      </div>
+      <%= render ProgressBarComponent.new(value: confirmed_count, max: session.max_players, variant: accent || :primary, height: :sm) %>
+    <% end %>
+  </div>
+
+  <div class="mt-4 border-t border-gray-100 pt-3 flex items-end justify-between gap-3">
+    <div class="text-xs text-gray-700">
+      <span class="text-2xl font-bold text-asmbv-red"><%= session.price.to_i %></span>
+      crédit(s)
+    </div>
+    <div class="text-xs font-semibold text-asmbv-red uppercase tracking-wide">
+      Détails →
     </div>
   </div>
 
   <div class="mt-3 flex flex-wrap gap-2">
     <% if registration&.confirmed? %>
-      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-        <%= lucide_icon("check-circle", class: "w-3 h-3") %> Inscrit
-      </span>
+      <%= render BadgeComponent.new(label: "Inscrit", variant: :success, icon: "check-circle") %>
     <% elsif registration&.waitlisted? %>
-      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
-        <%= lucide_icon("clock", class: "w-3 h-3") %> Liste d’attente
-      </span>
+      <%= render BadgeComponent.new(label: "Waitlist", variant: :warning, icon: "clock") %>
     <% end %>
-
     <% unless relevant %>
-      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
-        <%= lucide_icon("sparkles", class: "w-3 h-3") %> Hors niveau
-      </span>
+      <%= render BadgeComponent.new(label: "Hors niveau", variant: :neutral, icon: "sparkles") %>
     <% end %>
-
     <% if conflict %>
-      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-xs font-semibold">
-        <%= lucide_icon("alert-triangle", class: "w-3 h-3") %> Conflit horaire
-      </span>
+      <%= render BadgeComponent.new(label: "Conflit", variant: :purple, icon: "alert-triangle") %>
     <% end %>
-
     <% if not_enough_credits %>
-      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-xs font-semibold">
-        <%= lucide_icon("wallet", class: "w-3 h-3") %> Pas assez de crédits
-      </span>
+      <%= render BadgeComponent.new(label: "Crédits", variant: :danger, icon: "wallet") %>
     <% end %>
-
     <% unless open_ok %>
-      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold">
-        <%= lucide_icon("door-closed", class: "w-3 h-3") %>
-        <%= open_reason.presence || "Inscriptions fermées" %>
-      </span>
+      <%= render BadgeComponent.new(label: "Fermé", variant: :info, icon: "door-closed") %>
     <% end %>
   </div>
-
-  <% if session.levels.any? %>
-    <div class="mt-3 text-xs text-gray-700">
-      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
-            style="background-color: <%= session.levels.first&.color || '#eee' %>22; color: <%= session.levels.first&.color || '#333' %>">
-        <%= session.levels.map(&:name).join(", ") %>
-      </span>
-    </div>
-  <% end %>
 <% end %>
 

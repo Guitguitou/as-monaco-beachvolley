@@ -5,18 +5,18 @@
     </h1>
     <div class="flex items-center gap-2">
       <%= link_to edit_user_registration_path,
-            class: "inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
+            class: "inline-flex items-center gap-2 rounded-none border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" do %>
         <%= lucide_icon("key-round", size: 16) %>
         Changer mon mot de passe
       <% end %>
       <%= link_to edit_user_registration_path,
-            class: "inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
+            class: "inline-flex items-center gap-2 rounded-none border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" do %>
         <%= lucide_icon("mail", size: 16) %>
         Changer mon email
       <% end %>
       <%= link_to destroy_user_session_path,
             data: { turbo_method: :delete },
-            class: "inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50" do %>
+            class: "inline-flex items-center gap-2 rounded-none border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" do %>
         <%= lucide_icon("log-out", size: 16) %>
         Déconnexion
       <% end %>
@@ -24,14 +24,10 @@
   </div>
 
   <% if flash[:notice].present? %>
-    <div class="mb-4 rounded-md bg-green-50 border border-green-200 text-green-800 px-4 py-2 text-sm">
-      <%= flash[:notice] %>
-    </div>
+    <div class="mb-4"><%= render BadgeComponent.new(label: flash[:notice], variant: :success, size: :md) %></div>
   <% end %>
   <% if flash[:alert].present? || flash[:error].present? %>
-    <div class="mb-4 rounded-md bg-red-50 border border-red-200 text-red-800 px-4 py-2 text-sm">
-      <%= flash[:alert] || flash[:error] %>
-    </div>
+    <div class="mb-4"><%= render BadgeComponent.new(label: flash[:alert] || flash[:error], variant: :danger, size: :md) %></div>
   <% end %>
 
   <!-- Tabs Navigation -->
