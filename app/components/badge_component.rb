@@ -46,25 +46,29 @@ class BadgeComponent < ViewComponent::Base
   def variant_classes
     case variant.to_sym
     when :success
-      "bg-white border-gray-300 text-gray-900"
+      "bg-green-600 border-green-700 text-white"
     when :warning
-      "bg-amber-100 border-amber-300 text-amber-900"
-    when :danger
-      "bg-gray-900 border-gray-900 text-white"
+      "bg-orange-600 border-orange-700 text-white"
+    when :danger, :destructive
+      "bg-red-600 border-red-700 text-white"
     when :info
-      "bg-white border-gray-300 text-gray-900"
+      "bg-blue-700 border-blue-800 text-white"
     when :purple
       "bg-gray-900 border-gray-900 text-white"
     when :type_training
-      "bg-white border-gray-300 text-gray-900"
+      "bg-asmbv-red border-asmbv-red-dark text-white"
     when :type_free_play
-      "bg-white border-gray-300 text-gray-900"
+      "bg-blue-700 border-blue-800 text-white"
     when :type_private
       "bg-gray-900 border-gray-900 text-white"
     when :type_tournament
-      "bg-gray-900 border-gray-900 text-white"
+      "bg-amber-500 border-amber-600 text-gray-900"
     when :type_stage
-      "bg-amber-100 border-amber-300 text-amber-900"
+      "bg-orange-600 border-orange-700 text-white"
+    when :hero
+      "bg-white/10 border-white text-white"
+    when :hero_inverse
+      "bg-white border-white text-asmbv-red"
     else
       "bg-white border-gray-300 text-gray-900"
     end

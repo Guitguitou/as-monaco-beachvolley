@@ -88,15 +88,10 @@
         <dd class="mt-1 flex flex-wrap gap-2">
           <% if @session.levels.any? %>
             <% @session.levels.each do |level| %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
-                    style="background-color: <%= level.color %>22; color: <%= level.color %>;">
-                <%= level.name %>
-              </span>
+              <%= render BadgeComponent.new(label: level.name, variant: :neutral, size: :xs) %>
             <% end %>
           <% else %>
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
-              Tous niveaux
-            </span>
+            <%= render BadgeComponent.new(label: "Tous niveaux", variant: :neutral, size: :xs) %>
           <% end %>
         </dd>
       </div>

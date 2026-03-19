@@ -3,13 +3,10 @@
     <%= lucide_icon("layers") %> Groupes de niveau
   </h1>
 
-  <%= link_to new_admin_level_path,
-        class: "inline-flex items-center gap-2 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
-    <%= lucide_icon("plus", size: 18) %> Nouveau groupe
-  <% end %>
+  <%= button("Nouveau groupe", variant: :primary, size: :medium, href: new_admin_level_path) %>
 </div>
 
-<div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
   <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>

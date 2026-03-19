@@ -65,7 +65,7 @@
     <% if registration&.confirmed? %>
       <%= render BadgeComponent.new(label: "Inscrit", variant: :success, icon: "check-circle") %>
     <% elsif registration&.waitlisted? %>
-      <%= render BadgeComponent.new(label: "Waitlist", variant: :warning, icon: "clock") %>
+      <%= render BadgeComponent.new(label: "Liste d'attente", variant: :warning, icon: "clock") %>
     <% end %>
     <% unless relevant %>
       <%= render BadgeComponent.new(label: "Hors niveau", variant: :neutral, icon: "sparkles") %>

@@ -2,6 +2,16 @@
   <div class="max-w-6xl mx-auto px-4 py-8 sm:py-10 lg:py-12">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
       <div class="lg:col-span-2 min-w-0">
+        <% if top %>
+          <div class="mb-4">
+            <%= top %>
+          </div>
+        <% end %>
+        <% if eyebrow %>
+          <div class="mb-3">
+            <%= eyebrow %>
+          </div>
+        <% end %>
         <h1 class="<%= title_classes %>"><%= title %></h1>
         <% if subtitle.present? %>
           <p class="<%= subtitle_classes %>"><%= subtitle %></p>

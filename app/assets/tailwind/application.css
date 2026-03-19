@@ -1,101 +1,120 @@
 @import "tailwindcss";
 
 :root {
-  --color-asmbv-red: #e21e22;
-  --color-asmbv-red-light: #fef2f2;
-  --color-asmbv-red-dark: #b91c1c;
+  --brand-red: #e21e22;
+  --brand-red-dark: #b31217;
+  --brand-red-light: #ff2d32;
+  --gold: #d4af37;
+  --sand: #f5e6d3;
+  --ocean: #0052a3;
+  --black: #1a1a1a;
+
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+  --border: #e5e5e5;
+  --muted: #f5f5f5;
+
+  --success: #16a34a;
+  --warning: #ea580c;
+  --destructive: #dc2626;
+  --info: #0052a3;
+
+  /* Backward-compatible aliases */
+  --color-asmbv-red: var(--brand-red);
+  --color-asmbv-red-light: var(--sand);
+  --color-asmbv-red-dark: var(--brand-red-dark);
 }
 
 @layer components {
 
   /* Backgrounds */
   .bg-asmbv-red {
-    background-color: var(--color-asmbv-red) !important;
+    background-color: var(--brand-red) !important;
   }
 
   .bg-asmbv-red-light {
-    background-color: var(--color-asmbv-red-light) !important;
+    background-color: var(--sand) !important;
   }
 
   .bg-asmbv-red-dark {
-    background-color: var(--color-asmbv-red-dark) !important;
+    background-color: var(--brand-red-dark) !important;
   }
 
   /* Text */
   .text-asmbv-red {
-    color: var(--color-asmbv-red) !important;
+    color: var(--brand-red) !important;
   }
 
   .text-asmbv-red-light {
-    color: var(--color-asmbv-red-light) !important;
+    color: var(--sand) !important;
   }
 
   .text-asmbv-red-dark {
-    color: var(--color-asmbv-red-dark) !important;
+    color: var(--brand-red-dark) !important;
   }
 
   /* Borders */
   .border-asmbv-red {
-    border-color: var(--color-asmbv-red) !important;
+    border-color: var(--brand-red) !important;
   }
 
   .border-asmbv-red-light {
-    border-color: var(--color-asmbv-red-light) !important;
+    border-color: var(--sand) !important;
   }
 
   .border-asmbv-red-dark {
-    border-color: var(--color-asmbv-red-dark) !important;
+    border-color: var(--brand-red-dark) !important;
   }
 
   /* Hover states (bg only) */
   .hover\:bg-asmbv-red:hover {
-    background-color: var(--color-asmbv-red) !important;
+    background-color: var(--brand-red) !important;
   }
 
   .hover\:bg-asmbv-red-light:hover {
-    background-color: var(--color-asmbv-red-light) !important;
+    background-color: var(--sand) !important;
   }
 
   .hover\:bg-asmbv-red-dark:hover {
-    background-color: var(--color-asmbv-red-dark) !important;
+    background-color: var(--brand-red-dark) !important;
   }
 
   /* Hover states (text only) */
   .hover\:text-asmbv-red:hover {
-    color: var(--color-asmbv-red) !important;
+    color: var(--brand-red) !important;
   }
 
   .hover\:text-asmbv-red-light:hover {
-    color: var(--color-asmbv-red-light) !important;
+    color: var(--sand) !important;
   }
 
   .hover\:text-asmbv-red-dark:hover {
-    color: var(--color-asmbv-red-dark) !important;
+    color: var(--brand-red-dark) !important;
   }
 
   /* Focus ring */
   .focus\:ring-asmbv-red:focus {
-    --tw-ring-color: var(--color-asmbv-red) !important;
+    --tw-ring-color: var(--brand-red) !important;
   }
 
   .focus\:ring-asmbv-red-dark:focus {
-    --tw-ring-color: var(--color-asmbv-red-dark) !important;
+    --tw-ring-color: var(--brand-red-dark) !important;
   }
 
   .focus\:ring-asmbv-red-light:focus {
-    --tw-ring-color: var(--color-asmbv-red-light) !important;
+    --tw-ring-color: var(--sand) !important;
   }
 
   .checkbox-asmbv-red {
-    accent-color: var(--color-asmbv-red) !important;
+    accent-color: var(--brand-red) !important;
   }
 
   .fr-link {
-    color: var(--color-asmbv-red) !important;
+    color: var(--brand-red) !important;
   }
 
   .fr-link:hover {
-    color: var(--color-asmbv-red-dark) !important;
+    color: var(--brand-red-dark) !important;
   }
 
   .fr-input:focus,
@@ -104,54 +123,54 @@
   .fr-select:focus-visible,
   .fr-textarea:focus,
   .fr-textarea:focus-visible {
-    box-shadow: 0 0 0 2px var(--color-asmbv-red) !important;
-    border-color: var(--color-asmbv-red) !important;
+    box-shadow: 0 0 0 2px var(--brand-red) !important;
+    border-color: var(--brand-red) !important;
     outline: none !important;
   }
 
   .fr-checkbox:checked {
-    accent-color: var(--color-asmbv-red) !important;
+    accent-color: var(--brand-red) !important;
   }
 
   .fr-checkbox:checked+label.fr-label::before {
-    background-color: var(--color-asmbv-red) !important;
-    border-color: var(--color-asmbv-red) !important;
+    background-color: var(--brand-red) !important;
+    border-color: var(--brand-red) !important;
   }
 
   .fr-checkbox:focus-visible+label.fr-label::before {
-    outline: 2px solid var(--color-asmbv-red);
+    outline: 2px solid var(--brand-red);
   }
 
   /* Couleur bordure par défaut */
   .fr-checkbox+label.fr-label::before {
-    border-color: var(--color-asmbv-red) !important;
+    border-color: var(--brand-red) !important;
   }
 
   /* Couleur remplissage quand coché */
   .fr-checkbox:checked+label.fr-label::before {
-    background-color: var(--color-asmbv-red) !important;
-    border-color: var(--color-asmbv-red) !important;
+    background-color: var(--brand-red) !important;
+    border-color: var(--brand-red) !important;
   }
 
   /* Focus visible */
   .fr-checkbox:focus-visible+label.fr-label::before {
-    outline: 2px solid var(--color-asmbv-red);
+    outline: 2px solid var(--brand-red);
     outline-offset: 2px;
   }
 
   /* Hover */
   .fr-checkbox:hover+label.fr-label::before {
-    border-color: var(--color-asmbv-red-dark);
+    border-color: var(--brand-red-dark);
   }
 
   :root {
-    --text-default-error: var(--color-asmbv-red) !important;
+    --text-default-error: var(--brand-red) !important;
   }
 
   body.admin {
-    --border-action-high-blue-france: var(--color-asmbv-red) !important;
-    --text-action-high-blue-france: var(--color-asmbv-red) !important;
-    --text-action-high-blue-france-hover: var(--color-asmbv-red-dark) !important;
+    --border-action-high-blue-france: var(--brand-red) !important;
+    --text-action-high-blue-france: var(--brand-red) !important;
+    --text-action-high-blue-france-hover: var(--brand-red-dark) !important;
   }
 
   .fc .fc-scrollgrid,

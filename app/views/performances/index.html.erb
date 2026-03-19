@@ -1,12 +1,4 @@
 <div class="px-4 py-6">
-  <!-- Header -->
-  <div class="mb-8 text-center">
-    <h1 class="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-3">
-      <%= lucide_icon("bar-chart-3", class: "w-8 h-8 text-asmbv-red") %>
-      Performances & Stats
-    </h1>
-    <p class="text-gray-600 text-lg">Les badges qui font transpirer (ou culpabiliser).</p>
-  </div>
 
   <!-- Tabs -->
   <div data-controller="tabs">
@@ -187,13 +179,13 @@
             type="button"
             data-group-tabs-target="mobileButton"
             data-action="click->group-tabs#toggleMobileMenu"
-            class="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
+            class="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-none shadow-sm hover:bg-gray-50 transition-colors"
           >
             <div class="flex items-center gap-3">
               <% first_group = @stats_by_group.first[1] %>
               <span
                 data-group-tabs-target="mobileButtonBadge"
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold text-white"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-xs font-semibold text-white"
                 style="background-color: <%= first_group[:level].color %>;"
               >
                 <%= first_group[:level].name %>
@@ -219,14 +211,14 @@
         <!-- Mobile Menu Dropdown -->
         <div
           data-group-tabs-target="mobileMenu"
-          class="lg:hidden hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white rounded-xl shadow-2xl z-50 max-h-[80vh] overflow-hidden"
+          class="lg:hidden hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white rounded-none shadow-2xl z-50 max-h-[80vh] overflow-hidden"
         >
           <div class="p-4 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">Sélectionner un groupe</h3>
             <button
               type="button"
               data-action="click->group-tabs#closeMobileMenu"
-              class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              class="p-2 hover:bg-gray-100 rounded-none transition-colors"
             >
               <%= lucide_icon("x", class: "w-5 h-5 text-gray-500") %>
             </button>

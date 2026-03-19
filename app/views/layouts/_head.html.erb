@@ -22,10 +22,13 @@
 
   <!-- App styles -->
   <%= stylesheet_link_tag "https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" %>
+  <%= stylesheet_link_tag "https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" %>
   <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
   <%= javascript_importmap_tags %>
   <style>
     .font-bebas-neue { font-family: "Bebas Neue", sans-serif; }
+    .font-anton { font-family: "Anton", sans-serif; }
+    .font-inter { font-family: "Inter", system-ui, sans-serif; }
   </style>
   <%= yield :head if content_for?(:head) %>
 

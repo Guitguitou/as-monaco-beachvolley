@@ -5,9 +5,9 @@
 </div>
 
 <%# Solde actuel %>
-<div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 mb-8 text-white">
+<div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-none shadow-lg p-6 mb-8 text-white">
   <div class="flex items-center gap-4">
-    <div class="p-4 bg-white/20 rounded-lg">
+    <div class="p-4 bg-white/20 rounded-none">
       <%= lucide_icon("wallet", size: 32) %>
     </div>
     <div>
@@ -18,8 +18,8 @@
 </div>
 
 <%# Pack 10 EUR %>
-<div class="bg-white rounded-xl border border-gray-200 shadow-sm max-w-md mx-auto">
-  <div class="bg-gradient-to-br from-asmbv-red to-asmbv-red-dark p-8 text-white rounded-t-xl">
+<div class="bg-white rounded-none border border-gray-200 shadow-sm max-w-md mx-auto">
+  <div class="bg-gradient-to-br from-asmbv-red to-asmbv-red-dark p-8 text-white rounded-none">
     <div class="flex items-center justify-between mb-4">
       <div>
         <h3 class="text-2xl font-bold">Pack Standard</h3>
@@ -59,7 +59,7 @@
 
     <%= button_to buy_10_eur_admin_payments_path,
           method: :post,
-          class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-asmbv-red px-6 py-4 text-lg font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all",
+          class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-6 py-4 text-lg font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all",
           data: { turbo: false } do %>
       <%= lucide_icon("shopping-cart", size: 20) %>
       Acheter maintenant
@@ -74,7 +74,7 @@
       <%= lucide_icon("history") %> Mes derniers achats
     </h2>
 
-    <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+    <div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
       <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
         <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
           <tr>
@@ -103,21 +103,13 @@
               <td class="px-4 sm:px-6 py-4">
                 <% case purchase.status %>
                 <% when "paid" %>
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-                    <%= lucide_icon("check-circle", size: 14) %> Payé
-                  </span>
+                  <%= render BadgeComponent.new(label: "Payé", variant: :success, size: :xs) %>
                 <% when "pending" %>
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
-                    <%= lucide_icon("clock", size: 14) %> En attente
-                  </span>
+                  <%= render BadgeComponent.new(label: "En attente", variant: :warning, size: :xs) %>
                 <% when "failed" %>
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-xs font-semibold">
-                    <%= lucide_icon("x-circle", size: 14) %> Échoué
-                  </span>
+                  <%= render BadgeComponent.new(label: "Échoué", variant: :danger, size: :xs) %>
                 <% when "cancelled" %>
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
-                    <%= lucide_icon("ban", size: 14) %> Annulé
-                  </span>
+                  <%= render BadgeComponent.new(label: "Annulé", variant: :neutral, size: :xs) %>
                 <% end %>
               </td>
             </tr>

@@ -1,7 +1,7 @@
 <!-- Profile Tab Content -->
 <div class="space-y-8">
   <!-- Infos utilisateur -->
-  <div class="bg-white shadow rounded-lg p-4 sm:p-6">
+  <%= render CardComponent.new(padding: :md) do %>
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Informations personnelles</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm text-gray-700">
       <div>
@@ -26,18 +26,18 @@
         <%= ["Admin", "Coach", "Responsable"].select { |r| @user.send(r.downcase) }.join(', ') %>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Solde -->
-  <div class="bg-white shadow rounded-lg p-4 sm:p-6">
+  <%= render CardComponent.new(padding: :md) do %>
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Solde de crédits</h2>
     <p class="text-3xl font-bold text-asmbv-red">
       <%= @balance.amount %> crédits
     </p>
-  </div>
+  <% end %>
 
   <!-- Transactions -->
-  <div class="bg-white shadow rounded-lg p-4 sm:p-6">
+  <%= render CardComponent.new(padding: :md) do %>
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Historique des crédits</h2>
     <div class="overflow-x-auto -mx-4 sm:mx-0">
       <table class="min-w-full text-sm text-left table-fixed">
@@ -63,5 +63,5 @@
         </tbody>
       </table>
     </div>
-  </div>
+  <% end %>
 </div>

@@ -1,3 +1,6 @@
+<% navbar_typography = "font-bebas-neue uppercase tracking-wide" %>
+<% navbar_dropdown_link_class = "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 #{navbar_typography}" %>
+<% navbar_mobile_link_class = "flex items-center px-4 py-3 rounded-none hover:bg-gray-100 text-sm text-gray-900 #{navbar_typography}" %>
 <header class="sticky top-0 z-50 bg-asmbv-red">
   <div class="w-full px-4 sm:px-6 lg:px-8">
     <%# Flex 3 zones équilibrées : gauche | centre | droite %>
@@ -25,29 +28,29 @@
 
         <%# Dropdown Règles & informations %>
         <details class="relative">
-          <summary class="list-none inline-flex items-center px-3 py-2 text-sm font-medium text-white/90 border-b-2 border-transparent hover:bg-white/10 hover:text-white transition-colors cursor-pointer">
+          <summary class="list-none inline-flex items-center px-3 py-2 text-sm text-white/90 border-b-2 border-transparent hover:bg-white/10 hover:text-white transition-colors cursor-pointer <%= navbar_typography %>">
             Règles & infos
           </summary>
           <div class="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-56 py-2 bg-white rounded-none shadow-lg border border-gray-200 z-50">
-            <%= link_to infos_videos_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+            <%= link_to infos_videos_path, class: navbar_dropdown_link_class do %>
               Vidéos tutos
             <% end %>
-            <%= link_to infos_planning_trainings_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+            <%= link_to infos_planning_trainings_path, class: navbar_dropdown_link_class do %>
               Planning entraînements
             <% end %>
-            <%= link_to infos_planning_season_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+            <%= link_to infos_planning_season_path, class: navbar_dropdown_link_class do %>
               Planning saison
             <% end %>
-            <%= link_to infos_internal_rules_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+            <%= link_to infos_internal_rules_path, class: navbar_dropdown_link_class do %>
               Règlement intérieur
             <% end %>
-            <%= link_to infos_reservations_leads_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+            <%= link_to infos_reservations_leads_path, class: navbar_dropdown_link_class do %>
               Responsables réservations
             <% end %>
-            <%= link_to infos_brochure_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+            <%= link_to infos_brochure_path, class: navbar_dropdown_link_class do %>
               Plaquette
             <% end %>
-            <%= link_to infos_registration_rules_path, class: "flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+            <%= link_to infos_registration_rules_path, class: navbar_dropdown_link_class do %>
               Règles d'inscription
             <% end %>
           </div>
@@ -59,7 +62,7 @@
         <%# Desktop %>
         <div class="hidden lg:flex items-center gap-2">
           <% if current_user&.admin? || current_user&.financial_manager? %>
-            <%= link_to admin_root_path, class: "inline-flex items-center px-3 py-2 text-sm font-medium text-white hover:bg-white/10 transition-colors" do %>
+            <%= link_to admin_root_path, class: "inline-flex items-center px-3 py-2 text-sm text-white hover:bg-white/10 transition-colors #{navbar_typography}" do %>
               Admin
             <% end %>
           <% end %>
@@ -67,7 +70,7 @@
             <button type="button"
                     data-action="click->push-notifications#requestPermission"
                     data-push-notifications-target="enableButton"
-                    class="inline-flex items-center px-3 py-2 text-sm font-medium text-white/90 hover:bg-white/10"
+                    class="inline-flex items-center px-3 py-2 text-sm text-white/90 hover:bg-white/10 <%= navbar_typography %>"
                     style="display: none;">
               Notifications
             </button>
@@ -78,7 +81,7 @@
         <div class="lg:hidden" data-controller="dropdown">
           <button type="button"
                   data-action="click->dropdown#toggle"
-                  class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
+                  class="inline-flex items-center gap-2 px-3 py-2 text-sm text-white hover:bg-white/10 <%= navbar_typography %>"
                   aria-label="Ouvrir le menu">
             <%= lucide_icon("menu", class: "w-5 h-5") %>
             Menu
@@ -87,10 +90,10 @@
                class="hidden fixed inset-0 top-16 z-40 bg-white overflow-y-auto"
                data-action="turbo:before-visit->dropdown#close">
             <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-              <span class="font-semibold text-gray-900">Menu</span>
+              <span class="font-semibold text-gray-900 <%= navbar_typography %>">Menu</span>
               <button type="button"
                       data-action="click->dropdown#toggle"
-                      class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100"
+                      class="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-500 hover:bg-gray-100 <%= navbar_typography %>"
                       aria-label="Fermer le menu">
                 <%= lucide_icon("x", class: "w-5 h-5") %>
                 Fermer
@@ -98,61 +101,61 @@
             </div>
             <div class="p-4 space-y-1">
               <% if current_user&.activated? %>
-                <%= link_to performances_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100 font-medium" do %>
+                <%= link_to performances_path, class: navbar_mobile_link_class do %>
                   Performances & Stats
                 <% end %>
-                <%= link_to sessions_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100 font-medium" do %>
+                <%= link_to sessions_path, class: navbar_mobile_link_class do %>
                   Calendrier
                 <% end %>
-                <%= link_to stages_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100 font-medium" do %>
+                <%= link_to stages_path, class: navbar_mobile_link_class do %>
                   Stages
                 <% end %>
-                <%= link_to packs_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100 font-medium" do %>
+                <%= link_to packs_path, class: navbar_mobile_link_class do %>
                   Boutique
                 <% end %>
-                <%= link_to profile_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100 font-medium" do %>
+                <%= link_to profile_path, class: navbar_mobile_link_class do %>
                   Mon profil
                 <% end %>
               <% else %>
-                <%= link_to packs_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100 font-medium" do %>
+                <%= link_to packs_path, class: navbar_mobile_link_class do %>
                   Boutique
                 <% end %>
-                <%= link_to stages_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100 font-medium" do %>
+                <%= link_to stages_path, class: navbar_mobile_link_class do %>
                   Stages
                 <% end %>
-                <%= link_to profile_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100 font-medium" do %>
+                <%= link_to profile_path, class: navbar_mobile_link_class do %>
                   Mon profil
                 <% end %>
               <% end %>
 
               <div class="border-t border-gray-200 pt-4 mt-4">
-                <p class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">Règles & informations</p>
-                <%= link_to infos_videos_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100" do %>
+                <p class="px-4 py-2 text-xs font-semibold text-gray-500 <%= navbar_typography %>">Règles & informations</p>
+                <%= link_to infos_videos_path, class: navbar_mobile_link_class do %>
                   Vidéos tutos
                 <% end %>
-                <%= link_to infos_planning_trainings_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100" do %>
+                <%= link_to infos_planning_trainings_path, class: navbar_mobile_link_class do %>
                   Planning entraînements
                 <% end %>
-                <%= link_to infos_planning_season_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100" do %>
+                <%= link_to infos_planning_season_path, class: navbar_mobile_link_class do %>
                   Planning saison
                 <% end %>
-                <%= link_to infos_internal_rules_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100" do %>
+                <%= link_to infos_internal_rules_path, class: navbar_mobile_link_class do %>
                   Règlement intérieur
                 <% end %>
-                <%= link_to infos_reservations_leads_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100" do %>
+                <%= link_to infos_reservations_leads_path, class: navbar_mobile_link_class do %>
                   Responsables réservations
                 <% end %>
-                <%= link_to infos_brochure_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100" do %>
+                <%= link_to infos_brochure_path, class: navbar_mobile_link_class do %>
                   Plaquette
                 <% end %>
-                <%= link_to infos_registration_rules_path, class: "flex items-center px-4 py-3 rounded-none hover:bg-gray-100" do %>
+                <%= link_to infos_registration_rules_path, class: navbar_mobile_link_class do %>
                   Règles d'inscription
                 <% end %>
               </div>
 
               <% if current_user&.admin? || current_user&.financial_manager? %>
                 <div class="border-t border-gray-200 pt-4 mt-4">
-                  <%= link_to admin_root_path, class: "flex items-center px-4 py-3 rounded-none bg-asmbv-red-light text-asmbv-red font-medium" do %>
+                  <%= link_to admin_root_path, class: "flex items-center px-4 py-3 rounded-none bg-asmbv-red-light text-asmbv-red #{navbar_typography}" do %>
                     Admin
                   <% end %>
                 </div>

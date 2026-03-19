@@ -31,9 +31,9 @@ class CardComponent < ViewComponent::Base
       "border border-gray-200",
       "rounded-none",
       "bg-white",
-      "transition",
-      "hover:shadow-sm",
-      "hover:border-gray-300",
+      "shadow-sm",
+      "transition-shadow duration-150",
+      "hover:shadow-md",
       padding_classes,
       accent_border_classes,
       class_name
@@ -60,15 +60,15 @@ class CardComponent < ViewComponent::Base
 
     case accent.to_sym
     when :training
-      "border-t-4 border-t-blue-500"
+      "border-t-4 border-t-asmbv-red"
     when :free_play
-      "border-t-4 border-t-green-500"
+      "border-t-4 border-t-blue-700"
     when :private_coaching
-      "border-t-4 border-t-orange-500"
+      "border-t-4 border-t-gray-900"
     when :tournament
-      "border-t-4 border-t-purple-500"
+      "border-t-4 border-t-amber-500"
     when :stage
-      "border-t-4 border-t-yellow-500"
+      "border-t-4 border-t-orange-600"
     else
       nil
     end

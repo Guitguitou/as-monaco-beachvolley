@@ -35,7 +35,7 @@ class ButtonComponent < ViewComponent::Base
   end
 
   def classes
-    base = "inline-flex items-center justify-center gap-2 font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150"
+    base = "inline-flex items-center justify-center gap-2 font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
     "#{base} #{shape_classes} #{variant_classes} #{size_classes}"
   end
 
@@ -48,19 +48,19 @@ class ButtonComponent < ViewComponent::Base
     when :primary
       "bg-asmbv-red hover:bg-asmbv-red-dark text-white focus:ring-asmbv-red"
     when :secondary
-      "bg-white border border-gray-300 text-gray-800 hover:bg-gray-50 focus:ring-asmbv-red"
+      "bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200 focus:ring-asmbv-red"
     when :ghost
-      "bg-white border border-gray-300 text-gray-800 hover:bg-gray-50 focus:ring-asmbv-red"
-    when :tertiary
-      "bg-transparent text-asmbv-red hover:bg-asmbv-red-light hover:text-asmbv-red-dark focus:ring-asmbv-red"
-    when :danger
-      "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
+      "bg-transparent border border-transparent text-gray-900 hover:bg-gray-100 focus:ring-gray-400"
+    when :link, :tertiary
+      "bg-transparent border border-transparent text-asmbv-red hover:text-asmbv-red-dark hover:underline focus:ring-asmbv-red"
+    when :destructive, :danger
+      "bg-red-600 hover:bg-red-700 text-white focus:ring-red-600"
     when :success
-      "bg-green-600 hover:bg-green-700 text-white focus:ring-green-500"
+      "bg-green-600 hover:bg-green-700 text-white focus:ring-green-600"
     when :warning
-      "bg-yellow-600 hover:bg-yellow-700 text-white focus:ring-yellow-500"
+      "bg-orange-600 hover:bg-orange-700 text-white focus:ring-orange-600"
     when :info
-      "bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500"
+      "bg-blue-700 hover:bg-blue-800 text-white focus:ring-blue-700"
     else
       "bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500"
     end

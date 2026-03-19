@@ -46,9 +46,8 @@ class FormFieldComponent < ViewComponent::Base
   end
 
   def field_classes
-    return merged_input_class(@input_class) if @input_class.present?
-
-    base = default_base_input_class_for_type
+    base = @input_class.present? ? @input_class.to_s : default_base_input_class_for_type
+    base = [base, error_input_class].compact.join(" ") if has_error?
     caller_class = @html_options[:class].to_s
     [base, caller_class.presence].compact.join(" ")
   end
@@ -78,21 +77,19 @@ class FormFieldComponent < ViewComponent::Base
   def default_base_input_class_for_type
     case @type.to_sym
     when :select
-      "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm"
+      "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm"
     when :number_field, :datetime_local_field, :date_field
-      "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm"
+      "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm"
     when :color_field, :file_field
       # Callers should provide `input_class` for these.
       ""
     else
-      "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm"
+      "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm"
     end
   end
 
-  def merged_input_class(override)
-    base = override.to_s
-    caller_class = @html_options[:class].to_s
-    [base, caller_class.presence].compact.join(" ")
+  def error_input_class
+    "border-red-600 focus:border-red-600 focus:ring-red-600"
   end
 
   def errors_present?

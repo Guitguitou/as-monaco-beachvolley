@@ -4,7 +4,7 @@
   </h1>
   
   <%# Formulaire d'export %>
-  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 w-full sm:w-auto">
+  <%= render CardComponent.new(padding: :md, class_name: "w-full sm:w-auto") do %>
     <%= form_with url: export_admin_purchase_history_index_path, method: :get, local: true, data: { turbo: false }, class: "flex flex-col sm:flex-row gap-3 items-end" do |f| %>
       <div class="flex flex-col sm:flex-row gap-3 flex-1">
         <div class="flex flex-col">
@@ -14,7 +14,7 @@
             type: :date_field,
             label: "Date de début",
             required: true,
-            input_class: "px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
+            input_class: "px-3 py-2 border border-gray-300 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
             html_options: { value: params[:start_date] || Date.current.beginning_of_month }
           ) %>
         </div>
@@ -25,19 +25,19 @@
             type: :date_field,
             label: "Date de fin",
             required: true,
-            input_class: "px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
+            input_class: "px-3 py-2 border border-gray-300 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
             html_options: { value: params[:end_date] || Date.current.end_of_month }
           ) %>
         </div>
         <%= f.hidden_field :format, value: 'csv' %>
       </div>
-      <%= f.submit class: "px-4 py-2 bg-asmbv-red text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2 whitespace-nowrap cursor-pointer",
+      <%= f.submit class: "px-4 py-2 bg-asmbv-red text-white rounded-none hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2 whitespace-nowrap cursor-pointer",
           data: { disable_with: "Export en cours..." } do %>
         <%= lucide_icon("download", size: 16) %> Exporter CSV
       <% end %>
     <% end %>
     <p class="text-xs text-gray-500 mt-2">Par défaut, le mois en cours est sélectionné</p>
-  </div>
+  <% end %>
 </div>
 
 <%# Tabs de filtrage par statut %>
@@ -68,9 +68,9 @@
 
 <%# Stats Cards %>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+  <div class="bg-white rounded-none border border-gray-200 shadow-sm p-6">
     <div class="flex items-center gap-3">
-      <div class="p-3 bg-green-100 rounded-lg">
+      <div class="p-3 bg-green-100 rounded-none">
         <%= lucide_icon("euro", size: 24, class: "text-green-600") %>
       </div>
       <div>
@@ -80,9 +80,9 @@
     </div>
   </div>
 
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+  <div class="bg-white rounded-none border border-gray-200 shadow-sm p-6">
     <div class="flex items-center gap-3">
-      <div class="p-3 bg-blue-100 rounded-lg">
+      <div class="p-3 bg-blue-100 rounded-none">
         <%= lucide_icon("shopping-bag", size: 24, class: "text-blue-600") %>
       </div>
       <div>
@@ -92,9 +92,9 @@
     </div>
   </div>
 
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+  <div class="bg-white rounded-none border border-gray-200 shadow-sm p-6">
     <div class="flex items-center gap-3">
-      <div class="p-3 bg-orange-100 rounded-lg">
+      <div class="p-3 bg-orange-100 rounded-none">
         <%= lucide_icon("clock", size: 24, class: "text-orange-600") %>
       </div>
       <div>
@@ -106,7 +106,7 @@
 </div>
 
 <%# Table %>
-<div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
   <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
@@ -162,21 +162,13 @@
           <td class="px-4 sm:px-6 py-4">
             <% case purchase.status %>
             <% when "paid" %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-                <%= lucide_icon("check-circle", size: 14) %> Payé
-              </span>
+              <%= render BadgeComponent.new(label: "Payé", variant: :success, size: :xs) %>
             <% when "pending" %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
-                <%= lucide_icon("clock", size: 14) %> En attente
-              </span>
+              <%= render BadgeComponent.new(label: "En attente", variant: :warning, size: :xs) %>
             <% when "failed" %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-xs font-semibold">
-                <%= lucide_icon("x-circle", size: 14) %> Échoué
-              </span>
+              <%= render BadgeComponent.new(label: "Échoué", variant: :danger, size: :xs) %>
             <% when "cancelled" %>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-800 text-xs font-semibold">
-                <%= lucide_icon("ban", size: 14) %> Annulé
-              </span>
+              <%= render BadgeComponent.new(label: "Annulé", variant: :neutral, size: :xs) %>
             <% end %>
           </td>
 
@@ -191,7 +183,7 @@
 </div>
 
 <% if @credit_purchases.empty? %>
-  <div class="text-center py-12 bg-white rounded-xl border border-gray-200 mt-6">
+  <div class="text-center py-12 bg-white rounded-none border border-gray-200 mt-6">
     <div class="flex flex-col items-center gap-3">
       <%= lucide_icon("shopping-cart", size: 48, class: "text-gray-300") %>
       <p class="text-gray-500 text-lg">Aucun achat pour le moment</p>

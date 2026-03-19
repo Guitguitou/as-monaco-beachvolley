@@ -1,9 +1,9 @@
 <div class="max-w-2xl mx-auto">
-  <div class="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+  <div class="bg-white rounded-none border border-gray-200 shadow-lg overflow-hidden">
     <%# Success header with gradient %>
     <div class="bg-gradient-to-r from-green-500 to-green-600 p-8 text-white text-center">
       <div class="flex justify-center mb-4">
-        <div class="p-4 bg-white/20 rounded-full">
+        <div class="p-4 bg-white/20 rounded-none">
           <%= lucide_icon("check-circle", size: 64) %>
         </div>
       </div>
@@ -16,7 +16,7 @@
       <% if @credit_purchase %>
         <%# Credits added %>
         <div class="text-center mb-6">
-          <div class="inline-flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg px-6 py-4">
+          <div class="inline-flex items-center gap-3 bg-green-50 border border-green-200 rounded-none px-6 py-4">
             <%= lucide_icon("coins", size: 32, class: "text-green-600") %>
             <div class="text-left">
               <p class="text-sm text-gray-600">Crédits ajoutés</p>
@@ -26,7 +26,7 @@
         </div>
 
         <%# Reference %>
-        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+        <div class="bg-gray-50 rounded-none p-4 mb-6">
           <div class="flex items-center justify-between text-sm">
             <span class="text-gray-600">Référence de transaction</span>
             <span class="font-mono text-gray-900"><%= @credit_purchase.sherlock_transaction_reference %></span>
@@ -34,7 +34,7 @@
         </div>
 
         <%# New balance %>
-        <div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-lg p-6 text-white text-center mb-6">
+        <div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-none p-6 text-white text-center mb-6">
           <p class="text-sm uppercase tracking-wide opacity-90 mb-2">Nouveau solde</p>
           <div class="flex items-baseline justify-center gap-2">
             <%= lucide_icon("wallet", size: 24, class: "opacity-75") %>
@@ -51,13 +51,13 @@
       <%# Actions %>
       <div class="flex flex-col sm:flex-row gap-3">
         <%= link_to packs_path,
-              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-asmbv-red px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-asmbv-red-dark transition-all" do %>
+              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-asmbv-red-dark transition-all" do %>
           <%= lucide_icon("package", size: 20) %>
           Voir les packs
         <% end %>
         
         <%= link_to sessions_path,
-              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
+              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
           <%= lucide_icon("calendar", size: 20) %>
           Mes séances
         <% end %>

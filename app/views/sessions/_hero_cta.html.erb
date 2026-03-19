@@ -46,7 +46,7 @@
     <% if !existing_registration.waitlisted? && session.entrainement? && session.cancellation_deadline_at.present? %>
       <div class="mt-3">
         <% if Time.current > session.cancellation_deadline_at %>
-          <%= render BadgeComponent.new(label: "Aucun remboursement automatique (délai dépassé)", variant: :danger, size: :sm) %>
+          <%= render BadgeComponent.new(label: "Aucun remboursement automatique (délai dépassé)", variant: :hero_inverse, size: :sm) %>
         <% else %>
           <%= render BadgeComponent.new(label: "Remboursement auto si désinscription avant #{l(session.cancellation_deadline_at, format: :long)}", variant: :warning, size: :sm) %>
         <% end %>
@@ -58,7 +58,7 @@
       <% my_index = waitlisted_ids.index(current_user.id) %>
       <% if my_index %>
         <div class="mt-3">
-          <%= render BadgeComponent.new(label: "Position liste d'attente: ##{my_index + 1}", variant: :warning, size: :sm) %>
+          <%= render BadgeComponent.new(label: "Position liste d'attente: ##{my_index + 1}", variant: :hero_reverse, size: :sm) %>
         </div>
       <% end %>
     <% end %>

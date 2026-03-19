@@ -1,0 +1,25 @@
+<%# locals: session: %>
+<% price = session.price.to_i %>
+<div class="rounded-none border border-white/50 bg-white/10 p-5 text-white shadow-sm">
+  <p class="text-[11px] font-bold uppercase tracking-widest text-white/70">Coût de la séance</p>
+  <div class="mt-2 flex items-center gap-3">
+    <%= lucide_icon("credit-card", class: "w-8 h-8 text-white/90 shrink-0", aria: { hidden: true }) %>
+    <div class="min-w-0">
+      <span class="text-3xl sm:text-4xl font-bebas-neue leading-none tabular-nums"><%= price %></span>
+      <span class="text-sm text-white/90 ml-1"><%= price > 1 ? "crédits" : "crédit" %></span>
+    </div>
+  </div>
+
+  <% if user_signed_in? %>
+    <% balance_amount = current_user.balance&.amount %>
+    <div class="mt-5 border-t border-white/25 pt-4">
+      <p class="text-[11px] font-bold uppercase tracking-widest text-white/70">Ton solde</p>
+      <div class="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0">
+        <span class="text-3xl sm:text-4xl font-bebas-neue leading-none tabular-nums"><%= balance_amount || 0 %></span>
+        <span class="text-sm text-white/90">crédit(s)</span>
+      </div>
+    </div>
+  <% else %>
+    <p class="mt-4 text-sm text-white/85 leading-snug">Connecte-toi pour t'inscrire et utiliser tes crédits.</p>
+  <% end %>
+</div>
