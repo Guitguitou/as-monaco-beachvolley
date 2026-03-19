@@ -1,107 +1,81 @@
-<div class="max-w-5xl mx-auto">
-  <h1 class="text-2xl font-semibold mb-6">Règles & informations</h1>
-  <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
-    <!-- Inscription -->
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLScoKZR2ATXZfDnIqLOnIP90tXB23wtBwsD2yiMSosqrQM6xWA/viewform?usp=sf_link" target="_blank" rel="noopener" class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block">
-      <div class="mb-2 flex items-center gap-2">
-        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-          <%= lucide_icon 'user-plus', class: 'h-5 w-5 text-asmbv-red' %>
-        </div>
-        <h3 class="font-medium">Inscription</h3>
-      </div>
-      <p class="text-sm text-gray-600">Formulaire d'inscription à l'association.</p>
-    </a>
+<% content_for :page_title, "Informations" %>
 
-    <!-- Boutique -->
-    <%= link_to packs_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
-      <div class="mb-2 flex items-center gap-2">
-        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-          <%= lucide_icon 'credit-card', class: 'h-5 w-5 text-asmbv-red' %>
-        </div>
-        <h3 class="font-medium">Boutique</h3>
-      </div>
-      <p class="text-sm text-gray-600">Crédits, licences, inscriptions tournoi et équipements.</p>
-    <% end %>
+<div class="max-w-7xl mx-auto">
+  <p class="text-gray-600 text-base mb-8 max-w-xl">
+    Toutes les informations utiles sur le club AS Monaco Beach-Volley.
+  </p>
 
-    <!-- Communauté WhatsApp -->
-    <a href="https://chat.whatsapp.com/J05V2o3sPhdAwoPto5DiVo" target="_blank" rel="noopener" class="group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block">
-      <div class="mb-2 flex items-center gap-2">
-        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-          <%= lucide_icon 'message-circle', class: 'h-5 w-5 text-asmbv-red' %>
-        </div>
-        <h3 class="font-medium">Communauté WhatsApp</h3>
-      </div>
-      <p class="text-sm text-gray-600">Rejoignez le groupe WhatsApp de l'association.</p>
-    </a>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0.5 bg-gray-200 rounded-none overflow-hidden border border-gray-200">
+    <%= render "infos/info_tile",
+          href: "https://docs.google.com/forms/d/e/1FAIpQLScoKZR2ATXZfDnIqLOnIP90tXB23wtBwsD2yiMSosqrQM6xWA/viewform?usp=sf_link",
+          external: true,
+          icon: "user-plus",
+          icon_bg: "bg-asmbv-red",
+          title: "Inscription",
+          description: "Formulaire d'inscription à l'association." %>
 
-    <%= link_to infos_videos_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
-      <div class="mb-2 flex items-center gap-2">
-        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-          <%= lucide_icon 'play', class: 'h-5 w-5 text-asmbv-red' %>
-        </div>
-        <h3 class="font-medium">Vidéos tutos</h3>
-      </div>
-      <p class="text-sm text-gray-600">Liens vers les tutos de Cham.</p>
-    <% end %>
+    <%= render "infos/info_tile",
+          href: packs_path,
+          icon: "credit-card",
+          icon_bg: "bg-asmbv-red",
+          title: "Boutique",
+          description: "Crédits, licences, inscriptions tournoi et équipements." %>
 
-    <%= link_to infos_planning_trainings_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
-      <div class="mb-2 flex items-center gap-2">
-        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-          <%= lucide_icon 'calendar', class: 'h-5 w-5 text-asmbv-red' %>
-        </div>
-        <h3 class="font-medium">Planning des entraînements</h3>
-      </div>
-      <p class="text-sm text-gray-600">Créneaux et niveaux.</p>
-    <% end %>
+    <%= render "infos/info_tile",
+          href: "https://chat.whatsapp.com/J05V2o3sPhdAwoPto5DiVo",
+          external: true,
+          icon: "message-circle",
+          icon_bg: "bg-green-600",
+          title: "Communauté WhatsApp",
+          description: "Rejoignez le groupe WhatsApp de l'association." %>
 
-    <%= link_to infos_planning_season_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
-      <div class="mb-2 flex items-center gap-2">
-        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-          <%= lucide_icon 'calendar', class: 'h-5 w-5 text-asmbv-red' %>
-        </div>
-        <h3 class="font-medium">Planning de la saison</h3>
-      </div>
-      <p class="text-sm text-gray-600">Dates clés de l'année.</p>
-    <% end %>
+    <%= render "infos/info_tile",
+          href: infos_videos_path,
+          icon: "play",
+          icon_bg: "bg-asmbv-red",
+          title: "Vidéos tutos",
+          description: "Tutoriels et conseils techniques." %>
 
-    <%= link_to infos_internal_rules_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
-      <div class="mb-2 flex items-center gap-2">
-        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-          <%= lucide_icon 'file-text', class: 'h-5 w-5 text-asmbv-red' %>
-        </div>
-        <h3 class="font-medium">Règlement intérieur</h3>
-      </div>
-      <p class="text-sm text-gray-600">Les règles de la section.</p>
-    <% end %>
+    <%= render "infos/info_tile",
+          href: infos_planning_trainings_path,
+          icon: "calendar",
+          icon_bg: "bg-blue-700",
+          title: "Planning entraînements",
+          description: "Horaires des sessions régulières." %>
 
-    <%= link_to infos_reservations_leads_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
-      <div class="mb-2 flex items-center gap-2">
-        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-          <%= lucide_icon 'users', class: 'h-5 w-5 text-asmbv-red' %>
-        </div>
-        <h3 class="font-medium">Responsables de réservations</h3>
-      </div>
-      <p class="text-sm text-gray-600">Contacts par créneau.</p>
-    <% end %>
+    <%= render "infos/info_tile",
+          href: infos_planning_season_path,
+          icon: "calendar",
+          icon_bg: "bg-green-600",
+          title: "Planning saison",
+          description: "Calendrier de la saison." %>
 
-    <%= link_to infos_brochure_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
-      <div class="mb-2 flex items-center gap-2">
-        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-          <%= lucide_icon 'book-open', class: 'h-5 w-5 text-asmbv-red' %>
-        </div>
-        <h3 class="font-medium">Plaquette de présentation</h3>
-      </div>
-      <p class="text-sm text-gray-600">Google Slides intégré.</p>
-    <% end %>
+    <%= render "infos/info_tile",
+          href: infos_internal_rules_path,
+          icon: "file-text",
+          icon_bg: "bg-orange-600",
+          title: "Règlement intérieur",
+          description: "Règles et fonctionnement du club." %>
 
-    <%= link_to infos_registration_rules_path, class: "group rounded-lg bg-white p-4 border border-gray-200 hover:bg-gray-50 transition block" do %>
-      <div class="mb-2 flex items-center gap-2">
-        <div class="h-8 w-8 rounded-md bg-asmbv-red/10 flex items-center justify-center">
-          <%= lucide_icon 'scale', class: 'h-5 w-5 text-asmbv-red' %>
-        </div>
-        <h3 class="font-medium">Règles d'inscription</h3>
-      </div>
-      <p class="text-sm text-gray-600">Les règles de l'inscription.</p>
-    <% end %>
+    <%= render "infos/info_tile",
+          href: infos_reservations_leads_path,
+          icon: "users",
+          icon_bg: "bg-blue-800",
+          title: "Responsables réservations",
+          description: "Contacts et responsables par créneau." %>
+
+    <%= render "infos/info_tile",
+          href: infos_brochure_path,
+          icon: "book-open",
+          icon_bg: "bg-asmbv-red",
+          title: "Plaquette",
+          description: "Présentation du club." %>
+
+    <%= render "infos/info_tile",
+          href: infos_registration_rules_path,
+          icon: "scale",
+          icon_bg: "bg-gray-900",
+          title: "Règles d'inscription",
+          description: "Les règles de l'inscription." %>
   </div>
 </div>

@@ -1,3 +1,31 @@
+<% content_for :hero do %>
+  <%= render HeroComponent.new(
+        title: "Boutique",
+        subtitle: "Achetez vos crédits, licence, packs d'entraînement et équipements",
+        variant: :red,
+        flush_title: true,
+        title_font: :anton
+      ) do |hero| %>
+    <% hero.with_eyebrow do %>
+      <%= render BadgeComponent.new(label: "Crédits & Équipements", variant: :hero, size: :sm) %>
+    <% end %>
+    <% hero.with_actions do %>
+      <% if current_user&.activated? %>
+        <div class="w-full lg:w-auto flex justify-start">
+          <div class="w-[170px] rounded-none border border-white/30 bg-white/10 px-3 py-2 text-white">
+            <p class="text-[7px] font-semibold uppercase tracking-[0.22em] text-white/65 text-center leading-none">Vos crédits</p>
+            <div class="mt-1.5 flex items-center justify-center gap-2.5">
+              <div class="min-w-0">
+                <span class="text-[46px] font-anton leading-[0.95] tabular-nums"><%= number_with_delimiter(@current_balance, delimiter: " ") %></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
+
 <!-- Notice pour les comptes non activés -->
 <% if @show_activation_notice %>
   <div class="mb-6 border-l-4 border-blue-500 bg-blue-50 p-4 rounded-none">
@@ -22,30 +50,34 @@
   </div>
 <% end %>
 
-<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("package") %> Packs disponibles
-  </h1>
-</div>
-
-<%# Solde actuel - uniquement pour les comptes activés %>
-<% if current_user&.activated? %>
-  <div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-none border border-asmbv-red shadow p-6 mb-8">
-    <div class="flex items-center gap-4">
-      <div class="p-4 bg-white/20 rounded-none">
-        <%= lucide_icon("wallet", size: 32) %>
-      </div>
-      <div>
-        <p class="text-sm uppercase tracking-wide opacity-90">Votre solde actuel</p>
-        <p class="text-4xl font-bold text-asmbv-red"><%= @current_balance %> <span class="text-xl font-normal">crédits</span></p>
-      </div>
-    </div>
+<div data-controller="tabs">
+  <div class="mb-8 border-b border-gray-200">
+    <nav class="flex flex-wrap gap-6" aria-label="Catégories boutique">
+      <% categories = [
+        ["credits", "Crédits", @credits_packs],
+        ["licence", "Licence", @licence_packs],
+        ["stage", "Stages", @stage_packs],
+        ["tournament", "Tournois", @inscription_tournoi_packs.to_a],
+        ["equipment", "Équipements", @equipements_packs.to_a]
+      ] %>
+      <% categories.each_with_index do |(key, label, packs), index| %>
+        <% next if packs.blank? %>
+        <button
+          type="button"
+          data-tabs-target="tab"
+          data-action="click->tabs#switch"
+          data-tab="<%= key %>"
+          class="<%= index.zero? ? 'py-4 border-b-2 border-asmbv-red text-asmbv-red font-semibold uppercase tracking-wide text-sm' : 'py-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-semibold uppercase tracking-wide text-sm' %>"
+        >
+          <%= label %>
+        </button>
+      <% end %>
+    </nav>
   </div>
-<% end %>
 
 <%# Packs de crédits %>
 <% if @credits_packs.any? %>
-  <div class="mb-12">
+  <div data-tabs-target="panel" data-panel="credits" class="mb-12">
     <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
       <%= lucide_icon("coins", size: 24, class: "text-asmbv-red") %>
       Packs de crédits
@@ -111,7 +143,7 @@
 
 <%# Packs de stage %>
 <% if @stage_packs.any? %>
-  <div class="mb-12">
+  <div data-tabs-target="panel" data-panel="stage" class="mb-12 hidden">
     <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
       <%= lucide_icon("calendar", size: 24, class: "text-blue-600") %>
       Stages disponibles
@@ -190,7 +222,7 @@
 
 <%# Packs de licence %>
 <% if @licence_packs.any? %>
-  <div class="mb-12">
+  <div data-tabs-target="panel" data-panel="licence" class="mb-12 hidden">
     <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
       <%= lucide_icon("award", size: 24, class: "text-green-600") %>
       Packs de licence
@@ -252,7 +284,7 @@
 
 <%# Packs inscription tournoi %>
 <% if @inscription_tournoi_packs&.any? %>
-  <div class="mb-12">
+  <div data-tabs-target="panel" data-panel="tournament" class="mb-12 hidden">
     <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
       <%= lucide_icon("trophy", size: 24, class: "text-amber-600") %>
       Inscriptions tournoi
@@ -305,7 +337,7 @@
 
 <%# Packs équipements %>
 <% if @equipements_packs&.any? %>
-  <div class="mb-12">
+  <div data-tabs-target="panel" data-panel="equipment" class="mb-12 hidden">
     <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
       <%= lucide_icon("shirt", size: 24, class: "text-slate-600") %>
       Équipements
@@ -368,3 +400,4 @@
     </div>
   </div>
 <% end %>
+</div>

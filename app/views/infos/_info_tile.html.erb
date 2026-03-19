@@ -1,0 +1,24 @@
+<%# locals: href:, title:, description:, icon:, icon_bg:, external: false %>
+<% tile_classes = "group flex flex-col bg-white p-6 h-full min-h-[11rem] transition-colors hover:bg-gray-100/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-asmbv-red focus-visible:ring-offset-2" %>
+<% inner = capture do %>
+  <div class="h-10 w-10 <%= icon_bg %> flex items-center justify-center mb-4 rounded-none shrink-0">
+    <%= lucide_icon(icon, class: "h-5 w-5 text-white", aria: { hidden: true }) %>
+  </div>
+  <h3 class="font-bebas-neue text-lg tracking-wider text-gray-900 mb-1 group-hover:text-asmbv-red transition-colors uppercase leading-tight">
+    <%= title %>
+  </h3>
+  <p class="text-sm text-gray-600 mb-4 flex-1"><%= description %></p>
+  <div class="flex items-center text-asmbv-red text-xs font-semibold uppercase tracking-wider mt-auto gap-1 group-hover:gap-2 transition-all">
+    <span>Voir plus</span>
+    <%= lucide_icon("chevron-right", class: "h-3 w-3 shrink-0", aria: { hidden: true }) %>
+  </div>
+<% end %>
+<% if local_assigns[:external] %>
+  <a href="<%= href %>" target="_blank" rel="noopener noreferrer" class="<%= tile_classes %>">
+    <%= inner %>
+  </a>
+<% else %>
+  <%= link_to href, class: tile_classes do %>
+    <%= inner %>
+  <% end %>
+<% end %>

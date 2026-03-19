@@ -1,6 +1,7 @@
 <div class="max-w-xl mx-auto">
-  <div class="bg-white rounded-none border border-gray-200 shadow-sm p-6">
-    <h1 class="text-xl font-bold text-gray-900 mb-2">Finaliser l’achat</h1>
+  <div class="bg-white rounded-none border border-gray-200 shadow-sm p-6 sm:p-8">
+    <p class="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-2">Boutique</p>
+    <h1 class="font-bebas-neue text-3xl tracking-wider text-gray-900 mb-2 uppercase">Finaliser l'achat</h1>
     <p class="text-sm text-gray-600 mb-6">
       Pour vous donner l’accès et retrouver votre paiement, on a besoin de vos informations.
       Si vous n’avez pas encore de compte, il sera créé automatiquement et vous recevrez un email pour définir votre mot de passe.
@@ -18,7 +19,7 @@
           type: :email_field,
           label: "Email",
           required: true,
-          input_class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red",
+          input_class: "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red",
           html_options: { value: params.dig(:guest, :email), autocomplete: "email" }
         ) %>
       </div>
@@ -31,7 +32,7 @@
             type: :text_field,
             label: "Prénom",
             required: true,
-            input_class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red",
+            input_class: "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red",
             html_options: { value: params.dig(:guest, :first_name), autocomplete: "given-name" }
           ) %>
         </div>
@@ -43,7 +44,7 @@
             type: :text_field,
             label: "Nom",
             required: true,
-            input_class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red",
+            input_class: "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red",
             html_options: { value: params.dig(:guest, :last_name), autocomplete: "family-name" }
           ) %>
         </div>

@@ -1,14 +1,15 @@
 <div class="max-w-2xl mx-auto">
   <div class="bg-white rounded-none border border-gray-200 shadow-lg overflow-hidden">
     <%# Success header with gradient %>
-    <div class="bg-gradient-to-r from-green-500 to-green-600 p-8 text-white text-center">
+    <div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark p-8 text-white text-center">
+      <p class="text-xs uppercase tracking-widest text-white/75 font-semibold mb-3">Boutique</p>
       <div class="flex justify-center mb-4">
         <div class="p-4 bg-white/20 rounded-none">
           <%= lucide_icon("check-circle", size: 64) %>
         </div>
       </div>
-      <h1 class="text-3xl font-bold mb-2">Paiement réussi !</h1>
-      <p class="text-lg opacity-90">Vos crédits ont été ajoutés à votre compte</p>
+      <h1 class="font-bebas-neue text-5xl tracking-wider uppercase mb-2">Paiement réussi</h1>
+      <p class="text-base opacity-90">Votre achat a bien été enregistré.</p>
     </div>
 
     <%# Content %>
@@ -16,11 +17,11 @@
       <% if @credit_purchase %>
         <%# Credits added %>
         <div class="text-center mb-6">
-          <div class="inline-flex items-center gap-3 bg-green-50 border border-green-200 rounded-none px-6 py-4">
-            <%= lucide_icon("coins", size: 32, class: "text-green-600") %>
+          <div class="inline-flex items-center gap-3 bg-white border border-gray-200 rounded-none px-6 py-4">
+            <%= lucide_icon("coins", size: 32, class: "text-asmbv-red") %>
             <div class="text-left">
               <p class="text-sm text-gray-600">Crédits ajoutés</p>
-              <p class="text-3xl font-bold text-green-600">+ <%= @credit_purchase.credits %></p>
+              <p class="text-3xl font-bold text-asmbv-red">+ <%= @credit_purchase.credits %></p>
             </div>
           </div>
         </div>
