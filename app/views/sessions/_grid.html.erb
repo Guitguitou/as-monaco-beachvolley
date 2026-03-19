@@ -23,7 +23,7 @@
         <% reg = regs[session.id] %>
         <% open_ok, open_reason = session.registration_open_state_for(current_user) %>
         <% not_enough_credits = !session.coaching_prive? && user_balance < session.price.to_i %>
-        <% conflict = conflict_ids[session.id] %>
+        <% conflict = reg.blank? && conflict_ids[session.id] %>
         <% relevant = if session.entrainement? && session.levels.any?
                         (session.level_ids & user_level_ids).any?
                       else
@@ -52,7 +52,7 @@
       <% reg = regs[session.id] %>
       <% open_ok, open_reason = session.registration_open_state_for(current_user) %>
       <% not_enough_credits = !session.coaching_prive? && user_balance < session.price.to_i %>
-      <% conflict = conflict_ids[session.id] %>
+      <% conflict = reg.blank? && conflict_ids[session.id] %>
       <% relevant = if session.entrainement? && session.levels.any?
                       (session.level_ids & user_level_ids).any?
                     else

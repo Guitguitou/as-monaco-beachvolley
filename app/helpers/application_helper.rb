@@ -90,7 +90,7 @@ module ApplicationHelper
   def nav_link_navbar(name, path, icon: nil)
     active = current_page?(path)
     base_classes = [
-      "inline-flex items-center gap-2 px-3 py-2 text-sm border-b-2 transition-colors font-bebas-neue uppercase tracking-wide",
+      "inline-flex items-center gap-2 px-4 py-5 text-sm font-semibold tracking-wide border-b-2 transition-colors",
       (active ? "text-white border-white" : "text-white/90 border-transparent hover:text-white hover:border-white/70 hover:bg-white/10")
     ]
 
