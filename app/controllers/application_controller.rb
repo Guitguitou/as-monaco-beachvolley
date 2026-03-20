@@ -11,7 +11,12 @@ class ApplicationController < ActionController::Base
       redirect_to packs_path
       return
     end
-    
+
+    @next_stage = Stage.ordered_for_players.find { |stage| stage.current_or_upcoming? }
+    @members_count = User.count
+    @terrains_count = Session.terrains.size
+    @sessions_per_month = Session.in_current_month.count
+
     render layout: 'home'
   end
 

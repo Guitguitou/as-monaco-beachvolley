@@ -1,19 +1,61 @@
-<footer class="bg-white dark:bg-gray-900">
-  <div class="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
-    <div class="flex justify-center gap-x-6 md:order-2">
-      <a href="https://www.instagram.com/asmonacobeachvolley/" class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white">
-        <span class="sr-only">Instagram</span>
-        <%= lucide_icon('instagram', class: 'w-6 h-6') %>
-      </a>
-      <a href="https://chat.whatsapp.com/J05V2o3sPhdAwoPto5DiVo" class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white">
-        <span class="sr-only">WhatsApp</span>
-        <%= lucide_icon('message-circle', class: 'w-6 h-6') %>
-      </a>
-      <a href="mailto:asm.beachvolley@gmail.com" class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white">
-        <span class="sr-only">Email</span>
-        <%= lucide_icon('mail', class: 'w-6 h-6') %>
-      </a>
+<footer class="bg-[#0e1014] text-white">
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-10 border-b border-white/10 pb-10 md:grid-cols-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <%= image_tag "logo.png", alt: "AS Monaco Beach-Volley", class: "h-10 w-10" %>
+          <div>
+            <p class="font-bebas-neue text-2xl leading-none uppercase">AS Monaco</p>
+            <p class="text-[10px] uppercase tracking-[0.2em] text-white/70">Beach-Volley</p>
+          </div>
+        </div>
+        <p class="mt-4 max-w-xs text-sm text-white/70">
+          Le club de reference a Monaco pour le beach-volley. Excellence, passion et convivialite.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-[0.24em] text-asmbv-red">Navigation</h3>
+        <ul class="mt-4 space-y-2 text-sm text-white/80">
+          <li><%= link_to "Sessions", sessions_path, class: "hover:text-white" %></li>
+          <li><%= link_to "Stages", stages_path, class: "hover:text-white" %></li>
+          <li><%= link_to "Boutique", packs_path, class: "hover:text-white" %></li>
+          <li><%= link_to "Informations", infos_root_path, class: "hover:text-white" %></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-[0.24em] text-asmbv-red">Contact</h3>
+        <ul class="mt-4 space-y-2 text-sm text-white/80">
+          <li>Monaco Beach, Monte-Carlo</li>
+          <li>+377 XX XX XX XX</li>
+          <li><a href="mailto:contact@asmb.mc" class="hover:text-white">contact@asmb.mc</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-[0.24em] text-asmbv-red">Reseaux sociaux</h3>
+        <div class="mt-4 flex items-center gap-2">
+          <a href="https://www.instagram.com/asmonacobeachvolley/" class="inline-flex h-9 w-9 items-center justify-center border border-white/20 text-white/80 transition hover:bg-white hover:text-black" aria-label="Instagram">
+            <%= lucide_icon("instagram", class: "h-4 w-4") %>
+          </a>
+          <a href="https://chat.whatsapp.com/J05V2o3sPhdAwoPto5DiVo" class="inline-flex h-9 w-9 items-center justify-center border border-white/20 text-white/80 transition hover:bg-white hover:text-black" aria-label="WhatsApp">
+            <%= lucide_icon("message-circle", class: "h-4 w-4") %>
+          </a>
+          <a href="mailto:asm.beachvolley@gmail.com" class="inline-flex h-9 w-9 items-center justify-center border border-white/20 text-white/80 transition hover:bg-white hover:text-black" aria-label="Email">
+            <%= lucide_icon("mail", class: "h-4 w-4") %>
+          </a>
+        </div>
+      </div>
     </div>
-    <p class="mt-8 text-center text-sm/6 text-gray-600 md:order-1 md:mt-0 dark:text-gray-400">&copy; 2024 Your Company, Inc. All rights reserved.</p>
+
+    <div class="mt-5 flex flex-col gap-3 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between">
+      <p>&copy; <%= Time.current.year %> AS Monaco Beach-Volley</p>
+      <div class="flex items-center gap-5">
+        <span>Mentions legales</span>
+        <span>Confidentialite</span>
+        <span>CGV</span>
+      </div>
+    </div>
   </div>
 </footer>
