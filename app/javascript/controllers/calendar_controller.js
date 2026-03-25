@@ -75,6 +75,23 @@ export default class extends Controller {
         root.appendChild(coachEl)
         return { domNodes: [root] }
       },
+      eventClick: (info) => {
+        info.jsEvent.preventDefault()
+        const id = info.event.id
+        const url = new URL(`/sessions/${id}`, window.location.origin)
+        const current = new URL(window.location.href)
+        ;["view", "date", "terrain"].forEach((key) => {
+          const v = current.searchParams.get(key)
+          if (v) url.searchParams.set(key, v)
+        })
+        url.searchParams.set("view", "calendar")
+        if (window.Turbo?.visit) {
+          window.Turbo.visit(url.toString())
+        } else {
+          window.location.assign(url.toString())
+        }
+      },
+
       eventDidMount(info) {
         const isMobile = window.matchMedia('(max-width: 640px)').matches
         info.el.style.backgroundColor = info.event.extendedProps.backgroundColor
@@ -201,6 +218,7 @@ export default class extends Controller {
       const ymd = this.formatDateToYMD(dateObj)
       const url = new URL(window.location.href)
       url.searchParams.set('date', ymd)
+      url.searchParams.set('view', 'calendar')
       window.history.replaceState({}, '', url.toString())
       this.syncTerrainLinksDate(ymd)
     } catch (_) {

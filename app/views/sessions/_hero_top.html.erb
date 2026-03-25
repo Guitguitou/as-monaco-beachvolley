@@ -1,6 +1,6 @@
 <%# locals: session: %>
 <div class="flex items-center justify-between gap-3">
-  <%= link_to sessions_path, class: "inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white" do %>
+  <%= link_to sessions_path(sessions_index_return_params), class: "inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white" do %>
     <%= lucide_icon("arrow-left", class: "w-4 h-4 shrink-0") %>
     Retour aux sessions
   <% end %>

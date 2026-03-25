@@ -38,7 +38,7 @@ RSpec.describe SessionsController, type: :controller do
           post :cancel, params: { id: session_record.id }
         }.to change { Session.exists?(session_record.id) }.from(true).to(false)
 
-        expect(response).to redirect_to(sessions_path)
+        expect(response).to redirect_to(sessions_path(date: session_record.start_at.strftime("%Y-%m-%d")))
         expect(flash[:notice]).to include('annulée')
         expect(player.reload.balance.amount).to eq(initial_balance + session_record.price)
       end
@@ -54,7 +54,7 @@ RSpec.describe SessionsController, type: :controller do
           post :cancel, params: { id: session_record.id }
         }.to change { Session.exists?(session_record.id) }.from(true).to(false)
         
-        expect(response).to redirect_to(sessions_path)
+        expect(response).to redirect_to(sessions_path(date: session_record.start_at.strftime("%Y-%m-%d")))
         expect(flash[:notice]).to include('annulée')
       end
     end

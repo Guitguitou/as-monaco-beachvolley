@@ -70,6 +70,28 @@ module ApplicationHelper
     classes[session.session_type] || "border-gray-200 hover:border-gray-300"
   end
 
+  # Whitelisted query params for linking back to sessions#index (grid or calendar, week, terrain).
+  def sessions_index_return_params(source_params = nil)
+    p = source_params || params
+    {
+      view: p[:view].presence_in(%w[grid calendar]),
+      date: p[:date].presence,
+      terrain: p[:terrain].presence
+    }.compact
+  end
+
+  # Session show URL from the calendar view with stable week anchor (for FullCalendar event.url fallback).
+  def sessions_calendar_event_path(session_record)
+    session_path(
+      session_record,
+      {
+        view: "calendar",
+        date: params[:date].presence || session_record.start_at.to_date.iso8601,
+        terrain: params[:terrain].presence
+      }.compact
+    )
+  end
+
   def nav_link(name, path, icon:, extra_classes: nil)
     active = current_page?(path)
 

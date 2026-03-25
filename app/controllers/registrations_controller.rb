@@ -7,7 +7,7 @@ class RegistrationsController < ApplicationController
     
     # Check if registration deadline has passed (only for regular users on trainings)
     if @session.entrainement? && @session.past_registration_deadline? && !can_bypass_deadline?
-      redirect_to session_path(@session), alert: "Les inscriptions sont closes (limite : 17h le jour de la session)." and return
+      redirect_to session_path(@session, session_show_redirect_params), alert: "Les inscriptions sont closes (limite : 17h le jour de la session)." and return
     end
     
     # Only admins or the session owner (coach/responsable assigned to the session)
@@ -32,10 +32,10 @@ class RegistrationsController < ApplicationController
           TransactionService.new(registration.user, @session, amount).create_transaction
         end
       end
-      redirect_to session_path(@session), notice: "Inscription réussie ✅"
+      redirect_to session_path(@session, session_show_redirect_params), notice: "Inscription réussie ✅"
     rescue StandardError => e
       error_message = registration.errors.full_messages.presence || [e.message]
-      redirect_to session_path(@session), alert: error_message.to_sentence
+      redirect_to session_path(@session, session_show_redirect_params), alert: error_message.to_sentence
     end
   end
 
@@ -53,19 +53,18 @@ class RegistrationsController < ApplicationController
       # Forbid self/unprivileged unregistration after the session has ended.
       # After the session, only admins can remove players to handle refunds manually.
       if Time.current > @session.end_at && !current_user.admin?
-        redirect_to session_path(@session), alert: "La session est passée. Seul un administrateur peut retirer des joueurs." and return
+        redirect_to session_path(@session, session_show_redirect_params), alert: "La session est passée. Seul un administrateur peut retirer des joueurs." and return
       end
 
       amount = registration.required_credits_for(registration.user)
+      # Refund only if before deadline or if no deadline defined (must be outside `transaction` block for Ruby scope)
+      refundable = amount.positive? && (
+        !@session.entrainement? ||
+        @session.cancellation_deadline_at.blank? || Time.current <= @session.cancellation_deadline_at
+      )
       begin
         ActiveRecord::Base.transaction do
           registration.destroy!
-          # Refund only if before deadline or if no deadline defined
-          refundable = amount.positive? && (
-            # Apply deadline rule only for trainings
-            !@session.entrainement? ||
-            @session.cancellation_deadline_at.blank? || Time.current <= @session.cancellation_deadline_at
-          )
           if refundable
             TransactionService.new(
               registration.user,
@@ -85,16 +84,24 @@ class RegistrationsController < ApplicationController
                       else
                         "Désinscription réussie ✅"
                       end
-        redirect_to session_path(params[:session_id]), notice: notice_msg
+        redirect_to session_path(@session, session_show_redirect_params), notice: notice_msg
       rescue StandardError => e
-        redirect_to session_path(params[:session_id]), alert: "Erreur lors de la désinscription: #{e.message}"
+        redirect_to session_path(@session, session_show_redirect_params), alert: "Erreur lors de la désinscription: #{e.message}"
       end
     else
-      redirect_to session_path(params[:session_id]), alert: "Tu n'es pas inscrit."
+      redirect_to session_path(@session, session_show_redirect_params), alert: "Tu n'es pas inscrit."
     end
   end
 
   private
+
+  def session_show_redirect_params
+    {
+      view: params[:view].presence_in(%w[grid calendar]),
+      date: params[:date].presence,
+      terrain: params[:terrain].presence
+    }.compact
+  end
 
   def set_session
     @session = Session.find(params[:session_id])

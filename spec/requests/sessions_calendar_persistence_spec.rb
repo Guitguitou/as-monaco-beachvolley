@@ -2,7 +2,7 @@ require "rails_helper"
 require "erb"
 
 RSpec.describe "Sessions calendar date persistence", type: :request do
-  let(:user) { create(:user) }
+  let(:user) { create(:user, activated_at: Time.current) }
 
   before do
     login_as user, scope: :user
@@ -14,7 +14,7 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
     session_record = create(:session, :terrain_2, user: coach, start_at: session_date, end_at: session_date + 1.hour)
     login_as coach, scope: :user
 
-    patch "#{session_path(session_record)}?terrain=Terrain+2", params: {
+    patch "#{session_path(session_record)}?terrain=Terrain+2&view=calendar", params: {
       session: {
         title: session_record.title,
         description: session_record.description,
@@ -27,7 +27,7 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
       }
     }
 
-    expect(response).to redirect_to(sessions_path(date: "2030-01-15", terrain: "Terrain 2"))
+    expect(response).to redirect_to(sessions_path(date: "2030-01-15", terrain: "Terrain 2", view: "calendar"))
   end
 
   it "redirects to calendar with session date (no terrain) when terrain was not in request" do
@@ -36,7 +36,7 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
     session_record = create(:session, :terrain_3, user: coach, start_at: session_date, end_at: session_date + 1.hour)
     login_as coach, scope: :user
 
-    patch session_path(session_record), params: {
+    patch session_path(session_record, view: "calendar"), params: {
       session: {
         title: session_record.title,
         description: session_record.description,
@@ -49,13 +49,13 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
       }
     }
 
-    expect(response).to redirect_to(sessions_path(date: "2030-02-20"))
+    expect(response).to redirect_to(sessions_path(date: "2030-02-20", view: "calendar"))
   end
 
   it "renders data-initial-date from params[:date] on the calendar container" do
     target_date = '2025-10-06'
 
-    get sessions_path(date: target_date)
+    get sessions_path(date: target_date, view: "calendar")
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include(%(data-initial-date="#{target_date}"))
@@ -64,11 +64,11 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
   it 'preserves the date param in terrain tabs links and after navigation' do
     target_date = '2025-10-06'
 
-    get sessions_path(date: target_date)
+    get sessions_path(date: target_date, view: "calendar")
     expect(response).to have_http_status(:ok)
 
     # Ensure the Terrain 2 tab link includes the date param
-    expected_href = sessions_path(terrain: 'Terrain 2', date: target_date)
+    expected_href = sessions_path(terrain: "Terrain 2", date: target_date, view: "calendar")
     expected_href_escaped = ERB::Util.html_escape(expected_href)
     expect(response.body).to include(%(href="#{expected_href_escaped}"))
 

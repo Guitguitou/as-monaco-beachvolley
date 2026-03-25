@@ -6,7 +6,7 @@
     </h1>
     
     <div class="flex items-center gap-2 w-full sm:w-auto justify-center">
-      <% current_view = @view.presence || params[:view].presence || "grid" %>
+      <% current_view = @view.presence || params[:view].presence || "calendar" %>
       <%= button(
         "Grille",
         variant: (current_view == "grid" ? :primary : :ghost),
@@ -24,7 +24,7 @@
     </div>
 
     <% if can?(:create, Session) %>
-      <%= button("Nouvelle session", variant: :primary, size: :small, href: new_session_path) %>
+      <%= button("Nouvelle session", variant: :primary, size: :small, href: new_session_path(sessions_index_return_params)) %>
     <% end %>
   </div>
   
@@ -32,7 +32,7 @@
   <%= render "terrain_filter" %>
 </div>
 
-<% if (@view.presence || params[:view].presence || "grid") == "grid" %>
+<% if (@view.presence || params[:view].presence || "calendar") == "grid" %>
   <%= render "grid" %>
 <% else %>
 <%
@@ -60,7 +60,7 @@
       shortTitle: short,     # <-- ajouté
       start: s.start_at.iso8601,
       end: s.end_at.iso8601,
-      url: session_path(s),
+      url: sessions_calendar_event_path(s),
       backgroundColor: bg,
       borderColor: border,
       textColor: text,

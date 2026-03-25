@@ -8,7 +8,7 @@ class SessionsController < ApplicationController
   before_action :set_session_for_duplicate, only: []
 
   def index
-    @view = params[:view].presence_in(%w[grid calendar]) || "grid"
+    @view = params[:view].presence_in(%w[grid calendar]) || "calendar"
 
     # Calendar (existing behavior)
     @sessions = Session.order(start_at: :desc)
@@ -84,7 +84,7 @@ class SessionsController < ApplicationController
 
     if @session.save
       sync_participants(@session)
-      redirect_to sessions_path(date: @session.start_at.strftime("%Y-%m-%d"), terrain: params[:terrain].presence), notice: "Session créée avec succès."
+      redirect_to sessions_path(sessions_index_redirect_params), notice: "Session créée avec succès."
     else
       render :new, status: :unprocessable_entity
     end
@@ -105,7 +105,7 @@ class SessionsController < ApplicationController
     if @session.save
       # Only sync participants if the form included participant_ids
       sync_participants(@session) if params.dig(:session, :participant_ids).present?
-      redirect_to sessions_path(date: @session.start_at.strftime("%Y-%m-%d"), terrain: params[:terrain].presence), notice: "Session mise à jour avec succès."
+      redirect_to sessions_path(sessions_index_redirect_params), notice: "Session mise à jour avec succès."
     else
       render :edit, status: :unprocessable_entity
       flash.now[:alert] = "Erreur lors de la mise à jour de la session: #{@session.errors.full_messages.join(', ')}"
@@ -160,14 +160,30 @@ class SessionsController < ApplicationController
       end
     end
 
-    redirect_to sessions_path, notice: "Session annulée et remboursée ✅"
+    redirect_to sessions_path(sessions_index_redirect_params), notice: "Session annulée et remboursée ✅"
   rescue StandardError => e
-    redirect_to session_path(@session), alert: "Erreur lors de l'annulation: #{e.message}"
+    redirect_to session_path(@session, session_show_query_params), alert: "Erreur lors de l'annulation: #{e.message}"
   end
 
   # Duplicate moved to admin area
 
   private
+
+  def sessions_index_redirect_params
+    {
+      date: @session.start_at.strftime("%Y-%m-%d"),
+      terrain: params[:terrain].presence,
+      view: params[:view].presence_in(%w[grid calendar])
+    }.compact
+  end
+
+  def session_show_query_params
+    {
+      view: params[:view].presence_in(%w[grid calendar]),
+      date: params[:date].presence,
+      terrain: params[:terrain].presence
+    }.compact
+  end
 
   def set_session
     @session = Session.find(params[:id])

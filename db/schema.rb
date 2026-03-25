@@ -13,7 +13,6 @@
 ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
-  enable_extension "pgcrypto"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -138,66 +137,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
     t.index ["stage_id"], name: "index_packs_on_stage_id"
   end
 
-  create_table "plans_hebdomadaires", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "plan_mensuel_id", null: false
-    t.date "debut_semaine", null: false
-    t.decimal "jours_homme", precision: 10, scale: 2
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["plan_mensuel_id", "debut_semaine"], name: "index_plans_hebdomadaires_on_plan_mensuel_id_and_debut_semaine", unique: true
-    t.index ["plan_mensuel_id"], name: "index_plans_hebdomadaires_on_plan_mensuel_id"
-  end
-
-  create_table "plans_mensuels", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.date "mois", null: false
-    t.integer "cible_ca_cents", default: 0, null: false
-    t.decimal "jours_homme", precision: 10, scale: 2, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["mois"], name: "index_plans_mensuels_on_mois", unique: true
-  end
-
-  create_table "player_listing_levels", force: :cascade do |t|
-    t.bigint "player_listing_id", null: false
-    t.bigint "level_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["level_id"], name: "index_player_listing_levels_on_level_id"
-    t.index ["player_listing_id", "level_id"], name: "index_player_listing_levels_on_player_listing_id_and_level_id", unique: true
-    t.index ["player_listing_id"], name: "index_player_listing_levels_on_player_listing_id"
-  end
-
-  create_table "player_listings", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "session_id"
-    t.string "listing_type", null: false
-    t.string "gender"
-    t.date "date"
-    t.time "starts_at"
-    t.time "ends_at"
-    t.string "status", default: "active", null: false
-    t.text "notes"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["session_id"], name: "index_player_listings_on_session_id"
-    t.index ["status", "listing_type", "date"], name: "index_player_listings_on_status_and_listing_type_and_date"
-    t.index ["user_id"], name: "index_player_listings_on_user_id"
-  end
-
-  create_table "player_requests", force: :cascade do |t|
-    t.bigint "player_listing_id", null: false
-    t.bigint "from_user_id", null: false
-    t.bigint "to_user_id", null: false
-    t.string "status", default: "pending", null: false
-    t.text "message"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["from_user_id"], name: "index_player_requests_on_from_user_id"
-    t.index ["player_listing_id"], name: "index_player_requests_on_player_listing_id"
-    t.index ["to_user_id", "status"], name: "index_player_requests_on_to_user_id_and_status"
-    t.index ["to_user_id"], name: "index_player_requests_on_to_user_id"
-  end
-
   create_table "push_subscriptions", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "endpoint", null: false
@@ -221,17 +160,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
     t.index ["status", "created_at"], name: "index_registrations_on_status_and_created_at"
     t.index ["user_id", "session_id"], name: "index_registrations_on_user_id_and_session_id", unique: true
     t.index ["user_id"], name: "index_registrations_on_user_id"
-  end
-
-  create_table "regles_statuts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "statut", null: false
-    t.integer "categorie_couleur", null: false
-    t.boolean "compte_comme_fait", default: false, null: false
-    t.integer "ordre", default: 0, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["ordre"], name: "index_regles_statuts_on_ordre"
-    t.index ["statut"], name: "index_regles_statuts_on_statut", unique: true
   end
 
   create_table "session_levels", force: :cascade do |t|
@@ -278,21 +206,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
     t.string "registration_link"
     t.index ["assistant_coach_id"], name: "index_stages_on_assistant_coach_id"
     t.index ["main_coach_id"], name: "index_stages_on_main_coach_id"
-  end
-
-  create_table "tickets_production", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "plan_hebdomadaire_id", null: false
-    t.string "cle_jira", null: false
-    t.string "url_jira", null: false
-    t.string "titre"
-    t.integer "valeur_cents", default: 0, null: false
-    t.string "statut", null: false
-    t.date "prevu_le", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["plan_hebdomadaire_id"], name: "index_tickets_production_on_plan_hebdomadaire_id"
-    t.index ["prevu_le"], name: "index_tickets_production_on_prevu_le"
-    t.index ["statut"], name: "index_tickets_production_on_statut"
   end
 
   create_table "user_levels", force: :cascade do |t|
@@ -343,14 +256,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
   add_foreign_key "late_cancellations", "sessions"
   add_foreign_key "late_cancellations", "users"
   add_foreign_key "packs", "stages"
-  add_foreign_key "plans_hebdomadaires", "plans_mensuels", column: "plan_mensuel_id"
-  add_foreign_key "player_listing_levels", "levels"
-  add_foreign_key "player_listing_levels", "player_listings"
-  add_foreign_key "player_listings", "sessions"
-  add_foreign_key "player_listings", "users"
-  add_foreign_key "player_requests", "player_listings"
-  add_foreign_key "player_requests", "users", column: "from_user_id"
-  add_foreign_key "player_requests", "users", column: "to_user_id"
   add_foreign_key "push_subscriptions", "users"
   add_foreign_key "registrations", "sessions"
   add_foreign_key "registrations", "users"
@@ -359,7 +264,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
   add_foreign_key "sessions", "users"
   add_foreign_key "stages", "users", column: "assistant_coach_id"
   add_foreign_key "stages", "users", column: "main_coach_id"
-  add_foreign_key "tickets_production", "plans_hebdomadaires", column: "plan_hebdomadaire_id"
   add_foreign_key "user_levels", "levels"
   add_foreign_key "user_levels", "users"
 end

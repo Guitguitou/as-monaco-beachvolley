@@ -164,6 +164,9 @@
             <h3 class="text-xs font-bold uppercase tracking-wide text-gray-900">Ajouter un·e inscrit·e</h3>
           <% end %>
           <%= form_with url: session_registrations_path(@session), method: :post, local: true, class: "space-y-3" do |f| %>
+            <% sessions_index_return_params.each do |key, value| %>
+              <%= hidden_field_tag key, value %>
+            <% end %>
             <div>
               <%= render FormFieldComponent.new(
                 form: f,
