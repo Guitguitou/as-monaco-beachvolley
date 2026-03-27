@@ -4,7 +4,11 @@
   <%= form_with model: session, 
                 url: session.persisted? ? session_path(session) : sessions_path, 
                 method: session.persisted? ? :put : :post, 
-                data: { controller: "session-form", session_form_prices_value: Session::PRICE_BY_TYPE },
+                data: {
+                  controller: "session-form",
+                  session_form_prices_value: Session::PRICE_BY_TYPE,
+                  session_form_terrain_closures_value: terrain_closures_json_for_forms
+                },
                 class: "space-y-12" do |f| %>
 
     <% sessions_index_return_params.each do |key, value| %>
@@ -49,8 +53,10 @@
             type: :select,
             label: "Terrain",
             required: true,
-            options: options_for_select(Session.terrains.keys, session.terrain)
+            options: options_for_select(Session.terrains.keys, session.terrain),
+            html_options: { data: { session_form_target: "terrain" } }
           ) %>
+          <p class="mt-1 text-sm text-amber-700 hidden" data-session-form-target="terrainWarning">Terrain indisponible à cette date.</p>
         </div>
 
         <!-- Coach / Responsable / Organisateur -->

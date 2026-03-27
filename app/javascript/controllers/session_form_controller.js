@@ -4,15 +4,20 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "type", "price", "userGroupCoach", "userGroupResponsable", "userGroupAll",
-    "startAt", "endAt", "endAtHidden", "registrationOpensWrapper"
+    "startAt", "endAt", "endAtHidden", "registrationOpensWrapper",
+    "terrain", "terrainWarning"
   ]
-  static values = { prices: Object }
+  static values = {
+    prices: Object,
+    terrainClosures: { type: Array, default: [] }
+  }
 
   connect() {
     this.updateUserSelect()
     this.updatePrice()
-    this.updateEndTime() // si la session est déjà partiellement remplie
+    this.updateEndTime()
     this.updateRegistrationOpensVisibility()
+    this.filterTerrainOptions()
   }
 
   onTypeChange() {
@@ -24,21 +29,19 @@ export default class extends Controller {
     const shouldLock = lockTypes.includes(this.typeTarget.value)
 
     if (shouldLock) {
-      // Recalcule et rend le champ en lecture seule si on a déjà un start
       this.updateEndTime()
     } else {
-      // On quitte un type “locké” → redonne la main
       if (this.hasEndAtTarget) {
         this.endAtTarget.classList.remove("bg-gray-100")
         this.endAtTarget.readOnly = false
         this.endAtTarget.disabled = false
-        // Optionnel : vider pour éviter une valeur figée trompeuse
       }
     }
   }
 
   onStartChange() {
     this.updateEndTime()
+    this.filterTerrainOptions()
   }
 
   onEndChange() {
@@ -84,7 +87,6 @@ export default class extends Controller {
     const shouldLock = lockTypes.includes(type)
 
     if (!this.startAtTarget.value) {
-      // Pas de start → si on est locké, on grise quand même endAt (lecture seule)
       if (shouldLock) {
         this.endAtTarget.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed")
         this.endAtTarget.readOnly = true
@@ -116,6 +118,68 @@ export default class extends Controller {
     if (!this.hasRegistrationOpensWrapperTarget) return
     const isTraining = this.typeTarget.value === "entrainement"
     this.registrationOpensWrapperTarget.style.display = isTraining ? "block" : "none"
+  }
+
+  filterTerrainOptions() {
+    if (!this.hasTerrainTarget) return
+
+    const slotDateStr = this.#slotDateIsoFromStart()
+    const closures = this.terrainClosuresValue || []
+    const unavailable = new Set()
+
+    if (slotDateStr) {
+      for (const c of closures) {
+        if (!c || !c.starts_on || !c.ends_on || !c.terrain) continue
+        if (slotDateStr >= c.starts_on && slotDateStr <= c.ends_on) {
+          unavailable.add(c.terrain)
+        }
+      }
+    }
+
+    let hadInvalidSelection = false
+    const opts = [...this.terrainTarget.options]
+
+    opts.forEach((opt) => {
+      if (!opt.value) {
+        opt.disabled = false
+        opt.removeAttribute("title")
+        return
+      }
+      if (!slotDateStr) {
+        opt.disabled = false
+        opt.removeAttribute("title")
+        return
+      }
+      const dis = unavailable.has(opt.value)
+      opt.disabled = dis
+      if (dis) opt.title = "Terrain indisponible à cette date"
+      else opt.removeAttribute("title")
+    })
+
+    const current = this.terrainTarget.value
+    if (current && unavailable.has(current)) {
+      hadInvalidSelection = true
+      const firstOk = opts.find((o) => o.value && !o.disabled)
+      this.terrainTarget.value = firstOk ? firstOk.value : ""
+    }
+
+    if (this.hasTerrainWarningTarget) {
+      if (hadInvalidSelection) {
+        this.terrainWarningTarget.textContent =
+          "Ce terrain est indisponible à la date choisie ; sélectionnez un autre terrain ou modifiez la date."
+        this.terrainWarningTarget.classList.remove("hidden")
+      } else {
+        this.terrainWarningTarget.classList.add("hidden")
+      }
+    }
+  }
+
+  #slotDateIsoFromStart() {
+    if (!this.hasStartAtTarget || !this.startAtTarget.value) return null
+    const d = this.#parseDatetimeLocal(this.startAtTarget.value)
+    if (!d) return null
+    const pad = (n) => String(n).padStart(2, "0")
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
   }
 
   #parseDatetimeLocal(value) {

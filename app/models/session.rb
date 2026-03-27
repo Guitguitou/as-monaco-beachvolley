@@ -42,6 +42,7 @@ class Session < ApplicationRecord
   validate :validate_unique_participants
   validate :validate_max_registrations
   validate :coach_has_enough_credits_for_private_coaching, if: :coaching_prive?
+  validate :terrain_not_closed_on_session_date
 
   after_create :charge_coach_for_private_coaching, if: :coaching_prive?
 
@@ -248,6 +249,13 @@ class Session < ApplicationRecord
     if end_at <= start_at
       errors.add(:end_at, "doit être après la date de début")
     end
+  end
+
+  def terrain_not_closed_on_session_date
+    return if start_at.blank? || terrain.blank?
+    return unless TerrainClosure.covers?(terrain: terrain, date: start_at.to_date)
+
+    errors.add(:terrain, "est indisponible à cette date (fermeture ou maintenance)")
   end
 
   def no_overlapping_sessions_on_same_terrain

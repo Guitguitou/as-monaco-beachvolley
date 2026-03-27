@@ -10,6 +10,13 @@ class SessionsController < ApplicationController
   def index
     @view = params[:view].presence_in(%w[grid calendar]) || "calendar"
 
+    if @view == "calendar"
+      anchor = safe_calendar_week_anchor
+      week_start = anchor.beginning_of_week(:monday)
+      week_end = week_start + 6.days
+      @terrain_closures_week = TerrainClosure.intersecting_range(week_start, week_end).order(:terrain, :starts_on)
+    end
+
     # Calendar (existing behavior)
     @sessions = Session.order(start_at: :desc)
     @sessions = @sessions.terrain(params[:terrain]) if params[:terrain].present?
@@ -168,6 +175,14 @@ class SessionsController < ApplicationController
   # Duplicate moved to admin area
 
   private
+
+  def safe_calendar_week_anchor
+    return Time.zone.today if params[:date].blank?
+
+    Date.parse(params[:date])
+  rescue ArgumentError
+    Time.zone.today
+  end
 
   def sessions_index_redirect_params
     {

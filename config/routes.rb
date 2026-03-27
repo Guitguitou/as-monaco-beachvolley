@@ -53,6 +53,7 @@ Rails.application.routes.draw do
       post :duplicate, on: :member
     end
     resources :levels
+    resources :terrain_closures, except: [:show]
     resources :stages, only: [:index, :show, :new, :create, :edit, :update]
     
     # Packs management

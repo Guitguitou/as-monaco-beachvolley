@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_27_210235) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -206,6 +206,17 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_25_172637) do
     t.string "registration_link"
     t.index ["assistant_coach_id"], name: "index_stages_on_assistant_coach_id"
     t.index ["main_coach_id"], name: "index_stages_on_main_coach_id"
+  end
+
+  create_table "terrain_closures", force: :cascade do |t|
+    t.string "terrain"
+    t.date "starts_on"
+    t.date "ends_on"
+    t.text "reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["starts_on", "ends_on"], name: "index_terrain_closures_on_starts_on_and_ends_on"
+    t.index ["terrain"], name: "index_terrain_closures_on_terrain"
   end
 
   create_table "user_levels", force: :cascade do |t|

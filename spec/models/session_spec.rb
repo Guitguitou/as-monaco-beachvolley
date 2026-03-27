@@ -6,6 +6,11 @@ RSpec.describe Session, type: :model do
   # ... existing tests ...
 
   describe 'scopes' do
+    # Fixed calendar so week / month / year scopes stay mutually consistent (avoid same-week overlaps).
+    around do |example|
+      travel_to(Time.zone.parse("2026-01-15 12:00")) { example.run }
+    end
+
     let(:coach) { create(:user, coach: true) }
     let(:current_time) { Time.zone.now }
     let(:week_start) { current_time.beginning_of_week }
@@ -89,6 +94,39 @@ RSpec.describe Session, type: :model do
         result = Session.where(id: [session_1.id, session_2.id, session_3.id]).ordered_by_start
         expect(result.to_a).to eq([session_2, session_3, session_1])
       end
+    end
+  end
+
+  describe "terrain closure validation" do
+    let(:coach) { create(:user, coach: true) }
+
+    before { coach.balance.update!(amount: 2000) }
+
+    it "rejects a session when the terrain is closed on the session day" do
+      day = Date.new(2030, 7, 10)
+      create(:terrain_closure, terrain: "Terrain 2", starts_on: day, ends_on: day, reason: "Travaux")
+      session = build(
+        :session,
+        user: coach,
+        terrain: "Terrain 2",
+        start_at: day.in_time_zone.change(hour: 10),
+        end_at: day.in_time_zone.change(hour: 12)
+      )
+      expect(session).not_to be_valid
+      expect(session.errors[:terrain].join).to include("indisponible")
+    end
+
+    it "allows a session when the closure applies to another terrain" do
+      day = Date.new(2030, 7, 11)
+      create(:terrain_closure, terrain: "Terrain 1", starts_on: day, ends_on: day)
+      session = build(
+        :session,
+        user: coach,
+        terrain: "Terrain 2",
+        start_at: day.in_time_zone.change(hour: 10),
+        end_at: day.in_time_zone.change(hour: 12)
+      )
+      expect(session).to be_valid
     end
   end
 end

@@ -70,6 +70,11 @@ module ApplicationHelper
     classes[session.session_type] || "border-gray-200 hover:border-gray-300"
   end
 
+  # Serialized for Stimulus `session-form` (terrain options filtered by closure ranges).
+  def terrain_closures_json_for_forms
+    TerrainClosure.as_json_for_forms
+  end
+
   # Whitelisted query params for linking back to sessions#index (grid or calendar, week, terrain).
   def sessions_index_return_params(source_params = nil)
     p = source_params || params

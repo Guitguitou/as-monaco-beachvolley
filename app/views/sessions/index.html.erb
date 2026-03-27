@@ -35,6 +35,24 @@
 <% if (@view.presence || params[:view].presence || "calendar") == "grid" %>
   <%= render "grid" %>
 <% else %>
+<% if @terrain_closures_week.present? %>
+  <div class="mb-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+    <p class="font-medium flex items-center gap-2">
+      <%= lucide_icon("ban", size: 16) %> Terrains indisponibles cette semaine
+    </p>
+    <ul class="mt-2 space-y-1 list-disc list-inside text-amber-900">
+      <% @terrain_closures_week.each do |c| %>
+        <li>
+          <span class="font-semibold"><%= c.terrain %></span>
+          : du <%= l(c.starts_on, format: :default) %> au <%= l(c.ends_on, format: :default) %>
+          <% if c.reason.present? %>
+            <span class="text-amber-800">— <%= c.reason %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
 <%
   sessions_json = @sessions.map do |s|
     case s.terrain

@@ -1,0 +1,54 @@
+<%= form_with model: [:admin, terrain_closure], class: "space-y-6 max-w-md bg-white p-6 rounded-lg shadow-md" do |f| %>
+  <%= render "shared/form_errors", object: terrain_closure %>
+
+  <div>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :terrain,
+      type: :select,
+      label: "Terrain",
+      required: true,
+      select_options: { include_blank: false },
+      options: options_for_select(TerrainClosure::ALLOWED_TERRAINS, terrain_closure.terrain)
+    ) %>
+  </div>
+
+  <div>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :starts_on,
+      type: :date_field,
+      label: "Du (inclus)",
+      required: true
+    ) %>
+  </div>
+
+  <div>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :ends_on,
+      type: :date_field,
+      label: "Au (inclus)",
+      required: true
+    ) %>
+  </div>
+
+  <div>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :reason,
+      type: :text_area,
+      label: "Motif (optionnel)",
+      html_options: { rows: 2 }
+    ) %>
+  </div>
+
+  <div>
+    <%= f.submit class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md
+                        bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm
+                        hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2
+                        focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
+      <%= lucide_icon("save", size: 16) %> Enregistrer
+    <% end %>
+  </div>
+<% end %>
