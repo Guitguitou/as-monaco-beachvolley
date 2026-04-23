@@ -1,15 +1,24 @@
-require 'rails_helper'
+require "rails_helper"
 
-# Specs in this file have access to a helper object that includes
-# the RegistrationsHelper. For example:
-#
-# describe RegistrationsHelper do
-#   describe "string concat" do
-#     it "concats two strings with spaces" do
-#       expect(helper.concat_strings("this","that")).to eq("this that")
-#     end
-#   end
-# end
 RSpec.describe RegistrationsHelper, type: :helper do
-  pending "add some examples to (or delete) #{__FILE__}"
+  let(:coach) { create(:user, :coach) }
+  let(:session_record) { create(:session, user: coach, session_type: "entrainement") }
+
+  it "returns a not-open badge before registration opens" do
+    travel_to(Time.zone.parse("2026-04-09 10:00")) do
+      session_record.update!(registration_opens_at: 1.hour.from_now)
+      badge = helper.registration_open_badge(session_record)
+
+      expect(badge).to include("Pas encore ouvert")
+    end
+  end
+
+  it "returns a priority badge during priority window" do
+    travel_to(Time.zone.parse("2026-04-09 10:00")) do
+      session_record.update!(registration_opens_at: 1.hour.ago)
+      badge = helper.registration_open_badge(session_record)
+
+      expect(badge).to include("Priorité compétition")
+    end
+  end
 end
