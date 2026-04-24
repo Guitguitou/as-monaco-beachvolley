@@ -9,6 +9,8 @@ class SessionsController < ApplicationController
 
   def index
     @view = params[:view].presence_in(%w[grid calendar]) || "calendar"
+    @for_me = ActiveModel::Type::Boolean.new.cast(params[:for_me])
+    user_level_ids = current_user.levels.pluck(:id)
 
     if @view == "calendar"
       anchor = safe_calendar_week_anchor
@@ -18,14 +20,16 @@ class SessionsController < ApplicationController
     end
 
     # Calendar (existing behavior)
-    @sessions = Session.order(start_at: :desc)
+    @sessions = Session.includes(:levels, :user).order(start_at: :desc)
     @sessions = @sessions.terrain(params[:terrain]) if params[:terrain].present?
+    @sessions = @sessions.for_user_levels(user_level_ids) if @for_me
 
     return unless @view == "grid"
 
     # Grid view data
     @sessions_grid = Session.upcoming.ordered_by_start.includes(:levels, :user)
     @sessions_grid = @sessions_grid.terrain(params[:terrain]) if params[:terrain].present?
+    @sessions_grid = @sessions_grid.for_user_levels(user_level_ids) if @for_me
 
     session_ids = @sessions_grid.pluck(:id)
     @registrations_by_session_id = current_user
@@ -33,7 +37,7 @@ class SessionsController < ApplicationController
       .where(session_id: session_ids)
       .index_by(&:session_id)
 
-    @user_level_ids = current_user.levels.pluck(:id)
+    @user_level_ids = user_level_ids
     @user_balance_amount = current_user.balance&.amount.to_i
 
     @conflict_session_ids = conflict_session_ids_for(session_ids)
@@ -188,6 +192,7 @@ class SessionsController < ApplicationController
     {
       date: @session.start_at.strftime("%Y-%m-%d"),
       terrain: params[:terrain].presence,
+      for_me: ActiveModel::Type::Boolean.new.cast(params[:for_me]) ? "1" : nil,
       view: params[:view].presence_in(%w[grid calendar])
     }.compact
   end
@@ -196,6 +201,7 @@ class SessionsController < ApplicationController
     {
       view: params[:view].presence_in(%w[grid calendar]),
       date: params[:date].presence,
+      for_me: ActiveModel::Type::Boolean.new.cast(params[:for_me]) ? "1" : nil,
       terrain: params[:terrain].presence
     }.compact
   end

@@ -1,6 +1,6 @@
 <div id="terrain-tabs" class="flex gap-2 sm:gap-4 mb-4 sm:mb-6 overflow-x-auto whitespace-nowrap px-1">
   <% all_terrains = ["", "Terrain 1", "Terrain 2", "Terrain 3"] %>
-  <% query = { terrain: params[:terrain].presence, date: params[:date], view: params[:view].presence }.compact %>
+  <% query = { terrain: params[:terrain].presence, for_me: (ActiveModel::Type::Boolean.new.cast(params[:for_me]) ? "1" : nil), date: params[:date], view: params[:view].presence }.compact %>
 
   <% all_terrains.each do |terrain| %>
     <% label = terrain.presence || "Tous" %>
@@ -10,6 +10,25 @@
       variant: (active ? :primary : :ghost),
       size: :small,
       href: sessions_path(query.merge(terrain: terrain.presence))
+    ) %>
+  <% end %>
+</div>
+
+<div id="audience-tabs" class="flex gap-2 sm:gap-4 mb-4 sm:mb-6 overflow-x-auto whitespace-nowrap px-1">
+  <% audience_options = [
+    { label: "Toutes les sessions", for_me: nil },
+    { label: "Sessions pour moi", for_me: "1" }
+  ] %>
+  <% audience_query = { terrain: params[:terrain].presence, date: params[:date], view: params[:view].presence }.compact %>
+  <% selected_for_me = ActiveModel::Type::Boolean.new.cast(params[:for_me]) ? "1" : nil %>
+
+  <% audience_options.each do |option| %>
+    <% active = selected_for_me.to_s == option[:for_me].to_s %>
+    <%= button(
+      option[:label],
+      variant: (active ? :primary : :ghost),
+      size: :small,
+      href: sessions_path(audience_query.merge(for_me: option[:for_me]))
     ) %>
   <% end %>
 </div>

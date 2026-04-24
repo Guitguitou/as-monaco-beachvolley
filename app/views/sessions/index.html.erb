@@ -54,6 +54,7 @@
   </div>
 <% end %>
 <%
+  user_level_ids = current_user.levels.pluck(:id)
   sessions_json = @sessions.map do |s|
     case s.terrain
     when 'Terrain 1'
@@ -83,6 +84,7 @@
       borderColor: border,
       textColor: text,
       terrain: s.terrain,
+      forMe: (!s.entrainement? || s.levels.empty? || (s.level_ids & user_level_ids).any?),
       coachName: s.user&.full_name || '-'
     }
   end.to_json

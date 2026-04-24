@@ -62,6 +62,28 @@ class Session < ApplicationRecord
   scope :trainings, -> { where(session_type: 'entrainement') }
   scope :free_plays, -> { where(session_type: 'jeu_libre') }
   scope :private_coachings, -> { where(session_type: 'coaching_prive') }
+  scope :for_user_levels, ->(level_ids) do
+    sanitized_level_ids = Array(level_ids).map(&:to_i).uniq
+    training_type = session_types.fetch("entrainement")
+
+    base_scope = left_joins(:session_levels)
+    query = base_scope.where(
+      "sessions.session_type != :training_type OR (sessions.session_type = :training_type AND session_levels.level_id IS NULL)",
+      training_type: training_type
+    )
+
+    if sanitized_level_ids.any?
+      query = query.or(
+        base_scope.where(
+          "sessions.session_type = :training_type AND session_levels.level_id IN (:level_ids)",
+          training_type: training_type,
+          level_ids: sanitized_level_ids
+        )
+      )
+    end
+
+    query.distinct
+  end
   scope :ordered_by_start, -> { order(:start_at) }
   
   # Scopes pour les sessions à venir par type

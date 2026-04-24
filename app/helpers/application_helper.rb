@@ -81,6 +81,7 @@ module ApplicationHelper
     {
       view: p[:view].presence_in(%w[grid calendar]),
       date: p[:date].presence,
+      for_me: ActiveModel::Type::Boolean.new.cast(p[:for_me]) ? "1" : nil,
       terrain: p[:terrain].presence
     }.compact
   end
@@ -92,6 +93,7 @@ module ApplicationHelper
       {
         view: "calendar",
         date: params[:date].presence || session_record.start_at.to_date.iso8601,
+        for_me: ActiveModel::Type::Boolean.new.cast(params[:for_me]) ? "1" : nil,
         terrain: params[:terrain].presence
       }.compact
     )

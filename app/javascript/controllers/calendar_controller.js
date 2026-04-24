@@ -80,7 +80,7 @@ export default class extends Controller {
         const id = info.event.id
         const url = new URL(`/sessions/${id}`, window.location.origin)
         const current = new URL(window.location.href)
-        ;["view", "date", "terrain"].forEach((key) => {
+        ;["view", "date", "terrain", "for_me"].forEach((key) => {
           const v = current.searchParams.get(key)
           if (v) url.searchParams.set(key, v)
         })
@@ -186,8 +186,8 @@ export default class extends Controller {
 
     calendar.render()
     this.styleHeaderButtons(calendarEl)
-    this.setupTerrainTabsInteraction()
-    this.applyTerrainFromUrl()
+    this.setupFilterTabsInteraction()
+    this.applyFiltersFromUrl()
   }
 
   styleHeaderButtons(calendarEl) {
@@ -220,7 +220,7 @@ export default class extends Controller {
       url.searchParams.set('date', ymd)
       url.searchParams.set('view', 'calendar')
       window.history.replaceState({}, '', url.toString())
-      this.syncTerrainLinksDate(ymd)
+      this.syncFilterLinksDate(ymd)
     } catch (_) {
       // noop if URL API not available
     }
@@ -233,64 +233,86 @@ export default class extends Controller {
     return `${year}-${month}-${day}`
   }
 
-  syncTerrainLinksDate(ymd) {
+  syncFilterLinksDate(ymd) {
     try {
-      const container = document.getElementById('terrain-tabs')
-      if (!container) return
-      const anchors = container.querySelectorAll('a[href]')
-      anchors.forEach((a) => {
-        const url = new URL(a.href, window.location.origin)
-        url.searchParams.set('date', ymd)
-        a.href = url.toString()
+      ;['terrain-tabs', 'audience-tabs'].forEach((containerId) => {
+        const container = document.getElementById(containerId)
+        if (!container) return
+        const anchors = container.querySelectorAll('a[href]')
+        anchors.forEach((a) => {
+          const url = new URL(a.href, window.location.origin)
+          url.searchParams.set('date', ymd)
+          a.href = url.toString()
+        })
       })
     } catch (_) {
       // ignore
     }
   }
 
-  setupTerrainTabsInteraction() {
-    const container = document.getElementById('terrain-tabs')
-    if (!container) return
+  setupFilterTabsInteraction() {
+    const containers = ['terrain-tabs', 'audience-tabs']
+      .map((id) => document.getElementById(id))
+      .filter(Boolean)
+    if (containers.length === 0) return
 
-    // Intercept clicks to avoid full page reload and keep calendar week
-    container.addEventListener('click', (event) => {
-      const anchor = event.target.closest('a')
-      if (!anchor) return
-      event.preventDefault()
-      try {
-        const url = new URL(anchor.href, window.location.origin)
-        const selectedTerrain = url.searchParams.get('terrain') || ''
-        this.applyTerrain(selectedTerrain)
+    containers.forEach((container) => {
+      // Intercept clicks to avoid full page reload and keep calendar week
+      container.addEventListener('click', (event) => {
+        const anchor = event.target.closest('a')
+        if (!anchor) return
+        event.preventDefault()
+        try {
+          const url = new URL(anchor.href, window.location.origin)
+          const selectedTerrain = url.searchParams.get('terrain') || ''
+          const forMe = url.searchParams.get('for_me') === '1'
+          this.applyFilters({ selectedTerrain, forMe })
 
-        // Update URL (preserve date param already set by datesSet)
-        const currentUrl = new URL(window.location.href)
-        if (selectedTerrain) {
-          currentUrl.searchParams.set('terrain', selectedTerrain)
-        } else {
-          currentUrl.searchParams.delete('terrain')
+          // Update URL (preserve date param already set by datesSet)
+          const currentUrl = new URL(window.location.href)
+          if (selectedTerrain) {
+            currentUrl.searchParams.set('terrain', selectedTerrain)
+          } else {
+            currentUrl.searchParams.delete('terrain')
+          }
+          if (forMe) {
+            currentUrl.searchParams.set('for_me', '1')
+          } else {
+            currentUrl.searchParams.delete('for_me')
+          }
+          window.history.replaceState({}, '', currentUrl.toString())
+        } catch (_) {
+          // ignore
         }
-        window.history.replaceState({}, '', currentUrl.toString())
-      } catch (_) {
-        // ignore
-      }
+      })
     })
 
     // Keep in sync when navigating browser history
-    window.addEventListener('popstate', () => this.applyTerrainFromUrl())
+    window.addEventListener('popstate', () => this.applyFiltersFromUrl())
   }
 
-  applyTerrainFromUrl() {
+  applyFiltersFromUrl() {
     try {
       const url = new URL(window.location.href)
       const selectedTerrain = url.searchParams.get('terrain') || ''
-      this.applyTerrain(selectedTerrain)
+      const forMe = url.searchParams.get('for_me') === '1'
+      this.applyFilters({ selectedTerrain, forMe })
     } catch (_) {
       // ignore
     }
   }
 
-  applyTerrain(selectedTerrain) {
+  applyFilters({ selectedTerrain, forMe }) {
     if (!this.calendar || !this.sessions) return
+
+    // Filter events
+    const filteredEvents = this.sessions.filter((eventData) => {
+      const terrainMatches = selectedTerrain ? eventData.terrain === selectedTerrain : true
+      const forMeMatches = forMe ? Boolean(eventData.forMe) : true
+      return terrainMatches && forMeMatches
+    })
+    this.calendar.removeAllEvents()
+    this.calendar.addEventSource(filteredEvents)
 
     // Update active tab classes
     const container = document.getElementById('terrain-tabs')
@@ -308,11 +330,19 @@ export default class extends Controller {
       })
     }
 
-    // Filter events
-    const filteredEvents = selectedTerrain
-      ? this.sessions.filter(e => e.terrain === selectedTerrain)
-      : this.sessions
-    this.calendar.removeAllEvents()
-    this.calendar.addEventSource(filteredEvents)
+    const audienceContainer = document.getElementById('audience-tabs')
+    if (audienceContainer) {
+      const anchors = Array.from(audienceContainer.querySelectorAll('a'))
+      anchors.forEach((a) => {
+        const url = new URL(a.href, window.location.origin)
+        const audienceForMe = url.searchParams.get('for_me') === '1'
+        const isActive = audienceForMe === forMe
+
+        a.classList.toggle('text-asmbv-red', isActive)
+        a.classList.toggle('border-asmbv-red', isActive)
+        a.classList.toggle('text-gray-500', !isActive)
+        a.classList.toggle('border-transparent', !isActive)
+      })
+    }
   }
 }

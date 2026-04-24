@@ -99,6 +99,7 @@ class RegistrationsController < ApplicationController
     {
       view: params[:view].presence_in(%w[grid calendar]),
       date: params[:date].presence,
+      for_me: ActiveModel::Type::Boolean.new.cast(params[:for_me]) ? "1" : nil,
       terrain: params[:terrain].presence
     }.compact
   end
