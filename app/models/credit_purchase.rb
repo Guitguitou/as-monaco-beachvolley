@@ -23,29 +23,7 @@ class CreditPurchase < ApplicationRecord
 
   # Traite le paiement selon le type de pack (idempotent)
   def credit!
-    return if paid_status? # Déjà traité, ne rien faire
-
-    ActiveRecord::Base.transaction do
-      if credits_pack?
-        process_credits_purchase
-      elsif stage_pack?
-        process_stage_purchase
-      elsif licence_pack?
-        process_licence_purchase
-      elsif inscription_tournoi_pack?
-        process_inscription_tournoi_purchase
-      elsif equipements_pack?
-        process_equipements_purchase
-      else
-        raise 'Type de pack non reconnu'
-      end
-
-      # Marquer comme payé
-      update!(
-        status: :paid,
-        paid_at: Time.current
-      )
-    end
+    CreditPurchases::ProcessPayment.call(purchase: self)
   end
 
   # Détermine si c'est un pack de crédits
@@ -86,52 +64,6 @@ class CreditPurchase < ApplicationRecord
   end
 
   private
-
-  def process_credits_purchase
-    # Les packs de crédits nécessitent un utilisateur connecté
-    raise 'Les packs de crédits nécessitent une connexion utilisateur' if user.nil?
-
-    # Créer ou trouver le balance de l'utilisateur
-    user.balance || user.create_balance!(amount: 0)
-
-    # Créer la transaction de crédit (le callback apply_amount_delta s'occupe de l'incrémentation)
-    user.credit_transactions.create!(
-      transaction_type: :purchase,
-      amount: credits,
-      session: nil
-    )
-  end
-
-  def process_stage_purchase
-    # Pour les stages, on pourrait créer une inscription ou un enregistrement
-    # Pour l'instant, on log juste l'achat
-    user_info = user ? "user #{user.id}" : 'anonymous user'
-    Rails.logger.info("Stage pack purchased: #{pack.name} by #{user_info}")
-    # TODO: Implémenter la logique d'inscription au stage
-    # Pour les utilisateurs anonymes, on pourrait stocker l'email dans sherlock_fields
-  end
-
-  def process_licence_purchase
-    # Active le compte utilisateur lors du paiement de la licence
-    if user.present?
-      user.activate! unless user.activated?
-      Rails.logger.info("Licence pack purchased and user activated: #{user.email}")
-    else
-      # Pour les utilisateurs anonymes, on pourrait stocker l'email dans sherlock_fields
-      # et activer le compte ultérieurement quand ils se connectent/créent un compte
-      Rails.logger.info('Licence pack purchased by anonymous user - stored in sherlock_fields')
-    end
-  end
-
-  def process_inscription_tournoi_purchase
-    user_info = user ? "user #{user.id}" : "anonymous user"
-    Rails.logger.info("Inscription tournoi pack purchased: #{pack.name} by #{user_info}")
-  end
-
-  def process_equipements_purchase
-    user_info = user ? "user #{user.id}" : "anonymous user"
-    Rails.logger.info("Equipements pack purchased: #{pack.name} by #{user_info}")
-  end
 
   # Générer une référence unique
   def generate_reference
