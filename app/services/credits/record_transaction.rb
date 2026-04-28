@@ -18,8 +18,7 @@ module Credits
         user: user,
         session: session,
         transaction_type: transaction_type,
-        amount: amount,
-        skip_side_effect_callbacks: true
+        amount: amount
       )
 
       Credits::ApplyTransactionDelta.call(user: user, delta: amount)

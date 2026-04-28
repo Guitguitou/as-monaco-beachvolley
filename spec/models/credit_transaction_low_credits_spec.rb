@@ -56,9 +56,6 @@ RSpec.describe "CreditTransaction low credits notification", type: :model do
         create(:credit_transaction, user: user, amount: -200)
         expect(SendPushNotificationJob).to have_received(:perform_later).once
 
-        # Reset mock
-        allow(SendPushNotificationJob).to receive(:perform_later)
-
         # Simulate cache hit (notification sent less than 24h ago)
         allow(Rails.cache).to receive(:read).with("low_credits_notification:#{user.id}").and_return(1.hour.ago)
 
@@ -66,7 +63,7 @@ RSpec.describe "CreditTransaction low credits notification", type: :model do
         create(:credit_transaction, user: user, amount: -50)
 
         # Should not send another notification
-        expect(SendPushNotificationJob).not_to have_received(:perform_later)
+        expect(SendPushNotificationJob).to have_received(:perform_later).once
       end
     end
 
