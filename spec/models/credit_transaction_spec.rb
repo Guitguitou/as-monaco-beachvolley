@@ -5,6 +5,17 @@ require 'rails_helper'
 RSpec.describe CreditTransaction, type: :model do
   # ... existing tests ...
 
+  describe ".record!" do
+    let(:user) { create(:user) }
+
+    it "records transaction side effects without model callbacks" do
+      expect {
+        described_class.record!(user: user, transaction_type: :purchase, amount: 250)
+      }.to change { user.reload.balance.amount }.by(250)
+       .and change(described_class, :count).by(1)
+    end
+  end
+
   describe 'scopes' do
     let(:user) { create(:user) }
     let(:session) { create(:session, user: user) }
