@@ -29,14 +29,14 @@ class Registration < ApplicationRecord
     result = Registrations::EligibilityChecker.call(registration: self)
     return if result.allowed?
 
-    case result.reason
-    when "Ce n’est pas ton niveau d'entrainement."
+    case result.code
+    when :invalid_level
       errors.add(:user, "n’a pas le bon niveau pour cet entraînement")
       errors.add(:base, result.reason)
-    when "Session complète."
+    when :session_full
       errors.add(:status, "impossible: session complète")
       errors.add(:base, result.reason)
-    when "Pas assez de crédits."
+    when :insufficient_credits
       errors.add(:user, "n’a pas assez de crédits")
       errors.add(:base, result.reason)
     else
