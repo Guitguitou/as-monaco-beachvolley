@@ -1,6 +1,7 @@
 class CreditTransaction < ApplicationRecord
   belongs_to :user
   belongs_to :session, optional: true
+  attr_accessor :skip_side_effect_callbacks
 
   enum :transaction_type, {
     purchase: 0,
@@ -27,33 +28,42 @@ class CreditTransaction < ApplicationRecord
   private
 
   def apply_amount_delta
-    # Incremental update preserves any pre-existing balance baseline
-    user.balance.update!(amount: (user.balance.amount || 0) + amount)
+    return if skip_side_effect_callbacks
+
+    Credits::ApplyTransactionDelta.call(user: user, delta: amount)
   end
 
   def apply_amount_update_delta
+    return if skip_side_effect_callbacks
+
     previous = saved_change_to_amount? ? saved_change_to_amount.first : amount
     delta = amount - previous
     return if delta.zero?
 
-    user.balance.update!(amount: (user.balance.amount || 0) + delta)
+    Credits::ApplyTransactionDelta.call(user: user, delta: delta)
   end
 
   def apply_amount_destroy_delta
-    user.balance.update!(amount: (user.balance.amount || 0) - amount)
+    return if skip_side_effect_callbacks
+
+    Credits::ApplyTransactionDelta.call(user: user, delta: -amount)
   end
 
   def check_low_credits_notification_after_create
+    return if skip_side_effect_callbacks
+
     # Règle 3: Notifier si les crédits passent sous 500
     # Le balance a déjà été mis à jour par apply_amount_delta
     # Le solde avant était donc current_balance - amount
     user.balance.reload
     current_balance = user.balance.amount
     previous_balance = current_balance - amount
-    check_low_credits_notification(previous_balance, current_balance)
+    Credits::LowBalanceNotifier.call(user: user, previous_balance: previous_balance, current_balance: current_balance)
   end
 
   def check_low_credits_notification_after_update
+    return if skip_side_effect_callbacks
+
     # Règle 3: Notifier si les crédits passent sous 500
     # Calculer le solde avant cette modification
     user.balance.reload
@@ -61,39 +71,19 @@ class CreditTransaction < ApplicationRecord
     old_amount = saved_change_to_amount? ? saved_change_to_amount.first : amount
     delta = amount - old_amount
     previous_balance = current_balance - delta
-    check_low_credits_notification(previous_balance, current_balance)
+    Credits::LowBalanceNotifier.call(user: user, previous_balance: previous_balance, current_balance: current_balance)
   end
 
   def check_low_credits_notification_after_destroy
+    return if skip_side_effect_callbacks
+
     # Règle 3: Notifier si les crédits passent sous 500
     # Le balance a déjà été mis à jour par apply_amount_destroy_delta
     # Le solde avant était donc current_balance + amount
     user.balance.reload
     current_balance = user.balance.amount
     previous_balance = current_balance + amount
-    check_low_credits_notification(previous_balance, current_balance)
-  end
-
-  def check_low_credits_notification(previous_balance, current_balance)
-    # Vérifier si on vient de passer sous 500 crédits (et qu'on était au-dessus avant)
-    # Notifier seulement si on passe de >= 500 à < 500
-    if previous_balance >= 500 && current_balance < 500 && current_balance >= 0
-      # Vérifier qu'on n'a pas déjà envoyé une notification récemment (dans les dernières 24h)
-      cache_key = "low_credits_notification:#{user.id}"
-      last_notification = Rails.cache.read(cache_key)
-
-      # Envoyer seulement si pas de notification dans les dernières 24h
-      if last_notification.nil? || last_notification < 24.hours.ago
-        SendPushNotificationJob.perform_later(
-          user.id,
-          title: "Crédits faibles",
-          body: "Attention tu as moins de 500 crédits, pense à recharger 😉",
-          url: Rails.application.routes.url_helpers.packs_path
-        )
-        # Mettre en cache pour 24h
-        Rails.cache.write(cache_key, Time.current, expires_in: 24.hours)
-      end
-    end
+    Credits::LowBalanceNotifier.call(user: user, previous_balance: previous_balance, current_balance: current_balance)
   end
 
 end

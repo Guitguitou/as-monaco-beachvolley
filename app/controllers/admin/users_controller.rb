@@ -121,14 +121,12 @@ module Admin
 
       redirect_to admin_user_path(@user), alert: 'Montant invalide' and return if amount.zero?
 
-      CreditTransaction.create!(
+      Credits::RecordTransaction.call(
         user: @user,
         session: nil,
         transaction_type: :manual_adjustment,
-        amount:
+        amount: amount
       )
-
-      # Le solde est recalculé automatiquement par le callback after_commit
 
       notice = amount.positive? ? 'Crédits ajoutés avec succès' : 'Crédits déduits avec succès'
       redirect_to admin_user_path(@user), notice:
