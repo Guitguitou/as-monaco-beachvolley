@@ -26,64 +26,30 @@ class Registration < ApplicationRecord
   scope :valid, -> { where(status: :confirmed) }
 
   def can_register?
-    # Opening rules with 24h priority for competition license
-    # Skip deadline check if allow_deadline_bypass is true (for admins/coaches)
-    if allow_deadline_bypass
-      # Check all opening rules except deadline
-      open_ok, open_reason = session.registration_open_state_for(user, skip_deadline: true)
-    else
-      open_ok, open_reason = session.registration_open_state_for(user)
-    end
-    unless open_ok
-      errors.add(:base, open_reason)
-    end
+    result = Registrations::EligibilityChecker.call(registration: self)
+    return if result.allowed?
 
-    if session.coaching_prive? && !allow_private_coaching_registration
-      errors.add(:base, "Les coachings privés ne sont pas ouverts à l’inscription.")
-    end
-
-    unless level_allowed?
+    case result.reason
+    when "Ce n’est pas ton niveau d'entrainement."
       errors.add(:user, "n’a pas le bon niveau pour cet entraînement")
-      errors.add(:base, "Ce n’est pas ton niveau d'entrainement.")
-    end
-
-    # Only block on full if trying to confirm, not when waitlisting
-    if confirmed? && session.full?
+      errors.add(:base, result.reason)
+    when "Session complète."
       errors.add(:status, "impossible: session complète")
-      errors.add(:base, "Session complète.")
-    end
-
-    if !enough_credits?
+      errors.add(:base, result.reason)
+    when "Pas assez de crédits."
       errors.add(:user, "n’a pas assez de crédits")
-      errors.add(:base, "Pas assez de crédits.")
+      errors.add(:base, result.reason)
+    else
+      errors.add(:base, result.reason)
     end
   end
 
   def can_register_with_reason
-    open_ok, open_reason = session.registration_open_state_for(user)
-    return [false, open_reason] unless open_ok
+    result = Registrations::EligibilityChecker.call(registration: self)
+    return [false, result.reason] unless result.allowed?
 
-    return [false, "Les coachings privés ne sont pas ouverts à l’inscription."] if session.coaching_prive? && !allow_private_coaching_registration
-
-    unless level_allowed?
-      return [false, "Ce n’est pas ton niveau d'entrainement."]
-    end
-
-    # Only show full message for confirmed registrations
-    return [false, "Session complète."] if confirmed? && session.full?
-
-    # Schedule conflict only for confirmed
-    if confirmed?
-      overlap_exists = user
-        .sessions_registered
-        .where("start_at < ? AND end_at > ?", session.end_at, session.start_at)
-        .where.not(id: session.id)
-        .exists?
-      return [false, "Tu es déjà inscrit à une autre session sur le même créneau."] if overlap_exists
-    end
-
-    if !enough_credits?
-      return [false, "Tu n'as pas assez de crédits."]
+    if confirmed? && Registrations::ScheduleConflictQuery.call(user: user, session: session).exists?
+      return [false, "Tu es déjà inscrit à une autre session sur le même créneau."]
     end
 
     [true, nil]
@@ -126,11 +92,7 @@ class Registration < ApplicationRecord
     return if waitlisted?
 
     # Overlap: existing.start < new_end AND existing.end > new_start
-    overlap_exists = user
-      .sessions_registered
-      .where("start_at < ? AND end_at > ?", session.end_at, session.start_at)
-      .where.not(id: session.id)
-      .exists?
+    overlap_exists = Registrations::ScheduleConflictQuery.call(user: user, session: session).exists?
 
     if overlap_exists
       errors.add(:session, "chevauche une autre session à laquelle tu es inscrit")
