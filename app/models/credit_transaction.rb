@@ -3,6 +3,15 @@ class CreditTransaction < ApplicationRecord
   belongs_to :session, optional: true
   attr_accessor :skip_side_effect_callbacks
 
+  def self.record!(user:, transaction_type:, amount:, session: nil)
+    Credits::RecordTransaction.call(
+      user: user,
+      transaction_type: transaction_type,
+      amount: amount,
+      session: session
+    )
+  end
+
   enum :transaction_type, {
     purchase: 0,
     training_payment: 1,

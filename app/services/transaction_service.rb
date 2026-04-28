@@ -9,7 +9,7 @@ class TransactionService
     # Store payments as negative amounts so balance = sum(transactions)
     recorded_amount = -@amount.to_i
 
-    Credits::RecordTransaction.call(
+    CreditTransaction.record!(
       user: @user,
       session: @session,
       transaction_type: transaction_type,
@@ -21,7 +21,7 @@ class TransactionService
     # Avoid no-op refund entries
     return if @amount.to_i <= 0
 
-    Credits::RecordTransaction.call(
+    CreditTransaction.record!(
       user: @user,
       session: @session,
       transaction_type: :refund,
