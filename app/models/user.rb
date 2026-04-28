@@ -94,12 +94,10 @@ class User < ApplicationRecord
   private
 
   def init_balance
-    create_balance(amount: 0)
+    Users::BootstrapAccount.call(user: self, legacy_level: @legacy_level_to_assign, initialize_balance: true, assign_legacy_level: false)
   end
 
   def apply_legacy_level_assignment
-    return unless @legacy_level_to_assign.present?
-
-    user_levels.find_or_create_by!(level: @legacy_level_to_assign)
+    Users::BootstrapAccount.call(user: self, legacy_level: @legacy_level_to_assign, initialize_balance: false, assign_legacy_level: true)
   end
 end
