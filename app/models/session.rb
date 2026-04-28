@@ -63,26 +63,7 @@ class Session < ApplicationRecord
   scope :free_plays, -> { where(session_type: 'jeu_libre') }
   scope :private_coachings, -> { where(session_type: 'coaching_prive') }
   scope :for_user_levels, ->(level_ids) do
-    sanitized_level_ids = Array(level_ids).map(&:to_i).uniq
-    training_type = session_types.fetch("entrainement")
-
-    base_scope = left_joins(:session_levels)
-    query = base_scope.where(
-      "sessions.session_type != :training_type OR (sessions.session_type = :training_type AND session_levels.level_id IS NULL)",
-      training_type: training_type
-    )
-
-    if sanitized_level_ids.any?
-      query = query.or(
-        base_scope.where(
-          "sessions.session_type = :training_type AND session_levels.level_id IN (:level_ids)",
-          training_type: training_type,
-          level_ids: sanitized_level_ids
-        )
-      )
-    end
-
-    query.distinct
+    Sessions::EligibleForUserLevelsQuery.call(relation: all, level_ids: level_ids)
   end
   scope :ordered_by_start, -> { order(:start_at) }
   
@@ -112,42 +93,12 @@ class Session < ApplicationRecord
   # @param user [User] The user trying to register
   # @param skip_deadline [Boolean] If true, skip the deadline check (for admins/coaches)
   def registration_open_state_for(user, skip_deadline: false)
-    # Only trainings are constrained by opening rules
-    return [true, nil] unless entrainement?
-
-    # If no opening date is set, registrations are open for everyone
-    return [true, nil] if registration_opens_at.blank?
-
-    now = Time.current
-    if now < registration_opens_at
-      return [false, "Les inscriptions ouvrent le #{I18n.l(registration_opens_at, format: :long)}."]
-    end
-
-    within_priority_window = now < (registration_opens_at + PRIORITY_WINDOW_HOURS.hours)
-    if within_priority_window && user&.license_type != 'competition'
-      return [false, "Priorité licence compétition pendant 24h après l'ouverture."]
-    end
-
-    # Check if registration deadline (17h on the day) has passed
-    # Skip this check if skip_deadline is true (for admins/coaches)
-    if !skip_deadline && past_registration_deadline?
-      return [false, "Les inscriptions sont closes (limite : 17h le jour de la session)."]
-    end
-
-    [true, nil]
+    Sessions::RegistrationPolicy.new(session: self, user: user, skip_deadline: skip_deadline).open_state
   end
 
   # Check if current time is past 17h on the day of the session
   def past_registration_deadline?
-    return false if start_at.blank?
-    
-    now = Time.current
-    session_day = start_at.to_date
-    deadline = start_at.change(hour: REGISTRATION_DEADLINE_HOUR, min: 0, sec: 0)
-    
-    # If the session is today, check if we're past 17h
-    # If the session is in the past, deadline is definitely passed
-    now >= deadline
+    Sessions::RegistrationPolicy.new(session: self, user: nil).past_deadline?
   end
 
   def display_name
@@ -174,65 +125,7 @@ class Session < ApplicationRecord
 
   # Promote the earliest waitlisted user to confirmed if a spot is available
   def promote_from_waitlist!
-    return unless max_players.present?
-    return if registrations.confirmed.count >= max_players
-
-    waitlisted_queue = registrations.waitlisted.order(:created_at)
-    waitlisted_queue.each do |reg|
-      # Compute amount as if confirming (waitlisted required_credits returns 0)
-      amount = coaching_prive? ? 0 : price.to_i
-      
-      # For non-private sessions, check if user has enough credits
-      # For private coachings, amount is 0 so we can always promote
-      if amount.positive? && reg.user.balance.amount < amount
-        # Règle 2: Notifier l'utilisateur qu'il n'a pas assez de crédits
-        begin
-          SendPushNotificationJob.perform_later(
-            reg.user.id,
-            title: "Pas assez de crédits",
-            body: "Tu n'as pas assez de crédits pour passer en liste principale.",
-            url: Rails.application.routes.url_helpers.session_path(self)
-          )
-        rescue StandardError => e
-          Rails.logger.error "Failed to enqueue notification job: #{e.message}"
-          # Don't block the process if notification fails
-        end
-        next
-      end
-
-      promotion_succeeded = false
-      begin
-        ActiveRecord::Base.transaction do
-          reg.status = :confirmed
-          reg.save!
-          TransactionService.new(reg.user, self, amount).create_transaction if amount.positive?
-          promotion_succeeded = true
-        end
-
-        # Règle 1: Notifier l'utilisateur qu'il passe en liste principale (push + email)
-        if promotion_succeeded
-          begin
-            session_name = self.title || session_type.humanize
-            session_date = start_at.strftime("%d/%m/%Y")
-            session_time = start_at.strftime("%Hh%M")
-            SendPushNotificationJob.perform_later(
-              reg.user.id,
-              title: "Tu passes en liste principale !",
-              body: "Quelqu'un s'est désinscrit de la session #{session_name} du #{session_date} à #{session_time}, tu viens de passer en liste principale",
-              url: Rails.application.routes.url_helpers.session_path(self)
-            )
-            SessionMailer.promoted_to_main_list(reg.user, self).deliver_later
-          rescue StandardError => e
-            Rails.logger.error "Failed to enqueue notification job: #{e.message}"
-            # Don't block the process if notification fails
-          end
-        end
-      rescue ActiveRecord::RecordInvalid
-        promotion_succeeded = false
-      end
-
-      break if promotion_succeeded
-    end
+    Sessions::WaitlistPromotionService.call(session: self)
   end
 
   private
@@ -283,11 +176,7 @@ class Session < ApplicationRecord
   def no_overlapping_sessions_on_same_terrain
     return if start_at.blank? || end_at.blank? || terrain.blank?
 
-    # Overlap rule: existing.start < new_end AND existing.end > new_start
-    # This allows back-to-back sessions (end == start) and forbids any true overlap
-    overlapping_sessions = Session.where(terrain: terrain)
-                                  .where.not(id: id)
-                                  .where("start_at < ? AND end_at > ?", end_at, start_at)
+    overlapping_sessions = Sessions::OverlappingOnTerrainQuery.call(session: self)
 
     if overlapping_sessions.exists?
       errors.add(:terrain, "est déjà pris sur ce créneau")
@@ -312,12 +201,12 @@ class Session < ApplicationRecord
   end
 
   def coach_has_enough_credits_for_private_coaching
-    return if user&.balance&.amount >= default_price
+    return if Sessions::PrivateCoachingChargeService.new(session: self).coach_can_pay?
 
     errors.add(:base, "Le coach n'a pas assez de crédits pour créer un coaching privé (#{default_price} requis)")
   end
 
   def charge_coach_for_private_coaching
-    TransactionService.new(user, self, default_price).create_transaction
+    Sessions::PrivateCoachingChargeService.new(session: self).charge_coach!
   end
 end
