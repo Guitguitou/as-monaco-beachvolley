@@ -121,7 +121,7 @@ module Admin
 
       redirect_to admin_user_path(@user), alert: 'Montant invalide' and return if amount.zero?
 
-      Credits::RecordTransaction.call(
+      CreditTransaction.record!(
         user: @user,
         session: nil,
         transaction_type: :manual_adjustment,

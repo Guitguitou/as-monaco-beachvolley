@@ -9,7 +9,7 @@ module CreditPurchases
         raise "Les packs de crédits nécessitent une connexion utilisateur" if purchase.user.nil?
 
         purchase.user.balance || purchase.user.create_balance!(amount: 0)
-        Credits::RecordTransaction.call(
+        CreditTransaction.record!(
           user: purchase.user,
           transaction_type: :purchase,
           amount: purchase.credits,
