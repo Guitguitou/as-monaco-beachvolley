@@ -15,6 +15,7 @@ RSpec.describe Registrations::EligibilityChecker do
       result = described_class.call(registration: registration)
 
       expect(result.allowed?).to be(true)
+      expect(result.code).to be_nil
       expect(result.reason).to be_nil
     end
 
@@ -23,6 +24,7 @@ RSpec.describe Registrations::EligibilityChecker do
 
       result = described_class.call(registration: registration)
       expect(result.allowed?).to be(false)
+      expect(result.code).to eq(:session_full)
       expect(result.reason).to eq("Session complète.")
     end
   end
