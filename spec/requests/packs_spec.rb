@@ -53,5 +53,4 @@ RSpec.describe "Packs", type: :request do
       expect(response.body).to include("Cet email existe déjà")
     end
   end
-
 end

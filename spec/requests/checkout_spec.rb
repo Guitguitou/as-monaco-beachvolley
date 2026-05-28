@@ -72,4 +72,3 @@ RSpec.describe "Checkout", type: :request do
     end
   end
 end
-

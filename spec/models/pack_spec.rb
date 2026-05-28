@@ -137,7 +137,7 @@ RSpec.describe Pack, type: :model do
   describe '#display_name' do
     context 'for credits pack' do
       let(:pack) { build(:pack, :credits, name: 'Premium', credits: 2000, amount_cents: 2000) }
-      
+
       it 'includes credits information' do
         expect(pack.display_name).to eq('Premium - 2000 crédits (20.0 €)')
       end
@@ -146,7 +146,7 @@ RSpec.describe Pack, type: :model do
     context 'for stage pack' do
       let(:stage) { build(:stage, title: 'Stage Été') }
       let(:pack) { build(:pack, :stage, name: 'Pack Stage', stage: stage, amount_cents: 5000) }
-      
+
       it 'includes stage information' do
         expect(pack.display_name).to eq('Pack Stage - Stage Été (50.0 €)')
       end
@@ -154,7 +154,7 @@ RSpec.describe Pack, type: :model do
 
     context 'for licence pack' do
       let(:pack) { build(:pack, :licence, name: 'Licence Annuelle', amount_cents: 10000) }
-      
+
       it 'includes licence information' do
         expect(pack.display_name).to eq('Licence Annuelle - Licence (100.0 €)')
       end
@@ -164,7 +164,7 @@ RSpec.describe Pack, type: :model do
   describe '#credits_per_euro' do
     context 'for credits pack' do
       let(:pack) { build(:pack, :credits, credits: 2000, amount_cents: 2000) }
-      
+
       it 'calculates credits per euro' do
         expect(pack.credits_per_euro).to eq(100.0)
       end
@@ -172,7 +172,7 @@ RSpec.describe Pack, type: :model do
 
     context 'for non-credits pack' do
       let(:pack) { build(:pack, :licence) }
-      
+
       it 'returns 0' do
         expect(pack.credits_per_euro).to eq(0)
       end

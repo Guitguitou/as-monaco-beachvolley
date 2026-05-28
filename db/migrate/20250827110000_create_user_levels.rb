@@ -7,6 +7,6 @@ class CreateUserLevels < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :user_levels, [:user_id, :level_id], unique: true
+    add_index :user_levels, [ :user_id, :level_id ], unique: true
   end
 end

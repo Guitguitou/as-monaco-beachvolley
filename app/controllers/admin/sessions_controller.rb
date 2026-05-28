@@ -5,7 +5,7 @@ module Admin
     layout "dashboard"
     before_action :authenticate_user!
     load_and_authorize_resource
-    before_action :set_session, only: [:show, :edit, :update, :destroy, :duplicate]
+    before_action :set_session, only: [ :show, :edit, :update, :destroy, :duplicate ]
 
     def index
       # Optional filters
@@ -15,15 +15,15 @@ module Admin
 
       if params[:period].present?
         range = case params[:period]
-                when 'week'
+        when "week"
                   Time.zone.today.beginning_of_week..(Time.zone.today.beginning_of_week + 7.days)
-                when 'month'
+        when "month"
                   Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
-                when 'year'
+        when "year"
                   Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
-                else
+        else
                   nil
-                end
+        end
         @sessions = @sessions.where(start_at: range) if range
       else
         from = params[:start_at_from].presence && Time.zone.parse(params[:start_at_from]) rescue nil
@@ -31,9 +31,9 @@ module Admin
         if from && to
           @sessions = @sessions.where(start_at: from..to)
         elsif from
-          @sessions = @sessions.where('start_at >= ?', from)
+          @sessions = @sessions.where("start_at >= ?", from)
         elsif to
-          @sessions = @sessions.where('start_at <= ?', to)
+          @sessions = @sessions.where("start_at <= ?", to)
         end
       end
 
@@ -50,7 +50,7 @@ module Admin
     def create
       @session = Session.new(session_params)
 
-      if params.dig(:session, :create_on_all_terrains) == '1'
+      if params.dig(:session, :create_on_all_terrains) == "1"
         create_on_all_terrains
       else
         if @session.save
@@ -85,14 +85,14 @@ module Admin
     # Duplicate a session weekly for N weeks (admin only)
     def duplicate
       authorize! :manage, Session
-      
+
       result = DuplicateSessionService.new(@session, params[:weeks]).call
-      
+
       if result[:success]
         redirect_to admin_sessions_path, notice: "#{result[:created_count]} session(s) créée(s) ✅"
       else
-        alert_message = result[:errors].any? ? 
-          ["Certaines duplications ont échoué:", *result[:errors]].join("\n") :
+        alert_message = result[:errors].any? ?
+          [ "Certaines duplications ont échoué:", *result[:errors] ].join("\n") :
           "Erreur lors de la duplication"
         redirect_to admin_session_path(@session), alert: alert_message
       end
@@ -155,7 +155,7 @@ module Admin
         end
       end
 
-      flash[:alert] = [flash[:alert], errors.join("; ")].compact.reject(&:blank?).join("; ") if errors.any?
+      flash[:alert] = [ flash[:alert], errors.join("; ") ].compact.reject(&:blank?).join("; ") if errors.any?
     end
 
     def create_on_all_terrains

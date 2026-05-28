@@ -6,7 +6,7 @@ RSpec.describe Session, 'Registration Deadline' do
   let(:coach) { create(:user, coach: true, salary_per_training_cents: 5000) }
   let(:regular_user) { create(:user, license_type: 'competition') }
   let(:today) { Time.zone.parse('2024-11-07 10:00:00') } # Jeudi 7 nov à 10h
-  
+
   before do
     travel_to(today)
   end
@@ -135,4 +135,3 @@ RSpec.describe Session, 'Registration Deadline' do
     end
   end
 end
-

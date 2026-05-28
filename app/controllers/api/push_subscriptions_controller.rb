@@ -23,7 +23,7 @@ module Api
     # Removes a push subscription by endpoint
     def destroy
       subscription = current_user.push_subscriptions.find_by(endpoint: params[:endpoint])
-      
+
       if subscription
         subscription.destroy
         render json: { status: "success", message: "Subscription removed" }

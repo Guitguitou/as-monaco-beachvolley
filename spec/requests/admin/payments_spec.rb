@@ -73,4 +73,3 @@ RSpec.describe "Admin::Payments", type: :request do
     end
   end
 end
-

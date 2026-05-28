@@ -20,7 +20,7 @@ RSpec.describe Sherlock::CreatePayment do
     it 'calls gateway create_payment with correct parameters' do
       gateway = double
       allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-      
+
       expect(gateway).to receive(:create_payment).with(
         reference: credit_purchase.sherlock_transaction_reference || match(/CP-#{credit_purchase.id}-/),
         amount_cents: credit_purchase.amount_cents,
@@ -35,65 +35,65 @@ RSpec.describe Sherlock::CreatePayment do
           email: user.email
         )
       )
-      
+
       service.call
     end
 
     it 'uses existing transaction reference if present' do
       credit_purchase.update!(sherlock_transaction_reference: "EXISTING-REF-123")
-      
+
       gateway = double
       allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-      
+
       expect(gateway).to receive(:create_payment).with(
         hash_including(reference: "EXISTING-REF-123")
       )
-      
+
       service.call
     end
 
     it 'generates and saves transaction reference if missing' do
       credit_purchase.update!(sherlock_transaction_reference: nil)
-      
+
       expect {
         service.call
       }.to change { credit_purchase.reload.sherlock_transaction_reference }.from(nil)
-      
+
       expect(credit_purchase.sherlock_transaction_reference).to match(/CP-#{credit_purchase.id}-/)
     end
 
     it 'uses currency from credit_purchase if present' do
       credit_purchase.update!(currency: "USD")
-      
+
       gateway = double
       allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-      
+
       expect(gateway).to receive(:create_payment).with(
         hash_including(currency: "USD")
       )
-      
+
       service.call
     end
 
     it 'defaults to EUR currency if not set' do
       credit_purchase.update_column(:currency, "")
-      
+
       gateway = double
       allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-      
+
       expect(gateway).to receive(:create_payment).with(
         hash_including(currency: "EUR")
       )
-      
+
       service.call
     end
 
     it 'includes user full_name in customer if available' do
       user.update!(first_name: "John", last_name: "Doe")
-      
+
       gateway = double
       allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-      
+
       expect(gateway).to receive(:create_payment).with(
         hash_including(
           customer: hash_including(
@@ -101,16 +101,16 @@ RSpec.describe Sherlock::CreatePayment do
           )
         )
       )
-      
+
       service.call
     end
 
     it 'handles user without full_name method' do
       allow(user).to receive(:respond_to?).with(:full_name).and_return(false)
-      
+
       gateway = double
       allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-      
+
       expect(gateway).to receive(:create_payment).with(
         hash_including(
           customer: hash_including(
@@ -118,17 +118,16 @@ RSpec.describe Sherlock::CreatePayment do
           )
         )
       )
-      
+
       service.call
     end
 
     it 'returns the HTML from gateway' do
       gateway = double(create_payment: "<html>payment form</html>")
       allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-      
+
       result = service.call
       expect(result).to eq("<html>payment form</html>")
     end
   end
 end
-

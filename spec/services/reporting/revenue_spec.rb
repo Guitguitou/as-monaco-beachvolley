@@ -22,23 +22,23 @@ RSpec.describe Reporting::Revenue do
 
     before do
       # Week revenue (in current week)
-      create(:credit_purchase, 
-             user: user, 
-             status: :paid, 
+      create(:credit_purchase,
+             user: user,
+             status: :paid,
              paid_at: week_start + 1.day,
              amount_cents: 10000) # 100€
-      
+
       # Month revenue (in month but outside current week)
-      create(:credit_purchase, 
-             user: user, 
-             status: :paid, 
+      create(:credit_purchase,
+             user: user,
+             status: :paid,
              paid_at: month_start + 2.days, # Early in month, before week
              amount_cents: 20000) # 200€
-      
-      # Year revenue (in year but outside current month)  
-      create(:credit_purchase, 
-             user: user, 
-             status: :paid, 
+
+      # Year revenue (in year but outside current month)
+      create(:credit_purchase,
+             user: user,
+             status: :paid,
              paid_at: year_start + 60.days, # February/March, outside current month
              amount_cents: 50000) # 500€
     end
@@ -59,10 +59,10 @@ RSpec.describe Reporting::Revenue do
 
     before do
       # Credit pack revenue
-      create(:credit_purchase, 
-             user: user, 
+      create(:credit_purchase,
+             user: user,
              pack: credits_pack,
-             status: :paid, 
+             status: :paid,
              paid_at: current_time + 1.day,
              amount_cents: 10000) # 100€
     end
@@ -86,24 +86,24 @@ RSpec.describe Reporting::Revenue do
     let(:period_range) { current_time..(current_time + 7.days) }
 
     before do
-      create(:credit_purchase, 
-             user: user, 
+      create(:credit_purchase,
+             user: user,
              pack: credits_pack,
-             status: :paid, 
+             status: :paid,
              paid_at: current_time + 1.day,
              amount_cents: 10000) # 100€
-      
-      create(:credit_purchase, 
-             user: user, 
+
+      create(:credit_purchase,
+             user: user,
              pack: stage_pack,
-             status: :paid, 
+             status: :paid,
              paid_at: current_time + 2.days,
              amount_cents: 20000) # 200€
-      
-      create(:credit_purchase, 
-             user: user, 
+
+      create(:credit_purchase,
+             user: user,
              pack: licence_pack,
-             status: :paid, 
+             status: :paid,
              paid_at: current_time + 3.days,
              amount_cents: 30000) # 300€
     end
@@ -130,18 +130,18 @@ RSpec.describe Reporting::Revenue do
     let(:period_range) { current_time..(current_time + 7.days) }
 
     before do
-      create(:credit_transaction, 
-             user: user, 
+      create(:credit_transaction,
+             user: user,
              session: training_session,
              transaction_type: :training_payment,
              amount: -400) # -4€
-      
-      create(:credit_transaction, 
-             user: user, 
+
+      create(:credit_transaction,
+             user: user,
              session: free_play_session,
              transaction_type: :free_play_payment,
              amount: -300) # -3€
-      
+
       # Note: private_coaching_session already created a transaction via callback
       # So no need to create it manually
     end
@@ -162,16 +162,16 @@ RSpec.describe Reporting::Revenue do
 
     before do
       # Current week revenue
-      create(:credit_purchase, 
-             user: user, 
-             status: :paid, 
+      create(:credit_purchase,
+             user: user,
+             status: :paid,
              paid_at: week_start + 1.day,
              amount_cents: 10000) # 100€
-      
+
       # Previous week revenue
-      create(:credit_purchase, 
-             user: user, 
-             status: :paid, 
+      create(:credit_purchase,
+             user: user,
+             status: :paid,
              paid_at: previous_week_start + 1.day,
              amount_cents: 8000) # 80€
     end

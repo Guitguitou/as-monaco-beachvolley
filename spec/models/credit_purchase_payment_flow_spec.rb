@@ -11,7 +11,7 @@ RSpec.describe 'CreditPurchase Payment Flow Integration', type: :model do
 
     it 'processes credits pack payment correctly' do
       purchase = create(:credit_purchase, user:, pack: credits_pack, credits: 1000, amount_cents: 1000)
-      
+
       initial_balance = user.balance.amount
 
       # Simuler le paiement
@@ -21,7 +21,7 @@ RSpec.describe 'CreditPurchase Payment Flow Integration', type: :model do
       expect(purchase.reload.status).to eq('paid')
       expect(purchase.paid_at).to be_present
       expect(user.reload.balance.amount).to eq(initial_balance + 1000)
-      
+
       # Transaction créée
       transaction = user.credit_transactions.last
       expect(transaction.transaction_type).to eq('purchase')
@@ -34,7 +34,7 @@ RSpec.describe 'CreditPurchase Payment Flow Integration', type: :model do
 
     it 'processes licence pack and activates inactive user' do
       purchase = create(:credit_purchase, user: inactive_user, pack: licence_pack, credits: 0, amount_cents: 5000)
-      
+
       expect(inactive_user.activated?).to be false
 
       # Simuler le paiement
@@ -43,7 +43,7 @@ RSpec.describe 'CreditPurchase Payment Flow Integration', type: :model do
       # Vérifications
       expect(purchase.reload.status).to eq('paid')
       expect(purchase.paid_at).to be_present
-      
+
       # CRITIQUE : L'utilisateur doit être activé !
       expect(inactive_user.reload.activated?).to be true
       expect(inactive_user.activated_at).to be_present
@@ -51,7 +51,7 @@ RSpec.describe 'CreditPurchase Payment Flow Integration', type: :model do
 
     it 'processes licence pack for already activated user without issues' do
       purchase = create(:credit_purchase, user:, pack: licence_pack, credits: 0, amount_cents: 5000)
-      
+
       original_activation = user.activated_at
 
       # Simuler le paiement
@@ -77,7 +77,7 @@ RSpec.describe 'CreditPurchase Payment Flow Integration', type: :model do
       # Vérifications
       expect(purchase.reload.status).to eq('paid')
       expect(purchase.paid_at).to be_present
-      
+
       # Stage pack ne touche pas aux crédits ni à l'activation
       expect(user.reload.balance.amount).to be >= 0  # Pas de changement de balance
     end
@@ -91,20 +91,19 @@ RSpec.describe 'CreditPurchase Payment Flow Integration', type: :model do
 
     it 'calling credit! multiple times does not duplicate credits' do
       purchase = create(:credit_purchase, user:, pack: credits_pack, credits: 1000, amount_cents: 1000)
-      
+
       purchase.credit!
       balance_after_first = user.reload.balance.amount
 
       # Appel multiple (ne devrait rien faire)
       purchase.credit!
       purchase.credit!
-      
+
       # Balance ne doit pas changer
       expect(user.reload.balance.amount).to eq(balance_after_first)
-      
+
       # Toujours payé
       expect(purchase.reload.status).to eq('paid')
     end
   end
 end
-

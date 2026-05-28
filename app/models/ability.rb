@@ -24,8 +24,8 @@ class Ability
 
       # Non-activated users: limited access to licenses, stages and infos
       if !user.activated?
-        can :read, Pack, pack_type: ['licence', 'stage', 'inscription_tournoi', 'equipements']
-        can :buy, Pack, pack_type: ['licence', 'stage', 'inscription_tournoi', 'equipements']
+        can :read, Pack, pack_type: [ "licence", "stage", "inscription_tournoi", "equipements" ]
+        can :buy, Pack, pack_type: [ "licence", "stage", "inscription_tournoi", "equipements" ]
         can :read, Stage
         # Access to infos pages (handled in routes, no specific permission needed)
       else
@@ -37,7 +37,7 @@ class Ability
 
         # Registrations (sign-up to sessions) - seulement si activé
         can :create, Registration
-        can [:destroy], Registration, user_id: user.id
+        can [ :destroy ], Registration, user_id: user.id
 
         # View own credit history
         can :read, CreditTransaction, user_id: user.id
@@ -47,7 +47,7 @@ class Ability
     # Elevated roles
     if (user.coach? || user.responsable?) && !user.disabled?
       # Give all CRUD actions except cancel
-      can [:read, :create, :update, :destroy], Session
+      can [ :read, :create, :update, :destroy ], Session
       # Can only cancel their own sessions
       can :cancel, Session, user_id: user.id
       can :manage, Registration

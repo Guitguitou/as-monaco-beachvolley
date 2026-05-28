@@ -18,6 +18,3 @@ class RemoveSolidQueueTables < ActiveRecord::Migration[8.0]
     raise ActiveRecord::IrreversibleMigration, "Cannot recreate Solid Queue tables"
   end
 end
-
-
-

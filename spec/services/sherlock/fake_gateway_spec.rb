@@ -64,4 +64,3 @@ RSpec.describe Sherlock::FakeGateway do
     end
   end
 end
-

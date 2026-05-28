@@ -3,11 +3,11 @@ namespace :dashboard do
   task diagnostic: :environment do
     puts "🔍 Diagnostic du Dashboard Admin"
     puts "=" * 50
-    
+
     # 1. Vérifier l'environnement
     puts "📊 Environnement: #{Rails.env}"
     puts "📊 Cache store: #{Rails.cache.class.name}"
-    
+
     # 2. Vérifier Redis si utilisé
     if Rails.cache.is_a?(ActiveSupport::Cache::RedisCacheStore)
       begin
@@ -22,7 +22,7 @@ namespace :dashboard do
         puts "❌ Redis cache: Erreur - #{e.message}"
       end
     end
-    
+
     # 3. Vérifier les données
     puts "\n📊 Données:"
     puts "  Sessions: #{Session.count}"
@@ -30,7 +30,7 @@ namespace :dashboard do
     puts "  Désinscriptions: #{LateCancellation.count}"
     puts "  Utilisateurs: #{User.count}"
     puts "  Coachs: #{User.where(coach: true).count}"
-    
+
     # 4. Vérifier les services de reporting
     puts "\n🔧 Services de reporting:"
     begin
@@ -43,7 +43,7 @@ namespace :dashboard do
     rescue => e
       puts "  ❌ Reporting::Kpis: Erreur - #{e.message}"
     end
-    
+
     begin
       coach_service = Reporting::CoachSalaries.new
       coach_breakdown = coach_service.breakdown(
@@ -56,15 +56,15 @@ namespace :dashboard do
     rescue => e
       puts "  ❌ Reporting::CoachSalaries: Erreur - #{e.message}"
     end
-    
+
     # 5. Vérifier les plages de dates
     puts "\n📅 Plages de dates:"
-    current_time = Time.current.in_time_zone('Europe/Paris')
+    current_time = Time.current.in_time_zone("Europe/Paris")
     week_start = current_time.beginning_of_week(:monday)
     week_range = week_start..week_start.end_of_week(:monday)
     puts "  Semaine: #{week_range}"
     puts "  Sessions cette semaine: #{Session.where(start_at: week_range).count}"
-    
+
     puts "\n✅ Diagnostic terminé"
   end
 end

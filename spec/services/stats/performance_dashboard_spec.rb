@@ -233,4 +233,3 @@ RSpec.describe Stats::PerformanceDashboard do
     end
   end
 end
-

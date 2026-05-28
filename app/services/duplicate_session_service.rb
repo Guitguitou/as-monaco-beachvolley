@@ -39,7 +39,7 @@ class DuplicateSessionService
 
   def duplicate_session(week_number)
     shift = week_number.weeks
-    
+
     duplicated_session = @session.dup
     duplicated_session.assign_attributes(
       start_at: @session.start_at + shift,
@@ -50,7 +50,7 @@ class DuplicateSessionService
 
     # Clear registrations and participants
     duplicated_session.registrations = []
-    
+
     # Copy level associations
     duplicated_session.level_ids = @session.level_ids
 

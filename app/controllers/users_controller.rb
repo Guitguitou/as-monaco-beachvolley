@@ -5,9 +5,9 @@ class UsersController < ApplicationController
     @user = current_user
     @balance = @user.balance
     @transactions = @user.credit_transactions.order(created_at: :desc)
-    @active_tab = params[:tab] || 'profile'
+    @active_tab = params[:tab] || "profile"
 
-    load_my_sessions_data if @active_tab == 'my_sessions'
+    load_my_sessions_data if @active_tab == "my_sessions"
 
     # Coach salary stats (own only)
     if @user.coach?
@@ -15,9 +15,9 @@ class UsersController < ApplicationController
       month_range = Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
       year_range  = Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
 
-      @my_trainings_week_count  = Session.where(user_id: @user.id, session_type: 'entrainement', start_at: week_range).count
-      @my_trainings_month_count = Session.where(user_id: @user.id, session_type: 'entrainement', start_at: month_range).count
-      @my_trainings_year_count  = Session.where(user_id: @user.id, session_type: 'entrainement', start_at: year_range).count
+      @my_trainings_week_count  = Session.where(user_id: @user.id, session_type: "entrainement", start_at: week_range).count
+      @my_trainings_month_count = Session.where(user_id: @user.id, session_type: "entrainement", start_at: month_range).count
+      @my_trainings_year_count  = Session.where(user_id: @user.id, session_type: "entrainement", start_at: year_range).count
 
       spt = @user.salary_per_training
       @my_salary_week  = (@my_trainings_week_count  * spt).to_f
@@ -25,12 +25,12 @@ class UsersController < ApplicationController
       @my_salary_year  = (@my_trainings_year_count  * spt).to_f
 
       # Load training data for coaches tab
-      if @active_tab == 'trainings'
-        @trainings_tab = params[:trainings_tab].presence || 'library'
+      if @active_tab == "trainings"
+        @trainings_tab = params[:trainings_tab].presence || "library"
         case @trainings_tab
-        when 'library'
+        when "library"
           load_library_data
-        when 'my_trainings'
+        when "my_trainings"
           load_coach_trainings_data
         end
       end
@@ -47,8 +47,8 @@ class UsersController < ApplicationController
 
     def load_library_data
       trainings = Session.includes(:levels)
-                         .where(session_type: 'entrainement')
-                         .where.not(coach_notes: [nil, ''])
+                         .where(session_type: "entrainement")
+                         .where.not(coach_notes: [ nil, "" ])
                          .order(start_at: :desc)
 
       trainings = trainings.where(user_id: @user.id) if params[:only_mine].present?
@@ -68,15 +68,15 @@ class UsersController < ApplicationController
     def load_coach_trainings_data
       # Past trainings with details
       @past_trainings = Session.includes(:levels, :registrations)
-                              .where(user_id: @user.id, session_type: 'entrainement')
-                              .where('start_at < ?', Time.current)
+                              .where(user_id: @user.id, session_type: "entrainement")
+                              .where("start_at < ?", Time.current)
                               .order(start_at: :desc)
                               .limit(50)
 
       # Upcoming trainings
       @upcoming_trainings = Session.includes(:levels, :registrations)
-                                  .where(user_id: @user.id, session_type: 'entrainement')
-                                  .where('start_at >= ?', Time.current)
+                                  .where(user_id: @user.id, session_type: "entrainement")
+                                  .where("start_at >= ?", Time.current)
                                   .order(start_at: :asc)
                                   .limit(20)
 
@@ -85,15 +85,15 @@ class UsersController < ApplicationController
       (0..11).each do |i|
         month_start = (Time.current - i.months).beginning_of_month
         month_end = month_start.end_of_month
-        
+
         training_count = Session.where(
-          user_id: @user.id, 
-          session_type: 'entrainement', 
+          user_id: @user.id,
+          session_type: "entrainement",
           start_at: month_start..month_end
         ).count
-        
+
         total_salary = training_count * @user.salary_per_training
-        
+
         @monthly_salary_data << {
           month_name: month_start.strftime("%B %Y"),
           training_count: training_count,

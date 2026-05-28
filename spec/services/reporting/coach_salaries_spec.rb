@@ -22,22 +22,22 @@ RSpec.describe Reporting::CoachSalaries do
 
     context 'with training sessions in the period' do
       let!(:session1) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 1.day,
                end_at: current_time + 1.day + 1.5.hours,
                user: coach1)
       end
       let!(:session2) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 2.days,
                end_at: current_time + 2.days + 1.5.hours,
                user: coach1)
       end
       let!(:session3) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 3.days,
                end_at: current_time + 3.days + 1.5.hours,
                user: coach2)
@@ -55,7 +55,7 @@ RSpec.describe Reporting::CoachSalaries do
 
     context 'with no training sessions in period' do
       let(:future_period) { (current_time + 30.days)..(current_time + 37.days) }
-      
+
       it 'returns zero' do
         total = coach_salaries_service.total_for_period(future_period)
 
@@ -75,7 +75,7 @@ RSpec.describe Reporting::CoachSalaries do
       # Week sessions
       create(:session, session_type: 'entrainement', start_at: current_time + 1.day, end_at: current_time + 1.day + 1.5.hours, user: coach1)
       create(:session, session_type: 'entrainement', start_at: current_time + 2.days, end_at: current_time + 2.days + 1.5.hours, user: coach2)
-      
+
       # Month sessions (outside week)
       create(:session, session_type: 'entrainement', start_at: current_time + 10.days, end_at: current_time + 10.days + 1.5.hours, user: coach1)
       create(:session, session_type: 'entrainement', start_at: current_time + 15.days, end_at: current_time + 15.days + 1.5.hours, user: coach2)
@@ -155,22 +155,22 @@ RSpec.describe Reporting::CoachSalaries do
   describe '#upcoming_sessions_for_coach' do
     let!(:coach) { create(:user, coach: true) }
       let!(:past_session) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time - 1.day,
                end_at: current_time - 1.day + 1.5.hours,
                user: coach)
       end
       let!(:upcoming_session1) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 1.day,
                end_at: current_time + 1.day + 1.5.hours,
                user: coach)
       end
       let!(:upcoming_session2) do
-        create(:session, 
-               session_type: 'entrainement', 
+        create(:session,
+               session_type: 'entrainement',
                start_at: current_time + 2.days,
                end_at: current_time + 2.days + 1.5.hours,
                user: coach)
@@ -196,13 +196,13 @@ RSpec.describe Reporting::CoachSalaries do
     let(:period_range) { current_time..(current_time + 7.days) }
 
     before do
-      create(:session, 
-             session_type: 'entrainement', 
+      create(:session,
+             session_type: 'entrainement',
              start_at: current_time + 1.day,
              end_at: current_time + 1.day + 1.5.hours,
              user: coach)
-      create(:session, 
-             session_type: 'entrainement', 
+      create(:session,
+             session_type: 'entrainement',
              start_at: current_time + 2.days,
              end_at: current_time + 2.days + 2.hours,
              user: coach)

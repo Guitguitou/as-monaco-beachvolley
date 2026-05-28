@@ -1,22 +1,22 @@
 class RegistrationsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_session, only: [:create, :destroy]
+  before_action :set_session, only: [ :create, :destroy ]
 
   def create
     authorize! :create, Registration
-    
+
     # Check if registration deadline has passed (only for regular users on trainings)
     if @session.entrainement? && @session.past_registration_deadline? && !can_bypass_deadline?
       redirect_to session_path(@session, session_show_redirect_params), alert: "Les inscriptions sont closes (limite : 17h le jour de la session)." and return
     end
-    
+
     # Only admins or the session owner (coach/responsable assigned to the session)
     # can register someone else via user_id. Otherwise, register current_user.
     target_user = if params[:user_id].present? && (current_user.admin? || current_user == @session.user)
                     User.find(params[:user_id])
-                  else
+    else
                     current_user
-                  end
+    end
     requested_waitlist = ActiveModel::Type::Boolean.new.cast(params[:waitlist])
     registration = Registration.new(user: target_user, session: @session, status: requested_waitlist ? :waitlisted : :confirmed)
     # Allow admin or session owner to add participants to private coachings
@@ -34,7 +34,7 @@ class RegistrationsController < ApplicationController
       end
       redirect_to session_path(@session, session_show_redirect_params), notice: "Inscription réussie ✅"
     rescue StandardError => e
-      error_message = registration.errors.full_messages.presence || [e.message]
+      error_message = registration.errors.full_messages.presence || [ e.message ]
       redirect_to session_path(@session, session_show_redirect_params), alert: error_message.to_sentence
     end
   end
@@ -45,9 +45,9 @@ class RegistrationsController < ApplicationController
     # can remove someone else. Otherwise, users can remove themselves only.
     registration = if params[:user_id].present? && (current_user.admin? || current_user == @session.user)
                      @session.registrations.find_by(user_id: params[:user_id])
-                   else
+    else
                      current_user.registrations.find_by(session: @session)
-                   end
+    end
 
     if registration
       # Forbid self/unprivileged unregistration after the session has ended.
@@ -81,9 +81,9 @@ class RegistrationsController < ApplicationController
         end
         notice_msg = if amount.positive? && !refundable
                         "Désinscription réussie, mais délai dépassé — pas de remboursement."
-                      else
+        else
                         "Désinscription réussie ✅"
-                      end
+        end
         redirect_to session_path(@session, session_show_redirect_params), notice: notice_msg
       rescue StandardError => e
         redirect_to session_path(@session, session_show_redirect_params), alert: "Erreur lors de la désinscription: #{e.message}"

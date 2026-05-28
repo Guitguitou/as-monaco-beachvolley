@@ -7,7 +7,7 @@ RSpec.describe Admin::DashboardPresenter do
   let(:coach) { create(:user, coach: true, salary_per_training_cents: 5000) }
   let(:another_coach) { create(:user, coach: true, salary_per_training_cents: 3000) }
   let(:user) { create(:user) }
-  
+
   before do
     # Give coaches enough credits for private coaching
     coach.balance.update!(amount: 2000)
@@ -30,7 +30,7 @@ RSpec.describe Admin::DashboardPresenter do
     it 'orders by start_at' do
       training_1 = create(:session, session_type: 'entrainement', start_at: week_start + 5.days + 10.hours, end_at: week_start + 5.days + 12.hours, user: coach, terrain: 'Terrain 2')
       training_2 = create(:session, session_type: 'entrainement', start_at: week_start + 1.day + 10.hours, end_at: week_start + 1.day + 12.hours, user: coach, terrain: 'Terrain 3')
-      
+
       result = presenter.upcoming_trainings_for_week(week_start)
       expect(result.first).to eq(training_2)
       expect(result.last).to eq(training_1)
@@ -95,7 +95,6 @@ RSpec.describe Admin::DashboardPresenter do
   end
 
   describe '#coach_salary_for_period' do
-
     let(:period_start) { Time.zone.now.beginning_of_week }
     let(:period_end) { period_start + 7.days }
     let!(:training_1) { create(:session, session_type: 'entrainement', start_at: period_start + 1.day + 10.hours, end_at: period_start + 1.day + 12.hours, user: coach) }
@@ -113,11 +112,10 @@ RSpec.describe Admin::DashboardPresenter do
   end
 
   describe '#coach_salary_breakdown' do
-
     let(:week_start) { Time.zone.now.beginning_of_week }
     let(:month_start) { Time.zone.now.beginning_of_month }
     let(:year_start) { Time.zone.now.beginning_of_year }
-    
+
     let!(:week_training) { create(:session, session_type: 'entrainement', start_at: week_start + 1.day + 10.hours, end_at: week_start + 1.day + 12.hours, user: coach) }
     let!(:month_training) { create(:session, session_type: 'entrainement', start_at: month_start + 15.days + 10.hours, end_at: month_start + 15.days + 12.hours, user: coach, terrain: 'Terrain 2') }
     let!(:year_training) { create(:session, session_type: 'entrainement', start_at: year_start + 30.days + 10.hours, end_at: year_start + 30.days + 12.hours, user: coach, terrain: 'Terrain 3') }
@@ -266,7 +264,7 @@ RSpec.describe Admin::DashboardPresenter do
       it 'returns breakdown of charges for a period' do
         period_range = week_start..(week_start + 7.days)
         result = presenter.charges_breakdown(period_range)
-        
+
         expect(result[:coach_salaries]).to eq(50.0)
         expect(result[:refunds]).to eq(2.0)
         expect(result[:total]).to eq(52.0)
@@ -277,7 +275,7 @@ RSpec.describe Admin::DashboardPresenter do
       it 'returns revenue for a period' do
         period_range = week_start..(week_start + 7.days)
         result = presenter.revenue_breakdown(period_range)
-        
+
         # payment: -400 cents = 4.0 euros
         expect(result).to eq(4.0)
       end

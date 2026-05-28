@@ -10,7 +10,7 @@ module Webpush
     def encrypt(message, p256dh, auth)
       assert_arguments(message, p256dh, auth)
 
-      group_name = 'prime256v1'
+      group_name = "prime256v1"
       salt = Random.new.bytes(16)
 
       # Fix: Use EC.generate instead of EC.new + generate_key for OpenSSL 3.0 compatibility
@@ -29,7 +29,7 @@ module Webpush
       content_encryption_key_info = "Content-Encoding: aes128gcm\0"
       nonce_info = "Content-Encoding: nonce\0"
 
-      prk = HKDF.new(shared_secret, salt: client_auth_token, algorithm: 'SHA256', info: info).next_bytes(32)
+      prk = HKDF.new(shared_secret, salt: client_auth_token, algorithm: "SHA256", info: info).next_bytes(32)
 
       content_encryption_key = HKDF.new(prk, salt: salt, info: content_encryption_key_info).next_bytes(16)
 
@@ -41,7 +41,7 @@ module Webpush
       rs = ciphertext.bytesize
       raise ArgumentError, "encrypted payload is too big" if rs > 4096
 
-      aes128gcmheader = "#{salt}" + [rs].pack('N*') + [serverkey16bn.bytesize].pack('C*') + serverkey16bn
+      aes128gcmheader = "#{salt}" + [ rs ].pack("N*") + [ serverkey16bn.bytesize ].pack("C*") + serverkey16bn
 
       aes128gcmheader + ciphertext
     end
@@ -49,7 +49,7 @@ module Webpush
     private
 
     def encrypt_payload(plaintext, content_encryption_key, nonce)
-      cipher = OpenSSL::Cipher.new('aes-128-gcm')
+      cipher = OpenSSL::Cipher.new("aes-128-gcm")
       cipher.encrypt
       cipher.key = content_encryption_key
       cipher.iv = nonce
@@ -62,13 +62,13 @@ module Webpush
     end
 
     def convert16bit(key)
-      [key.to_s(16)].pack('H*')
+      [ key.to_s(16) ].pack("H*")
     end
 
     def assert_arguments(message, p256dh, auth)
-      raise ArgumentError, 'message cannot be blank' if blank?(message)
-      raise ArgumentError, 'p256dh cannot be blank' if blank?(p256dh)
-      raise ArgumentError, 'auth cannot be blank' if blank?(auth)
+      raise ArgumentError, "message cannot be blank" if blank?(message)
+      raise ArgumentError, "p256dh cannot be blank" if blank?(p256dh)
+      raise ArgumentError, "auth cannot be blank" if blank?(auth)
     end
 
     def blank?(value)
@@ -80,7 +80,7 @@ module Webpush
   class VapidKey
     # Override initialize to use EC.generate instead of EC.new + generate_key
     def initialize
-      @curve = OpenSSL::PKey::EC.generate('prime256v1')
+      @curve = OpenSSL::PKey::EC.generate("prime256v1")
       @public_key_bn = nil
       @private_key_bn = nil
     end
@@ -91,48 +91,48 @@ module Webpush
       # Decode the keys
       public_key_bn = OpenSSL::BN.new(Webpush.decode64(public_key), 2)
       private_key_bn = OpenSSL::BN.new(Webpush.decode64(private_key), 2)
-      
+
       # Store keys for getters
       key.instance_variable_set(:@public_key_bn, public_key_bn)
       key.instance_variable_set(:@private_key_bn, private_key_bn)
-      
+
       # Create curve from private key using OpenSSL command line (most reliable)
       key.create_curve_from_private_key(private_key_bn, public_key_bn)
-      
+
       key
     end
 
     # Create curve from private key using OpenSSL command line (OpenSSL 3.0 compatible)
     def create_curve_from_private_key(private_key_bn, public_key_bn)
       begin
-        require 'tempfile'
-        
+        require "tempfile"
+
         # Convert private key BN to hex (64 hex chars = 32 bytes for prime256v1)
-        private_key_hex = private_key_bn.to_s(16).rjust(64, '0')
-        
+        private_key_hex = private_key_bn.to_s(16).rjust(64, "0")
+
         # Use OpenSSL command line to create EC key from private key hex
-        pem_file = Tempfile.new(['vapid_key', '.pem'])
+        pem_file = Tempfile.new([ "vapid_key", ".pem" ])
         begin
           # Check if openssl command is available
-          openssl_available = system('which openssl > /dev/null 2>&1')
-          
+          openssl_available = system("which openssl > /dev/null 2>&1")
+
           if openssl_available
             # Create EC key using openssl from private key hex
             # Method: Create a template DER, modify the private key, then convert to PEM
             result = create_ec_key_from_private_hex(private_key_hex, pem_file.path)
-            
+
             if result && File.exist?(pem_file.path) && File.size(pem_file.path) > 0
               # Load the PEM
               @curve = OpenSSL::PKey::EC.new(File.read(pem_file.path))
             else
               # Fallback: create a new curve (won't have the right key, but won't crash)
               Rails.logger.warn "Failed to create EC key from private key hex, using fallback"
-              @curve = OpenSSL::PKey::EC.generate('prime256v1')
+              @curve = OpenSSL::PKey::EC.generate("prime256v1")
             end
           else
             # Openssl not available, use fallback
             Rails.logger.warn "OpenSSL command not available, using fallback"
-            @curve = OpenSSL::PKey::EC.generate('prime256v1')
+            @curve = OpenSSL::PKey::EC.generate("prime256v1")
           end
         ensure
           pem_file.close
@@ -142,7 +142,7 @@ module Webpush
         Rails.logger.error "Error creating curve from keys: #{e.message}"
         Rails.logger.error e.backtrace.join("\n")
         # Fallback: create a new curve (won't have the right keys, but at least won't crash)
-        @curve = OpenSSL::PKey::EC.generate('prime256v1')
+        @curve = OpenSSL::PKey::EC.generate("prime256v1")
       end
     end
 
@@ -150,42 +150,42 @@ module Webpush
     # Method: Create a template DER, modify the private key bytes, then convert to PEM
     def create_ec_key_from_private_hex(private_key_hex, output_path)
       begin
-        require 'tempfile'
-        
+        require "tempfile"
+
         # Convert hex to binary
-        private_key_bytes = [private_key_hex].pack('H*')
-        
+        private_key_bytes = [ private_key_hex ].pack("H*")
+
         # Create a template key to get the DER structure
-        template_key = OpenSSL::PKey::EC.generate('prime256v1')
+        template_key = OpenSSL::PKey::EC.generate("prime256v1")
         template_der = template_key.to_der
-        
+
         # Find the private key OCTET STRING in the template DER
         # The structure is: SEQUENCE { version INTEGER(1), privateKey OCTET STRING, ... }
         # Search for: 04 (OCTET STRING tag) followed by length byte, then the private key bytes
         # The private key is always 32 bytes for prime256v1
-        
+
         # Method: Find the template's private key first, then replace it
         template_private_key_bn = template_key.private_key.to_bn
         template_private_key_bytes = template_private_key_bn.to_s(2)
-        
+
         # Find the position of the template's private key in the DER
         template_private_key_pos = template_der.index(template_private_key_bytes)
-        
+
         if template_private_key_pos && template_private_key_bytes.length == 32
           # Replace the private key bytes
           modified_der = template_der.dup
           modified_der[template_private_key_pos, 32] = private_key_bytes
-          
+
           # Write modified DER to file
-          der_file = Tempfile.new(['vapid_key', '.der'])
+          der_file = Tempfile.new([ "vapid_key", ".der" ])
           begin
             der_file.binmode
             der_file.write(modified_der)
             der_file.flush
-            
+
             # Convert DER to PEM using openssl
             system("openssl ec -inform DER -in #{der_file.path} -outform PEM -out #{output_path} 2>/dev/null")
-            
+
             # Check if PEM was created successfully
             File.exist?(output_path) && File.size(output_path) > 0
           ensure
@@ -253,7 +253,7 @@ module Webpush
     end
 
     def trim_encode64(bin)
-      encode64(bin).delete('=')
+      encode64(bin).delete("=")
     end
   end
 
@@ -265,29 +265,29 @@ module Webpush
       # https://tools.ietf.org/id/draft-ietf-webpush-vapid-03.html
 
       vapid_key = vapid_pem ? VapidKey.from_pem(vapid_pem) : VapidKey.from_keys(vapid_public_key, vapid_private_key)
-      
+
       # Get the private key BN for signing
       private_key_bn = if vapid_key.instance_variable_get(:@private_key_bn)
                          vapid_key.instance_variable_get(:@private_key_bn)
-                       else
+      else
                          # Fallback: extract from curve
                          begin
                            vapid_key.curve.private_key.to_bn
                          rescue StandardError
                            nil
                          end
-                       end
-      
+      end
+
       # Create a signing key from the private key BN
       # Always create a new key with the correct private key to ensure it works
       signing_key = if private_key_bn
                       create_signing_key_from_private_bn(private_key_bn) || vapid_key.curve
-                    else
+      else
                       # Fallback to original curve
                       vapid_key.curve
-                    end
-      
-      jwt = JWT.encode(jwt_payload, signing_key, 'ES256', jwt_header_fields)
+      end
+
+      jwt = JWT.encode(jwt_payload, signing_key, "ES256", jwt_header_fields)
       p256ecdsa = vapid_key.public_key_for_push_header
 
       "vapid t=#{jwt},k=#{p256ecdsa}"
@@ -299,48 +299,48 @@ module Webpush
     # Method: Create a template DER, modify the private key bytes, then convert to PEM
     def create_signing_key_from_private_bn(private_key_bn)
       begin
-        require 'tempfile'
-        
+        require "tempfile"
+
         # Convert private key BN to binary (32 bytes for prime256v1)
         private_key_bytes = private_key_bn.to_s(2)
-        
+
         # Ensure it's exactly 32 bytes
         if private_key_bytes.length != 32
           Rails.logger.warn "Private key length is #{private_key_bytes.length}, expected 32"
           return nil
         end
-        
+
         # Create a template key to get the DER structure
-        template_key = OpenSSL::PKey::EC.generate('prime256v1')
+        template_key = OpenSSL::PKey::EC.generate("prime256v1")
         template_der = template_key.to_der
-        
+
         # Find the template's private key in the DER
         template_private_key_bn = template_key.private_key.to_bn
         template_private_key_bytes = template_private_key_bn.to_s(2)
-        
+
         # Find the position of the template's private key in the DER
         template_private_key_pos = template_der.index(template_private_key_bytes)
-        
+
         if template_private_key_pos && template_private_key_bytes.length == 32
           # Replace the private key bytes
           modified_der = template_der.dup
           modified_der[template_private_key_pos, 32] = private_key_bytes
-          
+
           # Write modified DER to file
-          der_file = Tempfile.new(['vapid_key', '.der'])
-          pem_file = Tempfile.new(['vapid_key', '.pem'])
+          der_file = Tempfile.new([ "vapid_key", ".der" ])
+          pem_file = Tempfile.new([ "vapid_key", ".pem" ])
           begin
             der_file.binmode
             der_file.write(modified_der)
             der_file.flush
-            
+
             # Convert DER to PEM using openssl
             system("openssl ec -inform DER -in #{der_file.path} -outform PEM -out #{pem_file.path} 2>/dev/null")
-            
+
             if File.exist?(pem_file.path) && File.size(pem_file.path) > 0
               # Load the PEM
               curve = OpenSSL::PKey::EC.new(File.read(pem_file.path))
-              
+
               # Verify the private key matches
               begin
                 curve_private_bn = curve.private_key.to_bn

@@ -102,7 +102,7 @@ RSpec.describe Sherlock::RealGateway do
 
     it 'includes transactionReference when USE_ORDER_ID is not set' do
       allow(ENV).to receive(:[]).with("SHERLOCK_USE_ORDER_ID").and_return(nil)
-      
+
       result = gateway.create_payment(
         reference: reference,
         amount_cents: amount_cents,
@@ -116,7 +116,7 @@ RSpec.describe Sherlock::RealGateway do
 
     it 'includes orderId when USE_ORDER_ID is true' do
       allow(ENV).to receive(:[]).with("SHERLOCK_USE_ORDER_ID").and_return("true")
-      
+
       result = gateway.create_payment(
         reference: reference,
         amount_cents: amount_cents,
@@ -185,4 +185,3 @@ RSpec.describe Sherlock::RealGateway do
     end
   end
 end
-

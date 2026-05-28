@@ -5,4 +5,3 @@ class SherlockCallbackJob < ApplicationJob
     Sherlock::HandleCallback.new(callback_params).call
   end
 end
-

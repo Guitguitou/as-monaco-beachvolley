@@ -23,7 +23,7 @@ Rails.application.configure do
 
   # Store uploaded files on Cloudinary in production (override via ENV if needed).
   config.active_storage.service = (ENV["ACTIVE_STORAGE_SERVICE"].presence || :cloudinary).to_sym
-  
+
   # Disable Active Storage analysis jobs to avoid SolidQueue dependency
   config.active_storage.analyze_on_upload = false
 

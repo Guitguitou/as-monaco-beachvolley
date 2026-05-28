@@ -7,6 +7,6 @@ class CreateLateCancellations < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :late_cancellations, [:user_id, :created_at]
+    add_index :late_cancellations, [ :user_id, :created_at ]
   end
 end

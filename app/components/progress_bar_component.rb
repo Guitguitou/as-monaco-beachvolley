@@ -57,4 +57,3 @@ class ProgressBarComponent < ViewComponent::Base
     end
   end
 end
-

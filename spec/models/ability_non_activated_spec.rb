@@ -87,4 +87,3 @@ RSpec.describe Ability, 'Non-activated users' do
     end
   end
 end
-

@@ -14,4 +14,3 @@ class RankingComponent < ViewComponent::Base
     players.any?
   end
 end
-

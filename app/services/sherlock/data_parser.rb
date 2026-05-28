@@ -9,7 +9,7 @@ module Sherlock
       Hash[
         data_string.split("|").map do |pair|
           k, v = pair.split("=", 2)
-          [k, v]
+          [ k, v ]
         end
       ]
     end

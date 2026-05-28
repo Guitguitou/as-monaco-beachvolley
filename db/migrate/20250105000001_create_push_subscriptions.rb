@@ -10,6 +10,6 @@ class CreatePushSubscriptions < ActiveRecord::Migration[8.0]
       t.timestamps null: false
     end
 
-    add_index :push_subscriptions, [:user_id, :endpoint], unique: true
+    add_index :push_subscriptions, [ :user_id, :endpoint ], unique: true
   end
 end

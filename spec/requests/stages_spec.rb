@@ -39,4 +39,3 @@ RSpec.describe "Stages", type: :request do
     end
   end
 end
-

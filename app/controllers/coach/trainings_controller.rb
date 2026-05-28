@@ -6,12 +6,12 @@ module Coach
     before_action :ensure_coach_or_admin!
 
     def index
-      @active_tab = params[:tab] || 'library'
-      
+      @active_tab = params[:tab] || "library"
+
       case @active_tab
-      when 'library'
+      when "library"
         load_library_data
-      when 'my_trainings'
+      when "my_trainings"
         load_my_trainings_data
       end
     end
@@ -21,8 +21,8 @@ module Coach
     def load_library_data
       # Show trainings grouped by level with latest notes first
       trainings = Session.includes(:levels)
-                         .where(session_type: 'entrainement')
-                         .where.not(coach_notes: [nil, ''])
+                         .where(session_type: "entrainement")
+                         .where.not(coach_notes: [ nil, "" ])
                          .order(start_at: :desc)
 
       # Optional filter: only sessions coached by me
@@ -50,9 +50,9 @@ module Coach
       year_range  = Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
 
       # My training counts and revenues
-      @my_trainings_week_count  = Session.where(user_id: current_user.id, session_type: 'entrainement', start_at: week_range).count
-      @my_trainings_month_count = Session.where(user_id: current_user.id, session_type: 'entrainement', start_at: month_range).count
-      @my_trainings_year_count  = Session.where(user_id: current_user.id, session_type: 'entrainement', start_at: year_range).count
+      @my_trainings_week_count  = Session.where(user_id: current_user.id, session_type: "entrainement", start_at: week_range).count
+      @my_trainings_month_count = Session.where(user_id: current_user.id, session_type: "entrainement", start_at: month_range).count
+      @my_trainings_year_count  = Session.where(user_id: current_user.id, session_type: "entrainement", start_at: year_range).count
 
       spt = current_user.salary_per_training
       @my_salary_week  = (@my_trainings_week_count  * spt).to_f
@@ -61,15 +61,15 @@ module Coach
 
       # Past trainings with details
       @past_trainings = Session.includes(:levels, :registrations)
-                              .where(user_id: current_user.id, session_type: 'entrainement')
-                              .where('start_at < ?', Time.current)
+                              .where(user_id: current_user.id, session_type: "entrainement")
+                              .where("start_at < ?", Time.current)
                               .order(start_at: :desc)
                               .limit(50)
 
       # Upcoming trainings
       @upcoming_trainings = Session.includes(:levels, :registrations)
-                                  .where(user_id: current_user.id, session_type: 'entrainement')
-                                  .where('start_at >= ?', Time.current)
+                                  .where(user_id: current_user.id, session_type: "entrainement")
+                                  .where("start_at >= ?", Time.current)
                                   .order(start_at: :asc)
                                   .limit(20)
 
@@ -78,15 +78,15 @@ module Coach
       (0..11).each do |i|
         month_start = (Time.current - i.months).beginning_of_month
         month_end = month_start.end_of_month
-        
+
         training_count = Session.where(
-          user_id: current_user.id, 
-          session_type: 'entrainement', 
+          user_id: current_user.id,
+          session_type: "entrainement",
           start_at: month_start..month_end
         ).count
-        
+
         total_salary = training_count * current_user.salary_per_training
-        
+
         @monthly_salary_data << {
           month_name: month_start.strftime("%B %Y"),
           training_count: training_count,

@@ -59,4 +59,3 @@ RSpec.describe "Infos", type: :request do
     end
   end
 end
-

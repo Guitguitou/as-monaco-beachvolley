@@ -19,7 +19,7 @@ RSpec.describe Reporting::PacksStats do
     let!(:user) { create(:user) }
     let!(:pack_credits) { create(:pack, pack_type: :credits, name: 'Pack 10 crédits', amount_cents: 1000, credits: 10) }
     let!(:pack_licence) { create(:pack, pack_type: :licence, name: 'Licence annuelle', amount_cents: 5000) }
-    
+
     context 'with purchases in different months' do
       before do
         # Janvier 2024
@@ -30,7 +30,7 @@ RSpec.describe Reporting::PacksStats do
                paid_at: Time.zone.parse('2024-01-10 10:00:00'),
                amount_cents: 1000,
                credits: 10)
-        
+
         create(:credit_purchase,
                user: user,
                pack: pack_credits,
@@ -63,7 +63,7 @@ RSpec.describe Reporting::PacksStats do
 
         # Should have stats for Jan, Feb, Mar (3 months)
         expect(stats.size).to eq(3)
-        
+
         # Verify period names (ordre inversé : plus récent en premier)
         expect(stats[0][:month]).to eq(3) # Mars (plus récent)
         expect(stats[1][:month]).to eq(2) # Février
@@ -91,7 +91,7 @@ RSpec.describe Reporting::PacksStats do
         # Janvier: 2 packs de crédits
         expect(january_stat[:by_type]['credits'][:count]).to eq(2)
         expect(january_stat[:by_type]['credits'][:amount]).to eq(20.0)
-        
+
         # Février: 1 pack licence
         expect(february_stat[:by_type]['licence'][:count]).to eq(1)
         expect(february_stat[:by_type]['licence'][:amount]).to eq(50.0)
@@ -127,7 +127,7 @@ RSpec.describe Reporting::PacksStats do
   describe '#yearly_stats' do
     let!(:user) { create(:user) }
     let!(:pack_credits) { create(:pack, pack_type: :credits, name: 'Pack 10 crédits', amount_cents: 1000, credits: 10) }
-    
+
     context 'with purchases in different years' do
       before do
         # 2023
@@ -138,7 +138,7 @@ RSpec.describe Reporting::PacksStats do
                paid_at: Time.zone.parse('2023-06-15 10:00:00'),
                amount_cents: 1000,
                credits: 10)
-        
+
         create(:credit_purchase,
                user: user,
                pack: pack_credits,
@@ -198,7 +198,7 @@ RSpec.describe Reporting::PacksStats do
     let!(:user) { create(:user) }
     let!(:pack1) { create(:pack, pack_type: :credits, name: 'Pack Petit', amount_cents: 1000, credits: 10) }
     let!(:pack2) { create(:pack, pack_type: :credits, name: 'Pack Grand', amount_cents: 5000, credits: 60) }
-    
+
     let(:period_range) { Time.zone.parse('2024-03-01')..Time.zone.parse('2024-03-31') }
 
     context 'with multiple purchases of different packs' do
@@ -211,7 +211,7 @@ RSpec.describe Reporting::PacksStats do
                paid_at: Time.zone.parse('2024-03-10 10:00:00'),
                amount_cents: 1000,
                credits: 10)
-        
+
         create(:credit_purchase,
                user: user,
                pack: pack1,
@@ -234,7 +234,7 @@ RSpec.describe Reporting::PacksStats do
         details = service.pack_details_for_period(period_range)
 
         expect(details.size).to eq(2)
-        
+
         pack1_details = details.find { |d| d[:pack_id] == pack1.id }
         pack2_details = details.find { |d| d[:pack_id] == pack2.id }
 
@@ -266,4 +266,3 @@ RSpec.describe Reporting::PacksStats do
     end
   end
 end
-

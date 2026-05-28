@@ -6,7 +6,7 @@ module Admin
     layout "dashboard"
     before_action :authenticate_user!
     before_action :require_admin!
-    before_action :set_notification_rule, only: [:show, :edit, :update, :destroy]
+    before_action :set_notification_rule, only: [ :show, :edit, :update, :destroy ]
 
     def index
       @notification_rules = NotificationRule.order(created_at: :desc)

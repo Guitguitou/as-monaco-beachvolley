@@ -16,7 +16,7 @@ RSpec.describe Session, type: :model do
     let(:week_start) { current_time.beginning_of_week }
     let(:month_start) { current_time.beginning_of_month }
     let(:year_start) { current_time.beginning_of_year }
-    
+
     before do
       # Give coach enough credits for private coaching
       coach.balance.update!(amount: 2000)
@@ -91,8 +91,8 @@ RSpec.describe Session, type: :model do
         session_2 = create(:session, session_type: 'entrainement', start_at: current_time + 1.day + 10.hours, end_at: current_time + 1.day + 12.hours, user: coach, terrain: 'Terrain 2')
         session_3 = create(:session, session_type: 'entrainement', start_at: current_time + 2.days + 10.hours, end_at: current_time + 2.days + 12.hours, user: coach, terrain: 'Terrain 3')
 
-        result = Session.where(id: [session_1.id, session_2.id, session_3.id]).ordered_by_start
-        expect(result.to_a).to eq([session_2, session_3, session_1])
+        result = Session.where(id: [ session_1.id, session_2.id, session_3.id ]).ordered_by_start
+        expect(result.to_a).to eq([ session_2, session_3, session_1 ])
       end
     end
   end

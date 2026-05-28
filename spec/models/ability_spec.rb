@@ -84,7 +84,7 @@ RSpec.describe Ability do
       credits_pack = create(:pack, pack_type: :credits)
       licence_pack = create(:pack, pack_type: :licence)
       stage_pack = create(:pack, pack_type: :stage, stage: stage)
-      
+
       expect(ability).to be_able_to(:read, credits_pack)
       expect(ability).to be_able_to(:read, licence_pack)
       expect(ability).to be_able_to(:read, stage_pack)
@@ -95,7 +95,7 @@ RSpec.describe Ability do
       credits_pack = create(:pack, pack_type: :credits)
       licence_pack = create(:pack, pack_type: :licence)
       stage_pack = create(:pack, pack_type: :stage, stage: stage)
-      
+
       expect(ability).to be_able_to(:buy, credits_pack)
       expect(ability).to be_able_to(:buy, licence_pack)
       expect(ability).to be_able_to(:buy, stage_pack)
@@ -265,4 +265,3 @@ RSpec.describe Ability do
     end
   end
 end
-

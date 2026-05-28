@@ -78,4 +78,3 @@ RSpec.describe "Webhooks::Sherlock", type: :request do
     end
   end
 end
-

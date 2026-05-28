@@ -9,4 +9,3 @@ class PostPaymentFulfillmentJob < ApplicationJob
     Rails.logger.info("Payment fulfilled for CreditPurchase ##{credit_purchase.id} - User ##{credit_purchase.user_id} received #{credit_purchase.credits} credits")
   end
 end
-

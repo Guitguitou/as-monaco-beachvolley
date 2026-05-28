@@ -4,7 +4,7 @@ RSpec.describe "Registrations flow", type: :request do
   let(:coach) { create(:user, :coach, activated_at: Time.current) }
   let(:level) { create(:level) }
   let(:player) { create(:user, level: level, activated_at: Time.current) }
-  let(:session_record) { create(:session, session_type: 'entrainement', terrain: 'Terrain 1', user: coach, levels: [level]) }
+  let(:session_record) { create(:session, session_type: 'entrainement', terrain: 'Terrain 1', user: coach, levels: [ level ]) }
 
   before do
     create(:credit_transaction, user: player, amount: 1_000)
@@ -19,7 +19,7 @@ RSpec.describe "Registrations flow", type: :request do
   it "redirects to session show with calendar context params after registration" do
     # Dedicated session so this example does not register the player on `session_record`
     # (other examples depend on a fresh session_record).
-    other_session = create(:session, session_type: "entrainement", terrain: "Terrain 1", user: coach, levels: [level])
+    other_session = create(:session, session_type: "entrainement", terrain: "Terrain 1", user: coach, levels: [ level ])
     sign_in player, scope: :user
     d = other_session.start_at.to_date.iso8601
     post session_registrations_path(other_session), params: { view: "calendar", date: d, terrain: "Terrain 1" }
@@ -31,7 +31,7 @@ RSpec.describe "Registrations flow", type: :request do
 
   it 'registers and unregisters a user with transactions' do
     sign_in player, scope: :user
-    s = create(:session, session_type: "entrainement", terrain: "Terrain 1", user: coach, levels: [level])
+    s = create(:session, session_type: "entrainement", terrain: "Terrain 1", user: coach, levels: [ level ])
 
     post session_registrations_path(s)
     expect(flash[:alert]).to be_blank
@@ -49,7 +49,7 @@ RSpec.describe "Registrations flow", type: :request do
   it 'prevents registration if overlapping with another confirmed session' do
     sign_in player, scope: :user
     post session_registrations_path(session_record)
-    overlapping = create(:session, session_type: 'entrainement', terrain: 'Terrain 2', user: coach, levels: [level], start_at: session_record.start_at + 5.minutes, end_at: session_record.end_at + 5.minutes)
+    overlapping = create(:session, session_type: 'entrainement', terrain: 'Terrain 2', user: coach, levels: [ level ], start_at: session_record.start_at + 5.minutes, end_at: session_record.end_at + 5.minutes)
 
     expect {
       post session_registrations_path(overlapping)
@@ -92,7 +92,7 @@ RSpec.describe "Registrations flow", type: :request do
              session_type: 'entrainement',
              terrain: 'Terrain 1',
              user: coach,
-             levels: [level],
+             levels: [ level ],
              start_at: today.change(hour: 19, min: 0), # 19h aujourd'hui
              end_at: today.change(hour: 20, min: 30),
              # Ouvert il y a > 24h pour éviter la règle « priorité licence compétition » dans les tests 17h

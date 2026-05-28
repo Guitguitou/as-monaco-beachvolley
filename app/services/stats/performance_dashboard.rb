@@ -24,7 +24,7 @@ module Stats
         # (not just "players" as coaches/responsables can also have levels and registrations)
         user_ids = UserLevel.where(level_id: level.id).joins(:user).pluck(:user_id)
         users_in_level = User.where(id: user_ids)
-        
+
         result[level.id] = {
           level: level,
           level_name: level.display_name,
@@ -241,7 +241,7 @@ module Stats
 
       # Sort by oldest last session first (most inactive)
       sorted_users = users_with_sessions.sort_by { |_uid, date| date || Time.at(0) }
-      
+
       results = sorted_users.map do |user_id, last_session_at|
         user = User.find(user_id)
         days_since = last_session_at ? ((timezone.now - last_session_at.in_time_zone(timezone)) / 1.day).round : nil
@@ -282,7 +282,7 @@ module Stats
 
       # Sort by oldest last session first (most inactive)
       sorted_users = users_with_sessions.sort_by { |_uid, date| date || Time.at(0) }
-      
+
       results = sorted_users.map do |user_id, last_session_at|
         user = User.find(user_id)
         days_since = last_session_at ? ((timezone.now - last_session_at.in_time_zone(timezone)) / 1.day).round : nil
@@ -490,4 +490,3 @@ module Stats
     end
   end
 end
-

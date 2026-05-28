@@ -50,34 +50,34 @@ class Session < ApplicationRecord
   scope :upcoming, -> { where("start_at >= ?", Time.current) }
   scope :in_week, ->(week_start) { where(start_at: week_start..(week_start + 7.days)) }
   scope :in_month, ->(month_start) { where(start_at: month_start..month_start.end_of_month) }
-  scope :in_current_week, ->(week_start = nil) { 
+  scope :in_current_week, ->(week_start = nil) {
     week_start ||= Time.zone.now.beginning_of_week(:monday)
     in_week(week_start)
   }
-  scope :in_current_month, ->(month_start = nil) { 
+  scope :in_current_month, ->(month_start = nil) {
     month_start ||= Time.zone.now.beginning_of_month
     in_month(month_start)
   }
   scope :in_year, ->(year_start) { where(start_at: year_start..year_start.end_of_year) }
-  scope :trainings, -> { where(session_type: 'entrainement') }
-  scope :free_plays, -> { where(session_type: 'jeu_libre') }
-  scope :private_coachings, -> { where(session_type: 'coaching_prive') }
+  scope :trainings, -> { where(session_type: "entrainement") }
+  scope :free_plays, -> { where(session_type: "jeu_libre") }
+  scope :private_coachings, -> { where(session_type: "coaching_prive") }
   scope :for_user_levels, ->(level_ids) do
     Sessions::EligibleForUserLevelsQuery.call(relation: all, level_ids: level_ids)
   end
   scope :ordered_by_start, -> { order(:start_at) }
-  
+
   # Scopes pour les sessions à venir par type
   scope :upcoming_trainings, -> { upcoming.trainings.ordered_by_start }
   scope :upcoming_free_plays, -> { upcoming.free_plays.ordered_by_start }
   scope :upcoming_private_coachings, -> { upcoming.private_coachings.ordered_by_start }
-  
+
   # Scopes pour les sessions passées
   scope :past, -> { where("start_at < ?", Time.current) }
   scope :past_trainings, -> { past.trainings.ordered_by_start }
   scope :past_free_plays, -> { past.free_plays.ordered_by_start }
   scope :past_private_coachings, -> { past.private_coachings.ordered_by_start }
-  
+
   # Scopes pour les sessions dans une plage de dates
   scope :in_date_range, ->(start_date, end_date) { where(start_at: start_date..end_date) }
   scope :trainings_in_range, ->(start_date, end_date) { in_date_range(start_date, end_date).trainings }
@@ -136,7 +136,7 @@ class Session < ApplicationRecord
 
   def set_default_registration_opens_at
     # Only trainings use registration opening rules
-    if session_type == 'entrainement'
+    if session_type == "entrainement"
       if registration_opens_at.blank? && start_at.present?
         self.registration_opens_at = start_at - 7.days
       end
@@ -147,7 +147,7 @@ class Session < ApplicationRecord
   end
 
   def set_default_cancellation_deadline
-    return unless session_type == 'entrainement'
+    return unless session_type == "entrainement"
     return if cancellation_deadline_at.present?
     return if start_at.blank?
     # Default: 22:00 on the day before the training

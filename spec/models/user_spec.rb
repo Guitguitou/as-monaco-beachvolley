@@ -144,7 +144,7 @@ RSpec.describe User, type: :model do
     describe '#activate!' do
       it 'sets activated_at to current time' do
         user.update!(activated_at: nil)
-        
+
         expect {
           user.activate!
         }.to change { user.reload.activated_at }.from(nil)
@@ -227,7 +227,7 @@ RSpec.describe User, type: :model do
 
         it 'returns default devise message' do
           # Devise default behavior
-          expect(user.inactive_message).to be_in([:inactive, nil])
+          expect(user.inactive_message).to be_in([ :inactive, nil ])
         end
       end
     end
@@ -266,7 +266,7 @@ RSpec.describe User, type: :model do
 
     describe '#level' do
       it 'returns the first level' do
-        user.levels << [level1, level2]
+        user.levels << [ level1, level2 ]
         expect(user.level).to eq(level1)
       end
 

@@ -8,7 +8,7 @@ RSpec.describe LateCancellation, type: :model do
   describe 'scopes' do
     let(:coach) { create(:user, coach: true) }
     let(:user) { create(:user) }
-    
+
     before do
       # Give coach enough credits for private coaching
       coach.balance.update!(amount: 2000)
@@ -34,7 +34,7 @@ RSpec.describe LateCancellation, type: :model do
         old_cancellation = create(:late_cancellation, session: training, user: user, created_at: 1.week.ago)
         recent_cancellation = create(:late_cancellation, session: free_play, user: user, created_at: 1.day.ago)
 
-        result = LateCancellation.where(id: [old_cancellation.id, recent_cancellation.id]).recent(10)
+        result = LateCancellation.where(id: [ old_cancellation.id, recent_cancellation.id ]).recent(10)
         expect(result.first).to eq(recent_cancellation)
         expect(result.last).to eq(old_cancellation)
       end

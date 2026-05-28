@@ -8,7 +8,7 @@ namespace :vapid do
 
     # Generate EC key pair using OpenSSL directly (compatible with OpenSSL 3.0)
     ec_key = OpenSSL::PKey::EC.generate("prime256v1")
-    
+
     # Private key: 32 bytes (raw binary)
     private_key_raw = ec_key.private_key.to_s(2)
     private_key_b64 = Base64.urlsafe_encode64(private_key_raw, padding: false)
@@ -17,12 +17,12 @@ namespace :vapid do
     # Get the public key in uncompressed format
     public_key_point = ec_key.public_key
     public_key_octet = public_key_point.to_octet_string(:uncompressed)
-    
+
     # Ensure it's exactly 65 bytes (0x04 prefix + 32 bytes X + 32 bytes Y)
     if public_key_octet.length != 65
       raise "Invalid public key length: expected 65 bytes, got #{public_key_octet.length}"
     end
-    
+
     public_key_b64 = Base64.urlsafe_encode64(public_key_octet, padding: false)
 
     puts "\n=== VAPID Keys Generated ==="

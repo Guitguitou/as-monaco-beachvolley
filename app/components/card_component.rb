@@ -74,4 +74,3 @@ class CardComponent < ViewComponent::Base
     end
   end
 end
-

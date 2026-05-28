@@ -17,7 +17,7 @@ class User < ApplicationRecord
   has_many :credit_transactions, dependent: :destroy
   has_many :credit_purchases, dependent: :destroy
   has_many :registrations, dependent: :destroy
-  has_many :confirmed_registrations, -> { where(status: Registration.statuses[:confirmed]) }, class_name: 'Registration'
+  has_many :confirmed_registrations, -> { where(status: Registration.statuses[:confirmed]) }, class_name: "Registration"
   has_many :sessions_registered, through: :confirmed_registrations, source: :session
   has_many :push_subscriptions, dependent: :destroy
 
@@ -35,7 +35,7 @@ class User < ApplicationRecord
   scope :gender, ->(g) { joins(:levels).where(levels: { gender: g }) }
   scope :with_license, ->(lic) { where(license_type: lic) }
   scope :with_enough_credits, lambda { |session_record|
-    joins(:balance).where('balances.amount >= ?', session_record.price)
+    joins(:balance).where("balances.amount >= ?", session_record.price)
   }
   scope :players, -> { where.not(admin: true).where.not(coach: true).where.not(responsable: true) }
   scope :male, -> { joins(:levels).where(levels: { gender: "male" }).distinct }

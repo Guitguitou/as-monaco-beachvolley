@@ -8,10 +8,10 @@ module Reporting
 
     # Total des salaires pour une période
     def total_for_period(range)
-      Reporting::CacheService.fetch('coach_salaries', 'total_for_period', range.first.to_date, range.last.to_date) do
+      Reporting::CacheService.fetch("coach_salaries", "total_for_period", range.first.to_date, range.last.to_date) do
         sessions = Session.trainings.where(start_at: range)
         by_coach_counts = sessions.group(:user_id).count
-        
+
         return 0 if by_coach_counts.empty?
 
         users = User.where(id: by_coach_counts.keys).index_by(&:id)
@@ -55,11 +55,11 @@ module Reporting
     def by_coach_for_period(range)
       sessions = Session.trainings.where(start_at: range)
       by_coach_counts = sessions.group(:user_id).count
-      
+
       return [] if by_coach_counts.empty?
 
       users = User.where(id: by_coach_counts.keys).index_by(&:id)
-      
+
       by_coach_counts.map do |user_id, count|
         user = users[user_id]
         salary_per_training = user&.salary_per_training_cents.to_i
@@ -88,7 +88,7 @@ module Reporting
     def total_hours_for_coach(coach, range)
       sessions = Session.trainings
                        .where(user: coach, start_at: range)
-      
+
       sessions.sum do |session|
         (session.end_at - session.start_at) / 1.hour
       end.round(1)

@@ -10,6 +10,6 @@ class CreateTerrainClosures < ActiveRecord::Migration[8.0]
     end
 
     add_index :terrain_closures, :terrain
-    add_index :terrain_closures, [:starts_on, :ends_on]
+    add_index :terrain_closures, [ :starts_on, :ends_on ]
   end
 end

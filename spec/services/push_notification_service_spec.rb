@@ -66,7 +66,7 @@ RSpec.describe PushNotificationService, type: :service do
     it "sends notifications to multiple users" do
       expect(Webpush).to receive(:payload_send).twice
       described_class.send_to_users(
-        User.where(id: [user.id, user2.id]),
+        User.where(id: [ user.id, user2.id ]),
         title: "Test Title",
         body: "Test Body"
       )

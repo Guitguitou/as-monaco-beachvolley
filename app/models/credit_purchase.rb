@@ -6,10 +6,10 @@ class CreditPurchase < ApplicationRecord
 
   # Statuts possibles
   enum :status, {
-    pending: 'pending',
-    paid: 'paid',
-    failed: 'failed',
-    cancelled: 'cancelled'
+    pending: "pending",
+    paid: "paid",
+    failed: "failed",
+    cancelled: "cancelled"
   }, suffix: true
 
   validates :amount_cents, presence: true, numericality: { greater_than: 0 }
@@ -75,7 +75,7 @@ class CreditPurchase < ApplicationRecord
     create!(
       user:,
       amount_cents: 1000, # 10 EUR
-      currency: 'EUR',
+      currency: "EUR",
       credits: 1000, # 10 EUR * 100 crédits/EUR
       status: :pending
     )

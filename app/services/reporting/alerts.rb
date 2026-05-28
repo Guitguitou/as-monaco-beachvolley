@@ -9,7 +9,7 @@ module Reporting
       keyword_init: true
     )
 
-    def initialize(time_zone: 'Europe/Paris')
+    def initialize(time_zone: "Europe/Paris")
       @time_zone = time_zone
       @current_time = Time.current.in_time_zone(@time_zone)
     end
@@ -28,9 +28,9 @@ module Reporting
     def late_cancellation_alerts(limit: 20)
       grouped = LateCancellation
         .for_trainings
-        .select('late_cancellations.user_id AS user_id, COUNT(*) AS cancellations_count, MAX(late_cancellations.created_at) AS last_cancelled_at')
-        .group('late_cancellations.user_id')
-        .order('cancellations_count DESC, last_cancelled_at DESC')
+        .select("late_cancellations.user_id AS user_id, COUNT(*) AS cancellations_count, MAX(late_cancellations.created_at) AS last_cancelled_at")
+        .group("late_cancellations.user_id")
+        .order("cancellations_count DESC, last_cancelled_at DESC")
         .limit(limit)
 
       users_by_id = User.where(id: grouped.map(&:user_id)).index_by(&:id)
@@ -47,7 +47,7 @@ module Reporting
     # Alertes de capacité (sessions presque pleines ou en sous-capacité)
     def capacity_alerts
       upcoming_range = @current_time..(@current_time + 7.days)
-      
+
       sessions = Session
         .upcoming
         .where(start_at: upcoming_range)
@@ -56,9 +56,9 @@ module Reporting
 
       sessions.select do |session|
         next false unless session.max_players.present?
-        
+
         capacity_ratio = session.registrations.confirmed.count.to_f / session.max_players
-        
+
         # Sous-capacité (< 40%) ou presque plein (> 90%)
         capacity_ratio < 0.4 || capacity_ratio > 0.9
       end
@@ -67,7 +67,7 @@ module Reporting
     # Alertes de faible participation
     def low_attendance_alerts
       upcoming_range = @current_time..(@current_time + 3.days)
-      
+
       Session
         .upcoming
         .where(start_at: upcoming_range)
@@ -75,7 +75,7 @@ module Reporting
         .where.not(max_players: nil)
         .select do |session|
           next false unless session.max_players.present?
-          
+
           capacity_ratio = session.registrations.confirmed.count.to_f / session.max_players
           capacity_ratio < 0.3 # Moins de 30% de remplissage
         end
@@ -84,7 +84,7 @@ module Reporting
     # Sessions à venir nécessitant une attention
     def upcoming_sessions_alerts
       upcoming_range = @current_time..(@current_time + 2.days)
-      
+
       Session
         .upcoming
         .where(start_at: upcoming_range)
@@ -115,7 +115,7 @@ module Reporting
 
     def late_cancellations_today
       today_range = @current_time.beginning_of_day..@current_time.end_of_day
-      
+
       LateCancellation
         .for_trainings
         .where(created_at: today_range)
@@ -126,7 +126,7 @@ module Reporting
     def sessions_starting_soon
       # Sessions dans les 2 prochaines heures
       soon_range = @current_time..(@current_time + 2.hours)
-      
+
       Session
         .upcoming
         .where(start_at: soon_range)
@@ -137,7 +137,7 @@ module Reporting
     def empty_sessions
       # Sessions à venir sans inscription
       upcoming_range = @current_time..(@current_time + 7.days)
-      
+
       Session
         .upcoming
         .where(start_at: upcoming_range)

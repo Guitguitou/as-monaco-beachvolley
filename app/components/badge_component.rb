@@ -74,4 +74,3 @@ class BadgeComponent < ViewComponent::Base
     end
   end
 end
-

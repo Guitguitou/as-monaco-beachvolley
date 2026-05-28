@@ -52,7 +52,7 @@ class Registration < ApplicationRecord
       return [false, "Tu es déjà inscrit à une autre session sur le même créneau."]
     end
 
-    [true, nil]
+    [ true, nil ]
   end
 
   def enough_credits?
@@ -75,12 +75,12 @@ class Registration < ApplicationRecord
     # Otherwise, user must have at least one level matching the session
     user_level_ids = if user.respond_to?(:levels)
                        user.levels.pluck(:id)
-                     else
+    else
                        []
-                     end
+    end
     # Backward-compat: consider legacy single level if present
     if user_level_ids.empty? && user.respond_to?(:level_id)
-      user_level_ids = [user.level_id].compact
+      user_level_ids = [ user.level_id ].compact
     end
 
     return false if user_level_ids.empty?
@@ -123,7 +123,7 @@ class Registration < ApplicationRecord
 
     already_registered_this_week = user
       .sessions_registered
-      .where(session_type: 'entrainement')
+      .where(session_type: "entrainement")
       .where(start_at: week_start..week_end)
       .where.not(id: session.id)
       .exists?

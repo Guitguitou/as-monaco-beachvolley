@@ -50,8 +50,8 @@ gem "thruster", require: false
 gem "view_component", "~> 3.9"
 gem "view_component-contrib"
 gem "devise", "~> 4.9"
-gem 'lucide-rails'
-gem 'cancancan'
+gem "lucide-rails"
+gem "cancancan"
 
 
 group :development, :test do
@@ -94,7 +94,7 @@ gem "cloudinary"
 gem "activestorage-cloudinary-service"
 
 # Load .env in Rails
-gem "dotenv-rails", groups: [:development, :test]
+gem "dotenv-rails", groups: [ :development, :test ]
 
 # Web Push notifications
 gem "webpush"

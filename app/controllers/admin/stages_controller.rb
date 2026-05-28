@@ -3,7 +3,7 @@ module Admin
     layout "dashboard"
     before_action :authenticate_user!
     load_and_authorize_resource
-    before_action :set_stage, only: [:show, :edit, :update]
+    before_action :set_stage, only: [ :show, :edit, :update ]
 
     def index
       @stages = @stages.order(starts_on: :desc)

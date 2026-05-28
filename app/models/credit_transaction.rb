@@ -22,8 +22,8 @@ class CreditTransaction < ApplicationRecord
 
   validates :amount, presence: true
 
-  scope :payments, -> { where(transaction_type: [transaction_types[:training_payment], transaction_types[:free_play_payment], transaction_types[:private_coaching_payment]]) }
+  scope :payments, -> { where(transaction_type: [ transaction_types[:training_payment], transaction_types[:free_play_payment], transaction_types[:private_coaching_payment] ]) }
   scope :refunds, -> { where(transaction_type: transaction_types[:refund]) }
-  scope :revenue_transactions, -> { where(transaction_type: [transaction_types[:training_payment], transaction_types[:free_play_payment], transaction_types[:private_coaching_payment], transaction_types[:refund]]) }
+  scope :revenue_transactions, -> { where(transaction_type: [ transaction_types[:training_payment], transaction_types[:free_play_payment], transaction_types[:private_coaching_payment], transaction_types[:refund] ]) }
   scope :in_period, ->(start_date, end_date) { where(created_at: start_date..end_date) }
 end

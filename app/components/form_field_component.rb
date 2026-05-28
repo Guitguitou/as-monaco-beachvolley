@@ -47,9 +47,9 @@ class FormFieldComponent < ViewComponent::Base
 
   def field_classes
     base = @input_class.present? ? @input_class.to_s : default_base_input_class_for_type
-    base = [base, error_input_class].compact.join(" ") if has_error?
+    base = [ base, error_input_class ].compact.join(" ") if has_error?
     caller_class = @html_options[:class].to_s
-    [base, caller_class.presence].compact.join(" ")
+    [ base, caller_class.presence ].compact.join(" ")
   end
 
   def error_message

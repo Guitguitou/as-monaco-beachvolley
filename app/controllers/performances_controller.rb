@@ -8,4 +8,3 @@ class PerformancesController < ApplicationController
     @stats_by_group = Stats::PerformanceDashboard.new.by_group
   end
 end
-

@@ -37,4 +37,3 @@ class PodiumComponent < ViewComponent::Base
     end
   end
 end
-

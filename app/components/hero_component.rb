@@ -37,4 +37,3 @@ class HeroComponent < ViewComponent::Base
     "mt-2 text-sm text-white/90"
   end
 end
-

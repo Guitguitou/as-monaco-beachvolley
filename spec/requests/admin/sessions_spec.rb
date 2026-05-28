@@ -42,7 +42,6 @@ xdescribe "Admin::Sessions", type: :request do
       expect(response).to have_http_status(:success)
     end
   end
-
 end
 
 # Test for DuplicateSessionService integration
@@ -52,7 +51,7 @@ describe DuplicateSessionService, type: :service do
 
   it "can be called from controller context" do
     result = DuplicateSessionService.new(session, 2).call
-    
+
     expect(result[:success]).to be true
     expect(result[:created_count]).to eq(2)
     expect(result[:created_sessions].count).to eq(2)

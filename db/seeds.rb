@@ -216,7 +216,7 @@ puts "✅ #{Pack.count} packs créés"
 puts "\n💰 Ajout de crédits aux coachs..."
 
 # Ajouter des crédits aux coachs pour qu'ils puissent créer des sessions de coaching privé
-[coach1, coach2].each do |coach|
+[ coach1, coach2 ].each do |coach|
   CreditTransaction.create!(
     user: coach,
     amount: 5000,  # 5000 crédits pour créer des coachings privés
@@ -234,7 +234,7 @@ puts "\n🏐 Création des sessions..."
 # Sessions d'entraînement pour les 4 prochaines semaines
 (0..3).each do |week|
   week_start = Date.current.beginning_of_week + week.weeks
-  
+
   # Entraînements G1 Masculin (Lundi 18h-20h)
   Session.find_or_create_by!(
     title: "Entraînement G1 Masculin",
@@ -338,12 +338,12 @@ players_with_credits = players.limit(6)
 upcoming_sessions.each do |session|
   # Inscrire 3-5 joueurs par session
   selected_players = players_with_credits.sample(rand(3..5))
-  
+
   selected_players.each do |player|
     # Vérifier que le joueur a le bon niveau pour la session
     player_levels = player.levels
     session_levels = session.levels
-    
+
     if (player_levels & session_levels).any?
       Registration.find_or_create_by!(user: player, session: session) do |registration|
         registration.status = "confirmed"
@@ -364,7 +364,7 @@ puts "\n💰 Ajout de crédits aux joueurs..."
 players_with_credits.each do |player|
   # Ajouter entre 1000 et 3000 crédits
   credits_amount = rand(1000..3000)
-  
+
   CreditTransaction.create!(
     user: player,
     amount: credits_amount,

@@ -14,10 +14,10 @@ class Pack < ApplicationRecord
   validates :name, presence: true
   validates :amount_cents, presence: true, numericality: { greater_than: 0 }
   validates :pack_type, presence: true
-  
+
   # Validation conditionnelle : credits requis pour les packs de crédits
   validates :credits, presence: true, numericality: { greater_than: 0 }, if: :pack_type_credits?
-  
+
   # Validation conditionnelle : stage_id requis pour les packs de stage
   validates :stage_id, presence: true, if: :pack_type_stage?
 

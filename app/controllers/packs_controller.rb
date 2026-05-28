@@ -1,10 +1,10 @@
 class PacksController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:index, :buy]
+  skip_before_action :authenticate_user!, only: [ :index, :buy ]
 
   def index
     # Charger tous les packs actifs
     all_packs = Pack.active.ordered
-    
+
     # Connecté : CanCanCan filtre selon les permissions
     # Non connecté : uniquement les packs marqués "public" par l’admin
     if user_signed_in?
@@ -12,14 +12,14 @@ class PacksController < ApplicationController
     else
       accessible_packs = all_packs.select(&:public?)
     end
-    
+
     # Regrouper par type
     @credits_packs = accessible_packs.select(&:pack_type_credits?)
     @licence_packs = accessible_packs.select(&:pack_type_licence?)
     @stage_packs = accessible_packs.select(&:pack_type_stage?)
     @inscription_tournoi_packs = accessible_packs.select(&:pack_type_inscription_tournoi?)
     @equipements_packs = accessible_packs.select(&:pack_type_equipements?)
-    
+
     # Afficher la notice si user non activé
     @show_activation_notice = user_signed_in? && !current_user.activated?
     @current_balance = current_user&.balance&.amount || 0
@@ -27,7 +27,7 @@ class PacksController < ApplicationController
 
   def buy
     @pack = Pack.find(params[:id])
-    
+
     unless @pack.active?
       redirect_to packs_path, alert: "Ce pack n'est plus disponible"
       return

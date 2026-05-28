@@ -5,7 +5,7 @@ module Admin
     layout "dashboard"
     before_action :authenticate_user!
     before_action :require_admin!
-    before_action :set_terrain_closure, only: [:edit, :update, :destroy]
+    before_action :set_terrain_closure, only: [ :edit, :update, :destroy ]
 
     def index
       @terrain_closures = TerrainClosure.order(starts_on: :desc, terrain: :asc)

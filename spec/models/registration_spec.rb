@@ -5,7 +5,7 @@ RSpec.describe Registration, type: :model do
   let(:user)  { create(:user, level: level) }
   # Create session tomorrow at 19h to avoid registration deadline issues
   let(:tomorrow_7pm) { (Time.current + 1.day).change(hour: 19, min: 0) }
-  let(:session) { create(:session, session_type: 'entrainement', levels: [level], terrain: 'Terrain 1', start_at: tomorrow_7pm, end_at: tomorrow_7pm + 1.5.hours) }
+  let(:session) { create(:session, session_type: 'entrainement', levels: [ level ], terrain: 'Terrain 1', start_at: tomorrow_7pm, end_at: tomorrow_7pm + 1.5.hours) }
 
   before do
     # Ensure users used in tests have enough credits unless explicitly testing insufficient credits
@@ -39,7 +39,7 @@ RSpec.describe Registration, type: :model do
     end
 
     it 'disallows confirmed registration when overlapping with another confirmed session' do
-      other_session = create(:session, session_type: 'entrainement', levels: [level], terrain: 'Terrain 2', start_at: tomorrow_7pm + 10.minutes, end_at: tomorrow_7pm + 1.5.hours + 10.minutes)
+      other_session = create(:session, session_type: 'entrainement', levels: [ level ], terrain: 'Terrain 2', start_at: tomorrow_7pm + 10.minutes, end_at: tomorrow_7pm + 1.5.hours + 10.minutes)
       create(:registration, user: user, session: session, status: :confirmed)
       reg = build(:registration, user: user, session: other_session, status: :confirmed)
       expect(reg).not_to be_valid
@@ -47,7 +47,7 @@ RSpec.describe Registration, type: :model do
     end
 
     it 'allows waitlisted registration even if overlapping' do
-      other_session = create(:session, session_type: 'entrainement', levels: [level], terrain: 'Terrain 2', start_at: tomorrow_7pm + 10.minutes, end_at: tomorrow_7pm + 1.5.hours + 10.minutes)
+      other_session = create(:session, session_type: 'entrainement', levels: [ level ], terrain: 'Terrain 2', start_at: tomorrow_7pm + 10.minutes, end_at: tomorrow_7pm + 1.5.hours + 10.minutes)
       create(:registration, user: user, session: session, status: :confirmed)
       reg = build(:registration, user: user, session: other_session, status: :waitlisted)
       expect(reg).to be_valid
@@ -65,8 +65,8 @@ RSpec.describe Registration, type: :model do
     end
 
     it 'allows multiple training registrations in the current week' do
-      s1 = create(:session, session_type: 'entrainement', start_at: monday.change(hour: 10), end_at: monday.change(hour: 11), terrain: 'Terrain 1', levels: [level])
-      s2 = create(:session, session_type: 'entrainement', start_at: monday.change(hour: 18), end_at: monday.change(hour: 19), terrain: 'Terrain 2', levels: [level])
+      s1 = create(:session, session_type: 'entrainement', start_at: monday.change(hour: 10), end_at: monday.change(hour: 11), terrain: 'Terrain 1', levels: [ level ])
+      s2 = create(:session, session_type: 'entrainement', start_at: monday.change(hour: 18), end_at: monday.change(hour: 19), terrain: 'Terrain 2', levels: [ level ])
 
       create(:registration, user: user, session: s1, status: :confirmed)
       reg = build(:registration, user: user, session: s2, status: :confirmed)
@@ -77,8 +77,8 @@ RSpec.describe Registration, type: :model do
     it 'disallows a second training in a non-current week' do
       # Current week: 2025-10-06 .. 2025-10-12
       # Target week for rule: next week
-      s1 = create(:session, session_type: 'entrainement', start_at: next_week_monday.change(hour: 10), end_at: next_week_monday.change(hour: 11), terrain: 'Terrain 1', levels: [level], registration_opens_at: next_week_monday.change(hour: 0) - 8.days)
-      s2 = create(:session, session_type: 'entrainement', start_at: next_week_monday.change(hour: 18), end_at: next_week_monday.change(hour: 19), terrain: 'Terrain 2', levels: [level], registration_opens_at: next_week_monday.change(hour: 0) - 8.days)
+      s1 = create(:session, session_type: 'entrainement', start_at: next_week_monday.change(hour: 10), end_at: next_week_monday.change(hour: 11), terrain: 'Terrain 1', levels: [ level ], registration_opens_at: next_week_monday.change(hour: 0) - 8.days)
+      s2 = create(:session, session_type: 'entrainement', start_at: next_week_monday.change(hour: 18), end_at: next_week_monday.change(hour: 19), terrain: 'Terrain 2', levels: [ level ], registration_opens_at: next_week_monday.change(hour: 0) - 8.days)
 
       create(:registration, user: user, session: s1, status: :confirmed)
       reg = build(:registration, user: user, session: s2, status: :confirmed)

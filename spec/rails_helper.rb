@@ -84,11 +84,11 @@ RSpec.configure do |config|
 
   config.include FactoryBot::Syntax::Methods
   config.include ActiveSupport::Testing::TimeHelpers
-  
+
   # ViewComponent test helpers
   config.include ViewComponent::TestHelpers, type: :component
   config.include Capybara::RSpecMatchers, type: :component
-  
+
   # Configure Devise for tests
   config.include Devise::Test::ControllerHelpers, type: :controller
 
@@ -112,7 +112,7 @@ RSpec.configure do |config|
 
   # Run JS-enabled browser for system tests
   config.before(:each, type: :system) do
-    driven_by :selenium, using: :headless_chrome, screen_size: [1400, 1400]
+    driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
   end
 
   # Set default host for all request specs to avoid Host Authorization errors

@@ -3,7 +3,7 @@
 module Admin
   class LevelsController < ApplicationController
     layout "dashboard"
-    before_action :set_level, only: [:show, :edit, :update, :destroy]
+    before_action :set_level, only: [ :show, :edit, :update, :destroy ]
 
     def index
       @levels = Level.all.order(:name)
