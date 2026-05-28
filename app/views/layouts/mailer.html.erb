@@ -7,17 +7,35 @@
     </style>
   </head>
 
-  <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; margin: 0; padding: 0;">
+  <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; margin: 0; padding: 0; background-color: #ffffff;">
     <div style="max-width: 600px; margin: 0 auto; padding: 24px;">
       <%= yield %>
 
-      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 40px 0 20px;">
+      <%# Signature partenaire Captive — logo + tagline, le tout cliquable %>
+      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-top: 48px; border-collapse: collapse;">
+        <tr>
+          <td style="background-color: #f5f6f8; border-radius: 12px; padding: 32px 24px; text-align: center;">
+            <a href="https://www.captive.fr/?utm_source=as_monaco_volley&utm_medium=email&utm_campaign=partner_visibility&utm_content=notification_footer"
+               target="_blank"
+               style="text-decoration: none; border: 0; display: inline-block;">
+              <%= image_tag attachments[ApplicationMailer::CAPTIVE_LOGO_CID].url,
+                            alt: "Captive",
+                            width: 160,
+                            style: "display: block; max-width: 160px; height: auto; margin: 0 auto; border: 0;" %>
+            </a>
 
-      <p style="font-size: 12px; color: #6b7280; text-align: center; line-height: 1.6; margin: 0;">
-        Application développée et maintenue avec passion par l'agence
-        <a href="https://www.captive.fr/?utm_source=as_monaco_volley&utm_medium=email&utm_campaign=partner_visibility&utm_content=notification_footer"
-           style="color: #ec4899; text-decoration: none; font-weight: 600;">Captive</a>.
-      </p>
+            <p style="margin: 20px 0 0; font-size: 14px; line-height: 1.6;">
+              <a href="https://www.captive.fr/?utm_source=as_monaco_volley&utm_medium=email&utm_campaign=partner_visibility&utm_content=notification_footer"
+                 target="_blank"
+                 style="color: #4b5563; text-decoration: none;">
+                Cette application a été imaginée et développée par <strong style="color: #002448;">Captive</strong>.
+                <br>
+                <span style="color: #6b7280;">Curieux de savoir qui se cache derrière votre application préférée&nbsp;?</span>
+              </a>
+            </p>
+          </td>
+        </tr>
+      </table>
     </div>
   </body>
 </html>
