@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class SessionsTabComponent < ViewComponent::Base
+  class SessionsTabComponent < ApplicationComponent
     def initialize(sessions:, filters: {})
       @sessions = sessions
       @filters = filters

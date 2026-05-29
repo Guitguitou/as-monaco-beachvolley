@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class DashboardTabsComponent < ViewComponent::Base
+  class DashboardTabsComponent < ApplicationComponent
     def initialize(active_tab: "overview")
       @active_tab = active_tab
     end

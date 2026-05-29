@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ButtonComponent < ViewComponent::Base
+class ButtonComponent < ApplicationComponent
   attr_reader :variant, :size, :options
 
   def initialize(variant: :primary, size: :medium, shape: :square, icon_only: false, **options)

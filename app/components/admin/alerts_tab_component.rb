@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class AlertsTabComponent < ViewComponent::Base
+  class AlertsTabComponent < ApplicationComponent
     def initialize(alerts:, alert_counts:)
       @alerts = alerts
       @alert_counts = alert_counts

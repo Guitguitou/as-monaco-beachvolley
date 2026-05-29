@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ProgressBarComponent < ViewComponent::Base
+class ProgressBarComponent < ApplicationComponent
   def initialize(value:, max:, variant: :primary, height: :sm)
     @value = value.to_i
     @max = max.to_i

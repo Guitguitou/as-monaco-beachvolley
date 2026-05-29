@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class HeroComponent < ViewComponent::Base
+class HeroComponent < ApplicationComponent
   renders_one :top
   renders_one :eyebrow
   renders_one :meta

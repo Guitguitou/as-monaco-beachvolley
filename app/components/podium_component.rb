@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PodiumComponent < ViewComponent::Base
+class PodiumComponent < ApplicationComponent
   def initialize(players:, title:, icon: "trophy", empty_message: "Aucune donnée")
     @players = players || []
     @title = title

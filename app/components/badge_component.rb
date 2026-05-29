@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class BadgeComponent < ViewComponent::Base
+class BadgeComponent < ApplicationComponent
   def initialize(label:, variant: :neutral, size: :sm, icon: nil)
     @label = label
     @variant = variant

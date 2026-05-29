@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class OverviewTabComponent < ViewComponent::Base
+  class OverviewTabComponent < ApplicationComponent
     def initialize(kpis:, upcoming_sessions:, alerts:)
       @kpis = kpis
       @upcoming_sessions = upcoming_sessions

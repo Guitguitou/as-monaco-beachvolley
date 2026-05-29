@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class CoachesTabComponent < ViewComponent::Base
+  class CoachesTabComponent < ApplicationComponent
     def initialize(coach_breakdown:, upcoming_sessions_by_coach:)
       @coach_breakdown = coach_breakdown
       @upcoming_sessions_by_coach = upcoming_sessions_by_coach

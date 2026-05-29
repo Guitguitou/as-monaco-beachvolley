@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RankingComponent < ViewComponent::Base
+class RankingComponent < ApplicationComponent
   def initialize(players:, title: nil)
     @players = players || []
     @title = title

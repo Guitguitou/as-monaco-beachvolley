@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FormFieldComponent < ViewComponent::Base
+class FormFieldComponent < ApplicationComponent
   def initialize(
     form:,
     attribute:,

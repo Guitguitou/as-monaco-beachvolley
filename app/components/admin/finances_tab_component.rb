@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class FinancesTabComponent < ViewComponent::Base
+  class FinancesTabComponent < ApplicationComponent
     def initialize(revenues:, coach_salaries:, breakdowns:)
       @revenues = revenues
       @coach_salaries = coach_salaries

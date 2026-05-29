@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CardComponent < ViewComponent::Base
+class CardComponent < ApplicationComponent
   renders_one :header
   renders_one :footer
 
