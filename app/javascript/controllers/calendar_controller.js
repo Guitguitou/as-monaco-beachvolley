@@ -94,9 +94,6 @@ export default class extends Controller {
 
       eventDidMount(info) {
         const isMobile = window.matchMedia('(max-width: 640px)').matches
-        info.el.style.backgroundColor = info.event.extendedProps.backgroundColor
-        info.el.style.borderColor = info.event.extendedProps.borderColor
-        info.el.style.color = info.event.extendedProps.textColor
 
         // style "carte"
         info.el.style.borderRadius = '10px'

@@ -56,16 +56,14 @@
 <%
   user_level_ids = current_user.levels.pluck(:id)
   sessions_json = @sessions.map do |s|
-    case s.terrain
-    when 'Terrain 1'
-      bg, border, text = ['#ef4444', '#b91c1c', '#ffffff'] # rouge
-    when 'Terrain 2'
-      bg, border, text = ['#111827', '#0b1220', '#ffffff'] # noir
-    when 'Terrain 3'
-      bg, border, text = ['#D4AF37', '#b08e2d', '#111827'] # doré
-    else
-      bg, border, text = ['#e5e7eb', '#d1d5db', '#111827'] # gris par défaut
+    terrain_class = case s.terrain
+    when 'Terrain 1' then 'terrain-1'
+    when 'Terrain 2' then 'terrain-2'
+    when 'Terrain 3' then 'terrain-3'
+    else 'terrain-unknown'
     end
+
+    for_me = !s.entrainement? || s.levels.empty? || (s.level_ids & user_level_ids).any?
 
     short = s.display_name
       .gsub(/Entra[iî]nement/i, 'Entr.')
@@ -76,15 +74,13 @@
     {
       id: s.id,
       title: s.display_name,
-      shortTitle: short,     # <-- ajouté
+      shortTitle: short,
       start: s.start_at.iso8601,
       end: s.end_at.iso8601,
       url: sessions_calendar_event_path(s),
-      backgroundColor: bg,
-      borderColor: border,
-      textColor: text,
+      classNames: [terrain_class, (for_me ? 'for-me' : nil)].compact,
       terrain: s.terrain,
-      forMe: (!s.entrainement? || s.levels.empty? || (s.level_ids & user_level_ids).any?),
+      forMe: for_me,
       coachName: s.user&.full_name || '-'
     }
   end.to_json
