@@ -7,6 +7,10 @@ class UsersController < ApplicationController
     @transactions = @user.credit_transactions.order(created_at: :desc)
     @active_tab = params[:tab] || "profile"
 
+    mine = @user.sessions_registered.includes(:levels, :user)
+    @upcoming_count = mine.where("start_at >= ?", Time.current).count
+    @past_count = mine.where("end_at < ?", Time.current).count
+
     load_my_sessions_data if @active_tab == "my_sessions"
 
     # Coach salary stats (own only)

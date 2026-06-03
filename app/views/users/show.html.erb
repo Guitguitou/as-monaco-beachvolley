@@ -1,25 +1,52 @@
 <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-  <div class="flex items-center justify-between gap-3 mb-6 flex-col sm:flex-row sm:gap-0">
-    <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-      <%= lucide_icon("user") %> Mon profil
-    </h1>
-    <div class="flex items-center gap-2">
-      <%= link_to edit_user_registration_path,
-            class: "inline-flex items-center gap-2 rounded-none border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" do %>
-        <%= lucide_icon("key-round", size: 16) %>
-        Changer mon mot de passe
-      <% end %>
-      <%= link_to edit_user_registration_path,
-            class: "inline-flex items-center gap-2 rounded-none border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" do %>
-        <%= lucide_icon("mail", size: 16) %>
-        Changer mon email
-      <% end %>
-      <%= link_to destroy_user_session_path,
-            data: { turbo_method: :delete },
-            class: "inline-flex items-center gap-2 rounded-none border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" do %>
-        <%= lucide_icon("log-out", size: 16) %>
-        Déconnexion
-      <% end %>
+
+  <!-- Hero -->
+  <div class="bg-gray-900 text-white px-6 py-7 sm:px-8 mb-6">
+    <div class="flex items-center justify-between gap-6 flex-col sm:flex-row">
+      <div class="flex items-center gap-5">
+        <!-- Avatar initiales -->
+        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-asmbv-red flex items-center justify-center text-2xl sm:text-3xl font-black text-white flex-shrink-0 select-none">
+          <%= @user.first_name.to_s[0]&.upcase %><%= @user.last_name.to_s[0]&.upcase %>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-black tracking-tight"><%= @user.full_name %></h1>
+          <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+            <% @user.levels.each do |level| %>
+              <%= render BadgeComponent.new(label: level.name, variant: :hero_inverse, size: :xs) %>
+            <% end %>
+            <% if @user.admin? %>
+              <%= render BadgeComponent.new(label: "Admin", variant: :danger, size: :xs) %>
+            <% end %>
+            <% if @user.coach? %>
+              <%= render BadgeComponent.new(label: "Coach", variant: :warning, size: :xs) %>
+            <% end %>
+            <% if @user.responsable? %>
+              <%= render BadgeComponent.new(label: "Responsable", variant: :info, size: :xs) %>
+            <% end %>
+          </div>
+          <p class="text-gray-400 text-sm mt-2"><%= @user.email %></p>
+        </div>
+      </div>
+
+      <!-- Actions icônes -->
+      <div class="flex items-center gap-1 self-start sm:self-center">
+        <%= link_to edit_user_registration_path,
+              title: "Changer mon mot de passe",
+              class: "p-2 text-gray-400 hover:text-white hover:bg-white/10 transition-colors" do %>
+          <%= lucide_icon("key-round", size: 18) %>
+        <% end %>
+        <%= link_to edit_user_registration_path,
+              title: "Changer mon email",
+              class: "p-2 text-gray-400 hover:text-white hover:bg-white/10 transition-colors" do %>
+          <%= lucide_icon("mail", size: 18) %>
+        <% end %>
+        <%= link_to destroy_user_session_path,
+              data: { turbo_method: :delete },
+              title: "Déconnexion",
+              class: "p-2 text-gray-400 hover:text-red-400 hover:bg-white/10 transition-colors" do %>
+          <%= lucide_icon("log-out", size: 18) %>
+        <% end %>
+      </div>
     </div>
   </div>
 
@@ -30,30 +57,36 @@
     <div class="mb-4"><%= render BadgeComponent.new(label: flash[:alert] || flash[:error], variant: :danger, size: :md) %></div>
   <% end %>
 
-  <!-- Tabs Navigation -->
+  <!-- Tabs -->
   <div class="border-b border-gray-200 mb-6">
-    <nav class="-mb-px flex space-x-8">
-      <%= link_to profile_path(tab: 'profile'), 
-          class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-asmbv-red text-asmbv-red' if @active_tab == 'profile'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'profile'}" do %>
-        <%= lucide_icon("user", class: "w-4 h-4 inline mr-2") %>
+    <nav class="-mb-px flex space-x-6 sm:space-x-8">
+      <%= link_to profile_path(tab: 'profile'),
+          class: "group py-3 px-1 border-b-2 font-semibold text-sm flex items-center gap-2 transition-colors #{'border-asmbv-red text-asmbv-red' if @active_tab == 'profile'} #{'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-400' if @active_tab != 'profile'}" do %>
+        <%= lucide_icon("user", class: "w-4 h-4") %>
         Profil
       <% end %>
       <%= link_to profile_path(tab: 'my_sessions'),
-          class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-asmbv-red text-asmbv-red' if @active_tab == 'my_sessions'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'my_sessions'}" do %>
-        <%= lucide_icon("volleyball", class: "w-4 h-4 inline mr-2") %>
+          class: "group py-3 px-1 border-b-2 font-semibold text-sm flex items-center gap-2 transition-colors #{'border-asmbv-red text-asmbv-red' if @active_tab == 'my_sessions'} #{'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-400' if @active_tab != 'my_sessions'}" do %>
+        <%= lucide_icon("volleyball", class: "w-4 h-4") %>
         Mes sessions
+        <% total = @upcoming_count + @past_count %>
+        <% if total > 0 %>
+          <span class="ml-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none <%= @active_tab == 'my_sessions' ? 'bg-asmbv-red text-white' : 'bg-gray-200 text-gray-600' %>">
+            <%= total %>
+          </span>
+        <% end %>
       <% end %>
       <% if @user.coach? %>
-        <%= link_to profile_path(tab: 'trainings'), 
-            class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-asmbv-red text-asmbv-red' if @active_tab == 'trainings'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'trainings'}" do %>
-          <%= lucide_icon("users", class: "w-4 h-4 inline mr-2") %>
+        <%= link_to profile_path(tab: 'trainings'),
+            class: "group py-3 px-1 border-b-2 font-semibold text-sm flex items-center gap-2 transition-colors #{'border-asmbv-red text-asmbv-red' if @active_tab == 'trainings'} #{'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-400' if @active_tab != 'trainings'}" do %>
+          <%= lucide_icon("users", class: "w-4 h-4") %>
           Mes entraînements
         <% end %>
       <% end %>
     </nav>
   </div>
 
-  <!-- Tab Content -->
+  <!-- Contenu onglet -->
   <% if @active_tab == 'profile' %>
     <%= render 'profile_tab' %>
   <% elsif @active_tab == 'my_sessions' %>
@@ -61,4 +94,5 @@
   <% elsif @active_tab == 'trainings' && @user.coach? %>
     <%= render 'coach_trainings_tab' %>
   <% end %>
+
 </div>

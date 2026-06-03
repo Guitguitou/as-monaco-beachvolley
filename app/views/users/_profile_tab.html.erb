@@ -1,67 +1,140 @@
 <!-- Profile Tab Content -->
-<div class="space-y-8">
-  <!-- Infos utilisateur -->
+<div class="space-y-6">
+
+  <!-- Stats rapides -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div class="bg-white border border-gray-200 p-4 shadow-sm text-center">
+      <p class="text-2xl font-black text-gray-900"><%= @past_count + @upcoming_count %></p>
+      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-1">Sessions total</p>
+    </div>
+    <div class="bg-white border border-gray-200 p-4 shadow-sm text-center">
+      <p class="text-2xl font-black text-asmbv-red"><%= @upcoming_count %></p>
+      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-1">À venir</p>
+    </div>
+    <div class="bg-white border border-gray-200 p-4 shadow-sm text-center">
+      <p class="text-2xl font-black text-gray-900"><%= @past_count %></p>
+      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-1">Jouées</p>
+    </div>
+    <div class="bg-white border border-gray-200 p-4 shadow-sm text-center">
+      <p class="text-2xl font-black text-gray-900"><%= @user.created_at.year %></p>
+      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mt-1">Membre depuis</p>
+    </div>
+  </div>
+
+  <!-- Infos personnelles -->
   <%= render CardComponent.new(padding: :md) do %>
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Informations personnelles</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm text-gray-700">
-      <div>
-        <span class="font-medium">Prénom :</span> <%= @user.first_name %>
+    <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Informations personnelles</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+      <div class="flex items-center gap-3">
+        <span class="text-gray-400"><%= lucide_icon("user", size: 16) %></span>
+        <div>
+          <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Prénom</p>
+          <p class="font-semibold text-gray-900"><%= @user.first_name %></p>
+        </div>
       </div>
-      <div>
-        <span class="font-medium">Nom :</span> <%= @user.last_name %>
+      <div class="flex items-center gap-3">
+        <span class="text-gray-400"><%= lucide_icon("user", size: 16) %></span>
+        <div>
+          <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Nom</p>
+          <p class="font-semibold text-gray-900"><%= @user.last_name %></p>
+        </div>
       </div>
-      <div>
-        <span class="font-medium">Email :</span> <%= @user.email %>
+      <div class="flex items-center gap-3">
+        <span class="text-gray-400"><%= lucide_icon("mail", size: 16) %></span>
+        <div>
+          <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Email</p>
+          <p class="font-semibold text-gray-900"><%= @user.email %></p>
+        </div>
       </div>
-      <div>
-        <span class="font-medium">Niveaux :</span>
-        <% if @user.levels.any? %>
-          <%= @user.levels.map(&:name).join(', ') %>
-        <% else %>
-          -
-        <% end %>
-      </div>
-      <div>
-        <span class="font-medium">Rôles :</span>
-        <%= ["Admin", "Coach", "Responsable"].select { |r| @user.send(r.downcase) }.join(', ') %>
+      <div class="flex items-center gap-3">
+        <span class="text-gray-400"><%= lucide_icon("trophy", size: 16) %></span>
+        <div>
+          <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Niveaux</p>
+          <p class="font-semibold text-gray-900">
+            <% if @user.levels.any? %>
+              <%= @user.levels.map(&:name).join(', ') %>
+            <% else %>
+              —
+            <% end %>
+          </p>
+        </div>
       </div>
     </div>
   <% end %>
 
-  <!-- Solde -->
-  <%= render CardComponent.new(padding: :md) do %>
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Solde de crédits</h2>
-    <p class="text-3xl font-bold text-asmbv-red">
-      <%= @balance.amount %> crédits
-    </p>
-  <% end %>
+  <!-- Carte solde crédits -->
+  <div class="bg-gray-900 p-6 sm:p-8 relative overflow-hidden shadow-lg">
+    <!-- Déco géométrique -->
+    <div class="absolute -right-8 -top-8 w-40 h-40 rounded-full border-[20px] border-white/5 pointer-events-none"></div>
+    <div class="absolute -right-2 top-12 w-24 h-24 rounded-full border-[12px] border-white/5 pointer-events-none"></div>
+    <div class="absolute left-1/2 bottom-0 w-64 h-32 bg-asmbv-red/10 blur-2xl pointer-events-none"></div>
 
-  <!-- Transactions -->
-  <%= render CardComponent.new(padding: :md) do %>
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Historique des crédits</h2>
-    <div class="overflow-x-auto -mx-4 sm:mx-0">
-      <table class="min-w-full text-sm text-left table-fixed">
-        <thead class="bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
+    <div class="relative flex items-center justify-between gap-4 flex-col sm:flex-row">
+      <div>
+        <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Solde de crédits</p>
+        <p class="text-5xl sm:text-6xl font-black text-white leading-none">
+          <%= number_with_delimiter(@balance.amount) %>
+        </p>
+        <p class="text-asmbv-red font-bold text-sm mt-2 uppercase tracking-wide">crédits</p>
+      </div>
+      <div class="text-gray-600 hidden sm:block">
+        <%= lucide_icon("coins", size: 64, class: "opacity-20") %>
+      </div>
+    </div>
+
+    <% if @transactions.any? %>
+      <% last = @transactions.first %>
+      <div class="relative mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-gray-500">
+        <span>Dernière transaction</span>
+        <span class="<%= last.amount.negative? ? 'text-red-400' : 'text-green-400' %> font-bold">
+          <%= last.amount > 0 ? "+#{last.amount}" : last.amount %> crédits
+          · <%= l(last.created_at, format: :short) %>
+        </span>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Historique des crédits -->
+  <%= render CardComponent.new(padding: :none) do %>
+    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+      <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest">Historique des crédits</h2>
+      <span class="text-xs text-gray-400"><%= @transactions.count %> transactions</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-left">
+        <thead class="bg-gray-50 text-xs font-bold text-gray-400 uppercase tracking-wider">
           <tr>
-            <th class="px-3 sm:px-4 py-2">Date</th>
-            <th class="px-3 sm:px-4 py-2">Type</th>
-            <th class="px-3 sm:px-4 py-2">Montant</th>
-            <th class="px-3 sm:px-4 py-2 hidden sm:table-cell">Session</th>
+            <th class="px-5 py-3">Date</th>
+            <th class="px-5 py-3">Type</th>
+            <th class="px-5 py-3">Montant</th>
+            <th class="px-5 py-3 hidden sm:table-cell">Session</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
-          <% @transactions.each do |t| %>
-            <tr>
-              <td class="px-3 sm:px-4 py-2"><%= l(t.created_at, format: :short) %></td>
-              <td class="px-3 sm:px-4 py-2"><%= humanize_credit_transaction_type(t.transaction_type) %></td>
-              <td class="px-3 sm:px-4 py-2 <%= t.amount.negative? ? 'text-red-600' : 'text-green-600' %>">
+        <tbody>
+          <% @transactions.each_with_index do |t, i| %>
+            <tr class="<%= i.even? ? 'bg-white' : 'bg-gray-50/60' %> border-b border-gray-100 last:border-0 hover:bg-blue-50/30 transition-colors">
+              <td class="px-5 py-3 text-gray-500 text-xs whitespace-nowrap"><%= l(t.created_at, format: :short) %></td>
+              <td class="px-5 py-3">
+                <%
+                  badge_variant = case t.transaction_type.to_sym
+                  when :refund then :success
+                  when :manual_adjustment then :info
+                  when :purchase then :purple
+                  else :neutral
+                  end
+                %>
+                <%= render BadgeComponent.new(label: humanize_credit_transaction_type(t.transaction_type), variant: badge_variant, size: :xs) %>
+              </td>
+              <td class="px-5 py-3 font-bold tabular-nums <%= t.amount.negative? ? 'text-red-600' : 'text-green-600' %>">
                 <%= t.amount > 0 ? "+#{t.amount}" : t.amount %>
               </td>
-              <td class="px-3 sm:px-4 py-2 hidden sm:table-cell"><%= t.session&.title || "-" %></td>
+              <td class="px-5 py-3 text-gray-600 hidden sm:table-cell text-xs"><%= t.session&.title.presence || "—" %></td>
             </tr>
           <% end %>
         </tbody>
       </table>
     </div>
   <% end %>
+
 </div>
