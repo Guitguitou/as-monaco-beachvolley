@@ -29,11 +29,23 @@
             html_options: { value: params[:end_date] || Date.current.end_of_month }
           ) %>
         </div>
-        <%= f.hidden_field :format, value: 'csv' %>
+        <fieldset class="flex flex-col gap-2 min-w-[10rem]">
+          <legend class="text-sm font-medium text-gray-700">Format d'export</legend>
+          <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-800 cursor-pointer">
+              <%= f.radio_button :export_format, "csv", checked: params[:export_format].to_s != "xlsx", class: "text-asmbv-red focus:ring-asmbv-red" %>
+              CSV
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-800 cursor-pointer">
+              <%= f.radio_button :export_format, "xlsx", class: "text-asmbv-red focus:ring-asmbv-red" %>
+              Excel (.xlsx)
+            </label>
+          </div>
+        </fieldset>
       </div>
       <%= f.submit class: "px-4 py-2 bg-asmbv-red text-white rounded-none hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2 whitespace-nowrap cursor-pointer",
           data: { disable_with: "Export en cours..." } do %>
-        <%= lucide_icon("download", size: 16) %> Exporter CSV
+        <%= lucide_icon("download", size: 16) %> Exporter
       <% end %>
     <% end %>
     <p class="text-xs text-gray-500 mt-2">Par défaut, le mois en cours est sélectionné</p>

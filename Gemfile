@@ -102,3 +102,9 @@ gem "webpush"
 
 # Transactional emails (Brevo)
 gem "sib-api-v3-sdk"
+
+# Ruby 4+ : csv n'est plus dans la stdlib par défaut
+gem "csv"
+
+# Export tableur (admin)
+gem "caxlsx"

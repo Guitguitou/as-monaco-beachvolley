@@ -80,7 +80,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
               params: {
                 start_date: start_date.to_s,
                 end_date: end_date.to_s,
-                format: 'csv'
+                export_format: "csv"
               }
 
           expect(response).to have_http_status(:success)
@@ -106,7 +106,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
               params: {
                 start_date: start_date.to_s,
                 end_date: end_date.to_s,
-                format: 'csv'
+                export_format: "csv"
               }
 
           csv_content = response.body
@@ -128,7 +128,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
               params: {
                 start_date: start_date.to_s,
                 end_date: end_date.to_s,
-                format: 'csv'
+                export_format: "csv"
               }
 
           csv_content = response.body
@@ -148,7 +148,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
               params: {
                 start_date: start_date.to_s,
                 end_date: end_date.to_s,
-                format: 'csv'
+                export_format: "csv"
               }
 
           csv_content = response.body
@@ -168,7 +168,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
               params: {
                 start_date: start_date.to_s,
                 end_date: end_date.to_s,
-                format: 'csv'
+                export_format: "csv"
               }
 
           csv_content = response.body
@@ -180,7 +180,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
               params: {
                 start_date: start_date.to_s,
                 end_date: end_date.to_s,
-                format: 'csv'
+                export_format: "csv"
               }
 
           csv_content = response.body
@@ -193,7 +193,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
           get export_admin_purchase_history_index_path,
               params: {
                 end_date: end_date.to_s,
-                format: 'csv'
+                export_format: "csv"
               }
 
           expect(response).to redirect_to(admin_purchase_history_index_path)
@@ -204,7 +204,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
           get export_admin_purchase_history_index_path,
               params: {
                 start_date: start_date.to_s,
-                format: 'csv'
+                export_format: "csv"
               }
 
           expect(response).to redirect_to(admin_purchase_history_index_path)
@@ -216,7 +216,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
               params: {
                 start_date: end_date.to_s,
                 end_date: start_date.to_s,
-                format: 'csv'
+                export_format: "csv"
               }
 
           expect(response).to redirect_to(admin_purchase_history_index_path)
@@ -228,11 +228,39 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
               params: {
                 start_date: start_date.to_s,
                 end_date: end_date.to_s,
-                format: 'xlsx'
+                export_format: "pdf"
               }
 
           expect(response).to redirect_to(admin_purchase_history_index_path)
           expect(flash[:alert]).to eq("Format d'export non supporté")
+        end
+
+        it "still accepts legacy format=csv param for CSV export" do
+          get export_admin_purchase_history_index_path,
+              params: {
+                start_date: start_date.to_s,
+                end_date: end_date.to_s,
+                format: "csv"
+              }
+
+          expect(response).to have_http_status(:success)
+          expect(response.headers["Content-Type"]).to include("text/csv")
+        end
+
+        it "exports XLSX with purchases in date range" do
+          get export_admin_purchase_history_index_path,
+              params: {
+                start_date: start_date.to_s,
+                end_date: end_date.to_s,
+                export_format: "xlsx"
+              }
+
+          expect(response).to have_http_status(:success)
+          expect(response.headers["Content-Type"]).to include("spreadsheetml")
+          expect(response.headers["Content-Disposition"]).to include("attachment")
+          expect(response.headers["Content-Disposition"]).to include(".xlsx")
+          # .xlsx est un fichier ZIP (signature PK)
+          expect(response.body.byteslice(0, 2)).to eq("PK")
         end
       end
     end
@@ -245,7 +273,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
             params: {
               start_date: start_date.to_s,
               end_date: end_date.to_s,
-              format: 'csv'
+              export_format: "csv"
             }
 
         expect(response).to have_http_status(:success)
@@ -260,7 +288,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
             params: {
               start_date: start_date.to_s,
               end_date: end_date.to_s,
-              format: 'csv'
+              export_format: "csv"
             }
 
         expect(response).to have_http_status(:redirect)
