@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
-ruby "4.0.5"
+ruby File.read(File.join(__dir__, ".tool-versions"))[/^ruby \K\S+/m] ||
+  raise("Add a line like `ruby x.y.z` to .tool-versions")
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.1"
