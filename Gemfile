@@ -67,7 +67,7 @@ group :development, :test do
   gem "factory_bot_rails"
   gem "faker"
   gem "shoulda-matchers"
-  gem "rubocop-config-captive", "~> 2.2.0"
+  gem "rubocop-config-captive", "~> 2.3.1"
   gem "rails-controller-testing"
 end
 
