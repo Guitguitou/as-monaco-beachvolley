@@ -19,7 +19,7 @@ Système complet de paiement en ligne permettant aux utilisateurs d'acheter des 
 - ✅ **RealGateway** : Pour production avec signature HMAC
 - ✅ Factory pattern pour sélection selon `ENV['SHERLOCK_GATEWAY']`
 
-### 3. Webhook Sidekiq
+### 3. Webhook SolidQueue
 - ✅ Endpoint `/webhooks/sherlock`
 - ✅ Vérification signature HMAC
 - ✅ Traitement asynchrone via `SherlockCallbackJob`
@@ -49,7 +49,6 @@ Système complet de paiement en ligne permettant aux utilisateurs d'acheter des 
 1. **Configurer les variables d'environnement** :
    ```bash
    # Dans .env
-   REDIS_URL=redis://localhost:6379/1
    SHERLOCK_GATEWAY=fake
    BREVO_API_KEY=your_brevo_api_key
    BREVO_SENDER_EMAIL=notifications@example.com
@@ -61,10 +60,6 @@ Système complet de paiement en ligne permettant aux utilisateurs d'acheter des 
 
 2. **Démarrer les services** :
    ```bash
-   # Terminal 1 : Redis
-   redis-server
-   
-   # Terminal 2 : Rails + Sidekiq
    bin/dev
    ```
 
@@ -204,7 +199,6 @@ app/
 
 - **Variables d'environnement** : Voir `ENV_VARIABLES.md`
 - **Guide détaillé** : Voir `setup_real_sherlock.md`
-- **Migration Sidekiq** : Voir `MIGRATION_SIDEKIQ.md`
 - **Déploiement Scalingo** : Voir `SCALINGO_DEPLOYMENT.md`
 
 ## 📧 Emails Brevo (confirmation paiement)
@@ -218,7 +212,7 @@ app/
 ## 🆘 Troubleshooting
 
 ### Le paiement ne se crédite pas
-1. Vérifier que Sidekiq tourne : `bundle exec sidekiq -C config/sidekiq.yml`
+1. Vérifier que le worker SolidQueue tourne : `bin/jobs`
 2. Vérifier les logs du worker
 3. Vérifier que le webhook a bien été reçu
 

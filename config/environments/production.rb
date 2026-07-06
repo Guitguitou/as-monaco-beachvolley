@@ -24,7 +24,7 @@ Rails.application.configure do
   # Store uploaded files on Cloudinary in production (override via ENV if needed).
   config.active_storage.service = (ENV["ACTIVE_STORAGE_SERVICE"].presence || :cloudinary).to_sym
 
-  # Disable Active Storage analysis jobs to avoid SolidQueue dependency
+  # Active Storage upload analysis disabled (business decision, unrelated to job backend)
   config.active_storage.analyze_on_upload = false
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
@@ -49,15 +49,11 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Use Redis cache store for production
-  config.cache_store = :redis_cache_store, {
-    url: ENV.fetch("REDIS_URL", "redis://localhost:6379/0"),
-    expires_in: 1.hour,
-    namespace: "as_monaco_beach_volley_cache"
-  }
+  # Use SolidCache (Postgres-backed) for production
+  config.cache_store = :solid_cache_store
 
-  # Use Sidekiq as the queuing backend for Active Job.
-  config.active_job.queue_adapter = :sidekiq
+  # Use SolidQueue (Postgres-backed) as the queuing backend for Active Job.
+  config.active_job.queue_adapter = :solid_queue
 
   # Mail: host for links in emails (mot de passe oublié, sessions, etc.)
   config.action_mailer.default_url_options = {

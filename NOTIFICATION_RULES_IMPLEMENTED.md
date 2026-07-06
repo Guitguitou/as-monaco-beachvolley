@@ -55,7 +55,7 @@ end
 **Implémentation** : 
 - Dans `CreditTransaction` via des callbacks `after_create_commit`, `after_update_commit`, `after_destroy_commit`
 - Fichier : `app/models/credit_transaction.rb`
-- **Protection anti-spam** : Notification envoyée maximum 1 fois par 24h (via cache Redis)
+- **Protection anti-spam** : Notification envoyée maximum 1 fois par 24h (via cache SolidCache)
 
 **Code** :
 ```ruby
@@ -137,7 +137,7 @@ end
 
 ## 📝 Notes importantes
 
-- **Toutes les notifications sont envoyées en arrière-plan** via `SendPushNotificationJob` (Sidekiq)
+- **Toutes les notifications sont envoyées en arrière-plan** via `SendPushNotificationJob` (SolidQueue)
 - **Les notifications nécessitent que l'utilisateur soit abonné** (via le contrôleur Stimulus)
 - **La règle 3 a une protection anti-spam** : maximum 1 notification par 24h
 - **Les notifications incluent un lien** vers la page pertinente (session, packs, etc.)

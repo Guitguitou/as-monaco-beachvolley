@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set –e
+set -e
 if [[ -z "$RAILS_ENV" || "$RAILS_ENV" = "development" ]] ; then
   cat
 else

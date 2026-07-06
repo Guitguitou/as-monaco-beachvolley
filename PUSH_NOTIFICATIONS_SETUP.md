@@ -16,7 +16,7 @@
 
 ### 4. Services
 - ✅ `PushNotificationService` : Service principal pour envoyer les notifications
-- ✅ `SendPushNotificationJob` : Job Sidekiq pour envoyer les notifications en arrière-plan
+- ✅ `SendPushNotificationJob` : Job SolidQueue pour envoyer les notifications en arrière-plan
 
 ### 5. Frontend
 - ✅ `push_notifications_controller.js` : Contrôleur Stimulus pour gérer l'abonnement côté client

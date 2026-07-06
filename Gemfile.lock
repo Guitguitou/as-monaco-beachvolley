@@ -110,9 +110,6 @@ GEM
     concurrent-ruby (1.3.7)
     connection_pool (3.0.2)
     crass (1.0.7)
-    cronex (0.15.0)
-      tzinfo
-      unicode (>= 0.4.4.5)
     csv (3.3.5)
     date (3.5.1)
     debug (1.11.1)
@@ -214,6 +211,16 @@ GEM
     minitest (6.0.6)
       drb (~> 2.0)
       prism (~> 1.5)
+    mission_control-jobs (1.1.0)
+      actioncable (>= 7.1)
+      actionpack (>= 7.1)
+      activejob (>= 7.1)
+      activerecord (>= 7.1)
+      importmap-rails (>= 1.2.1)
+      irb (~> 1.13)
+      railties (>= 7.1)
+      stimulus-rails
+      turbo-rails
     msgpack (1.8.3)
     multipart-post (2.4.1)
     net-http (0.9.1)
@@ -314,10 +321,6 @@ GEM
       prism (>= 1.6.0)
       rbs (>= 4.0.0)
       tsort
-    redis (5.4.1)
-      redis-client (>= 0.22.0)
-    redis-client (0.30.0)
-      connection_pool
     regexp_parser (2.12.0)
     reline (0.6.3)
       io-console (~> 0.5)
@@ -412,26 +415,22 @@ GEM
       addressable (~> 2.3, >= 2.3.0)
       json (~> 2.1, >= 2.1.0)
       typhoeus (~> 1.0, >= 1.0.1)
-    sidekiq (8.1.6)
-      connection_pool (>= 3.0.0)
-      json (>= 2.16.0)
-      logger (>= 1.7.0)
-      rack (>= 3.2.0)
-      redis-client (>= 0.29.0)
-    sidekiq-cron (2.4.0)
-      cronex (>= 0.13.0)
-      fugit (~> 1.8, >= 1.11.1)
-      globalid (>= 1.0.1)
-      sidekiq (>= 6.5.0)
-    sidekiq-unique-jobs (8.1.0)
-      concurrent-ruby (~> 1.0, >= 1.0.5)
-      sidekiq (>= 7.0.0, < 9.0.0)
-      thor (>= 1.0, < 3.0)
     solid_cable (4.0.0)
       actioncable (>= 7.2)
       activejob (>= 7.2)
       activerecord (>= 7.2)
       railties (>= 7.2)
+    solid_cache (1.0.10)
+      activejob (>= 7.2)
+      activerecord (>= 7.2)
+      railties (>= 7.2)
+    solid_queue (1.4.0)
+      activejob (>= 7.1)
+      activerecord (>= 7.1)
+      concurrent-ruby (>= 1.3.1)
+      fugit (~> 1.11)
+      railties (>= 7.1)
+      thor (>= 1.3.1)
     sshkit (1.25.0)
       base64
       logger
@@ -460,7 +459,6 @@ GEM
       ethon (>= 0.18.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    unicode (0.4.4.5)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
@@ -517,12 +515,12 @@ DEPENDENCIES
   jbuilder
   kamal
   lucide-rails
+  mission_control-jobs (= 1.1.0)
   pg (~> 1.1)
   propshaft
   puma (>= 5.0)
   rails (~> 8.0.1)
   rails-controller-testing
-  redis (~> 5.0)
   rspec-rails
   rubocop
   rubocop-config-captive (~> 2.3.0)
@@ -532,10 +530,9 @@ DEPENDENCIES
   selenium-webdriver
   shoulda-matchers
   sib-api-v3-sdk
-  sidekiq
-  sidekiq-cron
-  sidekiq-unique-jobs
   solid_cable
+  solid_cache (= 1.0.10)
+  solid_queue (= 1.4.0)
   stimulus-rails
   tailwindcss-rails (~> 4.2)
   tailwindcss-ruby (~> 4.3)

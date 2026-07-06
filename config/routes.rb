@@ -1,10 +1,7 @@
-require "sidekiq/web"
-require "sidekiq/cron/web"
-
 Rails.application.routes.draw do
-  # Mount Sidekiq Web UI (protected by authentication in routes)
+  # Mount Mission Control Jobs UI (protected by authentication in routes, same pattern as before)
   authenticate :user, ->(user) { user.admin? } do
-    mount Sidekiq::Web => "/admin/sidekiq"
+    mount MissionControl::Jobs::Engine, at: "/admin/jobs"
   end
 
   devise_for :users, controllers: {

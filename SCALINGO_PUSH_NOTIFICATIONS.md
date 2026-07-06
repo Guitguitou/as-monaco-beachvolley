@@ -3,8 +3,7 @@
 ## ✅ Ce qui est déjà configuré
 
 Votre application utilise déjà :
-- ✅ **Redis** : Pour Sidekiq et le cache (déjà configuré)
-- ✅ **Sidekiq** : Pour les jobs en arrière-plan (déjà configuré)
+- ✅ **SolidQueue** : Pour les jobs en arrière-plan, sur Postgres (déjà configuré)
 - ✅ **HTTPS** : Fourni automatiquement par Scalingo (requis pour les notifications push)
 
 ## 🔧 Configuration nécessaire
@@ -135,9 +134,9 @@ scalingo --app votre-app logs --filter worker
 
 2. **Service Worker** : Le fichier `public/service-worker.js` doit être accessible. Il est automatiquement servi par Rails ✅
 
-3. **Redis** : Déjà configuré pour Sidekiq et le cache. Utilisé aussi pour la protection anti-spam de la règle 3 ✅
+3. **SolidCache** : Déjà configuré, utilisé pour la protection anti-spam de la règle 3 ✅
 
-4. **Sidekiq** : Déjà configuré. Les notifications sont envoyées en arrière-plan via `SendPushNotificationJob` ✅
+4. **SolidQueue** : Déjà configuré. Les notifications sont envoyées en arrière-plan via `SendPushNotificationJob` ✅
 
 5. **Migrations** : N'oubliez pas d'exécuter les migrations après le déploiement :
    ```bash
@@ -158,7 +157,7 @@ scalingo --app votre-app logs --filter worker
    scalingo --app votre-app logs --filter worker
    ```
 
-3. Vérifiez que Sidekiq tourne :
+3. Vérifiez que le worker SolidQueue tourne :
    ```bash
    scalingo --app votre-app ps
    ```
@@ -179,5 +178,4 @@ scalingo --app votre-app logs --filter worker
 ## 📚 Ressources
 
 - [Documentation Scalingo - Variables d'environnement](https://doc.scalingo.com/platform/app/environment-variables)
-- [Documentation Scalingo - Redis](https://doc.scalingo.com/databases/redis/start)
-- [Documentation Scalingo - Sidekiq](https://doc.scalingo.com/languages/ruby/sidekiq)
+- [Documentation SolidQueue](https://github.com/rails/solid_queue)

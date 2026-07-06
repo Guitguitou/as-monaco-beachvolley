@@ -6,6 +6,5 @@ test:
 
 production:
   adapter: solid_cable
-  database: cable
   polling_interval: 0.1
   message_retention: 1.day

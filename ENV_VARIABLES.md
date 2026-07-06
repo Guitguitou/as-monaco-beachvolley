@@ -1,11 +1,5 @@
 # Variables d'environnement requises
 
-## Redis & Sidekiq
-
-```bash
-REDIS_URL=redis://localhost:6379/1
-```
-
 ## Sherlock Payment Gateway
 
 ```bash
@@ -55,7 +49,6 @@ Créez un fichier `.env` à la racine avec ces variables :
 
 ```bash
 # Copier-coller ce template dans votre .env local
-REDIS_URL=redis://localhost:6379/1
 SHERLOCK_GATEWAY=fake
 SHERLOCK_RETURN_URL_SUCCESS=http://localhost:3000/checkout/success
 SHERLOCK_RETURN_URL_CANCEL=http://localhost:3000/checkout/cancel
@@ -91,7 +84,6 @@ scalingo --app votre-app env-set VAPID_PRIVATE_KEY="votre_cle_privee"
 scalingo --app votre-app env-set VAPID_SUBJECT="mailto:votre-email@example.com"
 ```
 
-Note : 
-- `REDIS_URL` est automatiquement configurée par l'addon Redis de Scalingo.
+Note :
 - Voir `SCALINGO_PUSH_NOTIFICATIONS.md` pour la configuration complète des notifications push.
 
