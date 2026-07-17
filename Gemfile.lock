@@ -131,7 +131,7 @@ GEM
       railties (>= 6.1)
     drb (2.2.3)
     ed25519 (1.4.0)
-    erb (6.0.4)
+    erb (6.0.5)
     erubi (1.13.1)
     et-orbi (1.4.0)
       tzinfo
@@ -180,7 +180,7 @@ GEM
     jbuilder (2.15.1)
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
-    json (2.21.0)
+    json (2.21.1)
     jwt (2.10.3)
       base64
     kamal (2.12.0)
@@ -197,7 +197,7 @@ GEM
     language_server-protocol (3.17.0.6)
     lint_roller (1.1.0)
     logger (1.7.0)
-    loofah (2.25.1)
+    loofah (2.25.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lucide-rails (0.7.4)
@@ -242,7 +242,7 @@ GEM
     orm_adapter (0.5.0)
     ostruct (0.6.3)
     parallel (2.1.0)
-    parser (3.3.11.1)
+    parser (3.3.12.0)
       ast (~> 2.4.1)
       racc
     pg (1.6.3-aarch64-linux)
@@ -291,8 +291,8 @@ GEM
       activesupport (>= 5.0.0)
       minitest
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.7.0)
-      loofah (~> 2.25)
+    rails-html-sanitizer (1.7.1)
+      loofah (~> 2.25, >= 2.25.2)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
     railties (8.0.5)
       actionpack (= 8.0.5)
@@ -448,9 +448,9 @@ GEM
     tailwindcss-ruby (4.3.2-arm64-darwin)
     tailwindcss-ruby (4.3.2-x86_64-linux-gnu)
     thor (1.5.0)
-    thruster (0.1.22-aarch64-linux)
-    thruster (0.1.22-arm64-darwin)
-    thruster (0.1.22-x86_64-linux)
+    thruster (0.1.23-aarch64-linux)
+    thruster (0.1.23-arm64-darwin)
+    thruster (0.1.23-x86_64-linux)
     timeout (0.6.1)
     tsort (0.2.0)
     turbo-rails (2.0.23)
@@ -548,7 +548,7 @@ DEPENDENCIES
   webpush
 
 RUBY VERSION
-   ruby 4.0.5p0
+   ruby 4.0.6p0
 
 BUNDLED WITH
    2.4.10
