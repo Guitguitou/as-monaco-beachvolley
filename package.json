@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@fullcalendar/core": "^6.1.20",
+    "@fullcalendar/core": "^7.0.0",
     "@fullcalendar/daygrid": "^6.1.20",
     "@fullcalendar/interaction": "^6.1.20",
     "@fullcalendar/resource-timegrid": "^6.1.20",
