@@ -2,12 +2,10 @@
 # yarn lockfile v1
 
 
-"@fullcalendar/core@^6.1.20":
-  version "6.1.21"
-  resolved "https://registry.yarnpkg.com/@fullcalendar/core/-/core-6.1.21.tgz#e8b0ed592a60aba44499802fefdbb1fcc91b0a07"
-  integrity sha512-t3u/+sqh3Iq7TWtUnVLcGDUE6OWZh0UD3c04bI/l7lSLAgAKr3kngBmhHiQD1QXpwC8ZN5iNqG7a7gOVixhSKQ==
-  dependencies:
-    preact "~10.12.1"
+"@fullcalendar/core@^7.0.0":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/core/-/core-7.0.2.tgz#4f848a88af197ac2625af4e97aab385466c1fc56"
+  integrity sha512-EkhE1wkPttp5kKNmUNLsMwl8nUuQmLdj30SPKagOEWMJUE4AHETAu/F/SbYoRq+nksm2GWPe9cQs1kbQP2H9pA==
 
 "@fullcalendar/daygrid@^6.1.20", "@fullcalendar/daygrid@~6.1.21":
   version "6.1.21"
@@ -47,11 +45,6 @@
   integrity sha512-2DnShx/jallGmb8QCkr6pAOu/zuPhJrP7+uTrAtSnbqsX7GF3lTxqSeNGkTQwsgF5g/ia8udhQ+JNYaE+TN1cQ==
   dependencies:
     "@fullcalendar/daygrid" "~6.1.21"
-
-preact@~10.12.1:
-  version "10.12.1"
-  resolved "https://registry.yarnpkg.com/preact/-/preact-10.12.1.tgz#8f9cb5442f560e532729b7d23d42fd1161354a21"
-  integrity sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg==
 
 yarn@^1.22.22:
   version "1.22.22"
