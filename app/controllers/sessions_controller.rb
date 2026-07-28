@@ -88,9 +88,12 @@ class SessionsController < ApplicationController
 
   def calendar
     export = Sessions::IcsExport.new(@session, url: session_url(@session))
+    # `inline` : sur iOS Safari, ouvre directement l'écran « Ajouter l'événement »
+    # dans Calendar au lieu d'enregistrer le fichier. Le filename reste utile pour
+    # les plateformes qui téléchargent quand même (Android, desktop).
     send_data export.call,
               type: "text/calendar; charset=utf-8",
-              disposition: "attachment",
+              disposition: "inline",
               filename: export.filename
   end
 
