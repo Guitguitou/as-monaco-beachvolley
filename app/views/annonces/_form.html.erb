@@ -1,0 +1,68 @@
+<%= form_with model: annonce, class: "space-y-6" do |f| %>
+  <% if annonce.errors.any? %>
+    <div class="border border-red-300 bg-red-50 text-red-800 px-4 py-3 text-sm">
+      <p class="font-semibold mb-1"><%= pluralize(annonce.errors.count, "erreur") %> :</p>
+      <ul class="list-disc list-inside">
+        <% annonce.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <label class="block text-sm font-semibold text-gray-700 mb-1">Titre</label>
+    <%= f.text_field :title, placeholder: "Ex. : Jeu libre détente", class: "w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-asmbv-red" %>
+  </div>
+
+  <div>
+    <label class="block text-sm font-semibold text-gray-700 mb-1">Description <span class="font-normal text-gray-400">(optionnel)</span></label>
+    <%= f.text_area :description, rows: 3, class: "w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-asmbv-red" %>
+  </div>
+
+  <div>
+    <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre de joueurs visé</label>
+    <%= f.number_field :min_players, min: 1, class: "w-32 border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-asmbv-red" %>
+    <p class="text-xs text-gray-500 mt-1">L'annonce devient confirmable dès qu'un créneau atteint ce nombre de joueurs dispos.</p>
+  </div>
+
+  <div>
+    <label class="block text-sm font-semibold text-gray-700 mb-2">Niveaux ciblés <span class="font-normal text-gray-400">(aucun = ouvert à tous)</span></label>
+    <div class="flex flex-wrap gap-2">
+      <% Level.all.each do |level| %>
+        <label class="inline-flex items-center gap-2 border border-gray-200 px-3 py-2 text-sm cursor-pointer hover:border-asmbv-red">
+          <%= check_box_tag "annonce[level_ids][]", level.id, annonce.level_ids.include?(level.id), id: "annonce_level_#{level.id}" %>
+          <%= level.display_name %>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <div data-controller="nested-slots">
+    <div class="flex items-center justify-between mb-2">
+      <label class="block text-sm font-semibold text-gray-700">Créneaux proposés</label>
+      <button type="button" data-action="nested-slots#add"
+              class="inline-flex items-center gap-1 text-sm font-semibold text-asmbv-red hover:text-asmbv-red-dark">
+        <%= lucide_icon("plus", class: "size-4") %> Ajouter un créneau
+      </button>
+    </div>
+
+    <div class="space-y-3" data-nested-slots-target="list">
+      <%= f.fields_for :slots do |slot_form| %>
+        <%= render "slot_fields", slot_form: slot_form %>
+      <% end %>
+    </div>
+
+    <template data-nested-slots-target="template">
+      <%= f.fields_for :slots, AnnonceSlot.new, child_index: "NEW_RECORD" do |slot_form| %>
+        <%= render "slot_fields", slot_form: slot_form %>
+      <% end %>
+    </template>
+  </div>
+
+  <div class="flex items-center gap-3 pt-2">
+    <%= f.submit annonce.persisted? ? "Mettre à jour" : "Publier l'annonce",
+        class: "inline-flex items-center justify-center px-5 py-2.5 font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark cursor-pointer" %>
+    <%= link_to "Annuler", (annonce.persisted? ? annonce_path(annonce) : annonces_path), class: "text-sm text-gray-500 hover:text-gray-700" %>
+  </div>
+<% end %>

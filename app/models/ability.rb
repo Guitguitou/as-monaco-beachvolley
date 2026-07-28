@@ -42,6 +42,12 @@ class Ability
         can :create, Registration
         can [ :destroy ], Registration, user_id: user.id
 
+        # Annonces de jeu libre : lecture/création pour tous les activés,
+        # gestion (édition, confirmation, annulation) réservée au créateur.
+        can [ :read, :create ], Annonce
+        can :toggle_availability, Annonce
+        can [ :update, :destroy, :confirm, :cancel ], Annonce, user_id: user.id
+
         # View own credit history
         can :read, CreditTransaction, user_id: user.id
       end

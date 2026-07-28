@@ -1,0 +1,96 @@
+<% is_owner = @annonce.user_id == current_user.id %>
+<% status_badge = { "open" => ["Ouverte", "bg-green-100 text-green-800"], "confirmed" => ["Confirmée", "bg-blue-100 text-blue-800"], "cancelled" => ["Annulée", "bg-gray-100 text-gray-600"] } %>
+<% label, badge_classes = status_badge[@annonce.status] %>
+
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <%= link_to annonces_path, class: "inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4" do %>
+    <%= lucide_icon("arrow-left", class: "size-4") %> Toutes les annonces
+  <% end %>
+
+  <div class="flex items-start justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-bold text-gray-900"><%= @annonce.title %></h1>
+        <span class="text-xs font-semibold px-2 py-1 <%= badge_classes %>"><%= label %></span>
+      </div>
+      <p class="text-sm text-gray-500 mt-1">par <%= @annonce.user.full_name %></p>
+    </div>
+    <% if is_owner && @annonce.open? %>
+      <div class="flex items-center gap-2 shrink-0">
+        <%= link_to lucide_icon("pencil", class: "size-4"), edit_annonce_path(@annonce), class: "p-2 text-gray-500 hover:text-asmbv-red border border-gray-200", title: "Modifier" %>
+        <%= button_to lucide_icon("x", class: "size-4"), cancel_annonce_path(@annonce), method: :post, class: "p-2 text-gray-500 hover:text-asmbv-red border border-gray-200", form: { data: { turbo_confirm: "Annuler cette annonce ?" } }, title: "Annuler" %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @annonce.description.present? %>
+    <p class="mt-3 text-gray-700 whitespace-pre-line"><%= @annonce.description %></p>
+  <% end %>
+
+  <% if @annonce.levels.any? %>
+    <div class="flex flex-wrap gap-1 mt-3">
+      <% @annonce.levels.each do |level| %>
+        <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-700"><%= level.display_name %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if @annonce.confirmed? && @annonce.session %>
+    <div class="mt-6 border border-blue-200 bg-blue-50 p-4">
+      <p class="font-semibold text-blue-900 mb-3">Session créée 🎉</p>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <%= link_to "Voir la session", session_path(@annonce.session), class: "inline-flex items-center justify-center px-4 py-2 font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark" %>
+        <%= render WhatsappShareComponent.new(text: annonce_whatsapp_text(@annonce, @annonce.session), full_width: false) %>
+      </div>
+    </div>
+  <% end %>
+
+  <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mt-8 mb-3">Créneaux proposés</h2>
+  <div class="space-y-4">
+    <% @annonce.slots.sort_by(&:start_at).each do |slot| %>
+      <% count = slot.availabilities.size %>
+      <% reached = count >= @annonce.min_players %>
+      <% i_am_in = @available_slot_ids.include?(slot.id) %>
+      <div class="border border-gray-200 p-4">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <div class="flex items-center gap-2 font-medium text-gray-900">
+            <%= lucide_icon("calendar-clock", class: "size-5 text-gray-400") %>
+            <%= annonce_slot_range(slot) %>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold <%= reached ? 'text-green-700' : 'text-gray-500' %>">
+              <%= count %>/<%= @annonce.min_players %> joueurs
+            </span>
+            <% if @annonce.responsable_present?(slot) %>
+              <span class="text-xs font-semibold px-2 py-0.5 bg-amber-100 text-amber-800" title="Un responsable est disponible sur ce créneau">Responsable ✓</span>
+            <% end %>
+          </div>
+        </div>
+
+        <% if slot.available_users.any? %>
+          <div class="flex flex-wrap gap-1 mt-3">
+            <% slot.available_users.each do |u| %>
+              <span class="text-xs px-2 py-0.5 bg-gray-100 text-gray-700"><%= u.full_name %><%= " 🧑‍🏫" if u.responsable? %></span>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @annonce.open? %>
+          <div class="mt-4 flex flex-wrap items-center gap-3">
+            <%= button_to toggle_availability_annonce_path(@annonce, slot_id: slot.id), method: :post,
+                  class: (i_am_in ? "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100" : "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark") do %>
+              <%= lucide_icon(i_am_in ? "user-minus" : "user-plus", class: "size-4") %>
+              <%= i_am_in ? "Retirer ma dispo" : "Je suis dispo" %>
+            <% end %>
+
+            <% if is_owner && reached %>
+              <%= link_to confirm_annonce_path(@annonce), class: "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-green-600 hover:bg-green-700" do %>
+                <%= lucide_icon("check", class: "size-4") %> Confirmer sur ce créneau
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

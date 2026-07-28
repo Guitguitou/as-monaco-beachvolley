@@ -1,0 +1,18 @@
+<div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 items-end border border-gray-200 p-3" data-nested-slots-row>
+  <div>
+    <label class="block text-xs font-semibold text-gray-600 mb-1">Début</label>
+    <%= slot_form.datetime_field :start_at, class: "w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red" %>
+  </div>
+  <div>
+    <label class="block text-xs font-semibold text-gray-600 mb-1">Fin</label>
+    <%= slot_form.datetime_field :end_at, class: "w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red" %>
+  </div>
+  <div class="flex items-center gap-2">
+    <%= slot_form.hidden_field :_destroy %>
+    <button type="button" data-action="nested-slots#remove"
+            class="inline-flex items-center justify-center px-3 py-2 text-sm text-gray-500 hover:text-asmbv-red border border-gray-200 hover:border-asmbv-red"
+            title="Retirer ce créneau">
+      <%= lucide_icon("trash-2", class: "size-4") %>
+    </button>
+  </div>
+</div>
