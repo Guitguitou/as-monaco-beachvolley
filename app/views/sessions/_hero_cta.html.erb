@@ -45,6 +45,12 @@
       <% end %>
     <% end %>
 
+    <% unless existing_registration.waitlisted? %>
+      <div class="mt-3">
+        <%= render AddToCalendarComponent.new(url: calendar_session_path(session, format: :ics)) %>
+      </div>
+    <% end %>
+
     <% if !existing_registration.waitlisted? && session.entrainement? && session.cancellation_deadline_at.present? %>
       <div class="mt-3">
         <% if Time.current > session.cancellation_deadline_at %>

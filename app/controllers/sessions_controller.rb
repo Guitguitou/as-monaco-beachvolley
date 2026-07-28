@@ -3,7 +3,7 @@
 class SessionsController < ApplicationController
   before_action :authenticate_user!
   load_and_authorize_resource
-  before_action :set_session, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_session, only: [ :show, :edit, :update, :destroy, :calendar ]
   before_action :set_session_for_cancel, only: [ :cancel ]
   before_action :set_session_for_duplicate, only: []
 
@@ -84,6 +84,14 @@ class SessionsController < ApplicationController
 
       @candidate_users = base.order(:first_name, :last_name).distinct
     end
+  end
+
+  def calendar
+    export = Sessions::IcsExport.new(@session, url: session_url(@session))
+    send_data export.call,
+              type: "text/calendar; charset=utf-8",
+              disposition: "attachment",
+              filename: export.filename
   end
 
   def new
