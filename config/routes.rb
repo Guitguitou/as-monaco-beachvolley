@@ -30,6 +30,16 @@ Rails.application.routes.draw do
     resources :registrations, only: [ :create, :destroy ]
   end
 
+  # Annonces de jeu libre (« matcher » de joueurs)
+  resources :annonces do
+    member do
+      get :confirm
+      patch :confirm
+      post :cancel
+      post :toggle_availability
+    end
+  end
+
   resource :profile, only: [ :show ], controller: "users"
 
   namespace :me do

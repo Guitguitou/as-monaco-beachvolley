@@ -17,6 +17,7 @@
         <% if current_user&.activated? %>
           <%= nav_link_navbar "Performances", performances_path %>
           <%= nav_link_navbar "Calendrier", sessions_path %>
+          <%= nav_link_navbar "Annonces", annonces_path %>
           <%= nav_link_navbar "Stages", stages_path %>
           <%= nav_link_navbar "Boutique", packs_path %>
           <%= nav_link_navbar "Profil", profile_path %>
@@ -106,6 +107,9 @@
                 <% end %>
                 <%= link_to sessions_path, class: navbar_mobile_link_class do %>
                   Calendrier
+                <% end %>
+                <%= link_to annonces_path, class: navbar_mobile_link_class do %>
+                  Annonces
                 <% end %>
                 <%= link_to stages_path, class: navbar_mobile_link_class do %>
                   Stages

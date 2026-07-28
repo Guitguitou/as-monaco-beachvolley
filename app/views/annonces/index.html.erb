@@ -1,0 +1,37 @@
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Annonces de jeu libre</h1>
+      <p class="text-sm text-gray-500">Trouve des joueurs pour monter une session, ou réponds aux annonces des autres.</p>
+    </div>
+    <%= link_to new_annonce_path, class: "inline-flex items-center gap-2 px-4 py-2.5 font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark shrink-0" do %>
+      <%= lucide_icon("plus", class: "size-5") %> Créer une annonce
+    <% end %>
+  </div>
+
+  <section class="mb-10">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3">Annonces pour toi</h2>
+    <% if @eligible_annonces.any? %>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @eligible_annonces.each do |annonce| %>
+          <%= render "annonce_card", annonce: annonce %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500 border border-dashed border-gray-200 p-6 text-center">Aucune annonce ne correspond à ton niveau et à tes disponibilités pour le moment.</p>
+    <% end %>
+  </section>
+
+  <section>
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3">Mes annonces</h2>
+    <% if @my_annonces.any? %>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @my_annonces.each do |annonce| %>
+          <%= render "annonce_card", annonce: annonce %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500 border border-dashed border-gray-200 p-6 text-center">Tu n'as pas encore créé d'annonce.</p>
+    <% end %>
+  </section>
+</div>
