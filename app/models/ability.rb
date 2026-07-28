@@ -6,6 +6,9 @@ class Ability
   def initialize(user)
     user ||= User.new
 
+    # Downloading a session's .ics is a read-only capability.
+    alias_action :calendar, to: :read
+
     if user.admin?
       can :manage, :all
       return
