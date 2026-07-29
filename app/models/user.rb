@@ -32,6 +32,7 @@ class User < ApplicationRecord
   scope :financial_managers, -> { where(financial_manager: true) }
   scope :activated, -> { where.not(activated_at: nil) }
   scope :not_activated, -> { where(activated_at: nil) }
+  scope :renewed_for_next_season, -> { where(next_season_renewed: true) }
   scope :gender, ->(g) { joins(:levels).where(levels: { gender: g }) }
   scope :with_license, ->(lic) { where(license_type: lic) }
   scope :with_enough_credits, lambda { |session_record|
@@ -61,6 +62,12 @@ class User < ApplicationRecord
   # Activate the account (called when licence is paid)
   def activate!
     update!(activated_at: Time.current) unless activated?
+  end
+
+  # Flag that the licence for the upcoming season has been paid.
+  # Consumed (reset to false) when an admin resets the season via Licenses::ResetSeason.
+  def mark_next_season_renewed!
+    update!(next_season_renewed: true) unless next_season_renewed?
   end
 
   # Backward-compat virtual association for specs/legacy code
