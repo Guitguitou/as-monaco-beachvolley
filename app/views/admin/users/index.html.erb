@@ -4,7 +4,10 @@
     Joueurs
   </h1>
 
-  <%= button("Nouveau joueur", variant: :primary, size: :medium, href: new_admin_user_path) %>
+  <div class="flex items-center gap-2">
+    <%= button("Gérer la saison", variant: :secondary, size: :medium, href: admin_season_path, icon: "calendar-sync") %>
+    <%= button("Nouveau joueur", variant: :primary, size: :medium, href: new_admin_user_path) %>
+  </div>
 </div>
 
 <%= render 'filters' %>
