@@ -65,6 +65,20 @@
     </div>
   </div>
 
+  <!-- Renouvellement de la prochaine saison -->
+  <div class="flex items-start">
+    <div class="flex items-center h-5">
+      <%= f.check_box :next_season_renewed, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+    </div>
+    <div class="ml-3">
+      <%= f.label :next_season_renewed, "A réglé la licence de la prochaine saison", class: "text-sm font-medium text-gray-900" %>
+      <p class="text-xs text-gray-600 mt-1">
+        Cochez si le membre a déjà payé sa licence pour la saison à venir (paiement hors application par exemple).
+        Le compte sera conservé lors de la réinitialisation de la saison.
+      </p>
+    </div>
+  </div>
+
   <!-- Niveaux (multi) -->
   <div>
     <%= f.label :level_ids, "Niveaux", class: "block text-sm font-medium text-gray-900" %>

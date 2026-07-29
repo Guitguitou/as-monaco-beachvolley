@@ -209,6 +209,7 @@ module Admin
         :email, :first_name, :last_name,
         :admin, :coach, :responsable, :financial_manager,
         :license_type,
+        :next_season_renewed,
         :salary_per_training,
         :password, :password_confirmation,
         level_ids: []
