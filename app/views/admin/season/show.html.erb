@@ -1,0 +1,46 @@
+<div class="flex items-center gap-2 mb-6">
+  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
+    <%= lucide_icon("calendar-sync") %>
+    Gestion de la saison
+  </h1>
+</div>
+
+<%= render CardComponent.new(padding: :lg, class_name: "max-w-xl mx-auto border border-gray-200 space-y-6") do %>
+  <div>
+    <h2 class="text-lg font-semibold text-gray-900">Réinitialiser les licences</h2>
+    <p class="text-sm text-gray-600 mt-1">
+      Désactive les comptes des membres dont la licence n'a pas été renouvelée pour la nouvelle saison.
+      Les membres ayant déjà réglé la nouvelle licence (coche « Prochaine saison réglée ») sont conservés,
+      et leur coche est remise à zéro pour la saison suivante.
+    </p>
+  </div>
+
+  <dl class="grid grid-cols-3 gap-3 text-center">
+    <div class="rounded border border-gray-200 p-3">
+      <dt class="text-xs uppercase tracking-wide text-gray-500">Licences actives</dt>
+      <dd class="text-2xl font-bold text-gray-900"><%= @activated_count %></dd>
+    </div>
+    <div class="rounded border border-green-200 bg-green-50 p-3">
+      <dt class="text-xs uppercase tracking-wide text-green-700">Conservées</dt>
+      <dd class="text-2xl font-bold text-green-700"><%= @renewed_count %></dd>
+    </div>
+    <div class="rounded border border-red-200 bg-red-50 p-3">
+      <dt class="text-xs uppercase tracking-wide text-red-700">À désactiver</dt>
+      <dd class="text-2xl font-bold text-red-700"><%= @to_deactivate_count %></dd>
+    </div>
+  </dl>
+
+  <div class="border-l-4 border-asmbv-red bg-asmbv-red/5 p-4 rounded text-sm text-gray-700">
+    ⚠️ Action irréversible : les <%= @to_deactivate_count %> membre(s) concerné(s) perdront l'accès et devront
+    racheter une licence. L'historique, les crédits et les niveaux sont conservés.
+  </div>
+
+  <%= button_to admin_reset_season_path,
+        method: :post,
+        class: "w-full inline-flex justify-center items-center gap-2 rounded-none bg-asmbv-red px-4 py-2
+                text-sm font-semibold text-white hover:bg-asmbv-red-dark
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-asmbv-red transition-colors",
+        data: { turbo_confirm: "Confirmer la réinitialisation de la saison ? #{@to_deactivate_count} licence(s) seront désactivée(s)." } do %>
+    <%= lucide_icon("refresh-cw", size: 16) %> Réinitialiser la saison
+  <% end %>
+<% end %>
