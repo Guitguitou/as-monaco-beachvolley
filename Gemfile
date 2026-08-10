@@ -27,7 +27,7 @@ gem "jbuilder"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 # Use Redis for caching and Sidekiq
-gem "redis", "~> 5.0"
+gem "redis", "~> 6.0"
 gem "solid_cable"
 gem "connection_pool", "~> 3.0"
 
