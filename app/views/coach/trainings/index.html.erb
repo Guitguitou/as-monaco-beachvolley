@@ -9,20 +9,10 @@
     </div>
 
     <!-- Tabs Navigation -->
-    <div class="border-b border-gray-200">
-      <nav class="-mb-px flex space-x-8">
-        <%= link_to coach_trainings_path(tab: 'library'), 
-            class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-asmbv-red text-asmbv-red' if @active_tab == 'library'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'library'}" do %>
-          <%= lucide_icon("book-open", class: "w-4 h-4 inline mr-2") %>
-          Bibliothèque des entraînements
-        <% end %>
-        <%= link_to coach_trainings_path(tab: 'my_trainings'), 
-            class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-asmbv-red text-asmbv-red' if @active_tab == 'my_trainings'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'my_trainings'}" do %>
-          <%= lucide_icon("user", class: "w-4 h-4 inline mr-2") %>
-          Mes entraînements
-        <% end %>
-      </nav>
-    </div>
+    <%= tab_bar([
+      { label: "Bibliothèque des entraînements", href: coach_trainings_path(tab: "library"), active: @active_tab == "library", icon: "book-open" },
+      { label: "Mes entraînements", href: coach_trainings_path(tab: "my_trainings"), active: @active_tab == "my_trainings", icon: "user" }
+    ]) %>
 
     <!-- Tab Content -->
     <% if @active_tab == 'library' %>

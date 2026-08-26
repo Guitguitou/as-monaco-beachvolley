@@ -1,0 +1,14 @@
+<nav class="mb-4 flex flex-wrap gap-1 border-b border-gray-200 overflow-x-auto">
+  <% tabs.each do |tab| %>
+    <% active = tab[:active] %>
+    <%= link_to tab[:href], class: tab_classes(active), data: link_data do %>
+      <% if tab[:icon].present? %>
+        <%= lucide_icon(tab[:icon].to_s, class: "w-4 h-4") %>
+      <% end %>
+      <%= tab[:label] %>
+      <% unless tab[:count].nil? %>
+        <span class="<%= badge_classes(active) %>"><%= tab[:count] %></span>
+      <% end %>
+    <% end %>
+  <% end %>
+</nav>

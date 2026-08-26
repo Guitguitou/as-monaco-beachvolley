@@ -20,20 +20,21 @@
   base_params = request.query_parameters.except("session_type", "page")
 %>
 
+<%
+  session_tabs =
+    [ { label: "Toutes", href: admin_sessions_path(base_params), active: @current_type.nil?, count: @total_count } ] +
+    Session.session_types.keys.map do |type|
+      {
+        label: type_labels[type] || type.humanize,
+        href: admin_sessions_path(base_params.merge(session_type: type)),
+        active: @current_type == type,
+        count: @type_counts[type].to_i
+      }
+    end
+%>
+
 <%= turbo_frame_tag "sessions_list" do %>
-  <!-- Onglets par type de session -->
-  <nav class="mb-4 flex flex-wrap gap-1 border-b border-gray-200 overflow-x-auto">
-    <% tabs = [ [ nil, "Toutes", @total_count ] ] + Session.session_types.keys.map { |t| [ t, type_labels[t] || t.humanize, @type_counts[t].to_i ] } %>
-    <% tabs.each do |type, label, count| %>
-      <% active = (@current_type == type) %>
-      <%= link_to admin_sessions_path(base_params.merge(session_type: type)),
-            data: { turbo_frame: "sessions_list", turbo_action: "advance" },
-            class: "whitespace-nowrap px-3 sm:px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors #{active ? 'border-asmbv-red text-asmbv-red' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
-        <%= label %>
-        <span class="ml-1 inline-flex items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-semibold <%= active ? 'bg-asmbv-red/10 text-asmbv-red' : 'bg-gray-100 text-gray-500' %>"><%= count %></span>
-      <% end %>
-    <% end %>
-  </nav>
+  <%= tab_bar(session_tabs, turbo_frame: "sessions_list") %>
 
   <div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
     <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">

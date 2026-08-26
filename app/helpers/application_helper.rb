@@ -231,6 +231,12 @@ module ApplicationHelper
     end
   end
 
+  # Helper pour le composant Tabs (barre d'onglets « underline »).
+  # Voir TabsComponent pour la structure attendue de chaque onglet.
+  def tab_bar(tabs, turbo_frame: nil)
+    render TabsComponent.new(tabs: tabs, turbo_frame: turbo_frame)
+  end
+
   # Get VAPID public key for push notifications
   def vapid_public_key
     ENV["VAPID_PUBLIC_KEY"] || Rails.application.credentials.dig(:vapid, :public_key) || ""
