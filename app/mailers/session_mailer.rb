@@ -15,6 +15,20 @@ class SessionMailer < ApplicationMailer
     )
   end
 
+  def displaced_to_waitlist(user, session_record)
+    @user = user
+    @session = session_record
+    @session_name = @session.title || @session.session_type.humanize
+    @session_date = @session.start_at.strftime("%d/%m/%Y")
+    @session_time = @session.start_at.strftime("%Hh%M")
+    @session_url = session_url(@session)
+
+    mail(
+      to: user.email,
+      subject: "Tu repasses en liste d'attente – #{@session_name} du #{@session_date}"
+    )
+  end
+
   def session_cancelled(user, session_name:, session_date:)
     @user = user
     @session_name = session_name
