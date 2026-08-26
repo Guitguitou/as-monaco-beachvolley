@@ -86,6 +86,24 @@ RSpec.describe DuplicateSessionService do
         expect(duplicated_session.registration_opens_at).to eq(session.registration_opens_at + 1.week)
       end
 
+      it 'links source and duplicates with a shared series_id' do
+        result = described_class.new(session, 2).call
+
+        expect(result[:success]).to be true
+        session.reload
+        expect(session.series_id).to be_present
+        result[:created_sessions].each do |dup|
+          expect(dup.series_id).to eq(session.series_id)
+        end
+      end
+
+      it 'reuses an existing series_id on the source' do
+        session.update_column(:series_id, "existing-series")
+        result = described_class.new(session, 1).call
+
+        expect(result[:created_sessions].first.series_id).to eq("existing-series")
+      end
+
       it 'preserves other attributes' do
         result = described_class.new(session, 1).call
 
