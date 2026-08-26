@@ -65,6 +65,17 @@ class Registration < ApplicationRecord
     session.price.to_i
   end
 
+  # Rang de priorité du joueur pour cette session (plus petit = plus prioritaire).
+  # = plus petit `priority` parmi les groupes de la session que possède le joueur.
+  # Utilisé pour ordonner la liste principale des entraînements.
+  def priority_rank
+    return 0 unless session.entrainement?
+
+    user_level_ids = user.level_ids
+    matching = session.session_levels.select { |sl| user_level_ids.include?(sl.level_id) }
+    matching.map(&:priority).min || Float::INFINITY
+  end
+
   def level_allowed?
     # Only enforce levels for training sessions
     return true unless session.entrainement?

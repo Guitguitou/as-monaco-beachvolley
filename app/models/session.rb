@@ -125,7 +125,42 @@ class Session < ApplicationRecord
 
   # Promote the earliest waitlisted user to confirmed if a spot is available
   def promote_from_waitlist!
-    Sessions::WaitlistPromotionService.call(session: self)
+    rebalance!
+  end
+
+  # Applique l'invariant de priorité : la liste principale = les max_players
+  # inscriptions triées par [priorité, created_at]. Déplace les joueurs
+  # secondaires si un prioritaire s'inscrit, et promeut sinon.
+  def rebalance!
+    Sessions::PriorityBalancerService.call(session: self)
+  end
+
+  # Groupe(s) prioritaire(s) de la session (plus petit rang de priorité).
+  def priority_levels
+    ordered = session_levels.ordered_by_priority.includes(:level)
+    top = ordered.first&.priority
+    return [] if top.nil?
+    ordered.select { |sl| sl.priority == top }.map(&:level)
+  end
+
+  # Groupe(s) secondaire(s) (rang de priorité au-dessus du plus prioritaire).
+  def secondary_levels
+    ordered = session_levels.ordered_by_priority.includes(:level)
+    top = ordered.first&.priority
+    return [] if top.nil?
+    ordered.reject { |sl| sl.priority == top }.map(&:level)
+  end
+
+  # Met à jour le rang de priorité de chaque session_level à partir d'un hash
+  # { level_id => rang }. Appelé après (ré)affectation de level_ids.
+  def sync_level_priorities(priorities_hash)
+    return if priorities_hash.blank?
+
+    session_levels.each do |session_level|
+      rank = priorities_hash[session_level.level_id.to_s] || priorities_hash[session_level.level_id]
+      next if rank.blank?
+      session_level.update_column(:priority, rank.to_i)
+    end
   end
 
   private
