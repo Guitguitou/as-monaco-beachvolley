@@ -26,10 +26,23 @@
             class: "inline-flex items-center gap-1 rounded-none border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" do %>
         <%= lucide_icon("edit", size: 16) %> Modifier
       <% end %>
-      <%= link_to admin_session_path(@session),
-            data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ?" },
-            class: "inline-flex items-center gap-1 rounded-none border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" do %>
-        <%= lucide_icon("trash", size: 16) %> Supprimer
+      <% if @session.has_following_in_series? %>
+        <%= form_with url: admin_session_path(@session), method: :delete, local: true, class: "inline-flex items-center gap-1" do %>
+          <%= select_tag :scope,
+                options_for_select([ [ "Cette session", "this" ], [ "Cette session et les suivantes", "following" ] ], "this"),
+                class: "text-sm border border-gray-300 rounded-none px-2 py-1.5" %>
+          <%= button_tag type: :submit,
+                data: { turbo_confirm: "Êtes-vous sûr ? Les participants confirmés seront remboursés." },
+                class: "inline-flex items-center gap-1 rounded-none border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" do %>
+            <%= lucide_icon("trash", size: 16) %> Supprimer
+          <% end %>
+        <% end %>
+      <% else %>
+        <%= link_to admin_session_path(@session),
+              data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ? Les participants confirmés seront remboursés." },
+              class: "inline-flex items-center gap-1 rounded-none border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" do %>
+          <%= lucide_icon("trash", size: 16) %> Supprimer
+        <% end %>
       <% end %>
     </div>
   </div>

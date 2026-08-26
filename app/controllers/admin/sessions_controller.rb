@@ -68,20 +68,46 @@ module Admin
     end
 
     def update
+      old_start = @session.start_at
       @session.assign_attributes(session_params)
+      recalculate_deadlines_on_reschedule(old_start)
+
       if @session.save
+        max_players_changed = @session.saved_change_to_max_players?
         @session.sync_level_priorities(params.dig(:session, :level_priorities))
         # Only sync participants if the form included participant_ids to avoid unintended removals
         sync_participants(@session) if params.dig(:session, :participant_ids).present?
-        redirect_to admin_session_path(@session), notice: "Session mise à jour avec succès."
+        # Rééquilibrer uniquement si le nombre de places ou les groupes ont pu changer
+        rebalance_after_edit = max_players_changed || params.dig(:session, :level_priorities).present? || params.dig(:session, :level_ids).present?
+        @session.rebalance! if @session.entrainement? && rebalance_after_edit
+
+        notice = "Session mise à jour avec succès."
+        if scope_param == "following" && @session.has_following_in_series?
+          result = Sessions::SeriesUpdateService.call(
+            edited_session: @session, old_start: old_start, scope: "following"
+          )
+          notice = "Session et #{result[:updated_count]} suivante(s) mises à jour ✅"
+          flash[:alert] = [ "Certaines sessions n'ont pas pu être mises à jour :", *result[:failures] ].join("\n") if result[:failures].any?
+        end
+
+        redirect_to admin_session_path(@session), notice: notice
       else
         render :edit, status: :unprocessable_entity
       end
     end
 
     def destroy
-      @session.destroy
-      redirect_to admin_sessions_path, notice: "Session supprimée avec succès."
+      result = Sessions::SeriesDestroyService.call(session: @session, scope: scope_param)
+
+      notice =
+        if scope_param == "following" && result[:destroyed_count] > 1
+          "#{result[:destroyed_count]} session(s) supprimée(s) et remboursée(s) ✅"
+        else
+          "Session supprimée avec succès."
+        end
+      flash[:alert] = [ "Certaines suppressions ont échoué :", *result[:failures] ].join("\n") if result[:failures].any?
+
+      redirect_to admin_sessions_path, notice: notice
     end
 
     # Duplicate a session weekly for N weeks (admin only)
@@ -104,6 +130,27 @@ module Admin
 
     def set_session
       @session = Session.find(params[:id])
+    end
+
+    # Portée d'une action multi-sessions : "this" (défaut) ou "following".
+    def scope_param
+      %w[this following].include?(params[:scope]) ? params[:scope] : "this"
+    end
+
+    # Si la date de début change et que l'admin n'a pas modifié manuellement les
+    # deadlines, on les décale du même delta pour garder la cohérence (ouverture
+    # des inscriptions, date limite de désinscription). La deadline 17h jour J
+    # est dérivée à la volée et suit start_at automatiquement.
+    def recalculate_deadlines_on_reschedule(old_start)
+      return unless @session.start_at_changed? && old_start.present? && @session.start_at.present?
+
+      delta = @session.start_at - old_start
+      if @session.cancellation_deadline_at.present? && !@session.cancellation_deadline_at_changed?
+        @session.cancellation_deadline_at += delta
+      end
+      if @session.registration_opens_at.present? && !@session.registration_opens_at_changed?
+        @session.registration_opens_at += delta
+      end
     end
 
     def session_params

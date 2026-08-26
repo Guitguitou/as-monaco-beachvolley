@@ -215,9 +215,27 @@
     <% end %>
   </div>
 
+  <!-- Portée (sessions dupliquées) -->
+  <% if session.persisted? && session.has_following_in_series? %>
+    <div class="rounded-md border border-gray-200 bg-gray-50 p-4">
+      <p class="text-sm font-medium text-gray-900 mb-2">Cette session fait partie d'une série (duplication). Appliquer les modifications à :</p>
+      <div class="flex flex-col gap-2">
+        <label class="flex items-center gap-2">
+          <%= radio_button_tag "scope", "this", true, class: "h-4 w-4 text-asmbv-red border-gray-300 focus:ring-asmbv-red" %>
+          <span class="text-sm text-gray-700">Cette session uniquement</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <%= radio_button_tag "scope", "following", false, class: "h-4 w-4 text-asmbv-red border-gray-300 focus:ring-asmbv-red" %>
+          <span class="text-sm text-gray-700">Cette session et les suivantes</span>
+        </label>
+      </div>
+      <p class="mt-2 text-xs text-gray-500">« Les suivantes » = les sessions de la même série programmées après celle-ci. Les changements de date/heure y sont appliqués comme décalage ; les deadlines sont recalculées.</p>
+    </div>
+  <% end %>
+
   <!-- Bouton -->
   <div>
-    <%= f.submit class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2 
+    <%= f.submit class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2
                         text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark 
                         focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
                         focus-visible:outline-asmbv-red transition-colors" do %>
