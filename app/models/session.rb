@@ -123,6 +123,35 @@ class Session < ApplicationRecord
     registrations.confirmed.count >= max_players
   end
 
+  # --- Séries de duplication ----------------------------------------------
+  # Les sessions issues d'une même duplication partagent un `series_id`.
+  # Navigation unidirectionnelle par requête (pas d'association has_many).
+
+  def series?
+    series_id.present?
+  end
+
+  # Toutes les sessions de la série (self inclus). Relation vide si hors série.
+  def series_sessions
+    return Session.where(id: id) unless series?
+    Session.where(series_id: series_id)
+  end
+
+  # Cette session et les suivantes de la série (start_at >= self.start_at).
+  # Avec including_self: false, on exclut la session courante.
+  def following_in_series(including_self: true)
+    return Session.where(id: id) if !series? && including_self
+    return Session.none unless series?
+
+    operator = including_self ? ">=" : ">"
+    series_sessions.where("start_at #{operator} ?", start_at)
+  end
+
+  # Y a-t-il d'autres sessions de la série strictement après celle-ci ?
+  def has_following_in_series?
+    series? && following_in_series(including_self: false).exists?
+  end
+
   # Promote the earliest waitlisted user to confirmed if a spot is available
   def promote_from_waitlist!
     rebalance!

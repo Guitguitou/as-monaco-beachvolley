@@ -11,6 +11,8 @@ class DuplicateSessionService
   def call
     return failure_result unless valid?
 
+    ensure_series_id
+
     (1..@weeks).each do |week_number|
       duplicate_session(week_number)
     end
@@ -37,6 +39,14 @@ class DuplicateSessionService
     true
   end
 
+  # Garantit que la session source appartient à une série. Les duplicats
+  # reprendront ce même series_id afin de rester liés entre eux.
+  def ensure_series_id
+    return if @session.series_id.present?
+
+    @session.update_column(:series_id, SecureRandom.uuid)
+  end
+
   def duplicate_session(week_number)
     shift = week_number.weeks
 
@@ -45,7 +55,8 @@ class DuplicateSessionService
       start_at: @session.start_at + shift,
       end_at: @session.end_at + shift,
       cancellation_deadline_at: @session.cancellation_deadline_at&.+(shift),
-      registration_opens_at: @session.registration_opens_at&.+(shift)
+      registration_opens_at: @session.registration_opens_at&.+(shift),
+      series_id: @session.series_id
     )
 
     # Clear registrations and participants
