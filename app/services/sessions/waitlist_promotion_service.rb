@@ -12,7 +12,10 @@ module Sessions
       return unless session.max_players.present?
       return if session.registrations.confirmed.count >= session.max_players
 
-      session.registrations.waitlisted.order(:created_at).each do |registration|
+      candidates = session.registrations.waitlisted.includes(user: :levels)
+        .sort_by { |registration| [ registration.priority_rank, registration.created_at ] }
+
+      candidates.each do |registration|
         return registration if promote_registration(registration)
       end
 
