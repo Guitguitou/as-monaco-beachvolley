@@ -1,0 +1,138 @@
+---
+description: Rails code quality, refactoring safety, architecture, testing, readability, and performance guardrails
+globs:
+  - "app/**/*.rb"
+  - "lib/**/*.rb"
+  - "spec/**/*.rb"
+alwaysApply: true
+---
+
+# This project values maintainability, explicitness, testability, and safe incremental refactoring over speed, cleverness, or unnecessary abstraction
+
+Follow these rules when reading, modifying, generating, or refactoring Ruby on Rails code in this project.
+
+## General engineering mindset
+
+- Prioritize clean, maintainable, explicit code over clever shortcuts.
+- Preserve existing behavior unless the task explicitly requests a functional change.
+- Prefer small, incremental, reviewable refactors over large rewrites.
+- Avoid mixing refactoring with unrelated cleanup, renaming, formatting, or reorganization.
+- Explain the detected problem before proposing a structural refactor.
+- Do not introduce abstractions unless they clearly reduce duplication, coupling, or complexity.
+- Avoid premature generalization.
+- Prefer explicit, intention-revealing names over clever or overly generic naming.
+- Favor code that is easy to test, review, and evolve feature by feature.
+- When proposing changes, prefer the smallest useful step first.
+- Briefly mention tradeoffs when relevant: readability, coupling, testability, performance, and maintainability.
+
+## Refactoring safety
+
+- Before changing logic, identify the current expected behavior from the code and existing tests.
+- If behavior is unclear, prefer adding or suggesting characterization tests before deep refactoring.
+- Keep the code working after each refactoring step.
+- Preserve existing method names and call sites during intermediate steps when possible.
+- Avoid changing everything at once.
+- Keep diffs easy to review and easy to verify.
+- Do not rewrite a working area from scratch if a smaller extraction or simplification would solve the problem.
+
+## Rails architecture
+
+- Keep controllers thin: request parsing, authorization, orchestration, and rendering only.
+- Keep models focused on persistence, associations, validations, scopes, core invariants, and small domain behavior.
+- Move heavy business workflows into POROs such as services, queries, form objects, policies, presenters, or workflow objects when appropriate.
+- Prefer one clear responsibility per class.
+- If a class mixes validation, persistence, formatting, orchestration, and side effects, split responsibilities.
+- Prefer composition over inheritance unless inheritance is clearly justified.
+- Prefer explicit domain objects over helpers, concerns, or shared modules used as dumping grounds.
+- Introduce namespaces when they improve clarity and domain grouping.
+- Avoid generic service objects with vague names and too many responsibilities.
+- A service should express a clear business intent and expose a small public API.
+
+## Controllers
+
+- Controllers should coordinate the request lifecycle, not contain core business rules.
+- Do not embed complex branching, persistence workflows, calculations, or side effects directly in controller actions.
+- If an action performs validation, branching, persistence, and side effects together, extract a dedicated object.
+- Use private controller methods only for small controller-specific concerns.
+- Do not hide business logic in many private controller methods.
+- Keep parameter handling explicit and easy to audit.
+- Keep success and failure flows explicit and readable.
+- For complex multi-step flows, prefer dedicated objects such as form objects, workflow objects, or step-specific services.
+
+## Models and ActiveRecord boundaries
+
+- Keep ActiveRecord models focused and cohesive.
+- Avoid large procedural methods in models.
+- Use scopes for query composition, not for full business workflows.
+- If query logic becomes complex, extract a query object.
+- Avoid callbacks for complex workflows or hidden side effects.
+- If callbacks are used, keep them simple, safe, and easy to reason about.
+- If a model has too many public methods or mixed concerns, consider extracting classes.
+- Avoid feature envy: move behavior closer to the data it primarily uses.
+- Prefer explicit state transitions over scattered booleans and repeated conditional checks.
+- If state logic becomes complex, consider state objects, strategies, or a clearer transition model.
+
+## Side effects, transactions, and jobs
+
+- Isolate external API calls, emails, notifications, file generation, and third-party integrations from core business logic.
+- Do not mix persistence and side effects in one large monolithic method.
+- Make transactional boundaries explicit.
+- Prefer background jobs for retryable or non-immediate side effects.
+- Jobs should be idempotent whenever possible.
+- Make retries safe and intentional.
+- Pass simple identifiers to jobs rather than large serialized objects.
+- Keep core business logic deterministic where possible and isolate non-deterministic behavior.
+- Avoid calling external services or sending emails from callbacks unless the tradeoff is deliberate and clearly justified.
+
+## Testing and protection against regressions
+
+- Do not perform structural refactors without checking whether the behavior is protected by tests.
+- If coverage is weak, propose or add tests before risky refactors.
+- Prefer testing observable behavior over implementation details.
+- Add regression tests for bug fixes before changing the logic when possible.
+- Keep tests readable, focused, and intention-revealing.
+- Avoid brittle tests tightly coupled to private methods.
+- When extracting objects, add or move tests at the appropriate level.
+- Preserve existing public contracts unless the task explicitly changes them.
+
+## Readability and complexity
+
+- Favor short methods with one clear purpose.
+- If a method mixes querying, branching, calculation, formatting, persistence, and side effects, split it.
+- Replace deep nesting with guard clauses when it improves clarity.
+- If repeated conditionals branch on type, role, or state, consider polymorphism, strategies, or state objects.
+- Avoid long parameter lists; consider parameter objects or richer domain objects when appropriate.
+- Remove duplication carefully, but do not force abstractions too early.
+- Use names that reflect business intent.
+- Keep public APIs small and cohesive.
+- Prefer explicit flows over hidden magic and indirection.
+- Prefer code that a teammate can understand quickly without needing to mentally simulate too much context.
+
+## Large file refactor playbook
+
+- When a file is large or overloaded, first identify the main responsibilities currently mixed together.
+- Propose a step-by-step extraction plan before making large structural changes.
+- Extract one responsibility at a time.
+- Keep intermediate states stable and working.
+- Suggest the target file structure when helpful.
+- Prefer progressive refactoring over big-bang rewrites.
+
+## Performance guardrails
+
+- Watch for N+1 queries in loops, serializers, helpers, and rendered collections.
+- Prefer eager loading when the access pattern is known.
+- Do not load full records when only a small subset of fields is needed.
+- Keep query counts and allocations reasonable in hot paths.
+- Avoid obvious performance regressions during refactors.
+- Do not prematurely optimize code that is not on a meaningful path.
+- For expensive filtering, reporting, or aggregation, consider query objects or database-level operations.
+- When changing query structure, mention likely performance impact when relevant.
+
+## Expected behavior when proposing refactors
+
+- First identify the code smell or maintainability issue.
+- Then explain the smallest safe refactoring that improves the code.
+- Keep behavior unchanged unless explicitly asked otherwise.
+- Prefer extractions that improve clarity, cohesion, and testability.
+- When relevant, suggest the final target architecture and the first incremental step separately.
+- If the existing code is acceptable, do not refactor just to make it “more abstract”.
