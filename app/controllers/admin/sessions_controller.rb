@@ -177,6 +177,7 @@ module Admin
             errors << s.errors.full_messages.to_sentence
             raise ActiveRecord::Rollback
           end
+          s.sync_level_priorities(params.dig(:session, :level_priorities))
           created << s
           sync_participants(s)
         end

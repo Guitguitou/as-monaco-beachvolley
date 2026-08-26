@@ -56,6 +56,8 @@ class DuplicateSessionService
 
     begin
       if duplicated_session.save
+        # Copy the priority rank of each group (level_ids= recreates them at rank 0)
+        duplicated_session.sync_level_priorities(@session.session_levels.pluck(:level_id, :priority).to_h)
         @created_sessions << duplicated_session
       else
         @errors << "Semaine #{week_number}: #{duplicated_session.errors.full_messages.to_sentence}"
