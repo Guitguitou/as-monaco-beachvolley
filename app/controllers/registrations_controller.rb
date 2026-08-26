@@ -31,8 +31,12 @@ class RegistrationsController < ApplicationController
         if amount.positive? && registration.confirmed?
           TransactionService.new(registration.user, @session, amount).create_transaction
         end
+        # Applique la priorité : un joueur prioritaire arrivé en liste d'attente
+        # peut immédiatement passer en liste principale en déplaçant un secondaire.
+        @session.rebalance!
       end
-      redirect_to session_path(@session, session_show_redirect_params), notice: "Inscription réussie ✅"
+      notice_msg = registration.reload.confirmed? ? "Inscription réussie ✅" : "Ajout en liste d'attente ✅"
+      redirect_to session_path(@session, session_show_redirect_params), notice: notice_msg
     rescue StandardError => e
       error_message = registration.errors.full_messages.presence || [ e.message ]
       redirect_to session_path(@session, session_show_redirect_params), alert: error_message.to_sentence

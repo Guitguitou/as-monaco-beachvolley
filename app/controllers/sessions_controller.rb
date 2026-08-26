@@ -105,6 +105,7 @@ class SessionsController < ApplicationController
     @session = Session.new(normalized_session_params)
 
     if @session.save
+      @session.sync_level_priorities(params.dig(:session, :level_priorities))
       sync_participants(@session)
       redirect_to sessions_path(sessions_index_redirect_params), notice: "Session créée avec succès."
     else
@@ -125,6 +126,7 @@ class SessionsController < ApplicationController
     end
     @session.assign_attributes(update_params)
     if @session.save
+      @session.sync_level_priorities(params.dig(:session, :level_priorities))
       # Only sync participants if the form included participant_ids
       sync_participants(@session) if params.dig(:session, :participant_ids).present?
       redirect_to sessions_path(sessions_index_redirect_params), notice: "Session mise à jour avec succès."
