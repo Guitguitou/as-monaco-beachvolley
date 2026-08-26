@@ -31,6 +31,31 @@ RSpec.describe SessionMailer, type: :mailer do
     it_behaves_like "includes the Captive footer"
   end
 
+  describe "#displaced_to_waitlist" do
+    let(:session_record) do
+      create(:session,
+        title: "Entraînement G1",
+        start_at: Time.zone.local(2026, 6, 15, 19, 30),
+        end_at: Time.zone.local(2026, 6, 15, 21, 0))
+    end
+
+    subject(:mail) { described_class.displaced_to_waitlist(user, session_record) }
+
+    it "notifies the user they moved back to the waitlist and were refunded" do
+      expect(mail.to).to eq([ user.email ])
+      expect(mail.subject).to eq("Tu repasses en liste d'attente – Entraînement G1 du 15/06/2026")
+
+      html_body = mail.html_part.body.to_s
+      expect(html_body).to include("Bonjour Bob")
+      expect(html_body).to include("liste d'attente")
+      expect(html_body).to include("Entraînement G1")
+      expect(html_body).to include("15/06/2026")
+      expect(html_body).to include("recrédités")
+    end
+
+    it_behaves_like "includes the Captive footer"
+  end
+
   describe "#session_cancelled" do
     subject(:mail) do
       described_class.session_cancelled(

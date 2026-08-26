@@ -1,0 +1,13 @@
+<p>Bonjour <%= @user.first_name.presence || @user.email %>.</p>
+
+<p>Un joueur d'un groupe prioritaire vient de s'inscrire, tu repasses donc en liste d'attente.</p>
+
+<p>
+  Session <strong><%= @session_name %></strong>
+  du <strong><%= @session_date %></strong> à <strong><%= @session_time %></strong>.
+  Tes crédits t'ont été recrédités. Si une place se libère, tu seras automatiquement repositionné selon ta priorité.
+</p>
+
+<p><%= link_to "Voir la session", @session_url %></p>
+
+<p>À bientôt sur le sable,<br>L'équipe AS Monaco Beach Volley</p>
