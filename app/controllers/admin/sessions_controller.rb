@@ -7,37 +7,17 @@ module Admin
     load_and_authorize_resource
     before_action :set_session, only: [ :show, :edit, :update, :destroy, :duplicate ]
 
+    PER_PAGE = 25
+
     def index
-      # Optional filters
-      if params[:coach_id].present?
-        @sessions = @sessions.where(user_id: params[:coach_id])
-      end
+      result = Sessions::AdminFilterQuery.call(relation: @sessions, params: params)
+      @type_counts = result.type_counts
+      @total_count = result.total_count
+      @current_type = result.current_type
 
-      if params[:period].present?
-        range = case params[:period]
-        when "week"
-                  Time.zone.today.beginning_of_week..(Time.zone.today.beginning_of_week + 7.days)
-        when "month"
-                  Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
-        when "year"
-                  Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
-        else
-                  nil
-        end
-        @sessions = @sessions.where(start_at: range) if range
-      else
-        from = params[:start_at_from].presence && Time.zone.parse(params[:start_at_from]) rescue nil
-        to   = params[:start_at_to].presence && Time.zone.parse(params[:start_at_to]) rescue nil
-        if from && to
-          @sessions = @sessions.where(start_at: from..to)
-        elsif from
-          @sessions = @sessions.where("start_at >= ?", from)
-        elsif to
-          @sessions = @sessions.where("start_at <= ?", to)
-        end
-      end
-
-      @sessions = @sessions.order(start_at: :desc)
+      @total_pages = [ (result.filtered_count.to_f / PER_PAGE).ceil, 1 ].max
+      @page = params[:page].to_i.clamp(1, @total_pages)
+      @sessions = result.relation.limit(PER_PAGE).offset((@page - 1) * PER_PAGE)
     end
 
     def show

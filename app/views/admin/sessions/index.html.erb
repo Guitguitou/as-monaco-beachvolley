@@ -9,8 +9,34 @@
   <% end %>
 </div>
 
-<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
-  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
+<%
+  type_labels = {
+    "entrainement"   => "Entraînement",
+    "jeu_libre"      => "Jeu libre",
+    "tournoi"        => "Tournoi",
+    "coaching_prive" => "Coaching privé",
+    "stage"          => "Stage"
+  }
+  base_params = request.query_parameters.except("session_type", "page")
+%>
+
+<%= turbo_frame_tag "sessions_list" do %>
+  <!-- Onglets par type de session -->
+  <nav class="mb-4 flex flex-wrap gap-1 border-b border-gray-200 overflow-x-auto">
+    <% tabs = [ [ nil, "Toutes", @total_count ] ] + Session.session_types.keys.map { |t| [ t, type_labels[t] || t.humanize, @type_counts[t].to_i ] } %>
+    <% tabs.each do |type, label, count| %>
+      <% active = (@current_type == type) %>
+      <%= link_to admin_sessions_path(base_params.merge(session_type: type)),
+            data: { turbo_frame: "sessions_list", turbo_action: "advance" },
+            class: "whitespace-nowrap px-3 sm:px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors #{active ? 'border-asmbv-red text-asmbv-red' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
+        <%= label %>
+        <span class="ml-1 inline-flex items-center justify-center rounded-full px-1.5 py-0.5 text-xs font-semibold <%= active ? 'bg-asmbv-red/10 text-asmbv-red' : 'bg-gray-100 text-gray-500' %>"><%= count %></span>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
+    <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
         <th class="px-4 sm:px-6 py-3 text-left w-2/5">Titre</th>
@@ -23,6 +49,11 @@
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-100">
+      <% if @sessions.empty? %>
+        <tr>
+          <td colspan="7" class="px-4 sm:px-6 py-10 text-center text-gray-500">Aucune session.</td>
+        </tr>
+      <% end %>
       <% @sessions.each do |session| %>
         <tr class="hover:bg-gray-50 transition-colors">
           <!-- Titre -->
@@ -42,6 +73,8 @@
               <%= render BadgeComponent.new(label: "Jeu libre", variant: :type_free_play, size: :xs) %>
             <% when "tournoi" %>
               <%= render BadgeComponent.new(label: "Tournoi", variant: :type_tournament, size: :xs) %>
+            <% when "stage" %>
+              <%= render BadgeComponent.new(label: "Stage", variant: :neutral, size: :xs) %>
             <% end %>
           </td>
 
@@ -88,5 +121,38 @@
         </tr>
       <% end %>
     </tbody>
-  </table>
-</div>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <% if @total_pages > 1 %>
+    <div class="mt-4 flex items-center justify-between text-sm text-gray-600">
+      <div>Page <%= @page %> sur <%= @total_pages %></div>
+      <div class="flex items-center gap-2">
+        <% if @page > 1 %>
+          <%= link_to admin_sessions_path(base_params.merge(session_type: @current_type, page: @page - 1)),
+                data: { turbo_frame: "sessions_list", turbo_action: "advance" },
+                class: "inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors" do %>
+            <%= lucide_icon("chevron-left", size: 16) %> Précédent
+          <% end %>
+        <% else %>
+          <span class="inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-100 text-gray-300 cursor-not-allowed">
+            <%= lucide_icon("chevron-left", size: 16) %> Précédent
+          </span>
+        <% end %>
+
+        <% if @page < @total_pages %>
+          <%= link_to admin_sessions_path(base_params.merge(session_type: @current_type, page: @page + 1)),
+                data: { turbo_frame: "sessions_list", turbo_action: "advance" },
+                class: "inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors" do %>
+            Suivant <%= lucide_icon("chevron-right", size: 16) %>
+          <% end %>
+        <% else %>
+          <span class="inline-flex items-center gap-1 px-3 py-2 rounded-md border border-gray-100 text-gray-300 cursor-not-allowed">
+            Suivant <%= lucide_icon("chevron-right", size: 16) %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>
