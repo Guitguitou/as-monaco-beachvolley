@@ -65,15 +65,14 @@
 
     for_me = !s.entrainement? || s.levels.empty? || (s.level_ids & user_level_ids).any?
 
-    short = s.display_name
+    short = s.title
       .gsub(/Entra[iî]nement/i, 'Entr.')
       .gsub(/\s*–\s*/, ' ')
-      .gsub(/\s+Groupe\s*/i, 'G')
       .gsub(/\s+Mixte/i, ' Mx')
 
     {
       id: s.id,
-      title: s.display_name,
+      title: s.title,
       shortTitle: short,
       start: s.start_at.iso8601,
       end: s.end_at.iso8601,
