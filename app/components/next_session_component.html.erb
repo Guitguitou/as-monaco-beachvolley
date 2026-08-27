@@ -1,0 +1,51 @@
+<%= link_to session_path(session), class: "block group focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-asmbv-red" do %>
+  <article class="bg-asmbv-red text-white rounded-none shadow-sm">
+    <div class="p-5 sm:p-6">
+      <div class="flex items-start justify-between gap-3 flex-wrap">
+        <p class="text-[11px] font-bold uppercase tracking-widest text-white">
+          <%= waitlisted? ? "Ta prochaine session — liste d'attente" : "Ta prochaine session" %>
+        </p>
+        <span class="inline-flex items-center gap-1.5 border border-white px-2 py-1 text-[11px] font-bold uppercase tracking-wide">
+          <%= lucide_icon("hourglass", class: "w-3 h-3 shrink-0") %>
+          <%= countdown %>
+        </span>
+      </div>
+
+      <h2 class="mt-3 font-anton text-2xl sm:text-3xl uppercase leading-none tracking-tight group-hover:underline">
+        <%= title %>
+      </h2>
+
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="inline-flex items-center gap-2 border border-white/60 bg-white/15 px-3 py-1.5 text-sm">
+          <%= lucide_icon("calendar", class: "w-4 h-4 shrink-0") %>
+          <span class="first-letter:uppercase"><%= day_label %></span>
+        </span>
+        <span class="inline-flex items-center gap-2 border border-white/60 bg-white/15 px-3 py-1.5 text-sm">
+          <%= lucide_icon("clock", class: "w-4 h-4 shrink-0") %>
+          <%= time_range %>
+        </span>
+        <span class="inline-flex items-center gap-2 border border-white/60 bg-white/15 px-3 py-1.5 text-sm">
+          <%= lucide_icon("map-pin", class: "w-4 h-4 shrink-0") %>
+          <%= terrain_label %>
+        </span>
+      </div>
+
+      <%# Qui vient : c'est ce qui donne envie d'y aller %>
+      <div class="mt-5 border-t border-white/25 pt-4 flex items-center gap-3 flex-wrap">
+        <% if teammates.any? %>
+          <div class="flex -space-x-2">
+            <% teammates.first(NextSessionComponent::MAX_AVATARS).each do |teammate| %>
+              <%= render AvatarComponent.new(user: teammate, size: :xs, variant: :dark, ring: true) %>
+            <% end %>
+            <% if extra_teammates.positive? %>
+              <span class="shrink-0 inline-flex items-center justify-center h-7 w-7 rounded-none ring-2 ring-white bg-white text-asmbv-red text-[10px] font-bold">
+                +<%= extra_teammates %>
+              </span>
+            <% end %>
+          </div>
+        <% end %>
+        <p class="text-sm text-white min-w-0"><%= teammates_sentence %></p>
+      </div>
+    </div>
+  </article>
+<% end %>

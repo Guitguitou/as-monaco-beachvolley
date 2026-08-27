@@ -17,7 +17,7 @@ RSpec.describe "Performances", type: :request do
 
     it "displays the page title" do
       get performances_path
-      expect(response.body).to include("Performances & Stats")
+      expect(response.body).to include("Performances &amp; stats")
     end
 
     it "displays the subtitle" do

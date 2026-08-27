@@ -1,0 +1,99 @@
+<% content_for :page_title, "Mon terrain" %>
+
+<div class="max-w-6xl mx-auto space-y-10">
+  <%# 1. Quand est-ce que je joue %>
+  <section>
+    <% if @dashboard.next_registration %>
+      <%= render NextSessionComponent.new(registration: @dashboard.next_registration) %>
+
+      <% if @dashboard.other_registrations.any? %>
+        <div class="mt-4 border border-gray-200 bg-white rounded-none divide-y divide-gray-100">
+          <% @dashboard.other_registrations.each do |registration| %>
+            <% session = registration.session %>
+            <%= link_to session_path(session), class: "flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-50" do %>
+              <div class="min-w-0">
+                <p class="text-sm font-semibold text-gray-900 truncate">
+                  <%= session.title.presence || session.display_name %>
+                </p>
+                <p class="text-xs text-gray-600 first-letter:uppercase">
+                  <%= l(session.start_at.to_date, format: :day_and_month) %> ·
+                  <%= l(session.start_at, format: :time) %> ·
+                  <%= session.terrain.to_s.split("_").last %>
+                </p>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <% if registration.waitlisted? %>
+                  <%= render BadgeComponent.new(label: "En attente", variant: :warning, size: :xs) %>
+                <% end %>
+                <%= lucide_icon("chevron-right", class: "w-4 h-4 text-gray-400") %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <%= render CardComponent.new(padding: :lg, class_name: "text-center") do %>
+        <%= lucide_icon("volleyball", class: "w-10 h-10 mx-auto text-gray-300") %>
+        <p class="mt-3 font-anton text-xl uppercase tracking-tight text-gray-900">Rien de prévu</p>
+        <p class="mt-1 text-sm text-gray-600">Tu n'es inscrit à aucune session à venir.</p>
+        <div class="mt-4">
+          <%= button("Voir les sessions ouvertes", variant: :primary, size: :medium, href: sessions_path(view: "grid")) %>
+        </div>
+      <% end %>
+    <% end %>
+  </section>
+
+  <%# 2. Mon solde %>
+  <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="border border-gray-200 bg-white rounded-none p-5 flex items-center justify-between gap-4">
+      <div class="min-w-0">
+        <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Tes crédits</p>
+        <p class="mt-1 font-anton text-3xl leading-none tabular-nums text-gray-900">
+          <%= number_with_delimiter(@dashboard.balance, delimiter: " ") %>
+        </p>
+      </div>
+      <%= button("Recharger", variant: :secondary, size: :small, href: packs_path) %>
+    </div>
+
+    <% if @dashboard.next_annonce %>
+      <%= link_to annonce_path(@dashboard.next_annonce),
+                  class: "border border-gray-200 bg-white rounded-none p-5 flex items-center justify-between gap-4 hover:border-asmbv-red" do %>
+        <div class="min-w-0">
+          <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Annonce pour toi</p>
+          <p class="mt-1 font-semibold text-gray-900 truncate"><%= @dashboard.next_annonce.title %></p>
+          <p class="text-xs text-gray-600">par <%= @dashboard.next_annonce.user.full_name %></p>
+        </div>
+        <%= lucide_icon("megaphone", class: "w-5 h-5 text-asmbv-red shrink-0") %>
+      <% end %>
+    <% else %>
+      <%= link_to annonces_path,
+                  class: "border border-dashed border-gray-300 bg-white rounded-none p-5 flex items-center justify-between gap-4 hover:border-asmbv-red" do %>
+        <div class="min-w-0">
+          <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Jeu libre</p>
+          <p class="mt-1 text-sm text-gray-600">Monte une session avec d'autres joueurs.</p>
+        </div>
+        <%= lucide_icon("megaphone", class: "w-5 h-5 text-gray-400 shrink-0") %>
+      <% end %>
+    <% end %>
+  </section>
+
+  <%# 3. Où je peux m'inscrire %>
+  <% if @dashboard.recommended_sessions.any? %>
+    <section>
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <h2 class="font-anton text-xl uppercase tracking-tight text-gray-900">Pour toi</h2>
+          <p class="mt-1 text-sm text-gray-600">Sessions ouvertes qui correspondent à tes groupes.</p>
+        </div>
+        <%= link_to "Tout voir", sessions_path(view: "grid"),
+                    class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @dashboard.recommended_sessions.each do |session| %>
+          <%= render SessionCardComponent.new(state: @dashboard.card_state_for(session)) %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+</div>

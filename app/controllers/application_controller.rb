@@ -27,7 +27,10 @@ class ApplicationController < ActionController::Base
     if !resource.activated? && !resource.admin? && !resource.financial_manager?
       packs_path
     else
-      performances_path
+      # « Mon terrain » : sa prochaine session et les sessions ouvertes pour lui.
+      # On atterrissait auparavant sur les classements, qui ne disent pas au
+      # joueur quand il joue.
+      home_path
     end
   end
 
