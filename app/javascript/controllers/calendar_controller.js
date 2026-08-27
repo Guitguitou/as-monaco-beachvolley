@@ -85,6 +85,12 @@ export default class extends Controller {
       nowIndicator: true,
       stickyHeaderDates: true,
       eventOverlap: true,
+      // Trois sessions simultanées ne tiennent pas dans une colonne d'1/7e de
+      // semaine, quelle que soit la façon de les empiler. On les met côte à côte
+      // plutôt que superposées, et on rend l'en-tête du jour cliquable : un clic
+      // ouvre la vue Jour, où elles sont pleinement lisibles.
+      slotEventOverlap: false,
+      navLinks: true,
       scrollTime: '17:00:00',
       expandRows: true,
       dayMaxEvents: false,
