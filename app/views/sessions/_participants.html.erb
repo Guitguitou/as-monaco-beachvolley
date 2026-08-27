@@ -17,7 +17,7 @@
       <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
         <div class="min-w-0">
           <div class="font-medium text-sm text-gray-900 truncate"><%= user.full_name %></div>
-          <% level_names = user.levels.map(&:name).join(", ") %>
+          <% level_names = session_levels_label(user.levels) %>
           <% if level_names.present? %>
             <div class="text-xs text-gray-500 truncate"><%= level_names %></div>
           <% end %>
