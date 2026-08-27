@@ -35,6 +35,8 @@
   </head>
 
   <body class="bg-white min-h-screen text-gray-900">
+    <%= render FlashComponent.new(flash: flash) %>
+
     <%= yield %>
     <%= yield :scripts if content_for?(:scripts) %>
   </body>

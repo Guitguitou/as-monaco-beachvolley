@@ -50,13 +50,6 @@
     </div>
   </div>
 
-  <% if flash[:notice].present? %>
-    <div class="mb-4"><%= render BadgeComponent.new(label: flash[:notice], variant: :success, size: :md) %></div>
-  <% end %>
-  <% if flash[:alert].present? || flash[:error].present? %>
-    <div class="mb-4"><%= render BadgeComponent.new(label: flash[:alert] || flash[:error], variant: :danger, size: :md) %></div>
-  <% end %>
-
   <!-- Tabs -->
   <% sessions_total = @upcoming_count + @past_count %>
   <%= tab_bar([

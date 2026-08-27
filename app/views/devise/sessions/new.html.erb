@@ -10,10 +10,6 @@
               local: true,
               html: { class: "space-y-6" } do |f| %>
 
-    <% if flash.alert %>
-      <%= render BadgeComponent.new(label: flash.alert, variant: :danger, size: :md) %>
-    <% end %>
-
     <!-- Email -->
     <div>
       <%= render FormFieldComponent.new(
