@@ -37,7 +37,7 @@
     <% if devise_mapping.rememberable? %>
       <div class="flex items-center">
         <%= f.check_box :remember_me, 
-              class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-lg focus:ring-asmbv-red" %>
+              class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red" %>
         <%= f.label :remember_me, "Se souvenir de moi", 
               class: "ml-2 block text-sm text-gray-700" %>
       </div>
@@ -46,7 +46,7 @@
     <!-- Bouton connexion -->
     <div>
       <%= f.submit "Se connecter", 
-            class: "w-full inline-flex justify-center items-center gap-2 rounded-lg bg-asmbv-red px-4 py-2 
+            class: "w-full inline-flex justify-center items-center gap-2 rounded-none bg-asmbv-red px-4 py-2 
                     text-sm font-semibold text-white hover:bg-asmbv-red-dark 
                     focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-asmbv-red transition-colors" %>
     </div>

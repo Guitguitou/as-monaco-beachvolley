@@ -9,6 +9,7 @@ module Home
   class Dashboard
     RECOMMENDED_LIMIT = 3
     AGENDA_LIMIT = 4
+    SUPERVISED_LIMIT = 4
 
     def initialize(user:)
       @user = user
@@ -26,6 +27,20 @@ module Home
 
     def registered?
       agenda.any?
+    end
+
+    def supervisor?
+      user.coach? || user.responsable?
+    end
+
+    def supervised_sessions
+      @supervised_sessions ||= Session
+        .where(user_id: user.id)
+        .where("start_at >= ?", Time.current)
+        .order(start_at: :asc)
+        .includes(:levels, :user, registrations: :user)
+        .limit(SUPERVISED_LIMIT)
+        .to_a
     end
 
     def balance

@@ -17,13 +17,13 @@
           input_class: "w-20 border rounded px-2 py-1",
           html_options: { value: 3, min: 1, max: 20 }
         ) %>
-        <%= button_tag type: :submit, class: "inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm font-semibold text-white bg-gray-800 hover:bg-gray-700" do %>
+        <%= button_tag type: :submit, class: "inline-flex items-center gap-1 rounded-none px-3 py-1.5 text-sm font-semibold text-white bg-gray-800 hover:bg-gray-700" do %>
           <%= lucide_icon("copy", size: 16) %>
           Dupliquer
         <% end %>
       <% end %>
       <%= link_to edit_admin_session_path(@session),
-            class: "inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" do %>
+            class: "inline-flex items-center gap-1 rounded-none border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold text-gray-700 hover:bg-gray-50" do %>
         <%= lucide_icon("edit", size: 16) %> Modifier
       <% end %>
       <% if @session.has_following_in_series? %>
@@ -33,14 +33,14 @@
                 class: "text-sm border border-gray-300 rounded-lg px-2 py-1.5" %>
           <%= button_tag type: :submit,
                 data: { turbo_confirm: "Êtes-vous sûr ? Les participants confirmés seront remboursés." },
-                class: "inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" do %>
+                class: "inline-flex items-center gap-1 rounded-none border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" do %>
             <%= lucide_icon("trash", size: 16) %> Supprimer
           <% end %>
         <% end %>
       <% else %>
         <%= link_to admin_session_path(@session),
               data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ? Les participants confirmés seront remboursés." },
-              class: "inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" do %>
+              class: "inline-flex items-center gap-1 rounded-none border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-100" do %>
           <%= lucide_icon("trash", size: 16) %> Supprimer
         <% end %>
       <% end %>

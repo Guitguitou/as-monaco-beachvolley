@@ -177,6 +177,7 @@ module ApplicationHelper
   # en gros sur la page de connexion.)
   PAGE_TITLES = {
     "sessions#index" => "Calendrier",
+    "packs#index" => "Boutique",
     "stages#index" => "Stages",
     "performances#index" => "Performances & stats",
     "annonces#index" => "Annonces de jeu libre",

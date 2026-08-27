@@ -5,7 +5,7 @@
 <% content_for :hero do %>
   <%= render HeroComponent.new(
         title: (@session.title.presence || @session.display_name),
-        variant: :red,
+        variant: :white,
         flush_title: true,
         title_font: :anton
       ) do |hero| %>
@@ -15,7 +15,7 @@
     <% hero.with_eyebrow do %>
       <%= render BadgeComponent.new(
             label: get_session_type_label(@session.session_type),
-            variant: :hero_inverse,
+            variant: Sessions::CardState::ACCENTS[@session.session_type] ? :"type_#{@session.session_type}" : :neutral,
             icon: session_type_icon(@session.session_type),
             size: :md
           ) %>
@@ -28,6 +28,7 @@
 
 <%# pb-24 sur mobile : laisse la place à la barre d'action collée en bas %>
 <div class="max-w-6xl mx-auto px-4 py-8 pb-28 lg:pb-10">
+
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
     <div class="lg:col-span-2 min-w-0 space-y-6">
       <% if @session.description.present? %>
@@ -61,8 +62,6 @@
           </div>
         <% end %>
 
-        <%# L'encadrant, en une ligne : sa propre carte doublonnait avec la ligne
-            « Organisateur » du bloc Informations. %>
         <% if @session.user %>
           <div class="mb-4 flex items-center gap-3 border-b border-gray-100 pb-4">
             <%= render AvatarComponent.new(user: @session.user, size: :md) %>
@@ -101,7 +100,7 @@
             ) %>
             <div class="mt-3 flex items-center gap-2">
               <%= f.submit "Enregistrer les notes",
-                  class: "inline-flex items-center justify-center gap-2 font-semibold rounded-lg bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-asmbv-red px-3 py-2 text-sm" %>
+                  class: "inline-flex items-center justify-center gap-2 font-semibold rounded-none bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-asmbv-red px-3 py-2 text-sm" %>
               <% if @session.coach_notes.present? %>
                 <span class="text-xs text-gray-500">Dernière mise à jour : <%= l(@session.updated_at, format: :short) %></span>
               <% end %>
@@ -119,8 +118,6 @@
     </div>
 
     <div class="lg:col-span-1 min-w-0 space-y-6">
-      <%# Sur desktop, l'action reste dans la colonne collante ; sur mobile elle
-          est rendue dans la barre du bas, en fin de page. %>
       <div class="hidden lg:block">
         <%= render CardComponent.new(padding: :lg, class_name: "border-2 border-asmbv-red/20 lg:sticky lg:top-20 lg:self-start") do %>
           <%= render "hero_cta", session: @session %>
@@ -141,10 +138,6 @@
   </div>
 </div>
 
-<%# Barre d'action collée en bas, mobile uniquement : le CTA était à 1,12 écran
-    sous le pli. Le même partiel qu'en colonne desktop, présenté autrement.
-    Le drapeau `sticky_action_bar` dit au layout de masquer la barre de
-    navigation basse, pour ne pas empiler deux barres. %>
 <% content_for :sticky_action_bar, true %>
 <div class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
   <%= render "hero_cta", session: @session %>

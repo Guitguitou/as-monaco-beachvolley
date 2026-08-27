@@ -76,11 +76,11 @@ class ButtonComponent < ApplicationComponent
   def shape_classes
     case shape
     when :square
-      "rounded-lg"
+      "rounded-none"
     when :pill
       "rounded-full"
     else
-      "rounded-lg"
+      "rounded-none"
     end
   end
 

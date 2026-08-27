@@ -240,27 +240,8 @@ export default class extends Controller {
     this.applyFiltersFromUrl()
   }
 
-  styleHeaderButtons(calendarEl) {
-    const isMobile = window.matchMedia('(max-width: 640px)').matches
-    const buttons = calendarEl.querySelectorAll('.fc .fc-toolbar-chunk .fc-button')
-    buttons.forEach(btn => {
-      btn.classList.add(
-        'bg-asmbv-red', 'text-white', 'hover:bg-asmbv-red-dark',
-        'border-0', 'rounded-md', 'font-semibold'
-      )
-      btn.classList.remove('fc-button-primary')
-      // size adjustments
-      btn.classList.add(isMobile ? 'px-2' : 'px-3')
-      btn.classList.add(isMobile ? 'py-2' : 'py-1.5')
-      btn.classList.add(isMobile ? 'text-sm' : 'text-sm')
-    })
-
-    // tighten toolbar spacing on mobile
-    if (isMobile) {
-      calendarEl.querySelectorAll('.fc .fc-toolbar-chunk').forEach(chunk => {
-        chunk.classList.add('space-x-1')
-      })
-    }
+  styleHeaderButtons(_calendarEl) {
+    // Styling is handled by CSS (application.css .fc .fc-button rules).
   }
 
   updateDateQueryParamAndLinks(dateObj) {

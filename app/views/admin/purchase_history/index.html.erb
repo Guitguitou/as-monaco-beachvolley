@@ -14,7 +14,7 @@
             type: :date_field,
             label: "Date de début",
             required: true,
-            input_class: "px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
+            input_class: "px-3 py-2 border border-gray-300 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
             html_options: { value: params[:start_date] || Date.current.beginning_of_month }
           ) %>
         </div>
@@ -25,7 +25,7 @@
             type: :date_field,
             label: "Date de fin",
             required: true,
-            input_class: "px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
+            input_class: "px-3 py-2 border border-gray-300 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
             html_options: { value: params[:end_date] || Date.current.end_of_month }
           ) %>
         </div>
@@ -43,7 +43,7 @@
           </div>
         </fieldset>
       </div>
-      <%= f.submit class: "px-4 py-2 bg-asmbv-red text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2 whitespace-nowrap cursor-pointer",
+      <%= f.submit class: "px-4 py-2 bg-asmbv-red text-white rounded-none hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2 whitespace-nowrap cursor-pointer",
           data: { disable_with: "Export en cours..." } do %>
         <%= lucide_icon("download", size: 16) %> Exporter
       <% end %>

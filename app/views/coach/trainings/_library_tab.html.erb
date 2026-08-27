@@ -11,7 +11,7 @@
         <label class="text-sm font-medium text-gray-700">Mes sessions uniquement</label>
         <%= check_box_tag :only_mine, 1, params[:only_mine].present?, class: "h-4 w-4 text-asmbv-red focus:ring-asmbv-red border-gray-300 rounded" %>
       </div>
-      <%= submit_tag "Filtrer", class: "inline-flex items-center gap-1 px-4 py-2 text-sm font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark rounded-lg" %>
+      <%= submit_tag "Filtrer", class: "inline-flex items-center gap-1 px-4 py-2 text-sm font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark rounded-none" %>
     <% end %>
   </div>
 
