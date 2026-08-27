@@ -7,7 +7,7 @@
     <div class="flex items-center h-16 gap-4">
       <%# Zone gauche : logo %>
       <div class="flex-1 min-w-0 flex items-center justify-start">
-        <%= link_to (current_user&.activated? ? root_path : packs_path), class: "flex items-center shrink-0" do %>
+        <%= link_to (current_user&.activated? ? home_path : packs_path), class: "flex items-center shrink-0" do %>
           <%= image_tag "logo-reverse.png", alt: "AS Monaco Beach-Volley", class: "h-10 w-10" %>
         <% end %>
       </div>
@@ -15,11 +15,12 @@
       <%# Zone centre : navigation %>
       <nav class="hidden lg:flex items-center justify-center gap-1">
         <% if current_user&.activated? %>
-          <%= nav_link_navbar "Performances", performances_path %>
+          <%= nav_link_navbar "Mon terrain", home_path %>
           <%= nav_link_navbar "Calendrier", sessions_path %>
           <%= nav_link_navbar "Annonces", annonces_path %>
           <%= nav_link_navbar "Stages", stages_path %>
           <%= nav_link_navbar "Boutique", packs_path %>
+          <%= nav_link_navbar "Performances", performances_path %>
           <%= nav_link_navbar "Profil", profile_path %>
         <% else %>
           <%= nav_link_navbar "Boutique", packs_path %>
@@ -102,11 +103,14 @@
             </div>
             <div class="p-4 space-y-1">
               <% if current_user&.activated? %>
-                <%= link_to performances_path, class: navbar_mobile_link_class do %>
-                  Performances & Stats
+                <%= link_to home_path, class: navbar_mobile_link_class do %>
+                  Mon terrain
                 <% end %>
                 <%= link_to sessions_path, class: navbar_mobile_link_class do %>
                   Calendrier
+                <% end %>
+                <%= link_to performances_path, class: navbar_mobile_link_class do %>
+                  Performances & stats
                 <% end %>
                 <%= link_to annonces_path, class: navbar_mobile_link_class do %>
                   Annonces

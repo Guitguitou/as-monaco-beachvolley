@@ -13,6 +13,10 @@ Rails.application.routes.draw do
 
   # Routes publiques pour les joueurs
   root "application#accueil"
+
+  # Écran d'accueil du joueur connecté : sa prochaine session, son solde et les
+  # sessions ouvertes pour lui. Remplace l'atterrissage sur les classements.
+  get "mon-terrain", to: "home#show", as: :home
   # Section Règles & informations
   scope :infos, controller: :infos do
     get "/", action: :index, as: :infos_root
