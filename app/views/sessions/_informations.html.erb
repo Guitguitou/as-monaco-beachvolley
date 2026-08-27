@@ -1,103 +1,78 @@
-<%# Content-only partial (wrapped in a Card in `sessions/show`) %>
-<div class="grid grid-cols-1 gap-4">
-  <div>
-    <div class="space-y-4">
-      <div class="flex items-center gap-3">
-        <%= lucide_icon('calendar', class: 'w-5 h-5 text-gray-400') %>
-        <div>
-          <div class="font-medium text-gray-900">Date et heure</div>
-          <div class="text-gray-600">
-            <%= l @session.start_at, format: :default %> - <%= l @session.end_at, format: :time %>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex items-start gap-3 text-sm">
-        <%= lucide_icon("clock", class: "w-5 h-5 text-green-600 shrink-0 mt-0.5") %>
-        <div>
-          <div class="font-semibold text-xs text-gray-900 mb-0.5">Durée</div>
-          <div class="text-gray-600 text-xs"><%= session_duration(@session.start_at, @session.end_at) %></div>
-        </div>
-      </div>
-
-      <% if @session.user %>
-        <div class="flex items-center gap-3">
-          <%= lucide_icon('user', class: 'w-5 h-5 text-gray-400') %>
-          <div>
-            <div class="font-medium text-gray-900">Organisateur</div>
-            <div class="text-gray-600"><%= @session.user.full_name %></div>
-          </div>
-        </div>
-      <% end %>
-
-      <% if @session.max_players %>
-        <div class="flex items-start gap-3 text-sm">
-          <%= lucide_icon('users', class: 'w-5 h-5 text-blue-700 shrink-0 mt-0.5') %>
-          <div>
-            <div class="font-semibold text-xs text-gray-900 mb-0.5">Capacité</div>
-            <div class="text-gray-600 text-xs"><%= @session.max_players %> joueurs maximum</div>
-          </div>
-        </div>
-      <% end %>
-      <div class="flex items-start gap-3 text-sm">
-        <%= lucide_icon('layers', class: 'w-5 h-5 text-blue-700 shrink-0 mt-0.5') %>
-        <div>
-          <div class="font-semibold text-xs text-gray-900 mb-0.5">Niveau requis</div>
-          <div class="text-gray-600 text-xs">
-            <% if @session.levels.any? %>
-              <% if @session.entrainement? && @session.secondary_levels.any? %>
-                <span class="font-medium text-gray-900"><%= session_levels_label(@session.priority_levels) %></span>
-                <span class="inline-block ml-1 px-1.5 py-0.5 rounded-none bg-asmbv-red/10 text-asmbv-red text-[10px] font-semibold">prioritaire</span>
-                <span class="text-gray-500"> · puis <%= session_levels_label(@session.secondary_levels) %> (secondaire)</span>
-              <% else %>
-                <%= session_levels_label(@session.levels) %>
-              <% end %>
-            <% else %>
-              Tous niveaux acceptés
-            <% end %>
-          </div>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-          <%= lucide_icon('banknote-arrow-down', class: 'w-5 h-5 text-gray-400') %>
-          <div>
-            <div class="font-medium text-gray-900">Prix</div>
-            <div class="text-gray-600"><%= credits_label(@session.price) %></div>
-          </div>
-        </div>
-      <% if @session.entrainement? && @session.registration_opens_at.present? %>
-        <div class="flex items-center gap-3">
-          <%= lucide_icon('door-open', class: 'w-5 h-5 text-gray-400') %>
-          <div>
-            <div class="font-medium text-gray-900">Ouverture des inscriptions</div>
-            <div class="text-gray-600">
-              <%= l @session.registration_opens_at, format: :default %>
-              <% within_priority = Time.current < (@session.registration_opens_at + Session::PRIORITY_WINDOW_HOURS.hours) %>
-              <% if Time.current < @session.registration_opens_at %>
-                <span class="ml-2"><%= render BadgeComponent.new(label: "Pas encore ouvert", variant: :neutral, size: :xs) %></span>
-              <% elsif within_priority %>
-                <span class="ml-2"><%= render BadgeComponent.new(label: "Priorité compétition (24h)", variant: :info, size: :xs) %></span>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      <% end %>
-      <% if @session.entrainement? && @session.cancellation_deadline_at.present? %>
-        <div class="flex items-center gap-3">
-          <%= lucide_icon('alarm-clock', class: 'w-5 h-5 text-orange-500') %>
-          <div>
-            <div class="font-medium text-gray-900">Date limite de désinscription</div>
-            <div class="text-gray-600">
-              <%= l @session.cancellation_deadline_at, format: :default %>
-              <% if Time.current > @session.cancellation_deadline_at %>
-                <span class="ml-2"><%= render BadgeComponent.new(label: "Délai dépassé", variant: :danger, size: :xs) %></span>
-              <% else %>
-                <span class="ml-2"><%= render BadgeComponent.new(label: "Remboursement non garanti après", variant: :warning, size: :xs) %></span>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      <% end %>
+<%# Ne répète pas ce que le hero et la carte Participants disent déjà.
+    Retirés : date et heure (pastilles du hero), terrain (hero), organisateur
+    (carte Entraîneur), capacité (compteur de la carte Participants).
+    Ne restent que les informations qui servent à décider. %>
+<dl class="space-y-4 text-sm">
+  <div class="flex items-start gap-3">
+    <%= lucide_icon("clock", class: "w-5 h-5 text-gray-400 shrink-0 mt-0.5") %>
+    <div class="min-w-0">
+      <dt class="font-semibold text-gray-900">Durée</dt>
+      <dd class="text-gray-600"><%= session_duration(@session.start_at, @session.end_at) %></dd>
     </div>
   </div>
-</div>
+
+  <div class="flex items-start gap-3">
+    <%= lucide_icon("banknote-arrow-down", class: "w-5 h-5 text-gray-400 shrink-0 mt-0.5") %>
+    <div class="min-w-0">
+      <dt class="font-semibold text-gray-900">Coût</dt>
+      <dd class="text-gray-600"><%= credits_label(@session.price) %></dd>
+    </div>
+  </div>
+
+  <div class="flex items-start gap-3">
+    <%= lucide_icon("layers", class: "w-5 h-5 text-gray-400 shrink-0 mt-0.5") %>
+    <div class="min-w-0">
+      <dt class="font-semibold text-gray-900">Niveau requis</dt>
+      <dd class="text-gray-600">
+        <% if @session.levels.any? %>
+          <% if @session.entrainement? && @session.secondary_levels.any? %>
+            <span class="font-medium text-gray-900"><%= session_levels_label(@session.priority_levels) %></span>
+            <span class="ml-1 px-1.5 py-0.5 rounded-none bg-asmbv-red/10 text-asmbv-red text-[10px] font-semibold">prioritaire</span>
+            <span class="block text-gray-500">puis <%= session_levels_label(@session.secondary_levels) %> (secondaire)</span>
+          <% else %>
+            <%= session_levels_label(@session.levels) %>
+          <% end %>
+        <% else %>
+          Tous niveaux acceptés
+        <% end %>
+      </dd>
+    </div>
+  </div>
+
+  <% if @session.entrainement? && @session.registration_opens_at.present? %>
+    <div class="flex items-start gap-3">
+      <%= lucide_icon("door-open", class: "w-5 h-5 text-gray-400 shrink-0 mt-0.5") %>
+      <div class="min-w-0">
+        <dt class="font-semibold text-gray-900">Ouverture des inscriptions</dt>
+        <dd class="text-gray-600">
+          <%= l @session.registration_opens_at, format: :default %>
+          <% within_priority = Time.current < (@session.registration_opens_at + Session::PRIORITY_WINDOW_HOURS.hours) %>
+          <% if Time.current < @session.registration_opens_at %>
+            <span class="block mt-1"><%= render BadgeComponent.new(label: "Pas encore ouvert", variant: :neutral, size: :xs) %></span>
+          <% elsif within_priority %>
+            <span class="block mt-1"><%= render BadgeComponent.new(label: "Priorité compétition (24h)", variant: :info, size: :xs) %></span>
+          <% end %>
+        </dd>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @session.entrainement? && @session.cancellation_deadline_at.present? %>
+    <div class="flex items-start gap-3">
+      <%= lucide_icon("alarm-clock", class: "w-5 h-5 text-gray-400 shrink-0 mt-0.5") %>
+      <div class="min-w-0">
+        <dt class="font-semibold text-gray-900">Limite de désinscription</dt>
+        <dd class="text-gray-600">
+          <%= l @session.cancellation_deadline_at, format: :default %>
+          <span class="block mt-1">
+            <% if Time.current > @session.cancellation_deadline_at %>
+              <%= render BadgeComponent.new(label: "Délai dépassé", variant: :danger, size: :xs) %>
+            <% else %>
+              <%= render BadgeComponent.new(label: "Remboursement non garanti après", variant: :warning, size: :xs) %>
+            <% end %>
+          </span>
+        </dd>
+      </div>
+    </div>
+  <% end %>
+</dl>

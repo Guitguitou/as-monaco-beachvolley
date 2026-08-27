@@ -23,11 +23,14 @@
         <% end %>
       </div>
 
-      <div class="lg:col-span-1 min-w-0">
-        <% if actions %>
+      <%# Colonne rendue seulement si elle a du contenu : une div vide ajoutait
+          une ligne de grille et un `gap`, soit une bande rouge morte sous les
+          pastilles sur mobile. %>
+      <% if actions %>
+        <div class="lg:col-span-1 min-w-0">
           <%= actions %>
-        <% end %>
-      </div>
+        </div>
+      <% end %>
     </div>
   </div>
 </section>

@@ -49,18 +49,27 @@ RSpec.describe FormattingHelper, type: :helper do
   end
 
   describe "#session_levels_label" do
-    it "suffixe le genre pour distinguer les homonymes" do
+    it "suffixe le genre uniquement pour distinguer les homonymes" do
       male = build_stubbed(:level, name: "G1", gender: "male")
       female = build_stubbed(:level, name: "G1", gender: "female")
 
       expect(helper.session_levels_label([ male, female ])).to eq("G1 M, G1 F")
     end
 
+    it "laisse les noms intacts quand ils portent déjà le genre" do
+      # Cas réel en production : les noms sont « G1 M », « G1 M bis »…
+      # Suffixer systématiquement donnerait « G1 M M ».
+      first = build_stubbed(:level, name: "G1 M", gender: "male")
+      second = build_stubbed(:level, name: "G1 M bis", gender: "male")
+
+      expect(helper.session_levels_label([ first, second ])).to eq("G1 M, G1 M bis")
+    end
+
     it "dédoublonne les niveaux identiques" do
       male = build_stubbed(:level, name: "G1", gender: "male")
       same = build_stubbed(:level, name: "G1", gender: "male")
 
-      expect(helper.session_levels_label([ male, same ])).to eq("G1 M")
+      expect(helper.session_levels_label([ male, same ])).to eq("G1")
     end
 
     it "renvoie nil sans niveau" do

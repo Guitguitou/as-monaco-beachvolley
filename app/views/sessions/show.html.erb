@@ -1,4 +1,6 @@
-<% show_sidebar = current_user&.admin? || current_user == @session.user %>
+<% is_admin_or_owner = current_user&.admin? || current_user == @session.user %>
+<% confirmed_count = @session.registrations.loaded? ? @session.registrations.count(&:confirmed?) : @session.registrations.confirmed.count %>
+<% accent = Sessions::CardState::ACCENTS[@session.session_type] %>
 
 <% content_for :hero do %>
   <%= render HeroComponent.new(
@@ -24,7 +26,8 @@
   <% end %>
 <% end %>
 
-<div class="max-w-6xl mx-auto px-4 py-10">
+<%# pb-24 sur mobile : laisse la place à la barre d'action collée en bas %>
+<div class="max-w-6xl mx-auto px-4 py-8 pb-28 lg:pb-10">
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
     <div class="lg:col-span-2 min-w-0 space-y-6">
       <% if @session.description.present? %>
@@ -40,42 +43,6 @@
 
       <%= render CardComponent.new(padding: :lg) do |card| %>
         <% card.with_header do %>
-          <h3 class="font-bebas-neue text-xl tracking-wider uppercase text-gray-900">
-            <%= @session.entrainement? || @session.coaching_prive? ? "Entraîneur" : "Responsable" %>
-          </h3>
-        <% end %>
-        <% coach = @session.user %>
-        <% coach_initials = begin
-                             if coach&.first_name.present? && coach&.last_name.present?
-                               "#{coach.first_name.strip[0]}#{coach.last_name.strip[0]}".upcase
-                             elsif coach&.full_name.present?
-                               parts = coach.full_name.split
-                               if parts.size >= 2
-                                 "#{parts[0][0]}#{parts[1][0]}".upcase
-                               elsif parts[0].present?
-                                 parts[0][0, 2].to_s.upcase
-                               else
-                                 "—"
-                               end
-                             else
-                               "—"
-                             end
-                           end %>
-        <div class="flex items-center gap-4">
-          <div class="h-14 w-14 bg-asmbv-red text-white flex items-center justify-center text-lg font-anton rounded-none shrink-0 p-2"><%= coach_initials %></div>
-          <div class="min-w-0">
-            <div class="font-semibold text-gray-900"><%= coach&.full_name || "Organisateur" %></div>
-          </div>
-        </div>
-      <% end %>
-
-      <%= render CardComponent.new(padding: :lg) do |card| %>
-        <% card.with_header do %>
-          <% if @session.max_players.present? %>
-            <% confirmed_count = @session.registrations.loaded? ? @session.registrations.count(&:confirmed?) : @session.registrations.confirmed.count %>
-            <% spots_left = [@session.max_players - confirmed_count, 0].max %>
-            <% full = spots_left.zero? %>
-          <% end %>
           <div class="flex items-center justify-between gap-3 flex-wrap">
             <h3 class="font-bebas-neue text-xl tracking-wider uppercase text-gray-900">
               <% if @session.max_players.present? %>
@@ -84,26 +51,31 @@
                 Participants
               <% end %>
             </h3>
-            <% if @session.max_players.present? %>
-              <% if full %>
-                <%= render BadgeComponent.new(label: "Complet", variant: :destructive, size: :sm) %>
-              <% else %>
-                <% places_label = spots_left == 1 ? "1 PLACE" : "#{spots_left} PLACES" %>
-                <%= render BadgeComponent.new(label: places_label, variant: :success, size: :sm) %>
-              <% end %>
+            <% if (label = spots_left_label(confirmed_count, @session.max_players)) %>
+              <%= render BadgeComponent.new(
+                    label: label,
+                    variant: label == "Complet" ? :destructive : :success,
+                    size: :sm
+                  ) %>
             <% end %>
           </div>
         <% end %>
 
+        <%# L'encadrant, en une ligne : sa propre carte doublonnait avec la ligne
+            « Organisateur » du bloc Informations. %>
+        <% if @session.user %>
+          <div class="mb-4 flex items-center gap-3 border-b border-gray-100 pb-4">
+            <%= render AvatarComponent.new(user: @session.user, size: :md) %>
+            <div class="min-w-0">
+              <p class="text-[11px] font-bold uppercase tracking-wide text-gray-500">
+                <%= @session.entrainement? || @session.coaching_prive? ? "Entraîneur" : "Responsable" %>
+              </p>
+              <p class="font-semibold text-gray-900 truncate"><%= @session.user.full_name %></p>
+            </div>
+          </div>
+        <% end %>
+
         <% if @session.max_players.present? %>
-          <% confirmed_count = @session.registrations.loaded? ? @session.registrations.count(&:confirmed?) : @session.registrations.confirmed.count %>
-          <% accent = case @session.session_type
-                     when "entrainement" then :training
-                     when "jeu_libre" then :free_play
-                     when "coaching_prive" then :private_coaching
-                     when "tournoi" then :tournament
-                     when "stage" then :stage
-                     end %>
           <div class="mb-4">
             <%= render ProgressBarComponent.new(value: confirmed_count, max: @session.max_players, variant: accent || :primary, height: :sm) %>
           </div>
@@ -112,7 +84,7 @@
         <%= render "participants" %>
       <% end %>
 
-      <% if user_signed_in? && @session.entrainement? && (current_user.admin? || current_user == @session.user) %>
+      <% if user_signed_in? && @session.entrainement? && is_admin_or_owner %>
         <%= render CardComponent.new(padding: :lg) do |card| %>
           <% card.with_header do %>
             <h3 class="font-bebas-neue text-xl tracking-wider uppercase text-gray-900">Notes entraîneur</h3>
@@ -129,9 +101,9 @@
             ) %>
             <div class="mt-3 flex items-center gap-2">
               <%= f.submit "Enregistrer les notes",
-                  class: "inline-flex items-center justify-center gap-2 font-semibold rounded-none bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-asmbv-red px-3 py-2 text-sm" %>
+                  class: "inline-flex items-center justify-center gap-2 font-semibold rounded-none bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-asmbv-red px-3 py-2 text-sm" %>
               <% if @session.coach_notes.present? %>
-                <span class="text-xs text-gray-500">Dernière mise à jour: <%= l(@session.updated_at, format: :short) %></span>
+                <span class="text-xs text-gray-500">Dernière mise à jour : <%= l(@session.updated_at, format: :short) %></span>
               <% end %>
             </div>
           <% end %>
@@ -147,9 +119,13 @@
     </div>
 
     <div class="lg:col-span-1 min-w-0 space-y-6">
-      <%= render CardComponent.new(padding: :lg, class_name: "border-2 border-asmbv-red/20 shadow-sm lg:sticky lg:top-20 lg:self-start") do %>
-        <%= render "hero_cta", session: @session %>
-      <% end %>
+      <%# Sur desktop, l'action reste dans la colonne collante ; sur mobile elle
+          est rendue dans la barre du bas, en fin de page. %>
+      <div class="hidden lg:block">
+        <%= render CardComponent.new(padding: :lg, class_name: "border-2 border-asmbv-red/20 lg:sticky lg:top-20 lg:self-start") do %>
+          <%= render "hero_cta", session: @session %>
+        <% end %>
+      </div>
 
       <%= render CardComponent.new(padding: :lg) do |card| %>
         <% card.with_header do %>
@@ -158,49 +134,15 @@
         <%= render "informations" %>
       <% end %>
 
-      <% if show_sidebar %>
-        <%= render CardComponent.new(padding: :lg, class_name: "h-fit") do |card| %>
-          <% card.with_header do %>
-            <h3 class="text-xs font-bold uppercase tracking-wide text-gray-900">Ajouter un·e inscrit·e</h3>
-          <% end %>
-          <%= form_with url: session_registrations_path(@session), method: :post, local: true, class: "space-y-3" do |f| %>
-            <% sessions_index_return_params.each do |key, value| %>
-              <%= hidden_field_tag key, value %>
-            <% end %>
-            <div>
-              <%= render FormFieldComponent.new(
-                form: f,
-                attribute: :user_id,
-                type: :select,
-                label: "Utilisateur·ice",
-                required: true,
-                options: options_from_collection_for_select(@candidate_users || [], :id, :full_name),
-                select_options: { include_blank: "Choisir..." },
-                input_class: "w-full border border-gray-300 rounded-none px-3 py-2 focus:ring-2 focus:ring-asmbv-red focus:border-asmbv-red",
-                html_options: { data: { controller: "select", "select-placeholder-value": "Rechercher un·e joueur·se..." } }
-              ) %>
-            </div>
-            <% if @session.entrainement? && @session.past_registration_deadline? %>
-              <%= render BadgeComponent.new(label: "Délai 17h dépassé — inscription manuelle possible", variant: :info, size: :sm) %>
-            <% end %>
-            <% if @session.full? %>
-              <%= hidden_field_tag :waitlist, true %>
-              <%= render BadgeComponent.new(label: "Session complète — ajout en liste d'attente", variant: :hero_inverse, size: :sm) %>
-            <% end %>
-            <%= f.submit(@session.full? ? "Ajouter en attente" : "Ajouter",
-                        class: "w-full inline-flex items-center justify-center gap-1 rounded-none px-4 py-2 text-sm font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark") %>
-          <% end %>
-        <% end %>
+      <% if is_admin_or_owner %>
+        <%= render "admin_actions", session: @session %>
       <% end %>
     </div>
   </div>
 </div>
 
-<% content_for :head do %>
-  <style>
-    .session-type-entrainement { @apply bg-green-100 text-green-800; }
-    .session-type-jeu_libre { @apply bg-blue-100 text-blue-800; }
-    .session-type-tournoi { @apply bg-purple-100 text-purple-800; }
-    .session-type-coaching_prive { @apply bg-orange-100 text-orange-800; }
-  </style>
-<% end %> 
+<%# Barre d'action collée en bas, mobile uniquement : le CTA était à 1,12 écran
+    sous le pli. Le même partiel qu'en colonne desktop, présenté autrement. %>
+<div class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur px-4 py-3 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
+  <%= render "hero_cta", session: @session %>
+</div>

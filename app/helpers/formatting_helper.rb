@@ -32,13 +32,23 @@ module FormattingHelper
     "#{amount} #{amount.abs == 1 ? 'crédit' : 'crédits'}"
   end
 
-  # Niveaux d'une session, dédoublonnés et suffixés par genre (« G1 M », « G1 F »).
+  # Niveaux d'une session, dédoublonnés.
+  #
+  # Le suffixe de genre (`Level#display_name`) n'est ajouté qu'aux homonymes :
+  # en production les noms le portent déjà (« G1 M », « G1 F »), et l'ajouter
+  # systématiquement donnerait « G1 M M ». Là où deux niveaux partagent un nom,
+  # il est indispensable pour les distinguer.
   # Renvoie nil quand la session n'impose aucun niveau.
   def session_levels_label(levels)
-    labels = Array(levels).map(&:display_name).uniq
-    return nil if labels.empty?
+    levels = Array(levels)
+    return nil if levels.empty?
 
-    labels.join(", ")
+    # Dédoublonner d'abord : deux fois le même niveau n'est pas une ambiguïté.
+    unique = levels.uniq { |level| [ level.name, level.gender ] }
+    ambiguous = unique.map(&:name).tally.select { |_name, count| count > 1 }.keys
+
+    unique.map { |level| ambiguous.include?(level.name) ? level.display_name : level.name }
+          .join(", ")
   end
 
   # Places restantes, formulé côté joueur plutôt qu'en ratio brut.
