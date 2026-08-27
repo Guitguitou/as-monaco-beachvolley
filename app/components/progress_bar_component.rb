@@ -23,7 +23,7 @@ class ProgressBarComponent < ApplicationComponent
       "w-full",
       "bg-gray-100",
       "border border-gray-200",
-      "rounded-none",
+      "rounded-full",
       height_classes
     ].join(" ")
   end
@@ -31,7 +31,7 @@ class ProgressBarComponent < ApplicationComponent
   def bar_classes
     [
       "h-full",
-      "rounded-none",
+      "rounded-full",
       variant_classes
     ].join(" ")
   end

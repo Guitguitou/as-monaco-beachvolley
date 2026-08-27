@@ -14,7 +14,7 @@
             type: :date_field,
             label: "Date de début",
             required: true,
-            input_class: "px-3 py-2 border border-gray-300 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
+            input_class: "px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
             html_options: { value: params[:start_date] || Date.current.beginning_of_month }
           ) %>
         </div>
@@ -25,7 +25,7 @@
             type: :date_field,
             label: "Date de fin",
             required: true,
-            input_class: "px-3 py-2 border border-gray-300 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
+            input_class: "px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:border-transparent",
             html_options: { value: params[:end_date] || Date.current.end_of_month }
           ) %>
         </div>
@@ -43,7 +43,7 @@
           </div>
         </fieldset>
       </div>
-      <%= f.submit class: "px-4 py-2 bg-asmbv-red text-white rounded-none hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2 whitespace-nowrap cursor-pointer",
+      <%= f.submit class: "px-4 py-2 bg-asmbv-red text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2 whitespace-nowrap cursor-pointer",
           data: { disable_with: "Export en cours..." } do %>
         <%= lucide_icon("download", size: 16) %> Exporter
       <% end %>
@@ -62,9 +62,9 @@
 
 <%# Stats Cards %>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-  <div class="bg-white rounded-none border border-gray-200 shadow-sm p-6">
+  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
     <div class="flex items-center gap-3">
-      <div class="p-3 bg-green-100 rounded-none">
+      <div class="p-3 bg-green-100 rounded-lg">
         <%= lucide_icon("euro", size: 24, class: "text-green-600") %>
       </div>
       <div>
@@ -74,9 +74,9 @@
     </div>
   </div>
 
-  <div class="bg-white rounded-none border border-gray-200 shadow-sm p-6">
+  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
     <div class="flex items-center gap-3">
-      <div class="p-3 bg-blue-100 rounded-none">
+      <div class="p-3 bg-blue-100 rounded-lg">
         <%= lucide_icon("shopping-bag", size: 24, class: "text-blue-600") %>
       </div>
       <div>
@@ -86,9 +86,9 @@
     </div>
   </div>
 
-  <div class="bg-white rounded-none border border-gray-200 shadow-sm p-6">
+  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
     <div class="flex items-center gap-3">
-      <div class="p-3 bg-orange-100 rounded-none">
+      <div class="p-3 bg-orange-100 rounded-lg">
         <%= lucide_icon("clock", size: 24, class: "text-orange-600") %>
       </div>
       <div>
@@ -100,7 +100,7 @@
 </div>
 
 <%# Table %>
-<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
+<div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
   <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
@@ -177,7 +177,7 @@
 </div>
 
 <% if @credit_purchases.empty? %>
-  <div class="text-center py-12 bg-white rounded-none border border-gray-200 mt-6">
+  <div class="text-center py-12 bg-white rounded-lg border border-gray-200 mt-6">
     <div class="flex flex-col items-center gap-3">
       <%= lucide_icon("shopping-cart", size: 48, class: "text-gray-300") %>
       <p class="text-gray-500 text-lg">Aucun achat pour le moment</p>

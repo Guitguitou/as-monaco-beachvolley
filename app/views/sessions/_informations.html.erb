@@ -27,7 +27,7 @@
         <% if @session.levels.any? %>
           <% if @session.entrainement? && @session.secondary_levels.any? %>
             <span class="font-medium text-gray-900"><%= session_levels_label(@session.priority_levels) %></span>
-            <span class="ml-1 px-1.5 py-0.5 rounded-none bg-asmbv-red/10 text-asmbv-red text-[10px] font-semibold">prioritaire</span>
+            <span class="ml-1 px-1.5 py-0.5 rounded-full bg-asmbv-red/10 text-asmbv-red text-[10px] font-semibold">prioritaire</span>
             <span class="block text-gray-500">puis <%= session_levels_label(@session.secondary_levels) %> (secondaire)</span>
           <% else %>
             <%= session_levels_label(@session.levels) %>

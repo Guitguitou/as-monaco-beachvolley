@@ -12,7 +12,7 @@
 
 <%= render 'filters' %>
 
-<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
+<div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
   <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
@@ -107,12 +107,12 @@
     <div>
       <% if @current_page > 1 %>
         <%= link_to({ action: :index, page: @current_page - 1, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                    class: "inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-300 bg-white hover:bg-gray-50") do %>
+                    class: "inline-flex items-center gap-1 rounded-lg px-3 py-1.5 border border-gray-300 bg-white hover:bg-gray-50") do %>
           <%= lucide_icon("chevron-left", size: 16) %>
           Précédent
         <% end %>
       <% else %>
-        <span class="inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-200 text-gray-400">
+        <span class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 border border-gray-200 text-gray-400">
           <%= lucide_icon("chevron-left", size: 16) %>
           Précédent
         </span>
@@ -134,13 +134,13 @@
         <% end %>
         <% if page == @current_page %>
           <li>
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-none bg-asmbv-red text-white font-semibold"><%= page %></span>
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-asmbv-red text-white font-semibold"><%= page %></span>
           </li>
         <% else %>
           <li>
             <%= link_to page,
                         { action: :index, page: page, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                        class: "inline-flex items-center justify-center w-8 h-8 rounded-none border border-gray-300 bg-white hover:bg-gray-50" %>
+                        class: "inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-300 bg-white hover:bg-gray-50" %>
           </li>
         <% end %>
       <% end %>
@@ -149,12 +149,12 @@
     <div>
       <% if @current_page < @total_pages %>
         <%= link_to({ action: :index, page: @current_page + 1, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                    class: "inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-300 bg-white hover:bg-gray-50") do %>
+                    class: "inline-flex items-center gap-1 rounded-lg px-3 py-1.5 border border-gray-300 bg-white hover:bg-gray-50") do %>
           Suivant
           <%= lucide_icon("chevron-right", size: 16) %>
         <% end %>
       <% else %>
-        <span class="inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-200 text-gray-400">
+        <span class="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 border border-gray-200 text-gray-400">
           Suivant
           <%= lucide_icon("chevron-right", size: 16) %>
         </span>

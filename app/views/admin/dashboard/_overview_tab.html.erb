@@ -3,7 +3,7 @@
   <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
   <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-blue-500 rounded-none flex items-center justify-center">
+        <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
           <span class="text-white text-sm font-medium">🏋️</span>
         </div>
       </div>
@@ -17,7 +17,7 @@
   <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
   <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-green-500 rounded-none flex items-center justify-center">
+        <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
           <span class="text-white text-sm font-medium">🎮</span>
         </div>
       </div>
@@ -31,7 +31,7 @@
   <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
   <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-purple-500 rounded-none flex items-center justify-center">
+        <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
           <span class="text-white text-sm font-medium">👥</span>
         </div>
       </div>
@@ -45,7 +45,7 @@
   <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
   <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-red-500 rounded-none flex items-center justify-center">
+        <div class="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
           <span class="text-white text-sm font-medium">⚠️</span>
         </div>
       </div>
@@ -79,7 +79,7 @@
     <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
       <div class="flex items-center">
         <div class="flex-shrink-0">
-          <div class="w-8 h-8 bg-green-500 rounded-none flex items-center justify-center">
+          <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
             <span class="text-white text-sm font-medium">🎮</span>
           </div>
         </div>
@@ -92,7 +92,7 @@
     <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
       <div class="flex items-center">
         <div class="flex-shrink-0">
-          <div class="w-8 h-8 bg-blue-500 rounded-none flex items-center justify-center">
+          <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
             <span class="text-white text-sm font-medium">🏋️</span>
           </div>
         </div>
@@ -110,7 +110,7 @@
   <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-green-600 rounded-none flex items-center justify-center">
+        <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
           <span class="text-white text-sm font-medium">€</span>
         </div>
       </div>
@@ -124,7 +124,7 @@
   <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-orange-500 rounded-none flex items-center justify-center">
+        <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
           <span class="text-white text-sm font-medium">👥</span>
         </div>
       </div>
@@ -138,7 +138,7 @@
   <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-<%= @kpis[:net_profit] >= 0 ? 'green' : 'red' %>-500 rounded-none flex items-center justify-center">
+        <div class="w-8 h-8 bg-<%= @kpis[:net_profit] >= 0 ? 'green' : 'red' %>-500 rounded-lg flex items-center justify-center">
           <span class="text-white text-sm font-medium">📊</span>
         </div>
       </div>
@@ -172,7 +172,7 @@
             </h4>
             <div class="space-y-2">
               <% sessions.each do |session| %>
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-none border border-gray-100">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
                   <div>
                     <p class="font-medium text-gray-900"><%= session.title %></p>
                     <p class="text-sm text-gray-500">

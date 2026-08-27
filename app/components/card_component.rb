@@ -29,7 +29,7 @@ class CardComponent < ApplicationComponent
     [
       "block",
       "border border-gray-200",
-      "rounded-none",
+      "rounded-xl",
       "bg-white",
       "shadow-sm",
       "transition-shadow duration-150",

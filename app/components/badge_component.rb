@@ -27,7 +27,7 @@ class BadgeComponent < ApplicationComponent
   end
 
   def radius_classes
-    "rounded-none"
+    "rounded-full"
   end
 
   def size_classes
