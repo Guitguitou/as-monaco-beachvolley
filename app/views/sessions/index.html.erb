@@ -6,7 +6,7 @@
     <div class="flex items-center gap-2" role="group" aria-label="Mode d'affichage">
       <%= button(
         "Grille",
-        variant: :ghost,
+        variant: :filter,
         size: :small,
         href: sessions_path(request.query_parameters.merge(view: "grid")),
         data: { filter_pill: "view" },
@@ -14,7 +14,7 @@
       ) %>
       <%= button(
         "Calendrier",
-        variant: :ghost,
+        variant: :filter,
         size: :small,
         href: sessions_path(request.query_parameters.merge(view: "calendar")),
         data: { filter_pill: "view" },
