@@ -1,7 +1,11 @@
-<p>Hello <%= @email %>!</p>
+<p>Bonjour <%= @email %>.</p>
 
 <% if @resource.try(:unconfirmed_email?) %>
-  <p>We're contacting you to notify you that your email is being changed to <%= @resource.unconfirmed_email %>.</p>
+  <p>Ton adresse e-mail est en cours de changement pour <%= @resource.unconfirmed_email %>.</p>
 <% else %>
-  <p>We're contacting you to notify you that your email has been changed to <%= @resource.email %>.</p>
+  <p>Ton adresse e-mail a été changée pour <%= @resource.email %>.</p>
 <% end %>
+
+<p>Si tu n'es pas à l'origine de ce changement, contacte-nous immédiatement.</p>
+
+<p>À bientôt,<br>L'équipe AS Monaco Beach Volley</p>
