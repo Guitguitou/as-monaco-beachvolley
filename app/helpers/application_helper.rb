@@ -166,20 +166,25 @@ module ApplicationHelper
     end
   end
 
-  def default_hero_title
+  # Titre de l'en-tête de page, ou nil si la page n'en déclare pas.
+  #
+  # Renvoyer nil est un cas normal : les pages Devise, les formulaires et les
+  # écrans qui portent déjà leur propre titre n'affichent alors aucun en-tête.
+  # (L'ancien repli "#{controller_name} #{action_name}" affichait « Sessions New »
+  # en gros sur la page de connexion.)
+  PAGE_TITLES = {
+    "sessions#index" => "Calendrier",
+    "stages#index" => "Stages",
+    "performances#index" => "Performances & stats",
+    "annonces#index" => "Annonces de jeu libre",
+    "users#show" => "Mon profil",
+    "me/sessions#index" => "Mes sessions"
+  }.freeze
+
+  def default_page_title
     return content_for(:page_title) if content_for?(:page_title)
 
-    overrides = {
-      "sessions#index" => "Calendrier",
-      "sessions#show" => "Session",
-      "packs#index" => "Boutique",
-      "stages#index" => "Stages",
-      "performances#index" => "Performances",
-      "users#show" => "Mon profil"
-    }
-
-    key = "#{controller_name}##{action_name}"
-    overrides[key] || "#{controller_name.humanize} #{action_name.humanize}".strip
+    PAGE_TITLES["#{controller_path}##{action_name}"]
   end
 
   # Helper to create external links that open in a new tab

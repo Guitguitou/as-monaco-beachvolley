@@ -1,10 +1,6 @@
 <div class="container mx-auto px-4 py-8">
   <div class="max-w-6xl mx-auto">
-    <div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-      <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-        <%= lucide_icon("calendar") %> Stages disponibles
-      </h1>
-    </div>
+    <%# Titre porté par le PageHeaderComponent du layout. %>
 
     <%# Stage à l'affiche (prochain stage) %>
     <% if @next_stage %>

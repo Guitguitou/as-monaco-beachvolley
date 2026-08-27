@@ -1,9 +1,7 @@
 <div class="max-w-5xl mx-auto px-4 py-8">
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900">Annonces de jeu libre</h1>
-      <p class="text-sm text-gray-500">Trouve des joueurs pour monter une session, ou réponds aux annonces des autres.</p>
-    </div>
+  <%# Titre porté par le PageHeaderComponent du layout. %>
+  <div class="flex items-center justify-between gap-4 mb-6">
+    <p class="text-sm text-gray-600">Trouve des joueurs pour monter une session, ou réponds aux annonces des autres.</p>
     <%= link_to new_annonce_path, class: "inline-flex items-center gap-2 px-4 py-2.5 font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark shrink-0" do %>
       <%= lucide_icon("plus", class: "size-5") %> Créer une annonce
     <% end %>

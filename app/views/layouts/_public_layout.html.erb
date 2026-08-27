@@ -4,8 +4,8 @@
 
   <% if content_for?(:hero) %>
     <%= yield :hero %>
-  <% else %>
-    <%= render HeroComponent.new(title: default_hero_title) %>
+  <% elsif default_page_title.present? %>
+    <%= render PageHeaderComponent.new(title: default_page_title) %>
   <% end %>
 
   <main class="p-4 sm:p-6 lg:p-8">
