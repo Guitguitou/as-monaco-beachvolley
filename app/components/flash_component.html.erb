@@ -1,0 +1,21 @@
+<div class="fixed top-20 inset-x-0 z-[60] px-4 flex flex-col items-center gap-2 pointer-events-none">
+  <% messages.each do |kind, message| %>
+    <div class="<%= wrapper_classes(kind) %> max-w-md"
+         data-controller="flash"
+         data-flash-auto-dismiss-value="<%= auto_dismiss?(kind) %>"
+         data-flash-delay-value="<%= FlashComponent::AUTO_DISMISS_MS %>"
+         role="<%= aria_role(kind) %>"
+         aria-live="<%= aria_live(kind) %>">
+      <%= lucide_icon(icon_name(kind), class: icon_classes(kind)) %>
+
+      <p class="flex-1 min-w-0 text-sm font-medium leading-snug"><%= message %></p>
+
+      <button type="button"
+              data-action="click->flash#dismiss"
+              class="shrink-0 -mr-1 -mt-0.5 p-1 text-gray-400 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-asmbv-red"
+              aria-label="Fermer le message">
+        <%= lucide_icon("x", class: "w-4 h-4") %>
+      </button>
+    </div>
+  <% end %>
+</div>

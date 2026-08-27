@@ -7,10 +7,6 @@
       Si vous n’avez pas encore de compte, il sera créé automatiquement et vous recevrez un email pour définir votre mot de passe.
     </p>
 
-    <% if flash.now[:alert].present? %>
-      <%= render BadgeComponent.new(label: flash.now[:alert], variant: :danger, size: :md) %>
-    <% end %>
-
     <%= form_with url: buy_pack_path(@pack), method: :post, data: { turbo: false }, class: "space-y-4" do |f| %>
       <div>
         <%= render FormFieldComponent.new(
