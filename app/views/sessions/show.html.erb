@@ -142,7 +142,10 @@
 </div>
 
 <%# Barre d'action collée en bas, mobile uniquement : le CTA était à 1,12 écran
-    sous le pli. Le même partiel qu'en colonne desktop, présenté autrement. %>
-<div class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur px-4 py-3 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
+    sous le pli. Le même partiel qu'en colonne desktop, présenté autrement.
+    Le drapeau `sticky_action_bar` dit au layout de masquer la barre de
+    navigation basse, pour ne pas empiler deux barres. %>
+<% content_for :sticky_action_bar, true %>
+<div class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
   <%= render "hero_cta", session: @session %>
 </div>

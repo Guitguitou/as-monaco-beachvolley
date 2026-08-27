@@ -1,0 +1,16 @@
+<nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)]"
+     aria-label="Navigation principale">
+  <ul class="flex items-stretch">
+    <% items.each do |item| %>
+      <li class="flex-1 min-w-0 flex">
+        <%= link_to item.path,
+                    class: item_classes(item),
+                    aria: { current: (active?(item) ? "page" : nil) } do %>
+          <%# Cible tactile de 44 px minimum : icône 24 px + libellé + py-2 %>
+          <%= lucide_icon(item.icon, class: "w-6 h-6 shrink-0") %>
+          <span class="text-[11px] font-semibold leading-none truncate max-w-full px-1"><%= item.label %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</nav>

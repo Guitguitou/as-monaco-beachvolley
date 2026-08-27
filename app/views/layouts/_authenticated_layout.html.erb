@@ -14,7 +14,14 @@
     <% end %>
   <% end %>
 
-  <main class="p-4 sm:p-6 lg:p-8">
+  <%# pb-24 sur mobile : laisse la place à la barre de navigation basse %>
+  <main class="p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
     <%= yield %>
   </main>
+
+  <%# Masquée sur les pages qui ont déjà leur propre barre d'action collée en bas
+      (fiche session), pour ne pas empiler deux barres. %>
+  <% unless content_for?(:sticky_action_bar) %>
+    <%= render BottomNavComponent.new(user: current_user, current_path: request.path) %>
+  <% end %>
 </div>
