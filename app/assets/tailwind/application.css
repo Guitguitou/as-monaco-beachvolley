@@ -1,271 +1,139 @@
 @import "tailwindcss";
 
-:root {
-  --brand-red: #e21e22;
-  --brand-red-dark: #b31217;
-  --brand-red-light: #ff2d32;
-  --gold: #d4af37;
-  --sand: #f5e6d3;
-  --ocean: #0052a3;
-  --black: #1a1a1a;
+/* ---------------------------------------------------------------------------
+   Couleurs de marque
+   ---------------------------------------------------------------------------
+   Déclarées dans `@theme`, donc traitées par Tailwind comme n'importe quelle
+   autre couleur : toutes les variantes sont générées automatiquement.
 
-  --background: #ffffff;
-  --foreground: #1a1a1a;
-  --border: #e5e5e5;
-  --muted: #f5f5f5;
+   Auparavant, une couche `@layer components` redéfinissait à la main
+   `.bg-asmbv-red`, `.text-asmbv-red`… en `!important`. Deux conséquences :
 
-  --success: #16a34a;
-  --warning: #ea580c;
-  --destructive: #dc2626;
-  --info: #0052a3;
+   1. Le `!important` désarmait la cascade. C'est ce qui rendait le libellé du
+      filtre actif du calendrier rouge sur rouge : `text-asmbv-red` battait
+      `text-white` quoi qu'il arrive.
+   2. Seule une poignée de combinaisons était écrite. Toutes les autres ne
+      produisaient aucun CSS et échouaient en silence, alors qu'elles étaient
+      utilisées dans les vues : `outline-asmbv-red` (15×),
+      `focus:border-asmbv-red` (15×), `from-asmbv-red` / `to-asmbv-red-dark`
+      (le dégradé du hero, 6×), `group-hover:text-asmbv-red` (2×) et les
+      variantes d'opacité `bg-asmbv-red/10`, `/5`, `/20`, `/90` (13×).
+--------------------------------------------------------------------------- */
+@theme {
+  --color-asmbv-red: #e21e22;
+  --color-asmbv-red-dark: #b31217;
+  --color-asmbv-red-light: #fef2f2;
 
-  /* Backward-compatible aliases */
-  --color-asmbv-red: var(--brand-red);
-  --color-asmbv-red-light: var(--sand);
-  --color-asmbv-red-dark: var(--brand-red-dark);
+  /* Couleurs des terrains, reprises par le calendrier et les cartes. */
+  --color-asmbv-ocean: #0052a3;
+  --color-asmbv-ink: #1a1a1a;
+  --color-asmbv-gold: #d4af37;
+
+  --color-asmbv-sand: #f5e6d3;
 }
 
-@layer components {
-
-  /* Backgrounds */
-  .bg-asmbv-red {
-    background-color: var(--brand-red) !important;
-  }
-
-  .bg-asmbv-red-light {
-    background-color: var(--sand) !important;
-  }
-
-  .bg-asmbv-red-dark {
-    background-color: var(--brand-red-dark) !important;
-  }
-
-  /* Text */
-  .text-asmbv-red {
-    color: var(--brand-red) !important;
-  }
-
-  .text-asmbv-red-light {
-    color: var(--sand) !important;
-  }
-
-  .text-asmbv-red-dark {
-    color: var(--brand-red-dark) !important;
-  }
-
-  /* Borders */
-  .border-asmbv-red {
-    border-color: var(--brand-red) !important;
-  }
-
-  .border-asmbv-red-light {
-    border-color: var(--sand) !important;
-  }
-
-  .border-asmbv-red-dark {
-    border-color: var(--brand-red-dark) !important;
-  }
-
-  /* Hover states (bg only) */
-  .hover\:bg-asmbv-red:hover {
-    background-color: var(--brand-red) !important;
-  }
-
-  .hover\:bg-asmbv-red-light:hover {
-    background-color: var(--sand) !important;
-  }
-
-  .hover\:bg-asmbv-red-dark:hover {
-    background-color: var(--brand-red-dark) !important;
-  }
-
-  /* Hover states (text only) */
-  .hover\:text-asmbv-red:hover {
-    color: var(--brand-red) !important;
-  }
-
-  .hover\:text-asmbv-red-light:hover {
-    color: var(--sand) !important;
-  }
-
-  .hover\:text-asmbv-red-dark:hover {
-    color: var(--brand-red-dark) !important;
-  }
-
-  /* Focus ring */
-  .focus\:ring-asmbv-red:focus {
-    --tw-ring-color: var(--brand-red) !important;
-  }
-
-  .focus\:ring-asmbv-red-dark:focus {
-    --tw-ring-color: var(--brand-red-dark) !important;
-  }
-
-  .focus\:ring-asmbv-red-light:focus {
-    --tw-ring-color: var(--sand) !important;
-  }
-
-  .checkbox-asmbv-red {
-    accent-color: var(--brand-red) !important;
-  }
-
-  .fr-link {
-    color: var(--brand-red) !important;
-  }
-
-  .fr-link:hover {
-    color: var(--brand-red-dark) !important;
-  }
-
-  .fr-input:focus,
-  .fr-input:focus-visible,
-  .fr-select:focus,
-  .fr-select:focus-visible,
-  .fr-textarea:focus,
-  .fr-textarea:focus-visible {
-    box-shadow: 0 0 0 2px var(--brand-red) !important;
-    border-color: var(--brand-red) !important;
-    outline: none !important;
-  }
-
-  .fr-checkbox:checked {
-    accent-color: var(--brand-red) !important;
-  }
-
-  .fr-checkbox:checked+label.fr-label::before {
-    background-color: var(--brand-red) !important;
-    border-color: var(--brand-red) !important;
-  }
-
-  .fr-checkbox:focus-visible+label.fr-label::before {
-    outline: 2px solid var(--brand-red);
-  }
-
-  /* Couleur bordure par défaut */
-  .fr-checkbox+label.fr-label::before {
-    border-color: var(--brand-red) !important;
-  }
-
-  /* Couleur remplissage quand coché */
-  .fr-checkbox:checked+label.fr-label::before {
-    background-color: var(--brand-red) !important;
-    border-color: var(--brand-red) !important;
-  }
-
-  /* Focus visible */
-  .fr-checkbox:focus-visible+label.fr-label::before {
-    outline: 2px solid var(--brand-red);
-    outline-offset: 2px;
-  }
-
-  /* Hover */
-  .fr-checkbox:hover+label.fr-label::before {
-    border-color: var(--brand-red-dark);
-  }
-
-  :root {
-    --text-default-error: var(--brand-red) !important;
-  }
-
-  body.admin {
-    --border-action-high-blue-france: var(--brand-red) !important;
-    --text-action-high-blue-france: var(--brand-red) !important;
-    --text-action-high-blue-france-hover: var(--brand-red-dark) !important;
-  }
-
-  .fc .fc-scrollgrid,
-  .fc .fc-col-header,
-  .fc .fc-daygrid-day {
-    border: none !important;
-  }
-
-  .fc .fc-daygrid-event {
-    margin: 0.25rem 0 !important;
-  }
-
-  .fc-theme-standard .fc-scrollgrid {
-    border-radius: 1rem !important;
-    overflow: hidden !important;
-  }
-
-  .fc-timegrid-slot-label {
-    padding-top: 0.5rem !important;
-    padding-bottom: 0.5rem !important;
-  }
-
-  .fc .fc-day-today {
-    background-color: #fff8f7 !important;
-  }
-
-  .fc .fc-day-today .fc-col-header-cell-cushion {
-    color: var(--brand-red) !important;
-    font-weight: 600 !important;
-  }
-
-  /* Couleurs des terrains — palette AS Monaco */
-  .fc-event.terrain-1 { background-color: var(--ocean) !important; border-color: #003d7a !important; color: #ffffff !important; }
-  .fc-event.terrain-2 { background-color: var(--black) !important; border-color: #000000 !important; color: #ffffff !important; }
-  .fc-event.terrain-3 { background-color: var(--gold) !important; border-color: #b08e2d !important; color: #1a1a1a !important; }
-
-  /* Indicateur "session pour moi" : bordure gauche rouge AS Monaco */
-  .fc-event.for-me {
-    border-left: 4px solid var(--brand-red) !important;
-  }
-
-  /* nowIndicator en rouge franc */
-  .fc .fc-timegrid-now-indicator-line {
-    border-color: var(--brand-red) !important;
-    border-width: 2px !important;
-  }
-  .fc .fc-timegrid-now-indicator-arrow {
-    border-top-color: var(--brand-red) !important;
-    border-bottom-color: var(--brand-red) !important;
-  }
+/* ---------------------------------------------------------------------------
+   Surcharges FullCalendar
+   ---------------------------------------------------------------------------
+   FullCalendar est chargé depuis un CDN, après notre feuille. Le `!important`
+   est ici assumé : c'est le seul moyen d'écraser ses styles.
+--------------------------------------------------------------------------- */
+.fc .fc-scrollgrid,
+.fc .fc-col-header,
+.fc .fc-daygrid-day {
+  border: none !important;
 }
 
-/* FullCalendar mobile tweaks */
-@layer components {
-  .fc .fc-toolbar.fc-header-toolbar { margin-bottom: 0.5rem !important; }
-  .fc .fc-timegrid-slot-label-cushion { font-size: 13px !important; }
-  .fc .fc-timegrid-axis-cushion { font-size: 13px !important; }
-  .fc-asmbv-event { line-height: 1.1 !important; }
-  .fc-asmbv-event div { overflow: visible !important; white-space: normal !important; }
-  /* Améliorer l'espacement des créneaux pour mieux gérer les chevauchements */
-  .fc .fc-timegrid-slot { min-height: 3.5rem !important; }
+.fc .fc-daygrid-event {
+  margin: 0.25rem 0 !important;
 }
 
-/* Pastilles de filtre (terrain, audience).
-   L'état actif est porté par `aria-pressed`, pas par une variante rendue côté
-   serveur : le calendrier filtre sans recharger, et des classes serveur
-   resteraient collées à l'ancienne pastille active — deux pastilles
-   paraîtraient alors sélectionnées.
-
-   Ces règles sont volontairement HORS `@layer` : en Tailwind v4 la couche
-   `utilities` bat n'importe quelle couche `components` quelle que soit la
-   spécificité, alors que le CSS non-layered bat toutes les couches. C'est ce
-   qui permet de ne pas ajouter un !important de plus. */
-a[data-filter-pill][aria-pressed="true"],
-button[data-filter-pill][aria-pressed="true"] {
-  background-color: var(--brand-red);
-  border-color: var(--brand-red);
-  color: #ffffff;
+.fc-theme-standard .fc-scrollgrid {
+  overflow: hidden !important;
 }
 
-a[data-filter-pill][aria-pressed="true"]:hover,
-button[data-filter-pill][aria-pressed="true"]:hover {
-  background-color: var(--brand-red-dark);
-  border-color: var(--brand-red-dark);
-  color: #ffffff;
+.fc-timegrid-slot-label {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.fc .fc-day-today {
+  background-color: var(--color-asmbv-red-light) !important;
+}
+
+.fc .fc-day-today .fc-col-header-cell-cushion {
+  color: var(--color-asmbv-red) !important;
+  font-weight: 600 !important;
+}
+
+/* Couleurs des terrains — même code couleur que les cartes de session. */
+.fc-event.terrain-1 {
+  background-color: var(--color-asmbv-ocean) !important;
+  border-color: #003d7a !important;
+  color: #ffffff !important;
+}
+
+.fc-event.terrain-2 {
+  background-color: var(--color-asmbv-ink) !important;
+  border-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.fc-event.terrain-3 {
+  background-color: var(--color-asmbv-gold) !important;
+  border-color: #b08e2d !important;
+  color: var(--color-asmbv-ink) !important;
+}
+
+/* Indicateur « session pour moi » : liseré gauche rouge. */
+.fc-event.for-me {
+  border-left: 4px solid var(--color-asmbv-red) !important;
+}
+
+.fc .fc-timegrid-now-indicator-line {
+  border-color: var(--color-asmbv-red) !important;
+  border-width: 2px !important;
+}
+
+.fc .fc-timegrid-now-indicator-arrow {
+  border-top-color: var(--color-asmbv-red) !important;
+  border-bottom-color: var(--color-asmbv-red) !important;
+}
+
+/* Lisibilité des créneaux et des cartes d'événement. */
+.fc .fc-toolbar.fc-header-toolbar {
+  margin-bottom: 0.5rem !important;
+}
+
+.fc .fc-timegrid-slot-label-cushion,
+.fc .fc-timegrid-axis-cushion {
+  font-size: 13px !important;
+}
+
+.fc-asmbv-event {
+  line-height: 1.1 !important;
+}
+
+.fc-asmbv-event div {
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
+.fc .fc-timegrid-slot {
+  min-height: 3.5rem !important;
 }
 
 @media (max-width: 640px) {
   .fc .fc-col-header-cell-cushion { font-size: 0.7rem !important; }
   .fc .fc-toolbar-title { font-size: 0.95rem !important; }
   .fc .fc-button { font-size: 0.75rem !important; padding: 0.25rem 0.5rem !important; }
-  .fc .fc-timegrid-slot-label-cushion, .fc .fc-timegrid-axis-cushion { font-size: 11px !important; }
+  .fc .fc-timegrid-slot-label-cushion,
+  .fc .fc-timegrid-axis-cushion { font-size: 11px !important; }
   .fc .fc-timegrid-slot { min-height: 3rem !important; }
-  /* Sur mobile, empêcher les débordements */
-  .fc-event { overflow: hidden !important; }
-  .fc-event-main { overflow: hidden !important; width: 100% !important; }
+
+  /* Empêche les cartes de déborder de leur colonne. */
+  .fc-event,
+  .fc-event-main,
   .fc-event-title-container { overflow: hidden !important; }
+  .fc-event-main { width: 100% !important; }
 }

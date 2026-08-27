@@ -51,6 +51,13 @@ class ButtonComponent < ApplicationComponent
       "bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200 focus:ring-asmbv-red"
     when :ghost
       "bg-transparent border border-transparent text-gray-900 hover:bg-gray-100 focus:ring-gray-400"
+    when :filter
+      # Pastille de filtre : son état actif est porté par `aria-pressed`, pas par
+      # une variante rendue côté serveur — le calendrier filtre sans recharger et
+      # déplace l'attribut, ce que des classes serveur ne suivraient pas.
+      "bg-transparent border border-transparent text-gray-900 hover:bg-gray-100 " \
+        "aria-pressed:bg-asmbv-red aria-pressed:border-asmbv-red aria-pressed:text-white " \
+        "aria-pressed:hover:bg-asmbv-red-dark focus:ring-asmbv-red"
     when :link, :tertiary
       "bg-transparent border border-transparent text-asmbv-red hover:text-asmbv-red-dark hover:underline focus:ring-asmbv-red"
     when :destructive, :danger

@@ -1,7 +1,7 @@
-<%# Les pastilles de filtre sont rendues en variante neutre : leur état actif est
-    porté par `aria-pressed`, que le CSS peint et que le calendrier met à jour côté
-    client. Ne jamais leur appliquer de variante :primary — les classes serveur ne
-    seraient plus retirées lors d'un filtrage sans rechargement. %>
+<%# Variante :filter — l'état actif est porté par `aria-pressed`, que le calendrier
+    déplace côté client lors d'un filtrage sans rechargement. Ne jamais leur
+    appliquer :primary : les classes serveur resteraient collées à l'ancienne
+    pastille active. `data-filter-pill` est le point d'accroche du JS. %>
 <div id="terrain-tabs" class="flex gap-2 sm:gap-4 mb-4 sm:mb-6 overflow-x-auto whitespace-nowrap px-1"
      role="group" aria-label="Filtrer par terrain">
   <% all_terrains = ["", "Terrain 1", "Terrain 2", "Terrain 3"] %>
@@ -12,7 +12,7 @@
     <% active = params[:terrain].to_s == terrain.to_s %>
     <%= button(
       label,
-      variant: :ghost,
+      variant: :filter,
       size: :small,
       href: sessions_path(query.merge(terrain: terrain.presence)),
       data: { filter_pill: "terrain" },
@@ -51,7 +51,7 @@
     <% active = selected_for_me.to_s == option[:for_me].to_s %>
     <%= button(
       option[:label],
-      variant: :ghost,
+      variant: :filter,
       size: :small,
       href: sessions_path(audience_query.merge(for_me: option[:for_me])),
       data: { filter_pill: "audience" },
