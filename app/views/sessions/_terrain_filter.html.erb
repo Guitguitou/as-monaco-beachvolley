@@ -1,4 +1,9 @@
-<div id="terrain-tabs" class="flex gap-2 sm:gap-4 mb-4 sm:mb-6 overflow-x-auto whitespace-nowrap px-1">
+<%# Les pastilles de filtre sont rendues en variante neutre : leur état actif est
+    porté par `aria-pressed`, que le CSS peint et que le calendrier met à jour côté
+    client. Ne jamais leur appliquer de variante :primary — les classes serveur ne
+    seraient plus retirées lors d'un filtrage sans rechargement. %>
+<div id="terrain-tabs" class="flex gap-2 sm:gap-4 mb-4 sm:mb-6 overflow-x-auto whitespace-nowrap px-1"
+     role="group" aria-label="Filtrer par terrain">
   <% all_terrains = ["", "Terrain 1", "Terrain 2", "Terrain 3"] %>
   <% query = { terrain: params[:terrain].presence, for_me: (ActiveModel::Type::Boolean.new.cast(params[:for_me]) ? "1" : nil), date: params[:date], view: params[:view].presence }.compact %>
 
@@ -7,29 +12,34 @@
     <% active = params[:terrain].to_s == terrain.to_s %>
     <%= button(
       label,
-      variant: (active ? :primary : :ghost),
+      variant: :ghost,
       size: :small,
-      href: sessions_path(query.merge(terrain: terrain.presence))
+      href: sessions_path(query.merge(terrain: terrain.presence)),
+      data: { filter_pill: "terrain" },
+      aria: { pressed: active.to_s }
     ) %>
   <% end %>
 </div>
 
-<div class="flex flex-wrap items-center gap-x-4 gap-y-1 mb-3 px-1 text-xs text-gray-500">
-  <span class="flex items-center gap-1.5">
-    <span class="inline-block w-3 h-3 rounded-sm bg-[#0052a3] border border-[#003d7a]"></span> Terrain 1
-  </span>
-  <span class="flex items-center gap-1.5">
-    <span class="inline-block w-3 h-3 rounded-sm bg-[#1a1a1a] border border-black"></span> Terrain 2
-  </span>
-  <span class="flex items-center gap-1.5">
-    <span class="inline-block w-3 h-3 rounded-sm bg-[#d4af37] border border-[#b08e2d]"></span> Terrain 3
-  </span>
-  <span class="flex items-center gap-1.5">
-    <span class="inline-block w-3 h-3 rounded-sm border-l-2 border-l-[#e21e22] border border-gray-300 bg-white"></span> Session pour moi
-  </span>
-</div>
+<% if (params[:view].presence || "calendar") != "grid" %>
+  <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mb-3 px-1 text-xs text-gray-500">
+    <span class="flex items-center gap-1.5">
+      <span class="inline-block w-3 h-3 rounded-sm bg-[#0052a3] border border-[#003d7a]"></span> Terrain 1
+    </span>
+    <span class="flex items-center gap-1.5">
+      <span class="inline-block w-3 h-3 rounded-sm bg-[#1a1a1a] border border-black"></span> Terrain 2
+    </span>
+    <span class="flex items-center gap-1.5">
+      <span class="inline-block w-3 h-3 rounded-sm bg-[#d4af37] border border-[#b08e2d]"></span> Terrain 3
+    </span>
+    <span class="flex items-center gap-1.5">
+      <span class="inline-block w-3 h-3 rounded-sm border-l-2 border-l-[#e21e22] border border-gray-300 bg-white"></span> Session pour moi
+    </span>
+  </div>
+<% end %>
 
-<div id="audience-tabs" class="flex gap-2 sm:gap-4 mb-4 sm:mb-6 overflow-x-auto whitespace-nowrap px-1">
+<div id="audience-tabs" class="flex gap-2 sm:gap-4 mb-4 sm:mb-6 overflow-x-auto whitespace-nowrap px-1"
+     role="group" aria-label="Filtrer par audience">
   <% audience_options = [
     { label: "Toutes les sessions", for_me: nil },
     { label: "Sessions pour moi", for_me: "1" }
@@ -41,9 +51,11 @@
     <% active = selected_for_me.to_s == option[:for_me].to_s %>
     <%= button(
       option[:label],
-      variant: (active ? :primary : :ghost),
+      variant: :ghost,
       size: :small,
-      href: sessions_path(audience_query.merge(for_me: option[:for_me]))
+      href: sessions_path(audience_query.merge(for_me: option[:for_me])),
+      data: { filter_pill: "audience" },
+      aria: { pressed: active.to_s }
     ) %>
   <% end %>
 </div>
