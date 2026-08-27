@@ -12,6 +12,47 @@ export default class extends Controller {
     waitForFullCalendar()
   }
 
+  // Fenêtre horaire affichée par la grille.
+  //
+  // Elle était figée sur 08:00–23:00 alors que les sessions se jouent en fin de
+  // journée : on ouvrait sur dix heures de créneaux vides, et sur mobile
+  // (height: 'auto', donc pas de scroll interne) même `scrollTime` n'y changeait
+  // rien — il fallait scroller la page pour trouver quoi que ce soit.
+  //
+  // On calcule donc la fenêtre à partir des sessions réellement visibles dans la
+  // plage affichée. Un jour sans session affiche une grille courte plutôt que
+  // quinze heures de vide.
+  slotWindowFor(events, rangeStart, rangeEnd) {
+    const hours = (events || []).reduce((acc, event) => {
+      const start = new Date(event.start)
+      const end = new Date(event.end || event.start)
+      if (rangeStart && end <= rangeStart) return acc
+      if (rangeEnd && start >= rangeEnd) return acc
+
+      acc.push(start.getHours())
+      // Une session qui finit pile à l'heure ne doit pas ajouter un créneau vide.
+      acc.push(end.getMinutes() > 0 ? end.getHours() + 1 : end.getHours())
+      return acc
+    }, [])
+
+    if (hours.length === 0) return { min: '17:00:00', max: '22:00:00' }
+
+    const min = Math.max(Math.min(...hours) - 1, 0)
+    const max = Math.min(Math.max(...hours) + 1, 24)
+    return { min: `${String(min).padStart(2, '0')}:00:00`, max: `${String(max).padStart(2, '0')}:00:00` }
+  }
+
+  applySlotWindow(calendar, info) {
+    const { min, max } = this.slotWindowFor(this.visibleEvents(), info.start, info.end)
+    if (calendar.getOption('slotMinTime') !== min) calendar.setOption('slotMinTime', min)
+    if (calendar.getOption('slotMaxTime') !== max) calendar.setOption('slotMaxTime', max)
+  }
+
+  // Les sessions actuellement retenues par les filtres, ou toutes au premier rendu.
+  visibleEvents() {
+    return this.filteredSessions || this.sessions || []
+  }
+
   initializeCalendar() {
     const calendarEl = this.element
     const sessions = JSON.parse(calendarEl.dataset.sessions)
@@ -19,11 +60,13 @@ export default class extends Controller {
 
     const isMobile = window.matchMedia('(max-width: 640px)').matches
     const headerToolbar = isMobile
-      ? { left: 'prev,next', center: 'title', right: 'timeGridWeek,timeGridDay' }
+      ? { left: 'prev,next', center: 'title', right: 'timeGridDay,timeGridWeek' }
       : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridThreeDay,timeGridDay' }
 
     const calendar = new window.FullCalendar.Calendar(calendarEl, {
-      initialView: isMobile ? 'timeGridWeek' : 'timeGridWeek',
+      // Sur 375 px de large, une semaine laisse ~40 px par jour : les sessions y
+      // sont illisibles. La vue Jour est la seule utilisable au bord du terrain.
+      initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
       ...(initialDate ? { initialDate } : {}),
       firstDay: 1,
       headerToolbar,
@@ -33,15 +76,16 @@ export default class extends Controller {
         timeGridThreeDay: { type: 'timeGrid', duration: { days: 3 } }
       },
       allDaySlot: false,
-      slotMinTime: '08:00:00',
-      slotMaxTime: '23:00:00',
+      // Recalculés à chaque changement de plage par applySlotWindow().
+      slotMinTime: '17:00:00',
+      slotMaxTime: '22:00:00',
       slotDuration: '00:30:00',
       slotLabelFormat: { hour: 'numeric', minute: '2-digit', meridiem: false, hour12: false },
       height: isMobile ? 'auto' : 'calc(100vh - 280px)',
       nowIndicator: true,
       stickyHeaderDates: true,
       eventOverlap: true,
-      scrollTime: isMobile ? '07:30:00' : '08:00:00',
+      scrollTime: '17:00:00',
       expandRows: true,
       dayMaxEvents: false,
       slotLabelClassNames: ['text-sm', 'text-gray-600', 'font-medium'],
@@ -50,9 +94,11 @@ export default class extends Controller {
       events: sessions,
       eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false },
       eventContent(arg) {
-        const isMobile = window.matchMedia('(max-width: 640px)').matches
         const timeText = arg.timeText
-        const title = (isMobile ? (arg.event.extendedProps.shortTitle || arg.event.title) : arg.event.title) || ''
+        // Le titre abrégé n'a de sens que dans les colonnes étroites d'une vue
+        // semaine sur mobile ; en vue Jour on a toute la largeur.
+        const isNarrowColumn = window.matchMedia('(max-width: 640px)').matches && arg.view.type !== 'timeGridDay'
+        const title = (isNarrowColumn ? (arg.event.extendedProps.shortTitle || arg.event.title) : arg.event.title) || ''
         const coach = arg.event.extendedProps.coachName || ''
 
         const root = document.createElement('div')
@@ -172,6 +218,7 @@ export default class extends Controller {
 
       datesSet: (info) => {
         this.updateDateQueryParamAndLinks(info.start)
+        this.applySlotWindow(info.view.calendar, info)
         this.styleHeaderButtons(calendarEl)
       },
       viewDidMount: () => this.styleHeaderButtons(calendarEl)
@@ -308,8 +355,14 @@ export default class extends Controller {
       const forMeMatches = forMe ? Boolean(eventData.forMe) : true
       return terrainMatches && forMeMatches
     })
+    this.filteredSessions = filteredEvents
     this.calendar.removeAllEvents()
     this.calendar.addEventSource(filteredEvents)
+
+    // La fenêtre horaire suit le filtrage : ne filtrer que le terrain 2 ne doit
+    // pas laisser la grille ouverte sur les heures du terrain 1.
+    const view = this.calendar.view
+    this.applySlotWindow(this.calendar, { start: view.activeStart, end: view.activeEnd })
 
     // L'apparence des pastilles est entièrement pilotée par `aria-pressed`
     // (cf. _terrain_filter.html.erb et tailwind/application.css). On ne touche
