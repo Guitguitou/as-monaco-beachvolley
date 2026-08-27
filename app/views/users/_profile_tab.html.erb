@@ -52,7 +52,7 @@
           <p class="text-xs text-gray-400 font-medium uppercase tracking-wide">Niveaux</p>
           <p class="font-semibold text-gray-900">
             <% if @user.levels.any? %>
-              <%= @user.levels.map(&:name).join(', ') %>
+              <%= session_levels_label(@user.levels) %>
             <% else %>
               —
             <% end %>

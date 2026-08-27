@@ -8,8 +8,12 @@
   <div class="mt-2 flex items-center gap-3">
     <%= lucide_icon("credit-card", class: "w-8 h-8 text-white shrink-0", aria: { hidden: true }) %>
     <div class="min-w-0">
-      <span class="text-3xl sm:text-4xl font-bebas-neue leading-none tabular-nums"><%= price %></span>
-      <span class="text-sm text-white ml-1"><%= price > 1 ? "crédits" : "crédit" %></span>
+      <% if price.zero? %>
+        <span class="text-3xl sm:text-4xl font-bebas-neue leading-none">Gratuit</span>
+      <% else %>
+        <span class="text-3xl sm:text-4xl font-bebas-neue leading-none tabular-nums"><%= price %></span>
+        <span class="text-sm text-white ml-1"><%= price > 1 ? "crédits" : "crédit" %></span>
+      <% end %>
     </div>
   </div>
 
