@@ -15,7 +15,7 @@
           type: :email_field,
           label: "Email",
           required: true,
-          input_class: "block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red",
+          input_class: "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red",
           html_options: { value: params.dig(:guest, :email), autocomplete: "email" }
         ) %>
       </div>
@@ -28,7 +28,7 @@
             type: :text_field,
             label: "Prénom",
             required: true,
-            input_class: "block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red",
+            input_class: "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red",
             html_options: { value: params.dig(:guest, :first_name), autocomplete: "given-name" }
           ) %>
         </div>
@@ -40,7 +40,7 @@
             type: :text_field,
             label: "Nom",
             required: true,
-            input_class: "block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red",
+            input_class: "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red",
             html_options: { value: params.dig(:guest, :last_name), autocomplete: "family-name" }
           ) %>
         </div>
@@ -48,7 +48,7 @@
 
       <div class="pt-2 flex flex-col sm:flex-row gap-3">
         <%= f.submit "Continuer vers le paiement",
-              class: "inline-flex items-center justify-center rounded-lg bg-asmbv-red px-4 py-2 text-sm font-semibold text-white hover:bg-asmbv-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-asmbv-red transition-all" %>
+              class: "inline-flex items-center justify-center rounded-none bg-asmbv-red px-4 py-2 text-sm font-semibold text-white hover:bg-asmbv-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-asmbv-red transition-all" %>
         <%= button("Se connecter", variant: :ghost, size: :medium, href: new_user_session_path(email: params.dig(:guest, :email))) %>
         <%= button("Retour aux packs", variant: :secondary, size: :medium, href: packs_path) %>
       </div>

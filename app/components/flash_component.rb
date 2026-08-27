@@ -55,7 +55,7 @@ class FlashComponent < ApplicationComponent
   end
 
   def wrapper_classes(kind)
-    base = "pointer-events-auto w-full flex items-start gap-3 border-l-4 rounded-lg " \
+    base = "pointer-events-auto w-full flex items-start gap-3 border-l-4 rounded-none " \
            "px-4 py-3 shadow-lg transition duration-200 ease-out"
     "#{base} #{kind_classes(kind)}"
   end

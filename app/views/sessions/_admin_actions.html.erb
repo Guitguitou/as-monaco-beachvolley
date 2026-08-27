@@ -25,7 +25,7 @@
             required: true,
             options: options_from_collection_for_select(@candidate_users || [], :id, :full_name),
             select_options: { include_blank: "Choisir..." },
-            input_class: "w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-asmbv-red focus:border-asmbv-red",
+            input_class: "w-full border border-gray-300 rounded-none px-3 py-2 focus:ring-2 focus:ring-asmbv-red focus:border-asmbv-red",
             html_options: { data: { controller: "select", "select-placeholder-value": "Rechercher un·e joueur·se..." } }
           ) %>
 
@@ -38,7 +38,7 @@
           <% end %>
 
           <%= f.submit(session.full? ? "Ajouter en attente" : "Ajouter",
-                      class: "w-full inline-flex items-center justify-center gap-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-100") %>
+                      class: "w-full inline-flex items-center justify-center gap-1 rounded-none border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-100") %>
         <% end %>
       </div>
     <% end %>
@@ -47,7 +47,7 @@
       <div class="border-t border-gray-200 pt-4">
         <%= button_to cancel_session_path(session, calendar_ctx), method: :post,
                       data: { turbo_confirm: "Annuler la session ? Tous les crédits seront remboursés et les inscrits prévenus." },
-                      class: "w-full inline-flex items-center justify-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50" do %>
+                      class: "w-full inline-flex items-center justify-center gap-2 rounded-none border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50" do %>
           <%= lucide_icon("ban", class: "w-4 h-4 shrink-0", aria: { hidden: true }) %>
           <span>Annuler la session</span>
         <% end %>

@@ -81,7 +81,7 @@ class SessionCardComponent < ApplicationComponent
   end
 
   def action_button_classes
-    base = "w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 " \
+    base = "w-full inline-flex items-center justify-center gap-2 rounded-none px-4 py-2.5 " \
            "text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
 
     if !actionable?

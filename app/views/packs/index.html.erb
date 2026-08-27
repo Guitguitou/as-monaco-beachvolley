@@ -2,19 +2,18 @@
   <%= render HeroComponent.new(
         title: "Boutique",
         subtitle: "Tes crédits, ta licence, tes packs d'entraînement et l'équipement du club",
-        variant: :red,
+        variant: :white,
         flush_title: true,
         title_font: :anton
       ) do |hero| %>
     <% hero.with_eyebrow do %>
-      <%= render BadgeComponent.new(label: "Crédits & Équipements", variant: :hero, size: :sm) %>
+      <%= render BadgeComponent.new(label: "Crédits & Équipements", variant: :neutral, size: :sm) %>
     <% end %>
     <% hero.with_actions do %>
       <% if current_user&.activated? %>
         <div class="w-full lg:w-auto flex justify-start">
-          <div class="w-[170px] rounded-lg border border-white/50 bg-white/10 px-3 py-3 text-white">
-            <%# text-[7px] en text-white/65 : illisible, et 2.2:1 de contraste. %>
-            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white text-center leading-none">Tes crédits</p>
+          <div class="w-[170px] rounded-none border border-gray-200 bg-gray-50 px-3 py-3 text-gray-900">
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-500 text-center leading-none">Tes crédits</p>
             <div class="mt-1.5 flex items-center justify-center gap-2.5">
               <div class="min-w-0">
                 <span class="text-[46px] font-anton leading-[0.95] tabular-nums"><%= number_with_delimiter(@current_balance, delimiter: " ") %></span>
@@ -127,7 +126,7 @@
             <%# Bouton d'achat %>
             <%= button_to buy_pack_path(pack),
                   method: :post,
-                  class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
+                  class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
                   data: { turbo: false } do %>
               <%= lucide_icon("shopping-cart", size: 16) %>
               Acheter
@@ -191,7 +190,7 @@
             <%# Boutons d'action %>
             <div class="flex flex-col gap-2 mt-auto">
               <%= link_to stage_path(pack.stage),
-                    class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 transition-all" do %>
+                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 transition-all" do %>
                 <%= lucide_icon("info", size: 16) %>
                 Détails
               <% end %>
@@ -199,13 +198,13 @@
               <% if pack.stage.current_or_upcoming? %>
                 <%= button_to buy_pack_path(pack),
                       method: :post,
-                      class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all",
+                      class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all",
                       data: { turbo: false } do %>
                   <%= lucide_icon("user-plus", size: 16) %>
                   S'inscrire
                 <% end %>
               <% else %>
-                <div class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed">
+                <div class="w-full inline-flex items-center justify-center gap-2 rounded-none bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed">
                   <%= lucide_icon("calendar-x", size: 16) %>
                   Terminé
                 </div>
@@ -268,7 +267,7 @@
             <%# Bouton d'achat %>
             <%= button_to buy_pack_path(pack),
                   method: :post,
-                  class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
+                  class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
                   data: { turbo: false } do %>
               <%= lucide_icon("shopping-cart", size: 16) %>
               Acheter
@@ -321,7 +320,7 @@
             </div>
             <%= button_to buy_pack_path(pack),
                   method: :post,
-                  class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
+                  class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
                   data: { turbo: false } do %>
               <%= lucide_icon("shopping-cart", size: 16) %>
               Acheter
@@ -374,7 +373,7 @@
             </div>
             <%= button_to buy_pack_path(pack),
                   method: :post,
-                  class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
+                  class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all mt-auto",
                   data: { turbo: false } do %>
               <%= lucide_icon("shopping-cart", size: 16) %>
               Acheter

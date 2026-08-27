@@ -34,7 +34,7 @@ class AddToCalendarComponent < ApplicationComponent
 
   def classes
     [
-      "inline-flex items-center justify-center gap-2 font-semibold rounded-lg",
+      "inline-flex items-center justify-center gap-2 font-semibold rounded-none",
       "focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150",
       ("w-full" if full_width),
       size_classes,

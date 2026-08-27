@@ -43,6 +43,48 @@
     <% end %>
   </section>
 
+  <%# 1b. Sessions que j'encadre (coachs / responsables) %>
+  <% if @dashboard.supervisor? && @dashboard.supervised_sessions.any? %>
+    <section>
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <h2 class="font-anton text-xl uppercase tracking-tight text-gray-900">J'encadre</h2>
+          <p class="mt-1 text-sm text-gray-600">Sessions dont tu es coach ou responsable.</p>
+        </div>
+        <%= link_to "Tout voir", sessions_path(view: "grid"),
+                    class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
+      </div>
+
+      <div class="mt-4 border border-gray-200 bg-white rounded-xl divide-y divide-gray-100">
+        <% @dashboard.supervised_sessions.each do |session| %>
+          <%= link_to session_path(session), class: "flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-50" do %>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-gray-900 truncate">
+                <%= session.title.presence || session.display_name %>
+              </p>
+              <p class="text-xs text-gray-600 first-letter:uppercase">
+                <%= l(session.start_at.to_date, format: :day_and_month) %> ·
+                <%= l(session.start_at, format: :time) %> ·
+                <%= session.terrain.to_s.split("_").last %>
+              </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <% confirmed = session.registrations.count(&:confirmed?) %>
+              <% if session.max_players.present? %>
+                <%= render BadgeComponent.new(
+                      label: "#{confirmed}/#{session.max_players}",
+                      variant: confirmed >= session.max_players ? :destructive : :neutral,
+                      size: :xs
+                    ) %>
+              <% end %>
+              <%= lucide_icon("chevron-right", class: "w-4 h-4 text-gray-400") %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
   <%# 2. Mon solde %>
   <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <div class="border border-gray-200 bg-white rounded-xl p-5 flex items-center justify-between gap-4">
