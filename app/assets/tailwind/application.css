@@ -234,6 +234,30 @@
   .fc .fc-timegrid-slot { min-height: 3.5rem !important; }
 }
 
+/* Pastilles de filtre (terrain, audience).
+   L'état actif est porté par `aria-pressed`, pas par une variante rendue côté
+   serveur : le calendrier filtre sans recharger, et des classes serveur
+   resteraient collées à l'ancienne pastille active — deux pastilles
+   paraîtraient alors sélectionnées.
+
+   Ces règles sont volontairement HORS `@layer` : en Tailwind v4 la couche
+   `utilities` bat n'importe quelle couche `components` quelle que soit la
+   spécificité, alors que le CSS non-layered bat toutes les couches. C'est ce
+   qui permet de ne pas ajouter un !important de plus. */
+a[data-filter-pill][aria-pressed="true"],
+button[data-filter-pill][aria-pressed="true"] {
+  background-color: var(--brand-red);
+  border-color: var(--brand-red);
+  color: #ffffff;
+}
+
+a[data-filter-pill][aria-pressed="true"]:hover,
+button[data-filter-pill][aria-pressed="true"]:hover {
+  background-color: var(--brand-red-dark);
+  border-color: var(--brand-red-dark);
+  color: #ffffff;
+}
+
 @media (max-width: 640px) {
   .fc .fc-col-header-cell-cushion { font-size: 0.7rem !important; }
   .fc .fc-toolbar-title { font-size: 0.95rem !important; }

@@ -311,35 +311,22 @@ export default class extends Controller {
     this.calendar.removeAllEvents()
     this.calendar.addEventSource(filteredEvents)
 
-    // Update active tab classes
-    const container = document.getElementById('terrain-tabs')
-    if (container) {
-      const anchors = Array.from(container.querySelectorAll('a'))
-      anchors.forEach((a) => {
-        const url = new URL(a.href, window.location.origin)
-        const terrain = url.searchParams.get('terrain') || ''
-        const isActive = terrain === (selectedTerrain || '')
+    // L'apparence des pastilles est entièrement pilotée par `aria-pressed`
+    // (cf. _terrain_filter.html.erb et tailwind/application.css). On ne touche
+    // pas aux classes ici : la variante rendue par le serveur resterait
+    // appliquée à l'ancienne pastille active, et deux pastilles paraîtraient
+    // sélectionnées en même temps.
+    this.markPressed('terrain-tabs', (url) => (url.searchParams.get('terrain') || '') === (selectedTerrain || ''))
+    this.markPressed('audience-tabs', (url) => (url.searchParams.get('for_me') === '1') === forMe)
+  }
 
-        a.classList.toggle('text-asmbv-red', isActive)
-        a.classList.toggle('border-asmbv-red', isActive)
-        a.classList.toggle('text-gray-500', !isActive)
-        a.classList.toggle('border-transparent', !isActive)
-      })
-    }
+  markPressed(containerId, isActive) {
+    const container = document.getElementById(containerId)
+    if (!container) return
 
-    const audienceContainer = document.getElementById('audience-tabs')
-    if (audienceContainer) {
-      const anchors = Array.from(audienceContainer.querySelectorAll('a'))
-      anchors.forEach((a) => {
-        const url = new URL(a.href, window.location.origin)
-        const audienceForMe = url.searchParams.get('for_me') === '1'
-        const isActive = audienceForMe === forMe
-
-        a.classList.toggle('text-asmbv-red', isActive)
-        a.classList.toggle('border-asmbv-red', isActive)
-        a.classList.toggle('text-gray-500', !isActive)
-        a.classList.toggle('border-transparent', !isActive)
-      })
-    }
+    container.querySelectorAll('a[data-filter-pill]').forEach((anchor) => {
+      const url = new URL(anchor.href, window.location.origin)
+      anchor.setAttribute('aria-pressed', String(isActive(url)))
+    })
   }
 }
