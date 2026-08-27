@@ -1,10 +1,11 @@
 require "rails_helper"
 
 RSpec.describe FlashComponent, type: :component do
-  it "ne rend rien quand il n'y a aucun message" do
+  it "rend le conteneur vide mais présent quand il n'y a aucun message" do
     render_inline(described_class.new(flash: {}))
 
-    expect(page).not_to have_css("div")
+    expect(page).to have_css("##{described_class::DOM_ID}")
+    expect(page).not_to have_css("[data-controller='flash']")
   end
 
   it "affiche un notice comme un succès" do
@@ -42,13 +43,15 @@ RSpec.describe FlashComponent, type: :component do
   it "ignore les clés de flash internes à Rails" do
     render_inline(described_class.new(flash: { "timedout" => true }))
 
-    expect(page).not_to have_css("div")
+    expect(page).to have_css("##{described_class::DOM_ID}")
+    expect(page).not_to have_css("[data-controller='flash']")
   end
 
   it "ignore les messages vides" do
     render_inline(described_class.new(flash: { "notice" => "" }))
 
-    expect(page).not_to have_css("div")
+    expect(page).to have_css("##{described_class::DOM_ID}")
+    expect(page).not_to have_css("[data-controller='flash']")
   end
 
   it "propose un bouton de fermeture accessible" do

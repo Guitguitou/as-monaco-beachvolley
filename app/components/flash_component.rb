@@ -24,14 +24,16 @@ class FlashComponent < ApplicationComponent
   # Les erreurs et avertissements ne disparaissent jamais seuls.
   AUTO_DISMISS_MS = 6000
 
+  # Identifiant du conteneur, cible des `turbo_stream.replace`.
+  DOM_ID = "flash"
+
   def initialize(flash:)
     @flash = flash
   end
 
-  def render?
-    messages.any?
-  end
-
+  # Le conteneur est toujours rendu, même vide : sans lui dans le DOM, un
+  # `turbo_stream.replace("flash", …)` n'aurait rien à remplacer et les
+  # messages des réponses Turbo seraient perdus.
   private
 
   attr_reader :flash
