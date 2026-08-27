@@ -79,7 +79,7 @@ class ApplicationController < ActionController::Base
     return if request.path =~ /\/packs\/\d+\/buy/
 
     unless allowed_paths.include?(request.path)
-      redirect_to packs_path, alert: "Votre compte n'est pas encore activé. Achetez une licence ou un pack stage pour accéder à toutes les fonctionnalités."
+      redirect_to packs_path, alert: "Ton compte n'est pas encore activé. Prends une licence ou un pack stage pour accéder à tout."
     end
   end
 end

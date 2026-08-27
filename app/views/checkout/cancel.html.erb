@@ -15,7 +15,7 @@
     <%# Content %>
     <div class="p-8">
       <div class="text-center mb-6">
-        <p class="text-gray-600 mb-2">Aucun débit n'a été effectué sur votre compte.</p>
+        <p class="text-gray-600 mb-2">Aucun débit n'a été effectué sur ton compte.</p>
         <% if @credit_purchase %>
           <p class="text-sm text-gray-500">
             Référence : <span class="font-mono"><%= @credit_purchase.sherlock_transaction_reference %></span>
@@ -28,8 +28,8 @@
         <div class="flex gap-3">
           <%= lucide_icon("info", size: 20, class: "text-gray-700 flex-shrink-0 mt-0.5") %>
           <div class="text-sm text-gray-700">
-            <p class="font-semibold mb-1">Vous avez changé d'avis ?</p>
-            <p>Vous pouvez réessayer à tout moment en retournant sur la page des packs.</p>
+            <p class="font-semibold mb-1">Tu as changé d'avis ?</p>
+            <p>Tu peux réessayer à tout moment depuis la boutique.</p>
           </div>
         </div>
       </div>

@@ -21,7 +21,7 @@ RSpec.describe PaymentMailer, type: :mailer do
 
         html_body = mail.html_part.body.to_s
         expect(html_body).to include("Bonjour Alice")
-        expect(html_body).to include("Votre paiement a bien été accepté")
+        expect(html_body).to include("Ton paiement a bien été accepté")
         expect(html_body).to include("500")
         expect(html_body).to include(credit_purchase.sherlock_transaction_reference)
       end
@@ -39,7 +39,7 @@ RSpec.describe PaymentMailer, type: :mailer do
         expect(mail.subject).to eq("Paiement accepté")
 
         html_body = mail.html_part.body.to_s
-        expect(html_body).to include("Votre paiement a bien été accepté")
+        expect(html_body).to include("Ton paiement a bien été accepté")
         expect(html_body).to include("Montant")
         expect(html_body).not_to match(/\d+ crédits ont été ajoutés/)
       end

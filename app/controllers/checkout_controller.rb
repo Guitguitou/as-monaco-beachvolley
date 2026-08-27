@@ -10,7 +10,7 @@ class CheckoutController < ApplicationController
     Rails.logger.info("[Sherlock:success] ref=#{ref} keys=#{params.keys}")
 
     # UX: on ne crédite pas ici (cela se fait via le webhook automatique)
-    flash[:notice] = "Paiement confirmé ✅ Vos crédits arrivent sous peu."
+    flash[:notice] = "Paiement confirmé ✅ Tes crédits arrivent sous peu."
     redirect_to(user_signed_in? ? admin_payments_path : packs_path)
   end
 

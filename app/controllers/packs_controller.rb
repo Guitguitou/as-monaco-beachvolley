@@ -38,7 +38,7 @@ class PacksController < ApplicationController
       authorize! :buy, @pack
     elsif !@pack.public?
       # Hors connexion : seuls les packs "public" sont achetables
-      redirect_to new_user_session_path, alert: "Vous devez être connecté pour acheter ce pack"
+      redirect_to new_user_session_path, alert: "Connecte-toi pour acheter ce pack."
       return
     end
 
@@ -82,7 +82,7 @@ class PacksController < ApplicationController
     email = guest[:email].to_s.strip.downcase
 
     if User.exists?(email:)
-      flash.now[:alert] = "Cet email existe déjà. Connectez-vous pour acheter ce pack."
+      flash.now[:alert] = "Cet email a déjà un compte. Connecte-toi pour acheter ce pack."
       render :guest_info, status: :unprocessable_entity
       return
     end
