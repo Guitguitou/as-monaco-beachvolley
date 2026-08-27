@@ -12,8 +12,9 @@
     <% hero.with_actions do %>
       <% if current_user&.activated? %>
         <div class="w-full lg:w-auto flex justify-start">
-          <div class="w-[170px] rounded-none border border-white/30 bg-white/10 px-3 py-2 text-white">
-            <p class="text-[7px] font-semibold uppercase tracking-[0.22em] text-white/65 text-center leading-none">Vos crédits</p>
+          <div class="w-[170px] rounded-none border border-white/50 bg-white/10 px-3 py-3 text-white">
+            <%# text-[7px] en text-white/65 : illisible, et 2.2:1 de contraste. %>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-white text-center leading-none">Tes crédits</p>
             <div class="mt-1.5 flex items-center justify-center gap-2.5">
               <div class="min-w-0">
                 <span class="text-[46px] font-anton leading-[0.95] tabular-nums"><%= number_with_delimiter(@current_balance, delimiter: " ") %></span>

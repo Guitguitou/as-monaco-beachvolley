@@ -118,9 +118,12 @@ module ApplicationHelper
 
   def nav_link_navbar(name, path, icon: nil)
     active = current_page?(path)
+    # Pas d'opacité sur le texte : sur le rouge de marque, text-white/90 tombe à
+    # 3.84:1, sous le minimum WCAG AA de 4.5:1. L'état actif est porté par le
+    # filet du dessous, pas par un contraste dégradé.
     base_classes = [
       "inline-flex items-center gap-2 px-4 py-5 text-sm font-semibold tracking-wide border-b-2 transition-colors",
-      (active ? "text-white border-white" : "text-white/90 border-transparent hover:text-white hover:border-white/70 hover:bg-white/10")
+      (active ? "text-white border-white" : "text-white border-transparent hover:border-white/70 hover:bg-white/10")
     ]
 
     link_to path, class: base_classes.join(" ") do
