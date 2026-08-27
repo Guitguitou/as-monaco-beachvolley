@@ -7,7 +7,7 @@
 
   <div class="flex items-center gap-2">
     <% if user_signed_in? && current_user.admin? %>
-      <%= link_to edit_admin_session_path(session), class: "inline-flex items-center gap-2 rounded-none border border-white/40 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/15" do %>
+      <%= link_to edit_admin_session_path(session), class: "inline-flex items-center gap-2 rounded-lg border border-white/40 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/15" do %>
         <%= lucide_icon("edit", class: "w-4 h-4 shrink-0") %>
         Modifier
       <% end %>

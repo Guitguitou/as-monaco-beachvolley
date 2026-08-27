@@ -5,9 +5,9 @@
 </div>
 
 <%# Solde actuel %>
-<div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-none shadow-lg p-6 mb-8 text-white">
+<div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-lg shadow-lg p-6 mb-8 text-white">
   <div class="flex items-center gap-4">
-    <div class="p-4 bg-white/20 rounded-none">
+    <div class="p-4 bg-white/20 rounded-lg">
       <%= lucide_icon("wallet", size: 32) %>
     </div>
     <div>
@@ -18,8 +18,8 @@
 </div>
 
 <%# Pack 10 EUR %>
-<div class="bg-white rounded-none border border-gray-200 shadow-sm max-w-md mx-auto">
-  <div class="bg-gradient-to-br from-asmbv-red to-asmbv-red-dark p-8 text-white rounded-none">
+<div class="bg-white rounded-lg border border-gray-200 shadow-sm max-w-md mx-auto">
+  <div class="bg-gradient-to-br from-asmbv-red to-asmbv-red-dark p-8 text-white rounded-lg">
     <div class="flex items-center justify-between mb-4">
       <div>
         <h3 class="text-2xl font-bold">Pack Standard</h3>
@@ -59,7 +59,7 @@
 
     <%= button_to buy_10_eur_admin_payments_path,
           method: :post,
-          class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-6 py-4 text-lg font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all",
+          class: "w-full inline-flex items-center justify-center gap-2 rounded-lg bg-asmbv-red px-6 py-4 text-lg font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-all",
           data: { turbo: false } do %>
       <%= lucide_icon("shopping-cart", size: 20) %>
       Acheter maintenant
@@ -74,7 +74,7 @@
       <%= lucide_icon("history") %> Mes derniers achats
     </h2>
 
-    <div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
+    <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
       <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
         <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
           <tr>

@@ -7,7 +7,7 @@
       <%= render NextSessionComponent.new(registration: @dashboard.next_registration) %>
 
       <% if @dashboard.other_registrations.any? %>
-        <div class="mt-4 border border-gray-200 bg-white rounded-none divide-y divide-gray-100">
+        <div class="mt-4 border border-gray-200 bg-white rounded-xl divide-y divide-gray-100">
           <% @dashboard.other_registrations.each do |registration| %>
             <% session = registration.session %>
             <%= link_to session_path(session), class: "flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-50" do %>
@@ -45,7 +45,7 @@
 
   <%# 2. Mon solde %>
   <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-    <div class="border border-gray-200 bg-white rounded-none p-5 flex items-center justify-between gap-4">
+    <div class="border border-gray-200 bg-white rounded-xl p-5 flex items-center justify-between gap-4">
       <div class="min-w-0">
         <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Tes crédits</p>
         <p class="mt-1 font-anton text-3xl leading-none tabular-nums text-gray-900">
@@ -57,7 +57,7 @@
 
     <% if @dashboard.next_annonce %>
       <%= link_to annonce_path(@dashboard.next_annonce),
-                  class: "border border-gray-200 bg-white rounded-none p-5 flex items-center justify-between gap-4 hover:border-asmbv-red" do %>
+                  class: "border border-gray-200 bg-white rounded-xl p-5 flex items-center justify-between gap-4 hover:border-asmbv-red" do %>
         <div class="min-w-0">
           <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Annonce pour toi</p>
           <p class="mt-1 font-semibold text-gray-900 truncate"><%= @dashboard.next_annonce.title %></p>
@@ -67,7 +67,7 @@
       <% end %>
     <% else %>
       <%= link_to annonces_path,
-                  class: "border border-dashed border-gray-300 bg-white rounded-none p-5 flex items-center justify-between gap-4 hover:border-asmbv-red" do %>
+                  class: "border border-dashed border-gray-300 bg-white rounded-xl p-5 flex items-center justify-between gap-4 hover:border-asmbv-red" do %>
         <div class="min-w-0">
           <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Jeu libre</p>
           <p class="mt-1 text-sm text-gray-600">Monte une session avec d'autres joueurs.</p>

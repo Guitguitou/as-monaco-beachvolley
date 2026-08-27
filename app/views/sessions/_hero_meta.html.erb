@@ -1,14 +1,14 @@
 <%# locals: session: — date / heure / lieu (style “pills” sur fond rouge) %>
 <div class="flex flex-wrap gap-2">
-  <span class="inline-flex items-center gap-2 rounded-none border border-white/40 bg-white/15 px-3 py-2 text-sm text-white">
+  <span class="inline-flex items-center gap-2 rounded-lg border border-white/40 bg-white/15 px-3 py-2 text-sm text-white">
     <%= lucide_icon("calendar", class: "w-4 h-4 shrink-0 text-white") %>
     <%= l(session.start_at.to_date, format: :long) %>
   </span>
-  <span class="inline-flex items-center gap-2 rounded-none border border-white/40 bg-white/15 px-3 py-2 text-sm text-white">
+  <span class="inline-flex items-center gap-2 rounded-lg border border-white/40 bg-white/15 px-3 py-2 text-sm text-white">
     <%= lucide_icon("clock", class: "w-4 h-4 shrink-0 text-white") %>
     <%= l(session.start_at, format: :time) %> – <%= l(session.end_at, format: :time) %>
   </span>
-  <span class="inline-flex items-center gap-2 rounded-none border border-white/40 bg-white/15 px-3 py-2 text-sm text-white">
+  <span class="inline-flex items-center gap-2 rounded-lg border border-white/40 bg-white/15 px-3 py-2 text-sm text-white">
     <%= lucide_icon("map-pin", class: "w-4 h-4 shrink-0 text-white") %>
     <%= session.terrain.to_s.split("_").last %>
   </span>

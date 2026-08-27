@@ -32,7 +32,7 @@ class AvatarComponent < ApplicationComponent
 
   def classes
     [
-      "shrink-0 inline-flex items-center justify-center rounded-none font-bold select-none",
+      "shrink-0 inline-flex items-center justify-center rounded-full font-bold select-none",
       size_classes,
       variant_classes,
       ring ? "ring-2 ring-white" : nil

@@ -32,7 +32,7 @@ class SessionCardComponent < ApplicationComponent
            to: :state
 
   def card_classes
-    "flex flex-col bg-white border border-gray-200 rounded-none shadow-sm " \
+    "flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm " \
       "transition-shadow duration-150 hover:shadow-md"
   end
 
@@ -81,7 +81,7 @@ class SessionCardComponent < ApplicationComponent
   end
 
   def action_button_classes
-    base = "w-full inline-flex items-center justify-center gap-2 rounded-none px-4 py-2.5 " \
+    base = "w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 " \
            "text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
 
     if !actionable?

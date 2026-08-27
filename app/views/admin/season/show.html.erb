@@ -37,7 +37,7 @@
 
   <%= button_to admin_reset_season_path,
         method: :post,
-        class: "w-full inline-flex justify-center items-center gap-2 rounded-none bg-asmbv-red px-4 py-2
+        class: "w-full inline-flex justify-center items-center gap-2 rounded-lg bg-asmbv-red px-4 py-2
                 text-sm font-semibold text-white hover:bg-asmbv-red-dark
                 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-asmbv-red transition-colors",
         data: { turbo_confirm: "Confirmer la réinitialisation de la saison ? #{@to_deactivate_count} licence(s) seront désactivée(s)." } do %>

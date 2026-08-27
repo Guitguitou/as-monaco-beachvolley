@@ -13,7 +13,7 @@
     <% if @alerts[:late_cancellations]&.any? %>
       <div class="space-y-3">
         <% @alerts[:late_cancellations].each do |cancellation| %>
-          <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-none">
+          <div class="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
             <div class="flex-1">
               <p class="font-medium text-gray-900">
                 <%= cancellation.user&.first_name %> <%= cancellation.user&.last_name %>
