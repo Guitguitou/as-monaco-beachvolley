@@ -7,7 +7,8 @@ class RegistrationsController < ApplicationController
 
     # Check if registration deadline has passed (only for regular users on trainings)
     if @session.entrainement? && @session.past_registration_deadline? && !can_bypass_deadline?
-      redirect_to session_path(@session, session_show_redirect_params), alert: "Les inscriptions sont closes (limite : 17h le jour de la session)." and return
+      respond_after_change("Les inscriptions sont closes (limite : 17h le jour de la session).", kind: :alert)
+      return
     end
 
     # Only admins or the session owner (coach/responsable assigned to the session)
@@ -36,10 +37,10 @@ class RegistrationsController < ApplicationController
         @session.rebalance!
       end
       notice_msg = registration.reload.confirmed? ? "Inscription réussie ✅" : "Ajout en liste d'attente ✅"
-      redirect_to session_path(@session, session_show_redirect_params), notice: notice_msg
+      respond_after_change(notice_msg)
     rescue StandardError => e
       error_message = registration.errors.full_messages.presence || [ e.message ]
-      redirect_to session_path(@session, session_show_redirect_params), alert: error_message.to_sentence
+      respond_after_change(error_message.to_sentence, kind: :alert)
     end
   end
 
@@ -57,7 +58,8 @@ class RegistrationsController < ApplicationController
       # Forbid self/unprivileged unregistration after the session has ended.
       # After the session, only admins can remove players to handle refunds manually.
       if Time.current > @session.end_at && !current_user.admin?
-        redirect_to session_path(@session, session_show_redirect_params), alert: "La session est passée. Seul un administrateur peut retirer des joueurs." and return
+        respond_after_change("La session est passée. Seul un administrateur peut retirer des joueurs.", kind: :alert)
+        return
       end
 
       amount = registration.required_credits_for(registration.user)
@@ -88,16 +90,41 @@ class RegistrationsController < ApplicationController
         else
                         "Désinscription réussie ✅"
         end
-        redirect_to session_path(@session, session_show_redirect_params), notice: notice_msg
+        respond_after_change(notice_msg)
       rescue StandardError => e
-        redirect_to session_path(@session, session_show_redirect_params), alert: "Erreur lors de la désinscription: #{e.message}"
+        respond_after_change("Erreur lors de la désinscription: #{e.message}", kind: :alert)
       end
     else
-      redirect_to session_path(@session, session_show_redirect_params), alert: "Tu n'es pas inscrit."
+      respond_after_change("Tu n'es pas inscrit.", kind: :alert)
     end
   end
 
   private
+
+  # Une action lancée depuis une carte de la grille répond en Turbo Stream :
+  # seule la carte et la zone de flash sont remplacées, la page ne bouge pas.
+  # Ailleurs (fiche session, ajout par un admin), on garde la redirection.
+  def card_request?
+    params[:from] == "card" && request.format.turbo_stream?
+  end
+
+  def respond_after_change(message, kind: :notice)
+    unless card_request?
+      redirect_to session_path(@session, session_show_redirect_params), flash: { kind => message }
+      return
+    end
+
+    flash.now[kind] = message
+    state = Sessions::CardState.build(session: @session.reload, user: current_user)
+
+    render turbo_stream: [
+      turbo_stream.replace(
+        "session_card_#{@session.id}",
+        SessionCardComponent.new(state: state, return_params: session_show_redirect_params)
+      ),
+      turbo_stream.replace(FlashComponent::DOM_ID, FlashComponent.new(flash: flash))
+    ]
+  end
 
   def session_show_redirect_params
     {

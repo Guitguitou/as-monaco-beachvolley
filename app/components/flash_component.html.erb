@@ -1,4 +1,5 @@
-<div class="fixed top-20 inset-x-0 z-[60] px-4 flex flex-col items-center gap-2 pointer-events-none">
+<div id="<%= FlashComponent::DOM_ID %>"
+     class="fixed top-20 inset-x-0 z-[60] px-4 flex flex-col items-center gap-2 pointer-events-none">
   <% messages.each do |kind, message| %>
     <div class="<%= wrapper_classes(kind) %> max-w-md"
          data-controller="flash"

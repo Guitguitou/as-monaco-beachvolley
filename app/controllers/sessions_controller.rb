@@ -26,8 +26,10 @@ class SessionsController < ApplicationController
 
     return unless @view == "grid"
 
-    # Grid view data
-    @sessions_grid = Session.upcoming.ordered_by_start.includes(:levels, :user)
+    # Grid view data.
+    # `registrations: :user` alimente les avatars des inscrits sur les cartes
+    # sans requête par session.
+    @sessions_grid = Session.upcoming.ordered_by_start.includes(:levels, :user, registrations: :user)
     @sessions_grid = @sessions_grid.terrain(params[:terrain]) if params[:terrain].present?
     @sessions_grid = @sessions_grid.for_user_levels(user_level_ids) if @for_me
 
@@ -46,6 +48,7 @@ class SessionsController < ApplicationController
       .where(session_id: session_ids, status: Registration.statuses[:confirmed])
       .group(:session_id)
       .count
+    @confirmed_counts_by_session_id = confirmed_counts
 
     @sessions_registered_grid = @sessions_grid.select { |s| @registrations_by_session_id.key?(s.id) }
 
