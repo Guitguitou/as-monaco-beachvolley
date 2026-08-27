@@ -34,6 +34,8 @@ class HeroComponent < ApplicationComponent
   end
 
   def subtitle_classes
-    "mt-2 text-sm text-white/90"
+    # Blanc plein : sur le rouge de marque, text-white/90 tombe à 3.84:1 et
+    # text-white/70 à 2.35:1 — sous le minimum WCAG AA de 4.5:1.
+    "mt-2 text-sm text-white"
   end
 end
