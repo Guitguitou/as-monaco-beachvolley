@@ -1,25 +1,24 @@
+<%# Le titre de la page est porté par le PageHeaderComponent du layout
+    (cf. ApplicationHelper::PAGE_TITLES) — ne pas le redupliquer ici. %>
 <div class="mb-4">
-  <!-- Titre -->
-  <div class="flex flex-col items-center sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 text-center sm:text-left">
-    <h1 class="text-xl sm:text-2xl font-bold flex items-center gap-2 justify-center">
-      <%= lucide_icon("calendar") %> Mon calendrier
-    </h1>
-    
-    <div class="flex items-center gap-2 w-full sm:w-auto justify-center">
-      <% current_view = @view.presence || params[:view].presence || "calendar" %>
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <% current_view = @view.presence || params[:view].presence || "calendar" %>
+    <div class="flex items-center gap-2" role="group" aria-label="Mode d'affichage">
       <%= button(
         "Grille",
-        variant: (current_view == "grid" ? :primary : :ghost),
+        variant: :ghost,
         size: :small,
         href: sessions_path(request.query_parameters.merge(view: "grid")),
-        icon: nil
+        data: { filter_pill: "view" },
+        aria: { pressed: (current_view == "grid").to_s }
       ) %>
       <%= button(
         "Calendrier",
-        variant: (current_view == "calendar" ? :primary : :ghost),
+        variant: :ghost,
         size: :small,
         href: sessions_path(request.query_parameters.merge(view: "calendar")),
-        icon: nil
+        data: { filter_pill: "view" },
+        aria: { pressed: (current_view == "calendar").to_s }
       ) %>
     </div>
 
@@ -27,7 +26,7 @@
       <%= button("Nouvelle session", variant: :primary, size: :small, href: new_session_path(sessions_index_return_params)) %>
     <% end %>
   </div>
-  
+
   <!-- Filtres de terrain -->
   <%= render "terrain_filter" %>
 </div>
