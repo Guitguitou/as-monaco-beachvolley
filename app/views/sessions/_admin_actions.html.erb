@@ -1,0 +1,57 @@
+<%# locals: session: — bloc d'administration, volontairement distinct du CTA joueur.
+    Avant, « Annuler la session » était collé sous « Je m'inscris », même taille et
+    même forme : une action irréversible au contact de l'action la plus fréquente. %>
+<% calendar_ctx = sessions_index_return_params %>
+<section class="border border-gray-300 bg-gray-50 rounded-none">
+  <header class="flex items-center gap-2 border-b border-gray-200 px-4 py-2.5">
+    <%= lucide_icon("shield-check", class: "w-4 h-4 text-gray-500 shrink-0") %>
+    <h3 class="text-xs font-bold uppercase tracking-wide text-gray-700">Administration</h3>
+  </header>
+
+  <div class="p-4 space-y-4">
+    <% if @candidate_users.present? || session.registrations.any? %>
+      <div>
+        <h4 class="text-xs font-semibold text-gray-700 mb-2">Ajouter un·e inscrit·e</h4>
+        <%= form_with url: session_registrations_path(session), method: :post, local: true, class: "space-y-3" do |f| %>
+          <% calendar_ctx.each do |key, value| %>
+            <%= hidden_field_tag key, value %>
+          <% end %>
+          <%= render FormFieldComponent.new(
+            form: f,
+            attribute: :user_id,
+            type: :select,
+            label: "Joueur·se",
+            show_label: false,
+            required: true,
+            options: options_from_collection_for_select(@candidate_users || [], :id, :full_name),
+            select_options: { include_blank: "Choisir..." },
+            input_class: "w-full border border-gray-300 rounded-none px-3 py-2 focus:ring-2 focus:ring-asmbv-red focus:border-asmbv-red",
+            html_options: { data: { controller: "select", "select-placeholder-value": "Rechercher un·e joueur·se..." } }
+          ) %>
+
+          <% if session.entrainement? && session.past_registration_deadline? %>
+            <%= render BadgeComponent.new(label: "Délai 17h dépassé — ajout manuel possible", variant: :info, size: :sm) %>
+          <% end %>
+          <% if session.full? %>
+            <%= hidden_field_tag :waitlist, true %>
+            <%= render BadgeComponent.new(label: "Session complète — ajout en liste d'attente", variant: :warning, size: :sm) %>
+          <% end %>
+
+          <%= f.submit(session.full? ? "Ajouter en attente" : "Ajouter",
+                      class: "w-full inline-flex items-center justify-center gap-1 rounded-none border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-100") %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if can?(:cancel, session) %>
+      <div class="border-t border-gray-200 pt-4">
+        <%= button_to cancel_session_path(session, calendar_ctx), method: :post,
+                      data: { turbo_confirm: "Annuler la session ? Tous les crédits seront remboursés et les inscrits prévenus." },
+                      class: "w-full inline-flex items-center justify-center gap-2 rounded-none border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50" do %>
+          <%= lucide_icon("ban", class: "w-4 h-4 shrink-0", aria: { hidden: true }) %>
+          <span>Annuler la session</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</section>
