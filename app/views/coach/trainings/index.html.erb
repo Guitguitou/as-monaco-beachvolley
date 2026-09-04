@@ -18,7 +18,7 @@
     <% if @active_tab == 'library' %>
       <%= render 'library_tab' %>
     <% elsif @active_tab == 'my_trainings' %>
-      <%= render 'my_trainings_tab' %>
+      <%= render "shared/coach_trainings", report: @report, admin_links: false %>
     <% end %>
   </div>
 </div>
