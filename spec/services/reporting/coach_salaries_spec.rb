@@ -214,4 +214,100 @@ RSpec.describe Reporting::CoachSalaries do
       expect(total_hours).to eq(3.5) # 1.5 + 2.0 hours
     end
   end
+
+  # Ces deux méthodes remplacent le calcul recopié dans UsersController,
+  # Coach::TrainingsController et Admin::UsersController.
+  describe "#periods_for_coach" do
+    let(:solo_coach) { create(:user, coach: true, salary_per_training_cents: 4000) }
+    let(:other_coach) { create(:user, coach: true, salary_per_training_cents: 9900) }
+
+    let(:week_range) { Time.zone.today.beginning_of_week..(Time.zone.today.beginning_of_week + 7.days) }
+    let(:month_range) { Time.zone.now.beginning_of_month..Time.zone.now.end_of_month }
+    let(:year_range) { Time.zone.now.beginning_of_year..Time.zone.now.end_of_year }
+
+    subject(:periods) do
+      described_class.new.periods_for_coach(
+        solo_coach, week_range: week_range, month_range: month_range, year_range: year_range
+      )
+    end
+
+    def training_at(time, coach:)
+      create(:session, user: coach, session_type: "entrainement", start_at: time, end_at: time + 2.hours)
+    end
+
+    it "counts and prices the coach's own trainings" do
+      training_at(Time.zone.now.beginning_of_month + 1.day + 9.hours, coach: solo_coach)
+
+      expect(periods[:month][:count]).to eq(1)
+      expect(periods[:month][:amount]).to eq(40.0)
+      expect(periods[:salary_per_training]).to eq(40.0)
+    end
+
+    it "ignores trainings led by another coach" do
+      training_at(Time.zone.now.beginning_of_month + 2.days + 9.hours, coach: other_coach)
+
+      expect(periods[:month][:count]).to eq(0)
+      expect(periods[:month][:amount]).to eq(0.0)
+    end
+
+    it "ignores sessions that are not trainings" do
+      time = Time.zone.now.beginning_of_month + 3.days + 9.hours
+      create(:session, :jeu_libre, user: solo_coach, start_at: time, end_at: time + 2.hours)
+
+      expect(periods[:month][:count]).to eq(0)
+    end
+
+    it "returns zeroes for a coach with no salary set" do
+      unpaid = create(:user, coach: true, salary_per_training_cents: 0)
+      training_at(Time.zone.now.beginning_of_month + 4.days + 9.hours, coach: unpaid)
+
+      result = described_class.new.periods_for_coach(
+        unpaid, week_range: week_range, month_range: month_range, year_range: year_range
+      )
+
+      expect(result[:month][:count]).to eq(1)
+      expect(result[:month][:amount]).to eq(0.0)
+    end
+
+    it "exposes the three periods" do
+      expect(periods.keys).to include(:week, :month, :year, :salary_per_training)
+    end
+  end
+
+  describe "#monthly_history_for_coach" do
+    let(:solo_coach) { create(:user, coach: true, salary_per_training_cents: 5000) }
+
+    it "returns one entry per month, oldest first" do
+      history = described_class.new.monthly_history_for_coach(solo_coach, months: 12)
+
+      expect(history.size).to eq(12)
+      expect(history.last[:month_name]).to eq(I18n.l(Time.zone.today.beginning_of_month, format: :month_and_year))
+    end
+
+    it "prices the trainings of each month" do
+      time = Time.zone.now.beginning_of_month + 1.day + 9.hours
+      2.times do |i|
+        slot = time + (i * 4).hours
+        create(:session, user: solo_coach, session_type: "entrainement", start_at: slot, end_at: slot + 2.hours)
+      end
+
+      current_month = described_class.new.monthly_history_for_coach(solo_coach).last
+
+      expect(current_month[:training_count]).to eq(2)
+      expect(current_month[:total_salary]).to eq(100.0)
+    end
+
+    it "reports empty months as zero rather than omitting them" do
+      history = described_class.new.monthly_history_for_coach(solo_coach, months: 3)
+
+      expect(history.size).to eq(3)
+      expect(history.map { |m| m[:training_count] }).to all(eq(0))
+    end
+
+    it "localises month names in French" do
+      history = described_class.new.monthly_history_for_coach(solo_coach, months: 12)
+
+      expect(history.map { |m| m[:month_name] }.join(" ")).to match(/janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre/)
+    end
+  end
 end

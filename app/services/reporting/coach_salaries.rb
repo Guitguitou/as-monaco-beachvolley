@@ -74,6 +74,50 @@ module Reporting
       end.sort_by { |h| -h[:total_amount] }
     end
 
+    # Compteurs et montants d'un seul coach sur les trois périodes usuelles.
+    #
+    # Ce calcul était recopié à l'identique dans UsersController#show,
+    # Coach::TrainingsController et Admin::UsersController.
+    def periods_for_coach(coach, week_range:, month_range:, year_range:)
+      salary_cents = coach.salary_per_training_cents.to_i
+
+      counts = {
+        week: Session.trainings.where(user_id: coach.id, start_at: week_range).count,
+        month: Session.trainings.where(user_id: coach.id, start_at: month_range).count,
+        year: Session.trainings.where(user_id: coach.id, start_at: year_range).count
+      }
+
+      counts.transform_values { |count| { count: count, amount: (salary_cents * count) / 100.0 } }
+           .merge(salary_per_training: salary_cents / 100.0)
+    end
+
+    # Historique mensuel d'un coach, du plus ancien au plus récent.
+    #
+    # Une seule requête groupée, là où les trois copies faisaient un COUNT par
+    # mois (12 requêtes).
+    def monthly_history_for_coach(coach, months: 12)
+      salary_cents = coach.salary_per_training_cents.to_i
+      first_month = (@current_time - (months - 1).months).beginning_of_month
+      last_month = @current_time.end_of_month
+
+      counts_by_month = Session.trainings
+                               .where(user_id: coach.id, start_at: first_month..last_month)
+                               .group(Arel.sql("DATE_TRUNC('month', start_at)"))
+                               .count
+                               .transform_keys { |time| time.to_date.beginning_of_month }
+
+      (0...months).map do |offset|
+        month_start = (first_month + offset.months).to_date
+        count = counts_by_month[month_start].to_i
+
+        {
+          month_name: I18n.l(month_start, format: :month_and_year),
+          training_count: count,
+          total_salary: (salary_cents * count) / 100.0
+        }
+      end
+    end
+
     # Prochaines sessions pour un coach
     def upcoming_sessions_for_coach(coach, limit: 5)
       Session.trainings
