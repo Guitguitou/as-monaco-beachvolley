@@ -16,11 +16,24 @@ RSpec.describe Stats::PlayerStats do
     registration
   end
 
-  # Une session par créneau : le modèle refuse deux sessions qui se
-  # chevauchent sur le même terrain.
+  # Un créneau unique par session : le modèle refuse deux sessions qui se
+  # chevauchent sur le même terrain. Les dates sont volontairement très
+  # éloignées, la suite tournant sur la base de développement (.env impose
+  # DATABASE_URL) et ses sessions réelles couvrant la saison en cours.
+  #
+  # Chaque appel avance d'un jour, donc un appel ultérieur produit une session
+  # plus récente que le précédent.
   def past_session(type: "entrainement")
+    slot_session(9.years.ago, type)
+  end
+
+  def future_session(type: "entrainement")
+    slot_session(9.years.from_now, type)
+  end
+
+  def slot_session(base, type)
     @slot = (@slot || 0) + 1
-    start_at = 2.weeks.ago.beginning_of_day + (@slot * 3).hours
+    start_at = (base + @slot.days).change(hour: 6 + (@slot * 2) % 16)
     create(:session, session_type: type, start_at: start_at, end_at: start_at + 2.hours)
   end
 
@@ -37,7 +50,7 @@ RSpec.describe Stats::PlayerStats do
     end
 
     it "ignores upcoming sessions" do
-      register(user, create(:session, start_at: 1.week.from_now, end_at: 1.week.from_now + 2.hours))
+      register(user, future_session)
 
       expect(stats.sessions_played).to eq(0)
       expect(stats).not_to be_any_session
@@ -50,8 +63,8 @@ RSpec.describe Stats::PlayerStats do
     end
 
     it "reports the date of the most recent session played" do
-      register(user, create(:session, start_at: 3.weeks.ago, end_at: 3.weeks.ago + 2.hours))
-      recent = create(:session, start_at: 4.days.ago, end_at: 4.days.ago + 2.hours)
+      register(user, past_session)
+      recent = past_session
       register(user, recent)
 
       expect(stats.last_session_at).to be_within(1.second).of(recent.start_at)
