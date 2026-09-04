@@ -1,6 +1,7 @@
 <%# `data-turbo="false"` lets the browser handle the .ics natively (download / open in Calendar)
-    instead of Turbo Drive trying to render it as a page. %>
-<%= content_tag :a, href: url, class: classes, download: filename, data: { turbo: false } do %>
+    instead of Turbo Drive trying to render it as a page.
+    Le contrôleur Stimulus bascule l'href vers Google Agenda sur Android. %>
+<%= content_tag :a, href: url, class: classes, download: filename, data: data_attributes do %>
   <%= lucide_icon(icon, class: "size-5", aria: { hidden: true }) %>
   <span><%= label %></span>
 <% end %>

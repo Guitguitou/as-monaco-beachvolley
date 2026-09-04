@@ -27,19 +27,7 @@ module Sessions
     attr_reader :session, :url
 
     def event
-      Ics::Event.new(
-        uid: "session-#{session.id}@asmbv",
-        title: session.title.presence || session.display_name,
-        starts_at: session.start_at,
-        ends_at: session.end_at,
-        description: session.description.presence,
-        location: location,
-        url: url
-      )
-    end
-
-    def location
-      [ "AS Monaco Beach Volley", session.terrain ].compact.join(" — ")
+      CalendarEvent.call(session, url: url)
     end
   end
 end

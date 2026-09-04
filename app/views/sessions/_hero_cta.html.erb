@@ -48,7 +48,10 @@
 
     <% unless existing_registration.waitlisted? %>
       <div class="mt-3">
-        <%= render AddToCalendarComponent.new(url: calendar_session_path(session, format: :ics)) %>
+        <%= render AddToCalendarComponent.new(
+              url: calendar_session_path(session, format: :ics),
+              google_url: Calendar::GoogleUrl.call(Sessions::CalendarEvent.call(session, url: session_url(session)))
+            ) %>
       </div>
     <% end %>
 

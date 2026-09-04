@@ -10,6 +10,8 @@
 #
 # Options:
 #   url:        (required) href of the .ics resource
+#   google_url: Google Calendar "add event" URL, utilisé à la place du .ics sur Android
+#               (où le fichier serait seulement téléchargé). Voir Calendar::GoogleUrl.
 #   label:      button text
 #   variant:    :secondary (default), :primary, :ghost
 #   size:       :small, :medium (default), :large
@@ -17,9 +19,10 @@
 #   full_width: stretch to container width (default true)
 #   filename:   value for the anchor's `download` attribute (optional)
 class AddToCalendarComponent < ApplicationComponent
-  def initialize(url:, label: "Ajouter à l'agenda", variant: :secondary, size: :medium,
+  def initialize(url:, google_url: nil, label: "Ajouter à l'agenda", variant: :secondary, size: :medium,
                  icon: "calendar-plus", full_width: true, filename: nil)
     @url = url
+    @google_url = google_url
     @label = label
     @variant = variant
     @size = size
@@ -30,7 +33,14 @@ class AddToCalendarComponent < ApplicationComponent
 
   private
 
-  attr_reader :url, :label, :variant, :size, :icon, :full_width, :filename
+  attr_reader :url, :google_url, :label, :variant, :size, :icon, :full_width, :filename
+
+  def data_attributes
+    attributes = { turbo: false }
+    return attributes if google_url.blank?
+
+    attributes.merge(controller: "add-to-calendar", add_to_calendar_google_url_value: google_url)
+  end
 
   def classes
     [
