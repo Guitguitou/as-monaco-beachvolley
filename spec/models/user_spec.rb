@@ -321,4 +321,47 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  # Les colonnes de rôle sont des booléens nullables : ces prédicats doivent
+  # traiter NULL comme false.
+  describe "role predicates" do
+    it "identifies a plain player" do
+      player = create(:user)
+
+      expect(player).to be_player
+      expect(player).not_to be_supervisor
+      expect(player).not_to be_staff
+      expect(player.role_labels).to be_empty
+    end
+
+    it "treats a coach and a responsable as supervisors" do
+      expect(create(:user, :coach)).to be_supervisor
+      expect(create(:user, :responsable)).to be_supervisor
+      expect(create(:user)).not_to be_supervisor
+    end
+
+    it "treats admins and financial managers as staff" do
+      expect(create(:user, :admin)).to be_staff
+      expect(create(:user, :financial_manager)).to be_staff
+      expect(create(:user, :coach)).not_to be_staff
+    end
+
+    it "excludes anyone holding a role from player?" do
+      expect(create(:user, :coach)).not_to be_player
+      expect(create(:user, :responsable)).not_to be_player
+      expect(create(:user, :admin)).not_to be_player
+      expect(create(:user, :financial_manager)).not_to be_player
+    end
+
+    it "lists role labels by decreasing importance" do
+      user = create(:user, admin: true, coach: true, responsable: true, financial_manager: true)
+
+      expect(user.role_labels).to eq([ "Admin", "Coach", "Responsable", "Responsable financier" ])
+    end
+
+    # Le responsable financier n'était affiché nulle part dans l'app.
+    it "labels a financial manager" do
+      expect(create(:user, :financial_manager).role_labels).to eq([ "Responsable financier" ])
+    end
+  end
 end

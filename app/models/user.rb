@@ -42,6 +42,14 @@ class User < ApplicationRecord
   scope :male, -> { joins(:levels).where(levels: { gender: "male" }).distinct }
   scope :female, -> { joins(:levels).where(levels: { gender: "female" }).distinct }
 
+  # Nom exigé quand l'utilisateur édite lui-même son profil.
+  #
+  # Volontairement contextuel : des comptes historiques ont un nom vide, et une
+  # validation globale les empêcherait d'être sauvegardés par ailleurs (un
+  # admin qui bascule un rôle, par exemple). Le contexte n'est déclenché que
+  # par ProfilesController#update.
+  validates :first_name, :last_name, presence: true, on: :profile_update
+
   # Devise: Prevent login when account is disabled
   # Non-activated users can login but have limited access
   def active_for_authentication?
@@ -82,6 +90,40 @@ class User < ApplicationRecord
 
   def full_name
     "#{first_name} #{last_name}"
+  end
+
+  # Rôles ----------------------------------------------------------------
+  #
+  # Les colonnes de rôle sont des booléens nullables : `admin?` renvoie donc
+  # false aussi bien pour false que pour NULL, ce qui est le comportement
+  # attendu. Ces prédicats évitent de recopier les combinaisons dans les vues.
+
+  # Encadrant d'une session : coach ou responsable. Les deux ont exactement
+  # les mêmes droits dans Ability (cf. app/models/ability.rb).
+  def supervisor?
+    coach? || responsable?
+  end
+
+  # Accès à l'espace d'administration (même condition que la navbar).
+  def staff?
+    admin? || financial_manager?
+  end
+
+  # Joueur « simple » : aucun rôle particulier.
+  def player?
+    !admin? && !coach? && !responsable? && !financial_manager?
+  end
+
+  # Libellés des rôles portés, dans l'ordre d'importance décroissante.
+  # Utilisé pour les badges du profil — le responsable financier n'était
+  # jusqu'ici jamais affiché nulle part.
+  def role_labels
+    labels = []
+    labels << "Admin" if admin?
+    labels << "Coach" if coach?
+    labels << "Responsable" if responsable?
+    labels << "Responsable financier" if financial_manager?
+    labels
   end
 
   # Returns the current credit balance (maintained by CreditTransaction callbacks)
