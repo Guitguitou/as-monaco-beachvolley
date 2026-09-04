@@ -1,0 +1,218 @@
+<div class="space-y-10">
+
+  <%# 1. Mes revenus — seulement pour un coach dont la rémunération est fixée.
+      Un responsable n'en a pas, et l'afficher à zéro n'apporterait rien. %>
+  <% if @coaching.earnings? %>
+    <% earnings = @coaching.earnings %>
+    <section>
+      <%= render SectionHeaderComponent.new(
+            title: "Mes revenus",
+            subtitle: "#{number_to_currency(earnings[:salary_per_training], unit: '€', format: '%n %u', precision: 2)} par entraînement encadré."
+          ) %>
+
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <% [ [ :week, "Cette semaine" ], [ :month, "Ce mois" ], [ :year, "Cette année" ] ].each do |key, label| %>
+          <%= render StatTileComponent.new(
+                value: number_to_currency(earnings[key][:amount], unit: "€", format: "%n %u", precision: 2),
+                label: label,
+                hint: fr_pluralize(earnings[key][:count], "entraînement", "entraînements"),
+                icon: "wallet"
+              ) %>
+        <% end %>
+      </div>
+
+      <% history = @coaching.monthly_history %>
+      <% if history.any? { |month| month[:training_count].positive? } %>
+        <%= render CardComponent.new(padding: :none, class_name: "mt-4") do %>
+          <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-[11px] font-bold uppercase tracking-widest text-gray-500">12 derniers mois</h3>
+          </div>
+          <ul class="divide-y divide-gray-100">
+            <% history.reverse_each do |month| %>
+              <li class="px-5 py-3 flex items-center justify-between gap-4 text-sm">
+                <span class="text-gray-700 first-letter:uppercase"><%= month[:month_name] %></span>
+                <span class="flex items-center gap-4 shrink-0">
+                  <span class="text-xs text-gray-500 tabular-nums">
+                    <%= fr_pluralize(month[:training_count], "entraînement", "entraînements") %>
+                  </span>
+                  <span class="font-bold tabular-nums text-gray-900">
+                    <%= number_to_currency(month[:total_salary], unit: "€", format: "%n %u", precision: 2) %>
+                  </span>
+                </span>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      <% end %>
+    </section>
+  <% end %>
+
+  <%# 2. Ce que j'encadre %>
+  <section>
+    <%= render SectionHeaderComponent.new(
+          title: "J'encadre",
+          subtitle: "Les sessions dont tu es le titulaire."
+        ) do |header| %>
+      <% header.with_action do %>
+        <%= link_to "Le calendrier", sessions_path(view: "grid"),
+                    data: { turbo_frame: "_top" },
+                    class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
+      <% end %>
+    <% end %>
+
+    <% if @coaching.upcoming_supervised.any? %>
+      <div class="mt-4 border border-gray-200 bg-white rounded-xl divide-y divide-gray-100">
+        <% @coaching.upcoming_supervised.each do |session| %>
+          <%= link_to session_path(session), data: { turbo_frame: "_top" },
+                      class: "flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-50" do %>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-gray-900 truncate">
+                <%= session.title.presence || session.display_name %>
+              </p>
+              <p class="text-xs text-gray-600 first-letter:uppercase">
+                <%= l(session.start_at.to_date, format: :day_and_month) %> ·
+                <%= l(session.start_at, format: :time) %> ·
+                <%= session.terrain.to_s.split("_").last %>
+              </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <% confirmed = @coaching.confirmed_count(session) %>
+              <% if session.max_players.present? %>
+                <%= render BadgeComponent.new(
+                      label: "#{confirmed}/#{session.max_players}",
+                      variant: confirmed >= session.max_players ? :destructive : :neutral,
+                      size: :xs
+                    ) %>
+              <% end %>
+              <%= lucide_icon("chevron-right", class: "w-4 h-4 text-gray-400", aria: { hidden: true }) %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="mt-4">
+        <%= render EmptyStateComponent.new(
+              icon: "calendar-x",
+              title: "Rien à encadrer",
+              description: "Aucune session à venir ne t'est attribuée."
+            ) %>
+      </div>
+    <% end %>
+  </section>
+
+  <%# 3. La bibliothèque — Coach::TrainingsController est gardé par
+      ensure_coach_or_admin!, un responsable y serait redirigé. Ce lien est le
+      seul point d'entrée de l'app vers cette page. %>
+  <% if @coaching.library_available? %>
+    <section>
+      <%= render SectionHeaderComponent.new(title: "Mes outils de coach") %>
+
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <%= link_to coach_trainings_path, data: { turbo_frame: "_top" },
+                    class: "group border border-gray-200 bg-white rounded-xl p-5 flex items-start gap-4 hover:border-asmbv-red transition-colors" do %>
+          <span class="shrink-0 flex h-10 w-10 items-center justify-center bg-asmbv-red-light text-asmbv-red">
+            <%= lucide_icon("book-open", class: "w-5 h-5", aria: { hidden: true }) %>
+          </span>
+          <span class="min-w-0">
+            <span class="block font-anton text-lg uppercase tracking-tight text-gray-900">Bibliothèque</span>
+            <span class="block mt-1 text-sm text-gray-600">
+              Les séances notées par les coachs, groupées par niveau.
+            </span>
+          </span>
+        <% end %>
+
+        <%= link_to coach_trainings_path(tab: "my_trainings"), data: { turbo_frame: "_top" },
+                    class: "group border border-gray-200 bg-white rounded-xl p-5 flex items-start gap-4 hover:border-asmbv-red transition-colors" do %>
+          <span class="shrink-0 flex h-10 w-10 items-center justify-center bg-asmbv-red-light text-asmbv-red">
+            <%= lucide_icon("clipboard-list", class: "w-5 h-5", aria: { hidden: true }) %>
+          </span>
+          <span class="min-w-0">
+            <span class="block font-anton text-lg uppercase tracking-tight text-gray-900">Mes entraînements</span>
+            <span class="block mt-1 text-sm text-gray-600">
+              Ton historique détaillé et tes prochaines séances.
+            </span>
+          </span>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <%# 4. Mes annonces de jeu libre — le contenu du responsable, qui n'avait
+      aucune page dédiée dans l'app. %>
+  <section>
+    <%= render SectionHeaderComponent.new(
+          title: "Mes annonces",
+          subtitle: "Les annonces de jeu libre que tu as lancées."
+        ) do |header| %>
+      <% header.with_action do %>
+        <%= link_to "Toutes les annonces", annonces_path,
+                    data: { turbo_frame: "_top" },
+                    class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
+      <% end %>
+    <% end %>
+
+    <% if @coaching.my_annonces.any? %>
+      <div class="mt-4 border border-gray-200 bg-white rounded-xl divide-y divide-gray-100">
+        <% @coaching.my_annonces.each do |annonce| %>
+          <%= link_to annonce_path(annonce), data: { turbo_frame: "_top" },
+                      class: "flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-50" do %>
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-gray-900 truncate"><%= annonce.title %></p>
+              <p class="text-xs text-gray-600">
+                <%= fr_pluralize(annonce.slots.size, "créneau", "créneaux") %> ·
+                <%= fr_pluralize(annonce.participant_count, "réponse", "réponses") %>
+              </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <%= render BadgeComponent.new(
+                    label: annonce_status_label(annonce),
+                    variant: annonce_status_variant(annonce),
+                    size: :xs
+                  ) %>
+              <%= lucide_icon("chevron-right", class: "w-4 h-4 text-gray-400", aria: { hidden: true }) %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="mt-4">
+        <%= render EmptyStateComponent.new(
+              icon: "megaphone",
+              title: "Aucune annonce",
+              description: "Lance une annonce pour monter une session de jeu libre."
+            ) do |empty| %>
+          <% empty.with_action do %>
+            <%= button("Créer une annonce", variant: :primary, size: :medium,
+                       href: new_annonce_path, data: { turbo_frame: "_top" }) %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+
+  <%# 5. Les stages que j'encadre %>
+  <% if @coaching.supervised_stages.any? %>
+    <section>
+      <%= render SectionHeaderComponent.new(title: "Mes stages") %>
+
+      <div class="mt-4 border border-gray-200 bg-white rounded-xl divide-y divide-gray-100">
+        <% @coaching.supervised_stages.each do |stage| %>
+          <div class="flex items-center justify-between gap-4 px-4 py-3">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold text-gray-900 truncate"><%= stage.title %></p>
+              <% if stage.starts_on.present? %>
+                <p class="text-xs text-gray-600 first-letter:uppercase">
+                  <%= l(stage.starts_on, format: :long) %>
+                </p>
+              <% end %>
+            </div>
+            <%= render BadgeComponent.new(
+                  label: stage.main_coach_id == @user.id ? "Coach principal" : "Assistant",
+                  variant: :neutral, size: :xs
+                ) %>
+          </div>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+</div>

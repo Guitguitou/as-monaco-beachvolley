@@ -1,0 +1,142 @@
+<div class="space-y-10">
+
+  <%# 1. Ma licence — invisible jusqu'ici, alors qu'elle conditionne l'accès
+      aux inscriptions et la priorité de 24 h. %>
+  <section>
+    <%= render LicenseCardComponent.new(user: @user) %>
+  </section>
+
+  <%# 2. Mes crédits et mes sessions %>
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <%= render StatTileComponent.new(
+          value: number_with_delimiter(@season.balance, delimiter: " "),
+          label: "Tes crédits",
+          tone: :accent,
+          icon: "coins"
+        ) do |tile| %>
+      <% tile.with_action do %>
+        <%= button("Recharger", variant: :primary, size: :small,
+                   href: packs_path, data: { turbo_frame: "_top" }) %>
+      <% end %>
+    <% end %>
+
+    <%# Les compteurs renvoient vers /me/sessions : l'onglet « Mes sessions »
+        du profil dupliquait cette page à l'identique. %>
+    <%= render StatTileComponent.new(
+          value: @tabs.upcoming_count,
+          label: "Sessions à venir",
+          href: me_sessions_path,
+          external: true,
+          icon: "calendar-clock"
+        ) %>
+
+    <%= render StatTileComponent.new(
+          value: @tabs.past_count,
+          label: "Sessions jouées",
+          href: me_sessions_path,
+          external: true,
+          icon: "calendar-check"
+        ) %>
+
+    <%= render StatTileComponent.new(
+          value: @season.member_since_year,
+          label: "Membre depuis",
+          icon: "flag"
+        ) %>
+  </section>
+
+  <%# 3. Mes stats %>
+  <section>
+    <%= render SectionHeaderComponent.new(
+          title: "Mes stats",
+          subtitle: "Sur toutes tes sessions passées."
+        ) do |header| %>
+      <% header.with_action do %>
+        <%= link_to "Classements", performances_path,
+                    data: { turbo_frame: "_top" },
+                    class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
+      <% end %>
+    <% end %>
+
+    <% stats = @season.stats %>
+
+    <% if stats.any_session? %>
+      <div class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <%= render StatTileComponent.new(
+              value: stats.trainings_played, label: "Entraînements", icon: "dumbbell"
+            ) %>
+        <%= render StatTileComponent.new(
+              value: stats.free_plays_played, label: "Jeux libres", icon: "volleyball"
+            ) %>
+
+        <% if stats.ranked? %>
+          <%= render StatTileComponent.new(
+                value: "#{stats.rank_in_group}#{stats.rank_in_group == 1 ? 'er' : 'e'}",
+                label: "Dans #{stats.level.name}",
+                hint: "sur #{stats.group_size} joueurs",
+                icon: "trophy"
+              ) %>
+        <% end %>
+
+        <% if stats.last_session_at.present? %>
+          <%= render StatTileComponent.new(
+                value: l(stats.last_session_at.to_date, format: :default),
+                label: "Dernière session",
+                icon: "history"
+              ) %>
+        <% end %>
+      </div>
+
+      <%# Affiché seulement s'il y en a : inutile de pointer un zéro. %>
+      <% if stats.late_cancellations.positive? %>
+        <p class="mt-3 inline-flex items-center gap-2 text-xs text-gray-600">
+          <%= lucide_icon("alert-triangle", class: "w-4 h-4 shrink-0 text-orange-500", aria: { hidden: true }) %>
+          <%= fr_pluralize(stats.late_cancellations, "annulation tardive", "annulations tardives") %>
+          <%= stats.late_cancellations == 1 ? "enregistrée" : "enregistrées" %>.
+        </p>
+      <% end %>
+    <% else %>
+      <div class="mt-4">
+        <%= render EmptyStateComponent.new(
+              icon: "volleyball",
+              title: "Pas encore joué",
+              description: "Tes stats apparaîtront après ta première session."
+            ) do |empty| %>
+          <% empty.with_action do %>
+            <%= button("Voir les sessions ouvertes", variant: :primary, size: :medium,
+                       href: sessions_path(view: "grid"), data: { turbo_frame: "_top" }) %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+
+  <%# 4. Mon argent — crédits ET achats réels, ces derniers jamais montrés
+      au joueur jusqu'ici. %>
+  <section>
+    <%= render SectionHeaderComponent.new(
+          title: "Mon argent",
+          subtitle: "Tes mouvements de crédits et tes achats."
+        ) %>
+
+    <div class="mt-4">
+      <%# Sous-onglets internes au frame : navigation sans rechargement. %>
+      <%= tab_bar([
+            { label: "Crédits", href: profile_path(tab: "season", history: "credits"),
+              active: @season.credits_history?, icon: "coins",
+              count: (@season.transactions.total_count if @season.transactions.any?) },
+            { label: "Achats", href: profile_path(tab: "season", history: "purchases"),
+              active: @season.purchases_history?, icon: "receipt",
+              count: (@season.purchases.total_count if @season.purchases.any?) }
+          ], turbo_frame: "profile_tab") %>
+
+      <div class="mt-4">
+        <% if @season.credits_history? %>
+          <%= render "credits_history", pagination: @season.transactions %>
+        <% else %>
+          <%= render "purchases_history", pagination: @season.purchases %>
+        <% end %>
+      </div>
+    </div>
+  </section>
+</div>

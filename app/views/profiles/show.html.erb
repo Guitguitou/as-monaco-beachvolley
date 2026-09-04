@@ -1,0 +1,59 @@
+<% content_for :hero do %>
+  <%= render HeroComponent.new(title: @user.full_name, variant: :dark, title_font: :anton, flush_title: true) do |hero| %>
+    <% hero.with_top do %>
+      <div class="flex items-center gap-4">
+        <%# AvatarComponent existe précisément pour ne plus recalculer les
+            initiales à la main, ce que faisait l'ancien hero. %>
+        <%= render AvatarComponent.new(user: @user, size: :xl, variant: :solid) %>
+        <div class="min-w-0">
+          <p class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Mon profil</p>
+          <p class="mt-1 text-sm text-gray-300 truncate"><%= @user.email %></p>
+        </div>
+      </div>
+    <% end %>
+
+    <% hero.with_meta do %>
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <% @user.levels.each do |level| %>
+          <%= render BadgeComponent.new(label: level.name, variant: :hero_inverse, size: :xs) %>
+        <% end %>
+
+        <%# role_labels couvre enfin le responsable financier, jamais badgé. %>
+        <% @user.role_labels.each do |role| %>
+          <%= render BadgeComponent.new(label: role, variant: :hero_inverse, size: :xs) %>
+        <% end %>
+
+        <% unless @user.activated? %>
+          <%= render BadgeComponent.new(label: "Licence à régler", variant: :warning, size: :xs) %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% hero.with_actions do %>
+      <div class="flex flex-wrap gap-2 lg:justify-end">
+        <%= button("Email & mot de passe",
+                   variant: :secondary, size: :small,
+                   href: edit_user_registration_path) %>
+        <%# Pas de variante de bouton claire sur fond sombre : lien bordé, en
+            rounded-none comme le reste des boutons de l'app. %>
+        <%= link_to "Déconnexion", destroy_user_session_path,
+                    data: { turbo_method: :delete },
+                    class: "inline-flex items-center justify-center rounded-none border border-white/30 " \
+                           "px-4 py-2 text-sm font-semibold text-white transition-colors " \
+                           "hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white" %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>
+
+<div class="max-w-6xl mx-auto">
+  <%# La barre d'onglets doit rester DANS le frame : sinon le remplacement du
+      frame ne met pas à jour le soulignement de l'onglet actif. %>
+  <%= turbo_frame_tag "profile_tab" do %>
+    <%= tab_bar(@tabs.to_a, turbo_frame: "profile_tab") %>
+
+    <div class="mt-6">
+      <%= render "#{@tabs.active}_tab" %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,70 @@
+<%= render CardComponent.new(padding: :none) do %>
+  <% if pagination.any? %>
+    <%# Tableau en desktop, liste en mobile : l'ancienne version masquait
+        purement la colonne « Session » sous 640 px. %>
+    <div class="hidden sm:block overflow-x-auto">
+      <table class="min-w-full text-sm text-left">
+        <thead class="bg-gray-50 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
+          <tr>
+            <th class="px-5 py-3">Date</th>
+            <th class="px-5 py-3">Type</th>
+            <th class="px-5 py-3">Session</th>
+            <th class="px-5 py-3 text-right">Montant</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% pagination.records.each do |transaction| %>
+            <tr class="hover:bg-gray-50/60 transition-colors">
+              <td class="px-5 py-3 whitespace-nowrap text-xs text-gray-500">
+                <%= l(transaction.created_at, format: :short) %>
+              </td>
+              <td class="px-5 py-3">
+                <%= render BadgeComponent.new(
+                      label: humanize_credit_transaction_type(transaction.transaction_type),
+                      variant: credit_transaction_badge_variant(transaction.transaction_type),
+                      size: :xs
+                    ) %>
+              </td>
+              <td class="px-5 py-3 text-xs text-gray-600">
+                <%= transaction.session&.title.presence || "—" %>
+              </td>
+              <td class="px-5 py-3 text-right font-bold tabular-nums <%= credit_amount_class(transaction.amount) %>">
+                <%= signed_credits(transaction.amount) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="sm:hidden divide-y divide-gray-100">
+      <% pagination.records.each do |transaction| %>
+        <li class="px-5 py-4 flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <%= render BadgeComponent.new(
+                  label: humanize_credit_transaction_type(transaction.transaction_type),
+                  variant: credit_transaction_badge_variant(transaction.transaction_type),
+                  size: :xs
+                ) %>
+            <p class="mt-1.5 text-xs text-gray-500"><%= l(transaction.created_at, format: :short) %></p>
+            <% if transaction.session&.title.present? %>
+              <p class="text-xs text-gray-600 truncate"><%= transaction.session.title %></p>
+            <% end %>
+          </div>
+          <p class="shrink-0 font-bold tabular-nums <%= credit_amount_class(transaction.amount) %>">
+            <%= signed_credits(transaction.amount) %>
+          </p>
+        </li>
+      <% end %>
+    </ul>
+
+    <%= render "pagination", pagination: pagination, history: "credits" %>
+  <% else %>
+    <%= render EmptyStateComponent.new(
+          icon: "coins",
+          title: "Aucun mouvement",
+          description: "Tes achats et paiements de sessions apparaîtront ici.",
+          compact: true
+        ) %>
+  <% end %>
+<% end %>
