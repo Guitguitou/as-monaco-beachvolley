@@ -93,4 +93,30 @@ RSpec.describe FormattingHelper, type: :helper do
       expect(helper.spots_left_label(2, nil)).to be_nil
     end
   end
+
+  describe "#fr_pluralize" do
+    # En français, zéro prend le singulier — pluralize d'ActiveSupport donne
+    # « 0 entraînements », qui est faux.
+    it "uses the singular for zero" do
+      expect(helper.fr_pluralize(0, "entraînement")).to eq("0 entraînement")
+    end
+
+    it "uses the singular for one" do
+      expect(helper.fr_pluralize(1, "entraînement")).to eq("1 entraînement")
+    end
+
+    it "uses the plural from two upwards" do
+      expect(helper.fr_pluralize(2, "entraînement")).to eq("2 entraînements")
+      expect(helper.fr_pluralize(12, "entraînement")).to eq("12 entraînements")
+    end
+
+    it "accepts an irregular plural" do
+      expect(helper.fr_pluralize(3, "créneau", "créneaux")).to eq("3 créneaux")
+      expect(helper.fr_pluralize(1, "créneau", "créneaux")).to eq("1 créneau")
+    end
+
+    it "handles negative counts on their absolute value" do
+      expect(helper.fr_pluralize(-3, "crédit")).to eq("-3 crédits")
+    end
+  end
 end

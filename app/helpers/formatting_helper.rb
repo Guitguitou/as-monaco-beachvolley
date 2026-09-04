@@ -61,4 +61,16 @@ module FormattingHelper
 
     "#{left} #{left == 1 ? 'place' : 'places'}"
   end
+
+  # Pluriel français : contrairement à l'anglais, zéro prend le singulier.
+  # `pluralize(0, "entraînement")` donne « 0 entraînements », qui est faux.
+  #
+  #   fr_pluralize(0, "entraînement")  # => « 0 entraînement »
+  #   fr_pluralize(2, "créneau", "créneaux")  # => « 2 créneaux »
+  def fr_pluralize(count, singular, plural = nil)
+    count = count.to_i
+    word = count.abs < 2 ? singular : (plural || "#{singular}s")
+
+    "#{count} #{word}"
+  end
 end
