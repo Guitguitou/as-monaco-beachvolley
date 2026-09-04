@@ -18,4 +18,24 @@ module AnnoncesHelper
       Rendez-vous : #{annonce_url(annonce)}
     MSG
   end
+
+  # Statut d'une annonce, dans le vocabulaire du joueur.
+  # Les badges de statut étaient écrits en dur dans _annonce_card.
+  def annonce_status_label(annonce)
+    case annonce.status.to_s
+    when "open" then annonce.confirmable? ? "Confirmable" : "Ouverte"
+    when "confirmed" then "Confirmée"
+    when "cancelled" then "Annulée"
+    else annonce.status.to_s.humanize
+    end
+  end
+
+  def annonce_status_variant(annonce)
+    case annonce.status.to_s
+    when "open" then annonce.confirmable? ? :warning : :info
+    when "confirmed" then :success
+    when "cancelled" then :neutral
+    else :neutral
+    end
+  end
 end
