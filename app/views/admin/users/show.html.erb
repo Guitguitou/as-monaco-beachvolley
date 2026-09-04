@@ -50,7 +50,7 @@
   <% if @active_tab == 'profile' %>
     <%= render 'admin_profile_tab' %>
   <% elsif @active_tab == 'trainings' && @user.coach? %>
-    <%= render 'coach_trainings_tab' %>
+    <%= render "shared/coach_trainings", report: @report, admin_links: true %>
   <% end %>
 
   <!-- Retour -->

@@ -1,4 +1,11 @@
-<!-- Coach My Trainings Tab Content -->
+<%# Bilan des entraînements d'un coach.
+    Vue partagée entre l'espace coach et la fiche admin du coach, qui en
+    portaient deux copies quasi identiques de 242 lignes.
+
+    locals :
+      report:      Coach::TrainingsReport
+      admin_links: lie les titres de séance vers l'administration
+%>
 <div class="space-y-6">
   <!-- Revenue Summary Cards -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -12,8 +19,8 @@
         </div>
         <div class="ml-4 flex-1">
           <p class="text-sm font-medium text-gray-500">Cette semaine</p>
-          <p class="text-2xl font-bold text-gray-900"><%= number_with_precision(@my_salary_week, precision: 2) %> €</p>
-          <p class="text-xs text-gray-500"><%= pluralize(@my_trainings_week_count, 'entraînement') %></p>
+          <p class="text-2xl font-bold text-gray-900"><%= number_with_precision(report.week_amount, precision: 2) %> €</p>
+          <p class="text-xs text-gray-500"><%= pluralize(report.week_count, 'entraînement') %></p>
         </div>
       </div>
     </div>
@@ -28,8 +35,8 @@
         </div>
         <div class="ml-4 flex-1">
           <p class="text-sm font-medium text-gray-500">Ce mois</p>
-          <p class="text-2xl font-bold text-gray-900"><%= number_with_precision(@my_salary_month, precision: 2) %> €</p>
-          <p class="text-xs text-gray-500"><%= pluralize(@my_trainings_month_count, 'entraînement') %></p>
+          <p class="text-2xl font-bold text-gray-900"><%= number_with_precision(report.month_amount, precision: 2) %> €</p>
+          <p class="text-xs text-gray-500"><%= pluralize(report.month_count, 'entraînement') %></p>
         </div>
       </div>
     </div>
@@ -44,8 +51,8 @@
         </div>
         <div class="ml-4 flex-1">
           <p class="text-sm font-medium text-gray-500">Cette année</p>
-          <p class="text-2xl font-bold text-gray-900"><%= number_with_precision(@my_salary_year, precision: 2) %> €</p>
-          <p class="text-xs text-gray-500"><%= pluralize(@my_trainings_year_count, 'entraînement') %></p>
+          <p class="text-2xl font-bold text-gray-900"><%= number_with_precision(report.year_amount, precision: 2) %> €</p>
+          <p class="text-xs text-gray-500"><%= pluralize(report.year_count, 'entraînement') %></p>
         </div>
       </div>
     </div>
@@ -70,7 +77,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <% @monthly_salary_data.each do |month_data| %>
+          <% report.monthly_history.each do |month_data| %>
             <tr class="hover:bg-gray-50">
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 <%= month_data[:month_name] %>
@@ -79,14 +86,14 @@
                 <%= month_data[:training_count] %>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= number_with_precision(current_user.salary_per_training, precision: 2) %> €
+                <%= number_with_precision(report.salary_per_training, precision: 2) %> €
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                 <%= number_with_precision(month_data[:total_salary], precision: 2) %> €
               </td>
             </tr>
           <% end %>
-          <% if @monthly_salary_data.empty? %>
+          <% if report.monthly_history.empty? %>
             <tr>
               <td colspan="4" class="px-6 py-8 text-center text-gray-500">
                 <div class="flex flex-col items-center gap-2">
@@ -122,15 +129,20 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <% if @past_trainings.any? %>
-              <% @past_trainings.each do |training| %>
+            <% if report.past_trainings.any? %>
+              <% report.past_trainings.each do |training| %>
                 <tr class="hover:bg-gray-50">
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <%= l training.start_at, format: :short %>
                   </td>
                   <td class="px-6 py-4 text-sm text-gray-900">
                     <div class="font-medium">
-                      <%= training.title.presence || training.display_name %>
+                      <% title = training.title.presence || training.display_name %>
+                    <% if admin_links %>
+                      <%= link_to title, admin_session_path(training), class: "text-asmbv-red hover:text-asmbv-red-dark" %>
+                    <% else %>
+                      <%= title %>
+                    <% end %>
                     </div>
                     <div class="text-gray-500 text-xs">Terrain <%= training.terrain %></div>
                   </td>
@@ -190,15 +202,20 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <% if @upcoming_trainings.any? %>
-              <% @upcoming_trainings.each do |training| %>
+            <% if report.upcoming_trainings.any? %>
+              <% report.upcoming_trainings.each do |training| %>
                 <tr class="hover:bg-gray-50">
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <%= l training.start_at, format: :short %>
                   </td>
                   <td class="px-6 py-4 text-sm text-gray-900">
                     <div class="font-medium">
-                      <%= training.title.presence || training.display_name %>
+                      <% title = training.title.presence || training.display_name %>
+                    <% if admin_links %>
+                      <%= link_to title, admin_session_path(training), class: "text-asmbv-red hover:text-asmbv-red-dark" %>
+                    <% else %>
+                      <%= title %>
+                    <% end %>
                     </div>
                     <div class="text-gray-500 text-xs">Terrain <%= training.terrain %></div>
                   </td>
