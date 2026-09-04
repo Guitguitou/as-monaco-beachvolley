@@ -44,7 +44,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resource :profile, only: [ :show ], controller: "users"
+  resource :profile, only: [ :show, :update ], controller: "profiles"
 
   namespace :me do
     resources :sessions, only: [ :index, :show ]

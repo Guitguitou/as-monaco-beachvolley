@@ -181,7 +181,7 @@ module ApplicationHelper
     "stages#index" => "Stages",
     "performances#index" => "Performances & stats",
     "annonces#index" => "Annonces de jeu libre",
-    "users#show" => "Mon profil",
+    "profiles#show" => "Mon profil",
     "me/sessions#index" => "Mes sessions"
   }.freeze
 
