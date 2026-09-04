@@ -1,73 +1,50 @@
-<div class="max-w-5xl mx-auto space-y-8">
+<div class="max-w-6xl mx-auto">
   <%# Titre porté par le PageHeaderComponent du layout. %>
 
-  <!-- À venir -->
-  <%= render CardComponent.new(padding: :md) do |card| %>
-    <% card.with_header do %>
-      <h2 class="text-lg font-semibold text-gray-800">À venir</h2>
-    <% end %>
-    <% if @upcoming.any? %>
-      <ul class="divide-y divide-gray-100">
-        <% @upcoming.each do |s| %>
-          <li class="py-3 flex items-center justify-between gap-4">
-            <div class="min-w-0">
-              <div class="flex items-center gap-2 text-gray-900 font-medium">
-                <%= lucide_icon("calendar", class: "w-4 h-4 text-gray-500") %>
-                <%= link_to (s.title.presence || s.display_name), me_session_path(s), class: "hover:text-asmbv-red" %>
-              </div>
-              <div class="mt-1 text-sm text-gray-600 flex items-center gap-2 flex-wrap">
-                <%= render BadgeComponent.new(label: s.terrain.to_s.split('_').last, variant: :neutral, size: :xs) %>
-                <%= render BadgeComponent.new(label: session_levels_label(s.levels).to_s, variant: :neutral, size: :xs) %>
-                <span class="inline-flex items-center gap-1 text-xs text-gray-600">
-                  <%= lucide_icon("clock", class: "w-3 h-3") %>
-                  <%= l s.start_at, format: :default %> — <%= l s.end_at, format: :time %>
-                </span>
-              </div>
-            </div>
-            <div class="text-right text-sm text-gray-600">
-              <div class="font-semibold"><%= s.user&.full_name || "Organisateur" %></div>
-              <div><%= s.price.to_i %> crédits</div>
-            </div>
-          </li>
-        <% end %>
-      </ul>
-    <% else %>
-      <p class="text-sm text-gray-500">Aucune session à venir.</p>
-    <% end %>
-  <% end %>
+  <%= turbo_frame_tag "me_sessions" do %>
+    <%= tab_bar([
+          { label: "À venir", href: me_sessions_path(filter: "upcoming"),
+            active: @list.upcoming?, icon: "calendar-clock",
+            count: (@list.upcoming_count if @list.upcoming_count.positive?) },
+          { label: "Passées", href: me_sessions_path(filter: "past"),
+            active: !@list.upcoming?, icon: "calendar-check",
+            count: (@list.past_count if @list.past_count.positive?) }
+        ], turbo_frame: "me_sessions") %>
 
-  <!-- Passées -->
-  <%= render CardComponent.new(padding: :md) do |card| %>
-    <% card.with_header do %>
-      <h2 class="text-lg font-semibold text-gray-800">Passées</h2>
+    <%# Une inscription en liste d'attente n'était signalée nulle part. %>
+    <% if @list.upcoming? && @list.waitlisted_count.positive? %>
+      <p class="mt-4 inline-flex items-center gap-2 border-l-4 border-orange-500 bg-orange-50 px-4 py-2 text-sm text-gray-700">
+        <%= lucide_icon("clock-alert", class: "w-4 h-4 shrink-0 text-orange-500", aria: { hidden: true }) %>
+        Tu es en liste d'attente sur
+        <%= fr_pluralize(@list.waitlisted_count, "session", "sessions") %>.
+      </p>
     <% end %>
-    <% if @past.any? %>
-      <ul class="divide-y divide-gray-100">
-        <% @past.each do |s| %>
-          <li class="py-3 flex items-center justify-between gap-4">
-            <div class="min-w-0">
-              <div class="flex items-center gap-2 text-gray-900 font-medium">
-                <%= lucide_icon("calendar-check", class: "w-4 h-4 text-gray-500") %>
-                <%= link_to (s.title.presence || s.display_name), me_session_path(s), class: "hover:text-asmbv-red" %>
-              </div>
-              <div class="mt-1 text-sm text-gray-600 flex items-center gap-2 flex-wrap">
-                <%= render BadgeComponent.new(label: s.terrain.to_s.split('_').last, variant: :neutral, size: :xs) %>
-                <%= render BadgeComponent.new(label: session_levels_label(s.levels).to_s, variant: :neutral, size: :xs) %>
-                <span class="inline-flex items-center gap-1 text-xs text-gray-600">
-                  <%= lucide_icon("clock", class: "w-3 h-3") %>
-                  <%= l s.start_at, format: :default %> — <%= l s.end_at, format: :time %>
-                </span>
-              </div>
-            </div>
-            <div class="text-right text-sm text-gray-600">
-              <div class="font-semibold"><%= s.user&.full_name || "Organisateur" %></div>
-              <div><%= s.price.to_i %> crédits</div>
-            </div>
-          </li>
+
+    <div class="mt-6">
+      <% if @list.registrations.any? %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% @list.registrations.each do |registration| %>
+            <%= render SessionCardComponent.new(state: @list.card_state_for(registration)) %>
+          <% end %>
+        </div>
+      <% elsif @list.upcoming? %>
+        <%= render EmptyStateComponent.new(
+              icon: "calendar-x",
+              title: "Rien de prévu",
+              description: "Tu n'es inscrit à aucune session à venir."
+            ) do |empty| %>
+          <% empty.with_action do %>
+            <%= button("Voir les sessions ouvertes", variant: :primary, size: :medium,
+                       href: sessions_path(view: "grid"), data: { turbo_frame: "_top" }) %>
+          <% end %>
         <% end %>
-      </ul>
-    <% else %>
-      <p class="text-sm text-gray-500">Aucune session passée.</p>
-    <% end %>
+      <% else %>
+        <%= render EmptyStateComponent.new(
+              icon: "history",
+              title: "Aucune session passée",
+              description: "Tes sessions jouées apparaîtront ici."
+            ) %>
+      <% end %>
+    </div>
   <% end %>
 </div>
