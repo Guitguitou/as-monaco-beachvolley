@@ -264,4 +264,36 @@ RSpec.describe Ability do
       expect(ability).not_to be_able_to(:manage, session)
     end
   end
+
+  # Droits sur son propre compte. Ils sont posés avant les retours anticipés
+  # d'Ability : sans ça un responsable financier n'a aucun droit sur lui-même
+  # et prend un 403 sur sa propre page de profil.
+  describe 'own account' do
+    it 'lets a plain user read and update themselves' do
+      ability = Ability.new(user)
+
+      expect(ability).to be_able_to(:read, user)
+      expect(ability).to be_able_to(:update, user)
+    end
+
+    it 'lets a financial manager read and update themselves' do
+      ability = Ability.new(financial_manager_user)
+
+      expect(ability).to be_able_to(:read, financial_manager_user)
+      expect(ability).to be_able_to(:update, financial_manager_user)
+    end
+
+    it 'does not let a user update someone else' do
+      ability = Ability.new(user)
+
+      expect(ability).not_to be_able_to(:update, create(:user))
+    end
+
+    it 'gives a disabled user no rights over their own account' do
+      ability = Ability.new(disabled_user)
+
+      expect(ability).not_to be_able_to(:read, disabled_user)
+      expect(ability).not_to be_able_to(:update, disabled_user)
+    end
+  end
 end
