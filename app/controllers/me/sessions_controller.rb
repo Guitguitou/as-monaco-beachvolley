@@ -5,13 +5,14 @@ module Me
     before_action :authenticate_user!
 
     def index
-      mine = current_user.sessions_registered.includes(:levels, :user)
-      @upcoming = mine.where("start_at >= ?", Time.current).order(:start_at)
-      @past = mine.where("end_at < ?", Time.current).order(start_at: :desc)
+      @list = SessionsList.new(user: current_user, filter: params[:filter])
     end
 
     def show
-      @session = current_user.sessions_registered.find(params[:id])
+      # Volontairement sur les registrations et non sur `sessions_registered` :
+      # une session où le joueur est en liste d'attente doit rester ouvrable.
+      registration = Registration.find_by!(user_id: current_user.id, session_id: params[:id])
+      @session = registration.session
     end
   end
 end
