@@ -14,6 +14,13 @@ class Ability
       return
     end
 
+    # Droits sur son propre compte : posés AVANT les retours anticipés, sinon
+    # un responsable financier n'a aucun droit sur lui-même et prend un 403
+    # sur sa propre page de profil.
+    if user.id.present? && !user.disabled?
+      can [ :read, :update ], User, id: user.id
+    end
+
     # Responsable financier : accès limité au dashboard et historique des achats
     if user.financial_manager?
       can :read, :admin_dashboard
@@ -23,8 +30,6 @@ class Ability
 
     # Base permissions for all authenticated users
     if user.id.present? && !user.disabled?
-      can :read, User, id: user.id
-
       # Non-activated users: limited access to licenses, stages and infos
       if !user.activated?
         can :read, Pack, pack_type: [ "licence", "stage", "inscription_tournoi", "equipements" ]
