@@ -1,0 +1,43 @@
+<div class="<%= wrapper_classes %>">
+  <div class="flex items-start gap-4">
+    <%= lucide_icon(icon_name, class: icon_classes, aria: { hidden: true }) %>
+
+    <div class="min-w-0 flex-1">
+      <div class="flex items-center gap-2 flex-wrap">
+        <h2 class="font-anton text-xl uppercase tracking-tight text-gray-900"><%= title %></h2>
+
+        <% if license_type_label.present? %>
+          <%= render BadgeComponent.new(
+                label: license_type_label,
+                variant: competition? ? :warning : :neutral,
+                size: :xs
+              ) %>
+        <% end %>
+
+        <% if renewed? %>
+          <%= render BadgeComponent.new(label: "Saison prochaine réglée", variant: :success, size: :xs) %>
+        <% end %>
+      </div>
+
+      <p class="mt-2 text-sm text-gray-600"><%= description %></p>
+
+      <% if activated_on.present? %>
+        <p class="mt-2 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+          Active depuis le <%= activated_on %>
+        </p>
+      <% end %>
+
+      <% unless activated? %>
+        <div class="mt-4">
+          <%= helpers.button(
+                "Régler ma licence",
+                variant: :primary,
+                size: :medium,
+                href: helpers.packs_path,
+                data: { turbo_frame: "_top" }
+              ) %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

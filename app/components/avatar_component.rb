@@ -44,6 +44,7 @@ class AvatarComponent < ApplicationComponent
     when :xs then "h-7 w-7 text-[10px]"
     when :sm then "h-9 w-9 text-xs"
     when :lg then "h-14 w-14 text-lg font-anton"
+    when :xl then "h-16 w-16 sm:h-20 sm:w-20 text-2xl sm:text-3xl font-anton"
     else "h-10 w-10 text-sm"
     end
   end
