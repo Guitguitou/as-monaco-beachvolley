@@ -85,17 +85,15 @@ export default class extends Controller {
 
   updateButtonVisibility() {
     if (!this.hasEnableButtonTarget) return
-    
-    const permission = Notification.permission
-    const button = this.enableButtonTarget
-    
-    if (permission === "default") {
-      // Permission not yet asked, show button
-      button.style.display = "flex"
-    } else {
-      // Permission already granted or denied, hide button
-      button.style.display = "none"
-    }
+
+    // Plusieurs boutons coexistent (navbar, menu mobile, réglages du profil) :
+    // `enableButtonTarget` n'en renvoyait que le premier, laissant les autres
+    // visibles alors que la permission était déjà tranchée.
+    const visible = Notification.permission === "default"
+
+    this.enableButtonTargets.forEach((button) => {
+      button.style.display = visible ? "flex" : "none"
+    })
   }
 
   async subscribe(registration) {
