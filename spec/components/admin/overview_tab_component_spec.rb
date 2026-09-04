@@ -49,11 +49,12 @@ RSpec.describe Admin::OverviewTabComponent, type: :component do
     expect(page).to have_text('Désinscriptions hors délai')
     expect(page).to have_text('1')
     expect(page).to have_text('CA semaine (€)')
-    expect(page).to have_text('1500.00')
+    # Formats français depuis l'ajout de la section `number` dans fr.yml.
+    expect(page).to have_text('1 500,00')
     expect(page).to have_text('Salaires coachs (€)')
-    expect(page).to have_text('800.00')
+    expect(page).to have_text('800,00')
     expect(page).to have_text('Différence (€)')
-    expect(page).to have_text('700.00')
+    expect(page).to have_text('700,00')
   end
 
   it 'displays upcoming sessions sections' do
