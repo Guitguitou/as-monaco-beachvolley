@@ -1,0 +1,21 @@
+<%= content_tag tag_name, tag_options do %>
+  <div class="flex items-start justify-between gap-3">
+    <div class="min-w-0">
+      <p class="<%= label_classes %>"><%= label %></p>
+      <p class="<%= value_classes %>"><%= value %></p>
+      <% if hint.present? %>
+        <p class="<%= hint_classes %>"><%= hint %></p>
+      <% end %>
+    </div>
+
+    <% if icon.present? %>
+      <%= lucide_icon(icon, class: icon_classes, aria: { hidden: true }) %>
+    <% end %>
+  </div>
+
+  <% if action %>
+    <div class="mt-4">
+      <%= action %>
+    </div>
+  <% end %>
+<% end %>

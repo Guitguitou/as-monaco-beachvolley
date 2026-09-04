@@ -1,0 +1,14 @@
+<div class="flex items-end justify-between gap-4">
+  <div class="min-w-0">
+    <h2 class="font-anton text-xl uppercase tracking-tight text-gray-900"><%= title %></h2>
+    <% if subtitle.present? %>
+      <p class="mt-1 text-sm text-gray-600"><%= subtitle %></p>
+    <% end %>
+  </div>
+
+  <% if action %>
+    <div class="shrink-0">
+      <%= action %>
+    </div>
+  <% end %>
+</div>
