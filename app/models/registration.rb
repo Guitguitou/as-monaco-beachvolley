@@ -21,7 +21,6 @@ class Registration < ApplicationRecord
   validate :enough_credits?
   validate :can_register?
   validate :no_schedule_conflict
-  validate :weekly_training_limit
 
   scope :valid, -> { where(status: :confirmed) }
 
@@ -108,39 +107,6 @@ class Registration < ApplicationRecord
     if overlap_exists
       errors.add(:session, "chevauche une autre session à laquelle tu es inscrit")
       errors.add(:base, "Tu es déjà inscrit à une autre session sur le même créneau.")
-    end
-  end
-
-  # Enforce: at most one training (entrainement) per week, except for the current week
-  def weekly_training_limit
-    # Only applies to confirmed registrations for training sessions
-    return if waitlisted?
-    return unless confirmed?
-    return unless session&.entrainement?
-
-    # Allow multiple registrations in the current week
-    begin
-      today_week_start = Time.zone.today.beginning_of_week(:monday)
-      session_week_start = session.start_at.in_time_zone.beginning_of_week(:monday).to_date
-      if session_week_start == today_week_start
-        return
-      end
-    rescue StandardError
-      # If time computations fail, default to enforcing the rule
-    end
-
-    week_start = session.start_at.in_time_zone.beginning_of_week(:monday)
-    week_end = session.start_at.in_time_zone.end_of_week(:monday)
-
-    already_registered_this_week = user
-      .sessions_registered
-      .where(session_type: "entrainement")
-      .where(start_at: week_start..week_end)
-      .where.not(id: session.id)
-      .exists?
-
-    if already_registered_this_week
-      errors.add(:base, "Tu as déjà un entraînement sur cette semaine. Une seule inscription est autorisée (hors semaine en cours).")
     end
   end
 end
