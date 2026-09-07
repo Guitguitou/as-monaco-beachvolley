@@ -85,6 +85,10 @@ class RegistrationsController < ApplicationController
           # After freeing up a spot, promote the first in waitlist if any
           @session.promote_from_waitlist!
         end
+        # Le joueur a libéré un entraînement : ses autres inscriptions de la même
+        # semaine peuvent redevenir prioritaires. Hors transaction, les promotions
+        # notifient les joueurs.
+        Sessions::WeeklyCascadeService.call(user: registration.user, session: @session)
         notice_msg = if amount.positive? && !refundable
                         "Désinscription réussie, mais délai dépassé — pas de remboursement."
         else
