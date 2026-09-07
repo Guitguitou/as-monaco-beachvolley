@@ -1,23 +1,27 @@
 module Sessions
   class WaitlistPromotionService
-    def self.call(session:)
-      new(session: session).call
+    # `weekly_priority` est fourni par PriorityBalancerService, qui a déjà chargé
+    # les priorités hebdomadaires : on évite alors toute requête supplémentaire.
+    def self.call(session:, weekly_priority: nil)
+      new(session: session, weekly_priority: weekly_priority).call
     end
 
-    def initialize(session:)
+    def initialize(session:, weekly_priority: nil)
       @session = session
+      @weekly_priority = weekly_priority
     end
 
     def call
       return unless session.max_players.present?
       return if session.registrations.confirmed.count >= session.max_players
 
-      candidates = session.registrations.waitlisted.includes(user: :levels)
-        .sort_by { |registration| [ registration.priority_rank, registration.created_at ] }
+      session.session_levels.load # évite un N+1 dans priority_rank
+      candidates = session.registrations.waitlisted.includes(user: :levels).to_a
+      weekly.prime(candidates)
 
-      candidates.each do |registration|
-        return registration if promote_registration(registration)
-      end
+      candidates
+        .sort_by { |registration| sort_key(registration) }
+        .each { |registration| return registration if promote_registration(registration) }
 
       nil
     end
@@ -25,6 +29,15 @@ module Sessions
     private
 
     attr_reader :session
+
+    def sort_key(registration)
+      [ weekly.rank_for(registration), registration.priority_rank,
+        registration.created_at, registration.id ]
+    end
+
+    def weekly
+      @weekly ||= @weekly_priority || Registrations::WeeklyPriorityResolver.new(session: session)
+    end
 
     def promote_registration(registration)
       amount = session.coaching_prive? ? 0 : session.price.to_i
