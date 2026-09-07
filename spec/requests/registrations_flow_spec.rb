@@ -140,4 +140,73 @@ RSpec.describe "Registrations flow", type: :request do
       expect(response.body).to include('17h')
     end
   end
+
+  describe "priorité hebdomadaire" do
+    let(:monday) { Time.zone.parse("2035-01-01 10:00:00") } # un lundi
+    let(:rival) { create(:user, level: level, activated_at: Time.current) }
+
+    around { |example| travel_to(monday) { example.run } }
+
+    before do
+      create(:credit_transaction, user: rival, amount: 1_000)
+      allow(SendPushNotificationJob).to receive(:perform_later)
+      allow(SessionMailer).to receive(:promoted_to_main_list).and_return(double(deliver_later: true))
+      allow(SessionMailer).to receive(:displaced_to_waitlist).and_return(double(deliver_later: true))
+    end
+
+    def training(day_offset:, terrain:)
+      start_at = (monday + 7.days + day_offset.days).change(hour: 19)
+      create(:session, session_type: "entrainement", terrain: terrain, user: coach,
+                       levels: [ level ], start_at: start_at, end_at: start_at + 1.hour,
+                       max_players: 1, registration_opens_at: monday - 1.day)
+    end
+
+    it "laisse s'inscrire au 2e entraînement, puis le déclasse devant un joueur prioritaire" do
+      first = training(day_offset: 0, terrain: "Terrain 1")
+      second = training(day_offset: 2, terrain: "Terrain 2")
+
+      sign_in player, scope: :user
+      post session_registrations_path(first)
+      expect(flash[:alert]).to be_blank
+
+      # Le 2e entraînement de la semaine n'est plus refusé.
+      post session_registrations_path(second)
+      expect(flash[:alert]).to be_blank
+      expect(player.registrations.find_by(session: second)).to be_confirmed
+      sign_out player
+
+      # Un joueur sans entraînement cette semaine prend la place.
+      sign_in rival, scope: :user
+      post session_registrations_path(second), params: { waitlist: true }
+
+      expect(rival.registrations.find_by(session: second).reload).to be_confirmed
+      expect(player.registrations.find_by(session: second).reload).to be_waitlisted
+    end
+
+    it "repromeut le joueur quand il libère son premier entraînement" do
+      first = training(day_offset: 0, terrain: "Terrain 1")
+      second = training(day_offset: 2, terrain: "Terrain 2")
+
+      sign_in player, scope: :user
+      post session_registrations_path(first)
+      post session_registrations_path(second)
+      sign_out player
+
+      sign_in rival, scope: :user
+      post session_registrations_path(second), params: { waitlist: true }
+      sign_out rival
+
+      # Déclassé : il avait déjà un entraînement cette semaine.
+      expect(player.registrations.find_by(session: second).reload).to be_waitlisted
+      expect(rival.registrations.find_by(session: second).reload).to be_confirmed
+
+      sign_in player, scope: :user
+      delete session_registration_path(first, id: "current")
+
+      # La cascade rejoue le rééquilibrage sur l'autre entraînement de la semaine :
+      # redevenu prioritaire et inscrit avant le rival, il récupère la place.
+      expect(player.registrations.find_by(session: second).reload).to be_confirmed
+      expect(rival.registrations.find_by(session: second).reload).to be_waitlisted
+    end
+  end
 end
