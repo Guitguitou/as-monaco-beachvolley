@@ -58,6 +58,11 @@ class SessionsController < ApplicationController
 
     # Only show sessions that are either registered/waitlisted or eligible to register
     @sessions_grid = @sessions_registered_grid + @sessions_eligible_grid
+
+    # Priorité hebdomadaire : une seule requête pour toute la grille.
+    @weekly_ranks_by_session_id = Registrations::UserWeeklyPriorityMap.call(
+      user: current_user, sessions: @sessions_grid
+    )
   end
 
   def show

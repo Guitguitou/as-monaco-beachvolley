@@ -77,13 +77,21 @@ module Home
         confirmed_count: confirmed_count(session),
         conflict: false,
         balance: balance,
-        user_level_ids: level_ids
+        user_level_ids: level_ids,
+        weekly_rank: weekly_ranks[session.id]
       )
     end
 
     private
 
     attr_reader :user
+
+    # Une seule requête pour tout le bloc de recommandations.
+    def weekly_ranks
+      @weekly_ranks ||= Registrations::UserWeeklyPriorityMap.call(
+        user: user, sessions: recommended_sessions
+      )
+    end
 
     def level_ids
       @level_ids ||= user.levels.map(&:id)

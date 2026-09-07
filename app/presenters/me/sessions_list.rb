@@ -51,13 +51,21 @@ module Me
         confirmed_count: session.registrations.count(&:confirmed?),
         conflict: false,
         balance: balance,
-        user_level_ids: level_ids
+        user_level_ids: level_ids,
+        weekly_rank: weekly_ranks[session.id]
       )
     end
 
     private
 
     attr_reader :user
+
+    # Une seule requête pour tout l'onglet, quel que soit le nombre de cartes.
+    def weekly_ranks
+      @weekly_ranks ||= Registrations::UserWeeklyPriorityMap.call(
+        user: user, sessions: registrations.map(&:session)
+      )
+    end
 
     def upcoming_registrations
       @upcoming_registrations ||= scope

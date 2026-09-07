@@ -26,11 +26,12 @@ module Sessions
         registration: user && session.registrations.find { |r| r.user_id == user.id },
         confirmed_count: confirmed.size,
         conflict: user.present? && Registrations::ScheduleConflictQuery.call(user: user, session: session).exists?,
-        balance: user&.balance&.amount.to_i
+        balance: user&.balance&.amount.to_i,
+        weekly_rank: user && Registrations::UserWeeklyPriorityMap.call(user: user, sessions: [ session ])[session.id]
       )
     end
 
-    def initialize(session:, user:, registration:, confirmed_count:, conflict:, balance:, user_level_ids: nil)
+    def initialize(session:, user:, registration:, confirmed_count:, conflict:, balance:, user_level_ids: nil, weekly_rank: nil)
       @session = session
       @user = user
       @registration = registration
@@ -38,6 +39,7 @@ module Sessions
       @conflict = conflict
       @balance = balance.to_i
       @user_level_ids = user_level_ids || Array(user&.levels&.map(&:id))
+      @weekly_rank = weekly_rank
     end
 
     attr_reader :session, :registration, :confirmed_count, :balance
@@ -69,6 +71,30 @@ module Sessions
       return false if session.levels.empty?
 
       (session.level_ids & @user_level_ids).empty?
+    end
+
+    # Le joueur a déjà un entraînement plus ancien sur cette semaine : il passe
+    # derrière ceux qui n'en ont pas encore. Jamais bloquant — seulement signalé.
+    def weekly_secondary?
+      return false unless session.entrainement?
+
+      @weekly_rank.to_i == Registrations::WeeklyPriorityRule::SECONDARY
+    end
+
+    def weekly_badge_label
+      registered? || waitlisted? ? "Non prioritaire" : "2e entraînement"
+    end
+
+    def weekly_notice
+      return nil unless weekly_secondary?
+
+      if registered?
+        "Tu as déjà un entraînement cette semaine : si un joueur prioritaire s'inscrit, tu repasses en liste d'attente (crédits rendus)."
+      elsif waitlisted?
+        "Tu as déjà un entraînement cette semaine : tu passes après les joueurs qui n'en ont pas encore."
+      else
+        "Ce serait ton 2e entraînement de la semaine : tu passes après les joueurs qui n'en ont pas encore."
+      end
     end
 
     def not_enough_credits?

@@ -29,6 +29,7 @@ class SessionCardComponent < ApplicationComponent
   delegate :session, :accent, :registered?, :waitlisted?, :full?, :conflict?,
            :off_level?, :confirmed_count, :action, :action_label,
            :destructive_action?, :actionable?, :confirmed_participants,
+           :weekly_secondary?, :weekly_badge_label, :weekly_notice,
            to: :state
 
   def card_classes

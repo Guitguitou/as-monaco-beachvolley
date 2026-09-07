@@ -11,6 +11,7 @@
   <% counts = @confirmed_counts_by_session_id || {} %>
   <% user_level_ids = Array(@user_level_ids).map(&:to_i) %>
   <% user_balance = @user_balance_amount.to_i %>
+  <% weekly_ranks = @weekly_ranks_by_session_id || {} %>
   <% return_params = sessions_index_return_params %>
 
   <%# Construit l'état d'une carte à partir des données déjà préchargées par le
@@ -23,7 +24,8 @@
          confirmed_count: counts[session.id].to_i,
          conflict: conflict_ids.include?(session.id),
          balance: user_balance,
-         user_level_ids: user_level_ids
+         user_level_ids: user_level_ids,
+         weekly_rank: weekly_ranks[session.id]
        )
      end %>
 
