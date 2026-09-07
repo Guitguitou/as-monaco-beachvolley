@@ -40,7 +40,7 @@
   <% end %>
 </div>
 
-<% waitlisted = @session.registrations.waitlisted.order(:created_at) %>
+<% waitlisted = Sessions::WaitlistOrder.call(session: @session) %>
 <% if waitlisted.any? %>
   <div class="mt-5">
     <h4 class="text-xs font-bold uppercase tracking-wide text-gray-900 mb-3 mt-3">Liste d’attente</h4>

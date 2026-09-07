@@ -9,8 +9,18 @@
   <% waitlist_registration = Registration.new(user: current_user, session: session, status: :waitlisted) %>
   <% can_waitlist, waitlist_reason = waitlist_registration.can_register_with_reason %>
   <% existing_registration = current_user.registrations.find_by(session: session) %>
+  <% weekly_secondary = Registrations::UserWeeklyPriorityMap.call(user: current_user, sessions: [ session ])[session.id] == Registrations::WeeklyPriorityRule::SECONDARY %>
 
   <% if existing_registration.nil? %>
+    <%# Le 2e entraînement de la semaine n'est pas refusé : il est déclassé.
+        On le dit avant le clic, sinon la démotion est incompréhensible. %>
+    <% if weekly_secondary && (can_register || (session.full? && can_waitlist)) %>
+      <div class="mb-3 border-l-4 border-orange-500 bg-orange-50 px-3 py-2 text-sm text-gray-700">
+        Ce serait ton 2e entraînement de la semaine. Tu peux t'inscrire, mais tu passes après
+        les joueurs qui n'en ont pas encore : si l'un d'eux s'inscrit et que la session est pleine,
+        tu bascules en liste d'attente et tes crédits te sont rendus.
+      </div>
+    <% end %>
     <% if can_register %>
       <%= button_to session_registrations_path(session),
                     method: :post,
@@ -65,12 +75,19 @@
       </div>
     <% end %>
 
+    <% if weekly_secondary %>
+      <div class="mt-3">
+        <%= render BadgeComponent.new(label: "Non prioritaire cette semaine", variant: :warning, size: :sm) %>
+      </div>
+    <% end %>
+
     <% if existing_registration.waitlisted? %>
-      <% waitlisted_ids = session.registrations.waitlisted.order(:created_at).pluck(:user_id) %>
+      <%# Position dans l'ordre réel de promotion, pas dans l'ordre d'arrivée. %>
+      <% waitlisted_ids = Sessions::WaitlistOrder.call(session: session).map(&:user_id) %>
       <% my_index = waitlisted_ids.index(current_user.id) %>
       <% if my_index %>
         <div class="mt-3">
-          <%= render BadgeComponent.new(label: "Position liste d'attente : ##{my_index + 1}", variant: :warning, size: :sm) %>
+          <%= render BadgeComponent.new(label: "Position estimée : ##{my_index + 1}", variant: :warning, size: :sm) %>
         </div>
       <% end %>
     <% end %>
