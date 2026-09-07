@@ -109,4 +109,114 @@ RSpec.describe Sessions::PriorityBalancerService, type: :service do
       expect(reg_g2.reload).to be_confirmed
     end
   end
+
+  describe "priorité hebdomadaire (critère A)" do
+    # Un lundi hors des données résiduelles de la base de test.
+    let(:monday) { Time.zone.parse("2035-01-01 10:00:00") }
+
+    around { |example| travel_to(monday) { example.run } }
+
+    def next_week_training(day_offset:, terrain:, max_players: 1)
+      start_at = (monday + 7.days + day_offset.days).change(hour: 19)
+      session = create(:session, session_type: "entrainement", terrain: terrain,
+                                 start_at: start_at, end_at: start_at + 1.hour,
+                                 max_players: max_players, price: 400,
+                                 registration_opens_at: monday - 1.day)
+      create(:session_level, session: session, level: g1, priority: 1)
+      create(:session_level, session: session, level: g3, priority: 3)
+      session
+    end
+
+    it "fait passer un G3 sans entraînement devant un G1 qui en a déjà un" do
+      other = next_week_training(day_offset: 0, terrain: "Terrain 1")
+      target = next_week_training(day_offset: 2, terrain: "Terrain 2")
+
+      g1_user = player(g1)
+      create(:registration, user: g1_user, session: other, status: :confirmed)
+      travel 1.minute
+      reg_g1 = create(:registration, user: g1_user, session: target, status: :confirmed)
+
+      travel 1.minute
+      g3_user = player(g3)
+      reg_g3 = create(:registration, user: g3_user, session: target, status: :waitlisted)
+
+      allow(SessionMailer).to receive(:displaced_to_waitlist).and_return(double(deliver_later: true))
+      allow(SessionMailer).to receive(:promoted_to_main_list).and_return(double(deliver_later: true))
+
+      Sessions::PriorityBalancerService.call(session: target)
+
+      # A domine B : le G3 « frais » passe devant le G1 déjà servi cette semaine.
+      expect(reg_g3.reload).to be_confirmed
+      expect(reg_g1.reload).to be_waitlisted
+    end
+
+    it "ne fait perdre au joueur que sa deuxième place, jamais les deux" do
+      s1 = next_week_training(day_offset: 0, terrain: "Terrain 1")
+      s2 = next_week_training(day_offset: 2, terrain: "Terrain 2")
+
+      greedy = player(g1)
+      reg1 = create(:registration, user: greedy, session: s1, status: :confirmed)
+      travel 1.minute
+      reg2 = create(:registration, user: greedy, session: s2, status: :confirmed)
+
+      travel 1.minute
+      challengers = [ s1, s2 ].map do |session|
+        create(:registration, user: player(g3), session: session, status: :waitlisted)
+      end
+
+      allow(SessionMailer).to receive(:displaced_to_waitlist).and_return(double(deliver_later: true))
+      allow(SessionMailer).to receive(:promoted_to_main_list).and_return(double(deliver_later: true))
+
+      [ s1, s2 ].each { |session| Sessions::PriorityBalancerService.call(session: session) }
+
+      # Sa 1re inscription reste prioritaire ; seule la 2e est déclassée.
+      expect(reg1.reload).to be_confirmed
+      expect(reg2.reload).to be_waitlisted
+      expect(challengers.map { |r| r.reload.status }).to eq([ "waitlisted", "confirmed" ])
+    end
+
+    it "ignore une inscription en liste d'attente ailleurs dans la semaine" do
+      other = next_week_training(day_offset: 0, terrain: "Terrain 1")
+      target = next_week_training(day_offset: 2, terrain: "Terrain 2")
+
+      g1_user = player(g1)
+      create(:registration, :waitlisted, user: g1_user, session: other)
+      travel 1.minute
+      reg_g1 = create(:registration, user: g1_user, session: target, status: :confirmed)
+
+      travel 1.minute
+      reg_g3 = create(:registration, user: player(g3), session: target, status: :waitlisted)
+
+      Sessions::PriorityBalancerService.call(session: target)
+
+      expect(reg_g1.reload).to be_confirmed
+      expect(reg_g3.reload).to be_waitlisted
+    end
+
+    it "reste neutre sur la semaine en cours : seule la priorité de groupe départage" do
+      start_at = (monday + 1.day).change(hour: 19)
+      s1 = create(:session, session_type: "entrainement", terrain: "Terrain 1",
+                            start_at: start_at, end_at: start_at + 1.hour, max_players: 1, price: 400)
+      target_start = (monday + 2.days).change(hour: 19)
+      target = create(:session, session_type: "entrainement", terrain: "Terrain 2",
+                                start_at: target_start, end_at: target_start + 1.hour, max_players: 1, price: 400)
+      [ s1, target ].each do |session|
+        create(:session_level, session: session, level: g1, priority: 1)
+        create(:session_level, session: session, level: g3, priority: 3)
+      end
+
+      g1_user = player(g1)
+      create(:registration, user: g1_user, session: s1, status: :confirmed)
+      travel 1.minute
+      reg_g1 = create(:registration, user: g1_user, session: target, status: :confirmed)
+
+      travel 1.minute
+      reg_g3 = create(:registration, user: player(g3), session: target, status: :waitlisted)
+
+      Sessions::PriorityBalancerService.call(session: target)
+
+      expect(reg_g1.reload).to be_confirmed
+      expect(reg_g3.reload).to be_waitlisted
+    end
+  end
 end

@@ -1,9 +1,10 @@
 module Sessions
   # Applique l'invariant de priorité sur un entraînement :
   # la liste principale (confirmed) = les `max_players` inscriptions actives
-  # triées par [priority_rank, created_at]. Les joueurs secondaires sont
-  # déplacés en liste d'attente si un joueur plus prioritaire prend leur place,
-  # et remboursés ; les places libres sont comblées par promotion prioritaire.
+  # triées par [priorité hebdomadaire, priorité de groupe, ancienneté].
+  # Les joueurs secondaires sont déplacés en liste d'attente si un joueur plus
+  # prioritaire prend leur place, et remboursés ; les places libres sont comblées
+  # par promotion prioritaire.
   class PriorityBalancerService
     def self.call(session:)
       new(session: session).call
@@ -17,6 +18,7 @@ module Sessions
       return unless session.entrainement? && session.max_players.present?
 
       registrations = load_registrations
+      weekly.prime(registrations)
       desired_ids = desired_confirmed_ids(registrations)
 
       # Démotion d'abord : libère les places (et les crédits) avant de promouvoir.
@@ -27,16 +29,30 @@ module Sessions
       # Promotion des joueurs désirés encore en liste d'attente.
       registrations
         .select { |r| r.waitlisted? && desired_ids.include?(r.id) }
-        .sort_by { |r| [ r.priority_rank, r.created_at ] }
+        .sort_by { |r| sort_key(r) }
         .each { |registration| promote(registration) }
 
       # Comble les places restées libres (désinscription simple, promotions échouées).
-      Sessions::WaitlistPromotionService.call(session: session)
+      Sessions::WaitlistPromotionService.call(session: session, weekly_priority: weekly)
     end
 
     private
 
     attr_reader :session
+
+    # Critère A (déjà un entraînement cette semaine ?), puis critère B (groupe),
+    # puis ancienneté. `id` départage les created_at égaux, sinon le tri n'est pas
+    # déterministe.
+    def sort_key(registration)
+      [ weekly.rank_for(registration), registration.priority_rank,
+        registration.created_at, registration.id ]
+    end
+
+    # Snapshot : les pairs vivent sur d'AUTRES sessions, exclues de la requête,
+    # donc rien de ce que fait ce service ne peut le périmer pendant l'appel.
+    def weekly
+      @weekly ||= Registrations::WeeklyPriorityResolver.new(session: session)
+    end
 
     def price
       @price ||= session.coaching_prive? ? 0 : session.price.to_i
@@ -52,7 +68,7 @@ module Sessions
     # Les max_players inscriptions les plus prioritaires et solvables.
     # Un confirmed a déjà payé (solvable) ; un waitlisted doit avoir assez de crédits.
     def desired_confirmed_ids(registrations)
-      sorted = registrations.sort_by { |r| [ r.priority_rank, r.created_at ] }
+      sorted = registrations.sort_by { |r| sort_key(r) }
       desired = []
       sorted.each do |registration|
         break if desired.size >= session.max_players
