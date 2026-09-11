@@ -3,9 +3,9 @@
 
 
 "@fullcalendar/core@^7.0.0":
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/@fullcalendar/core/-/core-7.0.2.tgz#4f848a88af197ac2625af4e97aab385466c1fc56"
-  integrity sha512-EkhE1wkPttp5kKNmUNLsMwl8nUuQmLdj30SPKagOEWMJUE4AHETAu/F/SbYoRq+nksm2GWPe9cQs1kbQP2H9pA==
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@fullcalendar/core/-/core-7.1.0.tgz#72af83347d9191997248e72e8b5569f39b4984ab"
+  integrity sha512-a+ABP7zQpPWpwPT8EsOdShpeOVrJyx/XYStqERd8ibld/FLi/dzpd95r7w3RIdFqFm9iUv0gdGvBshSlI/dbPw==
 
 "@fullcalendar/daygrid@^6.1.20", "@fullcalendar/daygrid@~6.1.21":
   version "6.1.21"
