@@ -2,8 +2,12 @@ FactoryBot.define do
   factory :session do
     title { "Session de test" }
     description { "Description de test" }
-    start_at { 1.hour.from_now }
-    end_at { 2.hours.from_now }
+    # Un terrain n'accepte qu'une session à la fois : sans créneau distinct,
+    # deux sessions par défaut se chevauchent et la validation les rejette.
+    # La séquence est remise à zéro avant chaque exemple (cf. rails_helper),
+    # les créneaux restent donc proches de l'heure courante.
+    sequence(:start_at) { |n| 1.hour.from_now.change(min: 0) + (n - 1) * 2.hours }
+    end_at { start_at + 90.minutes }
     session_type { "entrainement" }
     terrain { "Terrain 1" }
     user

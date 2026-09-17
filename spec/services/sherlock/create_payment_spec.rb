@@ -106,6 +106,8 @@ RSpec.describe Sherlock::CreatePayment do
     end
 
     it 'handles user without full_name method' do
+      credit_purchase # créé avant de toucher à respond_to?
+      allow(user).to receive(:respond_to?).and_call_original
       allow(user).to receive(:respond_to?).with(:full_name).and_return(false)
 
       gateway = double

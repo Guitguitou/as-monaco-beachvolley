@@ -94,11 +94,11 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
           expect(csv_content).to include('Montant (€)')
           expect(csv_content).to include(purchase_in_range.user.full_name)
           expect(csv_content).to include('20.0') # amount_eur
-          # Vérifier que l'achat hors période n'est pas inclus
-          # En utilisant une regex pour s'assurer que le nom n'apparaît que dans la ligne de l'achat dans la période
-          lines = csv_content.split("\n")
-          data_lines = lines.select { |line| line.include?(purchase_out_of_range.user.full_name) }
-          expect(data_lines).to be_empty
+          # Les deux achats appartiennent au même joueur : c'est la référence de
+          # transaction qui distingue la ligne conservée de celle hors période.
+          expect(purchase_out_of_range.sherlock_transaction_reference).to be_present
+          expect(csv_content).to include(purchase_in_range.sherlock_transaction_reference)
+          expect(csv_content).not_to include(purchase_out_of_range.sherlock_transaction_reference)
         end
 
         it "includes all required columns in CSV" do

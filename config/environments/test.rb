@@ -28,8 +28,12 @@ Rails.application.configure do
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
 
-  # Allow Rack::Test default host in request specs.
+  # Allow Rack::Test default host in request specs, plus le host local utilisé
+  # par les specs qui exercent la page d'accueil et par Capybara.
   config.hosts << "test.host"
+  config.hosts << "localhost"
+  config.hosts << IPAddr.new("0.0.0.0/0")
+  config.hosts << IPAddr.new("::/0")
 
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test

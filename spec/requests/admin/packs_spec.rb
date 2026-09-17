@@ -17,7 +17,9 @@ RSpec.describe "Admin::Packs", type: :request do
     it "denies access to non-admin users" do
       sign_in regular_user
       get admin_packs_path
-      expect(response).to have_http_status(:forbidden)
+      # Convention de l'app pour un espace admin : retour à l'accueil avec alerte.
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Accès interdit")
     end
   end
 

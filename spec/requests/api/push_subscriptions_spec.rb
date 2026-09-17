@@ -56,7 +56,8 @@ RSpec.describe "API::PushSubscriptions", type: :request do
 
       it "requires authentication" do
         post "/api/push_subscriptions", params: subscription_params, as: :json
-        expect(response).to have_http_status(:redirect)
+        # Endpoint JSON : Devise répond 401 plutôt que de rediriger vers le login.
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end

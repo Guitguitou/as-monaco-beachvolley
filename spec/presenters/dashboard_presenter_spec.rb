@@ -112,6 +112,11 @@ RSpec.describe Admin::DashboardPresenter do
   end
 
   describe '#coach_salary_breakdown' do
+    # Calendrier figé : les fixtures supposent que le 16 du mois et le 30ᵉ jour
+    # de l'année tombent hors de la semaine courante, ce qui n'est vrai qu'à
+    # certaines dates.
+    around { |example| travel_to(Time.zone.parse("2026-03-26 12:00")) { example.run } }
+
     let(:week_start) { Time.zone.now.beginning_of_week }
     let(:month_start) { Time.zone.now.beginning_of_month }
     let(:year_start) { Time.zone.now.beginning_of_year }
