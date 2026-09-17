@@ -4,6 +4,10 @@ FactoryBot.define do
     last_name { "Doe" }
     sequence(:email) { |n| "john.doe#{n}@example.com" }
     password { "password123" }
+    # Licence active par défaut : sans elle, toute requête authentifiée est
+    # redirigée vers /packs. Les specs du parcours non activé passent
+    # explicitement `activated_at: nil`.
+    activated_at { Time.current }
     coach { false }
     responsable { false }
     admin { false }
