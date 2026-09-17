@@ -205,19 +205,16 @@ RSpec.describe Stats::PerformanceDashboard do
         expect(result[:inactivity][:male].second[:days_since]).to be >= 4
       end
 
-      it "handles players who never played" do
+      it "ignores players who never played" do
         # male_player2 has no registrations
         session1 = create(:session, :jeu_libre, start_at: 10.days.ago, end_at: 10.days.ago + 90.minutes, user: coach)
         create(:registration, user: male_player1, session: session1, status: :confirmed)
 
         result = service.call
 
-        # The player with no sessions should be considered most inactive
-        expect(result[:inactivity][:male]).to be_an(Array)
-        expect(result[:inactivity][:male].length).to eq(2)
-        # Player with no sessions should be first (most inactive)
-        expect(result[:inactivity][:male].first[:user]).to eq(male_player2)
-        expect(result[:inactivity][:male].first[:last_session_at]).to be_nil
+        # Le classement d'inactivité mesure un temps écoulé depuis la dernière
+        # session : sans session jouée, le joueur n'a rien à mesurer.
+        expect(result[:inactivity][:male].map { |entry| entry[:user] }).to eq([ male_player1 ])
       end
     end
 
