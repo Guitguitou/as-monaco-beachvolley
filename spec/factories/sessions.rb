@@ -26,6 +26,20 @@ FactoryBot.define do
     trait :coaching_prive do
       session_type { "coaching_prive" }
       title { "Coaching privé" }
+
+      # Un coaching privé n'est créable que si le coach peut le payer.
+      before(:create) do |session|
+        needed = Session::PRICE_BY_TYPE["coaching_prive"].to_i
+        missing = needed - session.user.balance.amount
+        if missing.positive?
+          CreditTransaction.record!(
+            user: session.user,
+            transaction_type: :manual_adjustment,
+            amount: missing
+          )
+          session.user.balance.reload
+        end
+      end
     end
 
     trait :terrain_2 do
