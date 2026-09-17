@@ -23,7 +23,10 @@ development:
 
 test:
   <<: *default
-  database: as_monaco_beach_volley_app_test
+  # `url` explicite : sans lui, un DATABASE_URL présent dans l'environnement
+  # (celui du .env de développement, par exemple) prend le pas sur `database`
+  # et la suite de tests s'exécute sur la base de développement.
+  url: <%= ENV.fetch("TEST_DATABASE_URL", "postgresql://localhost/as_monaco_beach_volley_app_test") %>
 
 production:
   <<: *default
