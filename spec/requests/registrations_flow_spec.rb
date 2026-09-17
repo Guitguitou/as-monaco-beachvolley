@@ -209,4 +209,25 @@ RSpec.describe "Registrations flow", type: :request do
       expect(rival.registrations.find_by(session: second).reload).to be_waitlisted
     end
   end
+
+  context "quand la session est déjà passée" do
+    let(:admin) { create(:user, admin: true, activated_at: Time.current) }
+
+    it "ne rembourse pas un jeu libre déjà joué" do
+      past = create(:session, :jeu_libre, terrain: "Terrain 1", user: coach,
+                    start_at: 3.hours.ago, end_at: 2.hours.ago)
+      create(:registration, user: player, session: past, status: :confirmed)
+      create(:credit_transaction, user: player, session: past, amount: -past.price,
+             transaction_type: :free_play_payment)
+      balance_before = player.reload.balance.amount
+
+      sign_in admin, scope: :user
+      expect {
+        delete session_registration_path(past, id: "current", user_id: player.id)
+      }.to change { past.reload.registrations.count }.by(-1)
+
+      expect(player.reload.balance.amount).to eq(balance_before)
+      expect(LateCancellation.where(user: player, session: past)).to be_empty
+    end
+  end
 end

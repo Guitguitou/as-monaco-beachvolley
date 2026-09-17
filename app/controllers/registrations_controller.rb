@@ -63,11 +63,14 @@ class RegistrationsController < ApplicationController
       end
 
       amount = registration.required_credits_for(registration.user)
-      # Refund only if before deadline or if no deadline defined (must be outside `transaction` block for Ruby scope)
-      refundable = amount.positive? && (
-        !@session.entrainement? ||
-        @session.cancellation_deadline_at.blank? || Time.current <= @session.cancellation_deadline_at
-      )
+      # Une session déjà commencée n'est jamais remboursée, quel que soit son type.
+      session_started = Time.current > @session.start_at
+      # Pour les entraînements, le délai d'annulation coupe aussi le remboursement.
+      past_deadline = @session.entrainement? &&
+                      @session.cancellation_deadline_at.present? &&
+                      Time.current > @session.cancellation_deadline_at
+      # (doit rester hors du bloc `transaction` pour la portée Ruby)
+      refundable = amount.positive? && !session_started && !past_deadline
       begin
         ActiveRecord::Base.transaction do
           registration.destroy!
@@ -79,7 +82,7 @@ class RegistrationsController < ApplicationController
             ).refund_transaction
           end
           # Log late cancellation when past refund deadline
-          if amount.positive? && !refundable
+          if amount.positive? && past_deadline
             LateCancellation.create!(user: registration.user, session: @session)
           end
           # After freeing up a spot, promote the first in waitlist if any
@@ -89,7 +92,9 @@ class RegistrationsController < ApplicationController
         # semaine peuvent redevenir prioritaires. Hors transaction, les promotions
         # notifient les joueurs.
         Sessions::WeeklyCascadeService.call(user: registration.user, session: @session)
-        notice_msg = if amount.positive? && !refundable
+        notice_msg = if amount.positive? && session_started
+                        "Désinscription réussie, mais la session a déjà eu lieu — pas de remboursement."
+        elsif amount.positive? && past_deadline
                         "Désinscription réussie, mais délai dépassé — pas de remboursement."
         else
                         "Désinscription réussie ✅"
