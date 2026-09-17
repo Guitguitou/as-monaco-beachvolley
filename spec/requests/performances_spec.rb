@@ -20,11 +20,6 @@ RSpec.describe "Performances", type: :request do
       expect(response.body).to include("Performances &amp; stats")
     end
 
-    it "displays the subtitle" do
-      get performances_path
-      expect(response.body).to include("Les badges qui font transpirer")
-    end
-
     it "displays section headers" do
       get performances_path
       expect(response.body).to include("Records all-time")

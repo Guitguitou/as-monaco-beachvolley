@@ -5,6 +5,8 @@ require "rails_helper"
 RSpec.describe PushNotificationService, type: :service do
   let(:user) { create(:user) }
   let(:subscription) { create(:push_subscription, user: user) }
+  # Webpush::ResponseError compose son message à partir de la réponse HTTP.
+  let(:webpush_response) { instance_double(Net::HTTPResponse, body: "", code: "410") }
 
   before do
     # Mock VAPID keys
@@ -37,13 +39,13 @@ RSpec.describe PushNotificationService, type: :service do
       end
 
       it "handles invalid subscriptions gracefully" do
-        allow(Webpush).to receive(:payload_send).and_raise(Webpush::InvalidSubscription.new("Invalid"))
+        allow(Webpush).to receive(:payload_send).and_raise(Webpush::InvalidSubscription.new(webpush_response, "fcm.googleapis.com"))
         expect { described_class.send_to_user(user, title: "Test", body: "Test") }.not_to raise_error
         expect(user.push_subscriptions.reload).to be_empty
       end
 
       it "handles expired subscriptions gracefully" do
-        allow(Webpush).to receive(:payload_send).and_raise(Webpush::ExpiredSubscription.new("Expired"))
+        allow(Webpush).to receive(:payload_send).and_raise(Webpush::ExpiredSubscription.new(webpush_response, "fcm.googleapis.com"))
         expect { described_class.send_to_user(user, title: "Test", body: "Test") }.not_to raise_error
         expect(user.push_subscriptions.reload).to be_empty
       end

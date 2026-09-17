@@ -83,6 +83,10 @@ RSpec.configure do |config|
   # config.filter_gems_from_backtrace("gem name")
 
   config.include FactoryBot::Syntax::Methods
+
+  # Chaque exemple repart d'une base vide : les séquences aussi, pour que les
+  # créneaux générés par la factory de session restent proches de maintenant.
+  config.before { FactoryBot.rewind_sequences }
   config.include ActiveSupport::Testing::TimeHelpers
 
   # ViewComponent test helpers

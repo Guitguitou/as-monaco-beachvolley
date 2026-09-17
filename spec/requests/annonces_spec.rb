@@ -40,7 +40,7 @@ RSpec.describe "Annonces", type: :request do
     end
 
     context "non-activated user" do
-      before { login_as(create(:user), scope: :user) }
+      before { login_as(create(:user, activated_at: nil), scope: :user) }
 
       it "is forbidden" do
         expect { post annonces_path, params: valid_params }.not_to change(Annonce, :count)

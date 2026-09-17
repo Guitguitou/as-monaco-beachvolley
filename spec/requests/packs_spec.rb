@@ -17,7 +17,7 @@ RSpec.describe "Packs", type: :request do
       end.not_to change(CreditPurchase, :count)
 
       expect(response).to have_http_status(:success)
-      expect(response.body).to include("Finaliser l’achat")
+      expect(response.body).to include("Finaliser l'achat")
     end
 
     it "creates a user and a credit purchase then returns payment HTML" do
