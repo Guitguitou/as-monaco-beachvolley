@@ -86,7 +86,7 @@ group :test do
   gem "selenium-webdriver"
 
   # Couverture de code
-  gem "simplecov", "1.2.0", require: false
+  gem "simplecov", "1.3.0", require: false
 end
 
 gem "tailwindcss-ruby", "~> 4.3"
