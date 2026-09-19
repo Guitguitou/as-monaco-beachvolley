@@ -11,7 +11,7 @@
 - ✅ Modèle CreditPurchase
 - ✅ Gateway Fake/Real pour LCL Sherlock
 - ✅ Webhook avec Sidekiq
-- ✅ Interface admin `/admin/payments`
+- ✅ Boutique `/packs` et pages de résultat `/checkout`
 - ✅ Tests RSpec
 
 ## 🎯 Pour tester en local
@@ -60,11 +60,12 @@ bin/dev
    - Aller sur http://localhost:3000
    - Se connecter avec `admin@test.com` / `password123`
 
-3. **Acheter des crédits** :
-   - Aller sur http://localhost:3000/admin/payments
-   - Cliquer sur "Acheter 10 € (1000 crédits)"
-   - Vous serez redirigé vers `/checkout/success` (FakeGateway)
-   - Vérifier que le solde a augmenté de 1000 crédits
+3. **Acheter un pack** :
+   - Aller sur http://localhost:3000/packs
+   - Cliquer sur "Acheter" sur un pack de crédits
+   - La passerelle simulée renvoie une réponse signée : vous arrivez sur la
+     page de résultat, solde à jour
+   - Pour rejouer un refus : `SHERLOCK_FAKE_RESPONSE_CODE=05`
 
 4. **Vérifier Sidekiq** :
    - Interface : http://localhost:3000/admin/sidekiq
@@ -162,8 +163,10 @@ bin/rails console
 bundle exec sidekiq -C config/sidekiq.yml
 
 # Créer un paiement test
-rails console
-> purchase = CreditPurchase.create_pack_10_eur(user: User.first)
+bin/rails console
+> pack = Pack.credits_packs.active.first
+> purchase = User.first.credit_purchases.create!(pack:, amount_cents: pack.amount_cents,
+>                                                currency: "EUR", credits: pack.credits, status: :pending)
 > purchase.credit!
 > User.first.balance.amount
 

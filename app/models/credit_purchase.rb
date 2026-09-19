@@ -59,8 +59,22 @@ class CreditPurchase < ApplicationRecord
     update!(
       status: :failed,
       failed_at: Time.current,
-      sherlock_fields: sherlock_fields.merge(failure_reason: reason)
+      sherlock_fields: sherlock_fields.merge("failure_reason" => reason)
     )
+  end
+
+  # Achat laissé en plan : le client n'est jamais revenu de la page de paiement
+  # et la banque n'a rien notifié. Aucun débit n'a eu lieu.
+  def mark_as_abandoned!
+    update!(
+      status: :cancelled,
+      sherlock_fields: sherlock_fields.merge("abandoned_at" => Time.current.iso8601)
+    )
+  end
+
+  # Motif de refus renvoyé par la banque, tel qu'enregistré à l'échec.
+  def failure_reason
+    sherlock_fields["failure_reason"].presence
   end
 
   private
@@ -68,16 +82,5 @@ class CreditPurchase < ApplicationRecord
   # Générer une référence unique
   def generate_reference
     self.sherlock_transaction_reference ||= "CP-#{SecureRandom.hex(8).upcase}"
-  end
-
-  # Pack prédéfini : 10 EUR = 1000 crédits
-  def self.create_pack_10_eur(user:)
-    create!(
-      user:,
-      amount_cents: 1000, # 10 EUR
-      currency: "EUR",
-      credits: 1000, # 10 EUR * 100 crédits/EUR
-      status: :pending
-    )
   end
 end

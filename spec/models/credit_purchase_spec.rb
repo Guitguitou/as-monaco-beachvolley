@@ -31,6 +31,33 @@ RSpec.describe CreditPurchase, type: :model do
     end
   end
 
+  describe 'type de pack' do
+    it 'reconnaît chaque type de pack acheté' do
+      types = {
+        credits: :credits_pack?,
+        stage: :stage_pack?,
+        licence: :licence_pack?,
+        inscription_tournoi: :inscription_tournoi_pack?,
+        equipements: :equipements_pack?
+      }
+
+      types.each do |type, predicate|
+        purchase = build(:credit_purchase, user:, pack: create(:pack, type))
+
+        expect(purchase.public_send(predicate)).to be(true), "#{predicate} devrait être vrai pour un pack #{type}"
+        expect((types.values - [ predicate ]).map { |other| purchase.public_send(other) }).to all(be(false))
+      end
+    end
+
+    it 'ne reconnaît aucun type quand l’achat n’est rattaché à aucun pack' do
+      purchase = build(:credit_purchase, user:, pack: nil)
+
+      expect(purchase.credits_pack?).to be_nil
+      expect(purchase.inscription_tournoi_pack?).to be_nil
+      expect(purchase.equipements_pack?).to be_nil
+    end
+  end
+
   describe '#generate_reference' do
     it 'generates a unique reference on creation' do
       purchase = create(:credit_purchase, user:)
@@ -75,7 +102,7 @@ RSpec.describe CreditPurchase, type: :model do
     it 'marks purchase as failed with reason' do
       purchase = create(:credit_purchase, user:)
 
-      purchase.send(:mark_as_failed!, reason: "Card declined")
+      purchase.mark_as_failed!(reason: "Card declined")
 
       expect(purchase.status).to eq("failed")
       expect(purchase.failed_at).to be_present
@@ -83,15 +110,27 @@ RSpec.describe CreditPurchase, type: :model do
     end
   end
 
-  describe '.create_pack_10_eur' do
-    it 'creates a 10 EUR pack with 1000 credits' do
-      purchase = CreditPurchase.create_pack_10_eur(user: user)
+  describe '#failure_reason' do
+    it 'expose le motif transmis par la banque' do
+      purchase = create(:credit_purchase, user:)
+      purchase.mark_as_failed!(reason: "Autorisation refusée")
 
-      expect(purchase.amount_cents).to eq(1000)
-      expect(purchase.currency).to eq("EUR")
-      expect(purchase.credits).to eq(1000)
-      expect(purchase.status).to eq("pending")
-      expect(purchase.amount_eur).to eq(10.0)
+      expect(purchase.failure_reason).to eq("Autorisation refusée")
+    end
+
+    it 'ne renvoie rien tant qu’aucun refus n’a été enregistré' do
+      expect(create(:credit_purchase, user:).failure_reason).to be_nil
+    end
+  end
+
+  describe '#mark_as_abandoned!' do
+    it 'annule l’achat et note la date d’abandon' do
+      purchase = create(:credit_purchase, user:)
+
+      purchase.mark_as_abandoned!
+
+      expect(purchase.status).to eq("cancelled")
+      expect(purchase.sherlock_fields["abandoned_at"]).to be_present
     end
   end
 

@@ -1,57 +1,32 @@
-# app/controllers/webhooks/sherlock_controller.rb
-class Webhooks::SherlockController < ActionController::API
-  # POST /webhooks/sherlock
-  def receive
-    data = params[:Data].to_s
-    seal = params[:Seal].to_s
+# frozen_string_literal: true
 
-    unless data.present? && seal.present?
-      Rails.logger.warn("[Sherlock] Missing Data or Seal in webhook")
+# Notification serveur à serveur de Sherlock's (automaticResponseUrl).
+#
+# C'est le filet de sécurité du paiement : elle arrive même si le client ferme
+# son onglet avant de revenir sur le site. Le traitement est asynchrone et
+# idempotent, il peut donc croiser le retour navigateur sans dommage.
+class Webhooks::SherlockController < ActionController::API
+  def receive
+    if params[:Data].blank? || params[:Seal].blank?
+      Rails.logger.warn("[Sherlock:webhook] Data ou Seal manquant")
       return head :bad_request
     end
 
-    unless valid_seal?(data, seal)
-      Rails.logger.warn("[Sherlock] Invalid Seal for webhook")
+    sherlock_response = Sherlock::Response.from_params(params)
+
+    unless sherlock_response.valid?
+      Rails.logger.warn("[Sherlock:webhook] sceau invalide")
       return head :unauthorized
     end
 
-    parsed = Sherlock::DataParser.parse(data) # "k=v|k=v" -> hash
-
-    # 🔑 Normalisation : on passe à HandleCallback ce qu'il attend
-    normalized = parsed.merge(
-      "reference" => parsed["orderId"] || parsed["transactionReference"],
-      "status"    => parsed["transactionStatus"] || parsed["responseCode"]
+    Rails.logger.info(
+      "[Sherlock:webhook] ref=#{sherlock_response.reference} rc=#{sherlock_response.response_code}"
     )
-
-    Rails.logger.info("[Sherlock:webhook] ref=#{normalized['reference']} rc=#{parsed['responseCode']} ts=#{parsed['transactionStatus']}")
-
-    # Enfile le job (ou appelle HandleCallback.new(normalized).call si tu préfères synchrone)
-    SherlockCallbackJob.perform_later(normalized)
+    SherlockCallbackJob.perform_later(sherlock_response.fields)
 
     head :ok
-  rescue => e
+  rescue StandardError => e
     Rails.logger.error("[Sherlock:webhook] #{e.class}: #{e.message}")
     head :internal_server_error
-  end
-
-  private
-
-  # Aligne l'algo de vérification du Seal sur celui utilisé à l'init
-  # SEAL_ALGO = "sha256" (Data+secret) OU "HMAC-SHA-256" (HMAC(Data, secret))
-  def valid_seal?(data, seal)
-    secret = ENV.fetch("SHERLOCK_API_KEY")
-    algo   = ENV.fetch("SHERLOCK_SEAL_ALGO", "sha256")
-
-    computed =
-      if algo == "HMAC-SHA-256"
-        OpenSSL::HMAC.hexdigest("SHA256", secret, data)
-      else # "sha256" par défaut
-        Digest::SHA256.hexdigest(data + secret)
-      end
-
-    ActiveSupport::SecurityUtils.secure_compare(computed, seal)
-  rescue => e
-    Rails.logger.error("[Sherlock] Seal verification error: #{e.class} #{e.message}")
-    false
   end
 end

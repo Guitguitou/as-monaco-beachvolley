@@ -85,11 +85,6 @@ Rails.application.routes.draw do
       end
     end
 
-    # Payments (deprecated - use packs)
-    resource :payments, only: [ :show ] do
-      post :buy_10_eur, on: :collection
-    end
-
     # Notification rules management
     resources :notification_rules
   end
@@ -102,9 +97,13 @@ Rails.application.routes.draw do
     post :buy, on: :member
   end
 
-  # Checkout (success/cancel after payment)
-  match "checkout/success", to: "checkout#success", via: [ :get, :post ], as: :checkout_success
-  match "checkout/cancel",  to: "checkout#cancel",  via: [ :get, :post ], as: :checkout_cancel
+  # Retour de paiement Sherlock's. LCL n'a pas d'URL d'annulation : accepté,
+  # refusé et annulé reviennent tous sur la même URL, en POST cross-site.
+  # "checkout/success" reste un alias : il peut encore être renseigné dans
+  # SHERLOCK_RETURN_URL_SUCCESS en production.
+  match "checkout/return",  to: "checkout#create", via: [ :get, :post ], as: :checkout_return
+  match "checkout/success", to: "checkout#create", via: [ :get, :post ], as: :checkout_success
+  get "checkout/:id", to: "checkout#show", as: :checkout
 
   # Webhooks
   namespace :webhooks do

@@ -1,56 +1,61 @@
-# app/services/sherlock/create_payment.rb
+# frozen_string_literal: true
+
 module Sherlock
+  # Prépare la requête de paiement d'un achat : référence marchande stable,
+  # devise, et les deux URLs que Sherlock's rappellera.
   class CreatePayment
     attr_reader :credit_purchase
 
-    def initialize(credit_purchase)
+    def initialize(credit_purchase, gateway: Gateway.build)
       @credit_purchase = credit_purchase
+      @gateway = gateway
     end
 
-    # Retourne une STRING de HTML (form POST auto-submit) en "real",
-    # et un HTML de redirection immédiate en "fake".
     def call
-      gateway = Gateway.build
-
-      # Référence unique côté marchand (si absente, on la génère)
-      reference = credit_purchase.sherlock_transaction_reference.presence ||
-                  "CP-#{credit_purchase.id}-#{SecureRandom.hex(4)}"
-
-      # On persiste la référence si on vient de la créer
-      credit_purchase.update!(sherlock_transaction_reference: reference) if credit_purchase.sherlock_transaction_reference.blank?
-
-      currency = (credit_purchase.currency.presence || ENV.fetch("CURRENCY", "EUR")).upcase
-
       gateway.create_payment(
         reference: reference,
         amount_cents: credit_purchase.amount_cents,
         currency: currency,
-        return_urls: {
-          success: success_url,
-          cancel:  cancel_url,
-          auto:    auto_url
-        },
-        customer: {
-          id:    credit_purchase.user_id,
-          email: credit_purchase.user.email,
-          name:  (credit_purchase.user.respond_to?(:full_name) ? credit_purchase.user.full_name : nil)
-        }
+        return_urls: { success: normal_return_url, auto: automatic_response_url },
+        customer: customer
       )
     end
 
     private
 
-    def success_url
-      ENV.fetch("SHERLOCK_RETURN_URL_SUCCESS", "#{app_host}/checkout/success")
+    attr_reader :gateway
+
+    # La référence est l'unique clé de rapprochement entre nos achats et les
+    # réponses de LCL : on la fige au premier appel et on la réutilise ensuite.
+    def reference
+      return credit_purchase.sherlock_transaction_reference if credit_purchase.sherlock_transaction_reference.present?
+
+      generated = "CP-#{credit_purchase.id}-#{SecureRandom.hex(4)}"
+      credit_purchase.update!(sherlock_transaction_reference: generated)
+      generated
     end
 
-    def cancel_url
-      ENV.fetch("SHERLOCK_RETURN_URL_CANCEL", "#{app_host}/checkout/cancel")
+    def currency
+      (credit_purchase.currency.presence || ENV.fetch("CURRENCY", "EUR")).upcase
     end
 
-    # Webhook serveur→serveur (automatique)
-    def auto_url
-      # Si tu exposes déjà /webhooks/sherlock en POST :
+    def customer
+      user = credit_purchase.user
+
+      {
+        id: credit_purchase.user_id,
+        email: user.email,
+        name: (user.full_name if user.respond_to?(:full_name))
+      }
+    end
+
+    # Retour du client dans son navigateur, en POST cross-site.
+    def normal_return_url
+      ENV.fetch("SHERLOCK_RETURN_URL_SUCCESS", "#{app_host}/checkout/return")
+    end
+
+    # Notification serveur à serveur, qui ne passe pas par le navigateur.
+    def automatic_response_url
       "#{app_host}/webhooks/sherlock"
     end
 
