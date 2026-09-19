@@ -25,7 +25,7 @@ module Sherlock
     end
 
     def reference
-      fields["transactionReference"].presence || fields["orderId"].presence
+      Reference.from(fields)
     end
 
     def response_code

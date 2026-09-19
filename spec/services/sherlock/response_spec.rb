@@ -38,16 +38,13 @@ RSpec.describe Sherlock::Response do
   end
 
   describe '#reference' do
-    it 'lit transactionReference' do
-      response = described_class.new(data: "transactionReference=REF-123", seal_value: "x", seal: seal)
+    # La règle de résolution est détaillée dans Sherlock::Reference, testée à
+    # part ; on vérifie ici qu'elle est bien appliquée à un Data réel.
+    it 'retient notre référence marchande, pas celle générée par Sherlock’s' do
+      data = "orderId=CP-3E77698094E61528|transactionReference=202510262319324598|responseCode=00"
+      response = described_class.new(data: data, seal_value: "x", seal: seal)
 
-      expect(response.reference).to eq("REF-123")
-    end
-
-    it 'se rabat sur orderId, l’autre nom accepté par le contrat' do
-      response = described_class.new(data: "orderId=REF-456", seal_value: "x", seal: seal)
-
-      expect(response.reference).to eq("REF-456")
+      expect(response.reference).to eq("CP-3E77698094E61528")
     end
 
     it 'ne renvoie rien quand la réponse ne porte aucune référence' do

@@ -4,7 +4,9 @@ require 'rails_helper'
 
 RSpec.describe "Webhooks::Sherlock", type: :request do
   let(:secret) { "test_secret" }
-  let(:data) { "transactionReference=REF-123|transactionStatus=ACCEPTED|responseCode=00" }
+  # Forme réelle des réponses du contrat : notre référence dans `orderId`,
+  # celle générée par Sherlock's dans `transactionReference`.
+  let(:data) { "orderId=REF-123|transactionReference=202607021135288e5b|responseCode=00" }
 
   before { allow(SherlockCallbackJob).to receive(:perform_later) }
 
@@ -29,10 +31,22 @@ RSpec.describe "Webhooks::Sherlock", type: :request do
       # Le traitement est asynchrone : la banque attend juste un accusé.
       it "confie la réponse au job de traitement" do
         expect(SherlockCallbackJob).to receive(:perform_later).with(
-          hash_including("transactionReference" => "REF-123", "responseCode" => "00")
+          hash_including("orderId" => "REF-123", "responseCode" => "00")
         )
 
         post_webhook({ Data: data, Seal: seal_for(data) })
+      end
+
+      it "rapproche l’achat sur notre référence, pas sur celle de LCL" do
+        user = create(:user)
+        pack = create(:pack, :credits, credits: 1000)
+        purchase = create(:credit_purchase, user: user, pack: pack, credits: 1000,
+                                            sherlock_transaction_reference: "REF-123")
+        allow(SherlockCallbackJob).to receive(:perform_later) { |fields| Sherlock::HandleCallback.new(fields).call }
+
+        post_webhook({ Data: data, Seal: seal_for(data) })
+
+        expect(purchase.reload.status).to eq("paid")
       end
     end
 

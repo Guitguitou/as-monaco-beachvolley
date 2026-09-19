@@ -43,6 +43,15 @@ RSpec.describe Sherlock::HandleCallback do
       it 'lit orderId' do
         expect(described_class.new(orderId: "REF-123", responseCode: "00").call).to be(true)
       end
+
+      # Sherlock's renvoie sa propre transactionReference à côté de notre
+      # orderId : c'est le nôtre qui doit servir au rapprochement.
+      it 'ignore la référence générée par Sherlock’s' do
+        callback = { orderId: "REF-123", transactionReference: "202607021135288e5b", responseCode: "00" }
+
+        expect { described_class.new(callback).call }
+          .to change { credit_purchase.reload.status }.from("pending").to("paid")
+      end
     end
 
     context 'quand l’achat est introuvable' do

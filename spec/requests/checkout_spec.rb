@@ -160,6 +160,32 @@ RSpec.describe "Checkout", type: :request do
       end
     end
 
+    # Forme réelle des réponses du contrat : notre référence arrive dans
+    # `orderId`, et Sherlock's ajoute sa propre `transactionReference`
+    # horodatée, qui ne correspond à aucun de nos achats.
+    context "avec la réponse telle que LCL la renvoie" do
+      let(:data) do
+        sherlock_data(
+          orderId: "REF-123",
+          transactionReference: "202607021135288e5b",
+          responseCode: "00",
+          amount: 1000
+        )
+      end
+
+      it "retrouve l’achat par notre référence et non par celle de LCL" do
+        expect { post_return(data) }
+          .to change { purchase.reload.status }.from("pending").to("paid")
+      end
+
+      it "affiche la confirmation" do
+        post_return(data)
+        follow_redirect!
+
+        expect(response.body).to include("Paiement réussi")
+      end
+    end
+
     # SHERLOCK_RETURN_URL_SUCCESS peut encore pointer sur l'ancienne URL en
     # production : elle doit continuer de fonctionner.
     context "sur l’ancienne URL de retour" do
