@@ -16,11 +16,9 @@
     <div class="p-8">
       <div class="text-center mb-6">
         <p class="text-gray-600 mb-2">Aucun débit n'a été effectué sur ton compte.</p>
-        <% if @credit_purchase %>
-          <p class="text-sm text-gray-500">
-            Référence : <span class="font-mono"><%= @credit_purchase.sherlock_transaction_reference %></span>
-          </p>
-        <% end %>
+        <p class="text-sm text-gray-500">
+          Référence : <span class="font-mono"><%= @credit_purchase.sherlock_transaction_reference %></span>
+        </p>
       </div>
 
       <%# Info box %>
@@ -36,16 +34,20 @@
 
       <%# Actions %>
       <div class="flex flex-col sm:flex-row gap-3">
+        <% if @credit_purchase.pack %>
+          <%= button_to buy_pack_path(@credit_purchase.pack),
+                method: :post,
+                class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-6 py-3 text-base font-semibold text-white hover:bg-asmbv-red-dark transition-all",
+                data: { turbo: false } do %>
+            <%= lucide_icon("refresh-cw", size: 20) %>
+            Réessayer
+          <% end %>
+        <% end %>
+
         <%= link_to packs_path,
-              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-6 py-3 text-base font-semibold text-white hover:bg-asmbv-red-dark transition-all" do %>
+              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
           <%= lucide_icon("package", size: 20) %>
           Voir les packs
-        <% end %>
-        
-        <%= link_to root_path,
-              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
-          <%= lucide_icon("home", size: 20) %>
-          Retour à l'accueil
         <% end %>
       </div>
     </div>

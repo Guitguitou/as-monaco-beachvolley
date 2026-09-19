@@ -1,36 +1,51 @@
+# frozen_string_literal: true
+
+# Retour de paiement Sherlock's.
+#
+# LCL renvoie le client en POST cross-site : avec des cookies en SameSite=Lax,
+# ni le jeton CSRF ni le cookie de session n'accompagnent cette requête. On
+# applique donc le résultat à partir de la réponse signée — qui fait autorité —
+# puis on redirige vers un GET, où la session est de nouveau présente et où la
+# page de résultat peut être rendue normalement.
 class CheckoutController < ApplicationController
-  # LCL redirige en POST cross-site (pas de token)
-  skip_before_action :verify_authenticity_token, only: [ :success, :cancel ]
-  # Ne force pas la connexion, on affiche juste un message/redirect
-  skip_before_action :authenticate_user!, only: [ :success, :cancel ]
+  SIGNED_ID_PURPOSE = :checkout
+  SIGNED_ID_TTL = 2.hours
 
-  def success
-    # Optionnel: extraire la référence pour log/debug (Data est posté par LCL)
-    ref = extract_reference_from(params)
-    Rails.logger.info("[Sherlock:success] ref=#{ref} keys=#{params.keys}")
+  STATUS_TEMPLATES = {
+    "paid" => :paid,
+    "cancelled" => :cancelled,
+    "failed" => :failed
+  }.freeze
 
-    # UX: on ne crédite pas ici (cela se fait via le webhook automatique)
-    flash[:notice] = "Paiement confirmé ✅ Tes crédits arrivent sous peu."
-    redirect_to(user_signed_in? ? admin_payments_path : packs_path)
+  skip_before_action :verify_authenticity_token, only: :create
+  skip_before_action :authenticate_user!, only: [ :create, :show ]
+
+  def create
+    sherlock_response = Sherlock::Response.from_params(params)
+    return reject("sceau invalide", sherlock_response.reference) unless sherlock_response.valid?
+
+    purchase = CreditPurchase.find_by(sherlock_transaction_reference: sherlock_response.reference)
+    return reject("achat introuvable", sherlock_response.reference) unless purchase
+
+    Sherlock::ApplyOutcome.call(purchase: purchase, fields: sherlock_response.fields)
+
+    redirect_to checkout_path(purchase.signed_id(purpose: SIGNED_ID_PURPOSE, expires_in: SIGNED_ID_TTL))
   end
 
-  def cancel
-    ref = extract_reference_from(params)
-    Rails.logger.info("[Sherlock:cancel] ref=#{ref} keys=#{params.keys}")
+  def show
+    @credit_purchase = CreditPurchase.find_signed!(params[:id], purpose: SIGNED_ID_PURPOSE)
 
-    flash[:alert] = "Paiement annulé."
-    redirect_to(user_signed_in? ? admin_payments_path : packs_path)
+    render STATUS_TEMPLATES.fetch(@credit_purchase.status, :pending)
+  rescue ActiveSupport::MessageVerifier::InvalidSignature, ActiveRecord::RecordNotFound
+    redirect_to packs_path, alert: "Ce récapitulatif de paiement n'est plus valable."
   end
 
   private
 
-  # "k=v|k=v" -> hash, puis récupère orderId/transactionReference si présent
-  def extract_reference_from(params)
-    if params[:Data].present?
-      h = Sherlock::DataParser.parse(params[:Data])
-      h["orderId"] || h["transactionReference"]
-    else
-      params[:reference] || params[:orderId] || params[:transactionReference]
-    end
+  def reject(cause, reference)
+    Rails.logger.error("[Sherlock:return] #{cause} ref=#{reference.inspect}")
+
+    redirect_to packs_path,
+                alert: "Nous n'avons pas pu vérifier ce retour de paiement. Contacte-nous si tu as été débité."
   end
 end

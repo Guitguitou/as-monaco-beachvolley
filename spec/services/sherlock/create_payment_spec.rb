@@ -3,133 +3,116 @@
 require 'rails_helper'
 
 RSpec.describe Sherlock::CreatePayment do
-  let(:user) { create(:user, email: "test@example.com") }
-  let(:credit_purchase) { create(:credit_purchase, user: user, amount_cents: 10000) }
-  let(:service) { described_class.new(credit_purchase) }
+  let(:user) { create(:user, email: "test@example.com", first_name: "John", last_name: "Doe") }
+  let(:credit_purchase) { create(:credit_purchase, user: user, amount_cents: 10_000) }
+  let(:gateway) { instance_double(Sherlock::RealGateway, create_payment: :payment_request) }
+  let(:service) { described_class.new(credit_purchase, gateway: gateway) }
 
-  before do
-    allow(ENV).to receive(:fetch).and_call_original
-    allow(ENV).to receive(:fetch).with("CURRENCY", anything).and_return("EUR")
-    allow(ENV).to receive(:fetch).with("SHERLOCK_RETURN_URL_SUCCESS", anything).and_return("https://example.com/success")
-    allow(ENV).to receive(:fetch).with("SHERLOCK_RETURN_URL_CANCEL", anything).and_return("https://example.com/cancel")
-    allow(ENV).to receive(:fetch).with("APP_HOST", anything).and_return("https://example.com")
-    allow(Sherlock::Gateway).to receive(:build).and_return(double(create_payment: "<html>payment form</html>"))
+  def call_with_env(**env)
+    with_env({ "APP_HOST" => "https://example.com", "SHERLOCK_RETURN_URL_SUCCESS" => nil }.merge(env)) do
+      service.call
+    end
   end
 
   describe '#call' do
-    it 'calls gateway create_payment with correct parameters' do
-      gateway = double
-      allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-
-      expect(gateway).to receive(:create_payment).with(
-        reference: credit_purchase.sherlock_transaction_reference || match(/CP-#{credit_purchase.id}-/),
-        amount_cents: credit_purchase.amount_cents,
-        currency: "EUR",
-        return_urls: hash_including(
-          success: "https://example.com/success",
-          cancel: "https://example.com/cancel",
-          auto: "https://example.com/webhooks/sherlock"
-        ),
-        customer: hash_including(
-          id: user.id,
-          email: user.email
-        )
-      )
-
-      service.call
+    it 'renvoie la requête de paiement construite par la passerelle' do
+      expect(call_with_env).to eq(:payment_request)
     end
 
-    it 'uses existing transaction reference if present' do
-      credit_purchase.update!(sherlock_transaction_reference: "EXISTING-REF-123")
+    it 'transmet le montant et la devise de l’achat' do
+      call_with_env
 
-      gateway = double
-      allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-
-      expect(gateway).to receive(:create_payment).with(
-        hash_including(reference: "EXISTING-REF-123")
-      )
-
-      service.call
+      expect(gateway).to have_received(:create_payment)
+        .with(hash_including(amount_cents: 10_000, currency: "EUR"))
     end
 
-    it 'generates and saves transaction reference if missing' do
-      credit_purchase.update!(sherlock_transaction_reference: nil)
+    it 'transmet l’identité du client' do
+      call_with_env
 
-      expect {
-        service.call
-      }.to change { credit_purchase.reload.sherlock_transaction_reference }.from(nil)
-
-      expect(credit_purchase.sherlock_transaction_reference).to match(/CP-#{credit_purchase.id}-/)
+      expect(gateway).to have_received(:create_payment)
+        .with(hash_including(customer: { id: user.id, email: "test@example.com", name: "John Doe" }))
     end
 
-    it 'uses currency from credit_purchase if present' do
-      credit_purchase.update!(currency: "USD")
-
-      gateway = double
-      allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-
-      expect(gateway).to receive(:create_payment).with(
-        hash_including(currency: "USD")
-      )
-
-      service.call
-    end
-
-    it 'defaults to EUR currency if not set' do
-      credit_purchase.update_column(:currency, "")
-
-      gateway = double
-      allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-
-      expect(gateway).to receive(:create_payment).with(
-        hash_including(currency: "EUR")
-      )
-
-      service.call
-    end
-
-    it 'includes user full_name in customer if available' do
-      user.update!(first_name: "John", last_name: "Doe")
-
-      gateway = double
-      allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
-
-      expect(gateway).to receive(:create_payment).with(
-        hash_including(
-          customer: hash_including(
-            name: "John Doe"
-          )
-        )
-      )
-
-      service.call
-    end
-
-    it 'handles user without full_name method' do
-      credit_purchase # créé avant de toucher à respond_to?
+    it 'ne transmet pas de nom quand le modèle n’en expose pas' do
+      credit_purchase
       allow(user).to receive(:respond_to?).and_call_original
       allow(user).to receive(:respond_to?).with(:full_name).and_return(false)
 
-      gateway = double
-      allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
+      call_with_env
 
-      expect(gateway).to receive(:create_payment).with(
-        hash_including(
-          customer: hash_including(
-            name: nil
-          )
-        )
-      )
-
-      service.call
+      expect(gateway).to have_received(:create_payment)
+        .with(hash_including(customer: hash_including(name: nil)))
     end
 
-    it 'returns the HTML from gateway' do
-      gateway = double(create_payment: "<html>payment form</html>")
-      allow(Sherlock::Gateway).to receive(:build).and_return(gateway)
+    describe 'URLs de rappel' do
+      # Sherlock's n'a pas d'URL d'annulation : une seule URL de retour, le
+      # résultat étant porté par le responseCode.
+      it 'annonce une unique URL de retour et le webhook' do
+        call_with_env
 
-      result = service.call
-      expect(result).to eq("<html>payment form</html>")
+        expect(gateway).to have_received(:create_payment).with(
+          hash_including(
+            return_urls: {
+              success: "https://example.com/checkout/return",
+              auto: "https://example.com/webhooks/sherlock"
+            }
+          )
+        )
+      end
+
+      it 'respecte une URL de retour imposée par l’environnement' do
+        call_with_env("SHERLOCK_RETURN_URL_SUCCESS" => "https://example.com/checkout/success")
+
+        expect(gateway).to have_received(:create_payment)
+          .with(hash_including(return_urls: hash_including(success: "https://example.com/checkout/success")))
+      end
+    end
+
+    describe 'référence marchande' do
+      it 'réutilise la référence déjà attribuée à l’achat' do
+        credit_purchase.update!(sherlock_transaction_reference: "EXISTING-REF-123")
+
+        call_with_env
+
+        expect(gateway).to have_received(:create_payment)
+          .with(hash_including(reference: "EXISTING-REF-123"))
+      end
+
+      # La référence est l'unique clé de rapprochement avec les réponses de
+      # LCL : elle doit être persistée avant d'être transmise.
+      it 'en génère une et la persiste quand l’achat n’en a pas' do
+        credit_purchase.update!(sherlock_transaction_reference: nil)
+
+        expect { call_with_env }
+          .to change { credit_purchase.reload.sherlock_transaction_reference }.from(nil)
+
+        expect(gateway).to have_received(:create_payment)
+          .with(hash_including(reference: credit_purchase.reload.sherlock_transaction_reference))
+      end
+    end
+
+    describe 'devise' do
+      it 'utilise celle de l’achat' do
+        credit_purchase.update!(currency: "usd")
+
+        call_with_env
+
+        expect(gateway).to have_received(:create_payment).with(hash_including(currency: "USD"))
+      end
+
+      it 'se rabat sur celle de l’environnement' do
+        credit_purchase.update_column(:currency, "")
+
+        call_with_env("CURRENCY" => "EUR")
+
+        expect(gateway).to have_received(:create_payment).with(hash_including(currency: "EUR"))
+      end
+    end
+
+    it 'construit sa passerelle depuis l’environnement par défaut' do
+      with_env("SHERLOCK_GATEWAY" => "fake", "APP_HOST" => "https://example.com") do
+        expect(described_class.new(credit_purchase).call).to be_a(Sherlock::PaymentRequest)
+      end
     end
   end
 end

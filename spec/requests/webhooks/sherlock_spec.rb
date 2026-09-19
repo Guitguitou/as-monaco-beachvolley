@@ -3,76 +3,77 @@
 require 'rails_helper'
 
 RSpec.describe "Webhooks::Sherlock", type: :request do
-  let(:user) { create(:user) }
-  let(:credit_purchase) { create(:credit_purchase, user: user, sherlock_transaction_reference: "REF-123") }
+  let(:secret) { "test_secret" }
+  let(:data) { "transactionReference=REF-123|transactionStatus=ACCEPTED|responseCode=00" }
 
-  before do
-    allow(ENV).to receive(:fetch).and_call_original
-    allow(ENV).to receive(:fetch).with("SHERLOCK_API_KEY").and_return("test_secret")
-    allow(ENV).to receive(:fetch).with("SHERLOCK_SEAL_ALGO", anything).and_return("sha256")
-    allow(SherlockCallbackJob).to receive(:perform_later)
+  before { allow(SherlockCallbackJob).to receive(:perform_later) }
+
+  def post_webhook(params, algorithm: nil)
+    with_env("SHERLOCK_API_KEY" => secret, "SHERLOCK_SEAL_ALGO" => algorithm) do
+      post webhooks_sherlock_path, params: params
+    end
+  end
+
+  def seal_for(data, algorithm: Sherlock::Seal::DEFAULT_ALGORITHM)
+    Sherlock::Seal.new(secret: secret, algorithm: algorithm).compute(data)
   end
 
   describe "POST /webhooks/sherlock" do
-    let(:data_string) { "orderId=REF-123|transactionStatus=ACCEPTED|responseCode=00" }
-    let(:seal) { Digest::SHA256.hexdigest(data_string + "test_secret") }
+    context "avec un sceau valide" do
+      it "accuse réception" do
+        post_webhook({ Data: data, Seal: seal_for(data) })
 
-    context "with valid seal" do
-      it "returns http success" do
-        post webhooks_sherlock_path, params: { Data: data_string, Seal: seal }
         expect(response).to have_http_status(:ok)
       end
 
-      it "enqueues SherlockCallbackJob" do
+      # Le traitement est asynchrone : la banque attend juste un accusé.
+      it "confie la réponse au job de traitement" do
         expect(SherlockCallbackJob).to receive(:perform_later).with(
-          hash_including("reference" => "REF-123")
+          hash_including("transactionReference" => "REF-123", "responseCode" => "00")
         )
-        post webhooks_sherlock_path, params: { Data: data_string, Seal: seal }
+
+        post_webhook({ Data: data, Seal: seal_for(data) })
       end
     end
 
-    context "with missing Data" do
-      it "returns bad request" do
-        post webhooks_sherlock_path, params: { Seal: seal }
-        expect(response).to have_http_status(:bad_request)
-      end
-    end
+    context "avec l’algorithme HMAC-SHA-256" do
+      it "valide le sceau" do
+        seal = seal_for(data, algorithm: Sherlock::Seal::HMAC_ALGORITHM)
 
-    context "with missing Seal" do
-      it "returns bad request" do
-        post webhooks_sherlock_path, params: { Data: data_string }
-        expect(response).to have_http_status(:bad_request)
-      end
-    end
+        post_webhook({ Data: data, Seal: seal }, algorithm: Sherlock::Seal::HMAC_ALGORITHM)
 
-    context "with invalid seal" do
-      it "returns unauthorized" do
-        post webhooks_sherlock_path, params: { Data: data_string, Seal: "invalid_seal" }
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
-    context "with HMAC-SHA-256 algorithm" do
-      let(:seal) { OpenSSL::HMAC.hexdigest("SHA256", "test_secret", data_string) }
-
-      before do
-        allow(ENV).to receive(:fetch).with("SHERLOCK_SEAL_ALGO", anything).and_return("HMAC-SHA-256")
-      end
-
-      it "validates seal correctly" do
-        post webhooks_sherlock_path, params: { Data: data_string, Seal: seal }
         expect(response).to have_http_status(:ok)
       end
     end
 
-    context "when an error occurs" do
+    it "rejette une notification sans Data" do
+      post_webhook({ Seal: seal_for(data) })
+
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it "rejette une notification sans sceau" do
+      post_webhook({ Data: data })
+
+      expect(response).to have_http_status(:bad_request)
+    end
+
+    it "rejette une notification dont le sceau ne correspond pas" do
+      post_webhook({ Data: data, Seal: "faux_sceau" })
+
+      expect(response).to have_http_status(:unauthorized)
+      expect(SherlockCallbackJob).not_to have_received(:perform_later)
+    end
+
+    context "quand le traitement lève une erreur" do
       before do
-        allow(Sherlock::DataParser).to receive(:parse).and_raise(StandardError.new("Parse error"))
+        allow(Sherlock::DataParser).to receive(:parse).and_raise(StandardError, "Parse error")
         allow(Rails.logger).to receive(:error)
       end
 
-      it "returns internal server error" do
-        post webhooks_sherlock_path, params: { Data: data_string, Seal: seal }
+      it "répond 500 pour que la banque retente" do
+        post_webhook({ Data: data, Seal: seal_for(data) })
+
         expect(response).to have_http_status(:internal_server_error)
       end
     end

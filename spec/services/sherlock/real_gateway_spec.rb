@@ -3,185 +3,121 @@
 require 'rails_helper'
 
 RSpec.describe Sherlock::RealGateway do
-  let(:gateway) { described_class.new }
-  let(:reference) { "TEST-REF-123" }
-  let(:amount_cents) { 10000 }
-  let(:currency) { "EUR" }
-  let(:return_urls) do
-    {
-      success: "https://example.com/success",
-      cancel: "https://example.com/cancel",
-      auto: "https://example.com/webhook"
-    }
-  end
-  let(:customer) do
-    {
-      id: 1,
-      email: "test@example.com",
-      name: "Test User"
-    }
-  end
+  let(:seal) { Sherlock::Seal.new(secret: "test_secret") }
+  let(:gateway) { described_class.new(seal: seal) }
+  let(:return_urls) { { success: "https://example.com/checkout/return", auto: "https://example.com/webhooks/sherlock" } }
+  let(:customer) { { id: 1, email: "test@example.com", name: "Test User" } }
 
-  before do
-    allow(ENV).to receive(:fetch).and_call_original
-    allow(ENV).to receive(:fetch).with("SHERLOCK_PAYMENT_INIT_URL", anything).and_return("https://test.sherlock.com/init")
-    allow(ENV).to receive(:fetch).with("SHERLOCK_INTERFACE_VERSION", anything).and_return("HP_3.4")
-    allow(ENV).to receive(:fetch).with("SHERLOCK_KEY_VERSION", anything).and_return("1")
-    allow(ENV).to receive(:fetch).with("SHERLOCK_SEAL_ALGO", anything).and_return("sha256")
-    allow(ENV).to receive(:fetch).with("SHERLOCK_MERCHANT_ID").and_return("TEST_MERCHANT")
-    allow(ENV).to receive(:fetch).with("SHERLOCK_API_KEY").and_return("test_secret_key")
-    allow(ENV).to receive(:fetch).with("APP_HOST").and_return("https://example.com")
-    allow(ENV).to receive(:[]).with("SHERLOCK_USE_ORDER_ID").and_return(nil)
+  # Les champs postés sont concaténés dans `Data` : on les relit avec le même
+  # parseur que les réponses, pour vérifier ce que LCL recevra réellement.
+  def payment_data(**overrides)
+    request = with_env({ "SHERLOCK_MERCHANT_ID" => "TEST_MERCHANT" }.merge(overrides)) do
+      gateway.create_payment(
+        reference: "TEST-REF-123",
+        amount_cents: 10_000,
+        currency: "EUR",
+        return_urls: return_urls,
+        customer: customer
+      )
+    end
+
+    [ request, Sherlock::DataParser.parse(request.fields["Data"]) ]
   end
 
   describe '.currency_code_for' do
-    it 'returns 978 for EUR' do
+    it 'traduit EUR en code ISO numérique' do
       expect(described_class.currency_code_for("EUR")).to eq("978")
       expect(described_class.currency_code_for(:eur)).to eq("978")
     end
 
-    it 'raises ArgumentError for unsupported currency' do
-      expect {
-        described_class.currency_code_for("USD")
-      }.to raise_error(ArgumentError, /Devise non gérée/)
+    it 'refuse une devise non gérée' do
+      expect { described_class.currency_code_for("USD") }
+        .to raise_error(ArgumentError, /Devise non gérée/)
     end
   end
 
   describe '#create_payment' do
-    it 'returns HTML form with auto-submit' do
-      result = gateway.create_payment(
-        reference: reference,
-        amount_cents: amount_cents,
-        currency: currency,
-        return_urls: return_urls,
-        customer: customer
+    it 'poste vers paymentInit avec les trois champs attendus par Sherlock’s' do
+      request, = payment_data
+
+      expect(request.url).to eq(described_class::DEFAULT_INIT_URL)
+      expect(request.fields.keys).to contain_exactly("Data", "InterfaceVersion", "Seal")
+      expect(request.fields["InterfaceVersion"]).to eq(described_class::DEFAULT_INTERFACE_VERSION)
+    end
+
+    it 'scelle le Data qu’il transmet' do
+      request, = payment_data
+
+      expect(request.fields["Seal"]).to eq(seal.compute(request.fields["Data"]))
+    end
+
+    it 'transmet le montant, la devise et le marchand' do
+      _request, data = payment_data
+
+      expect(data).to include(
+        "amount" => "10000",
+        "currencyCode" => "978",
+        "merchantId" => "TEST_MERCHANT",
+        "orderChannel" => "INTERNET",
+        "paymentPattern" => "ONE_SHOT"
       )
-
-      expect(result).to include("<html>")
-      expect(result).to include("<form")
-      expect(result).to include("sherlock_pay")
-      expect(result).to include("post")
     end
 
-    it 'includes Data field in form' do
-      result = gateway.create_payment(
-        reference: reference,
-        amount_cents: amount_cents,
-        currency: currency,
-        return_urls: return_urls,
-        customer: customer
+    it 'transmet les deux URLs de rappel et l’email du client' do
+      _request, data = payment_data
+
+      expect(data).to include(
+        "normalReturnUrl" => return_urls[:success],
+        "automaticResponseUrl" => return_urls[:auto],
+        "customerEmail" => "test@example.com"
       )
-
-      expect(result).to include('name="Data"')
     end
 
-    it 'includes InterfaceVersion field' do
-      result = gateway.create_payment(
-        reference: reference,
-        amount_cents: amount_cents,
-        currency: currency,
-        return_urls: return_urls,
-        customer: customer
-      )
+    # Sans ce champ, Sherlock’s affiche son propre ticket et impose un clic
+    # « Continuer » avant de renvoyer le client sur le site.
+    it 'désactive la page de ticket Sherlock’s' do
+      _request, data = payment_data
 
-      expect(result).to include('name="InterfaceVersion"')
-      expect(result).to include("HP_3.4")
+      expect(data["bypassReceiptPage"]).to eq("true")
     end
 
-    it 'includes Seal field' do
-      result = gateway.create_payment(
-        reference: reference,
-        amount_cents: amount_cents,
-        currency: currency,
-        return_urls: return_urls,
-        customer: customer
-      )
+    it 'demande la page de paiement en français' do
+      _request, data = payment_data
 
-      expect(result).to include('name="Seal"')
+      expect(data["customerLanguage"]).to eq("fr")
     end
 
-    it 'includes transactionReference when USE_ORDER_ID is not set' do
-      allow(ENV).to receive(:[]).with("SHERLOCK_USE_ORDER_ID").and_return(nil)
+    it 'permet de changer la langue par variable d’environnement' do
+      _request, data = payment_data("SHERLOCK_CUSTOMER_LANGUAGE" => "en")
 
-      result = gateway.create_payment(
-        reference: reference,
-        amount_cents: amount_cents,
-        currency: currency,
-        return_urls: return_urls,
-        customer: customer
-      )
-
-      expect(result).to include(reference)
+      expect(data["customerLanguage"]).to eq("en")
     end
 
-    it 'includes orderId when USE_ORDER_ID is true' do
-      allow(ENV).to receive(:[]).with("SHERLOCK_USE_ORDER_ID").and_return("true")
+    it 'envoie la référence en transactionReference par défaut' do
+      _request, data = payment_data("SHERLOCK_USE_ORDER_ID" => nil)
 
-      result = gateway.create_payment(
-        reference: reference,
-        amount_cents: amount_cents,
-        currency: currency,
-        return_urls: return_urls,
-        customer: customer
-      )
-
-      expect(result).to include(reference)
+      expect(data["transactionReference"]).to eq("TEST-REF-123")
+      expect(data).not_to have_key("orderId")
     end
 
-    it 'includes customer email in data' do
-      result = gateway.create_payment(
-        reference: reference,
-        amount_cents: amount_cents,
-        currency: currency,
-        return_urls: return_urls,
-        customer: customer
-      )
+    it 'envoie la référence en orderId quand le contrat l’exige' do
+      _request, data = payment_data("SHERLOCK_USE_ORDER_ID" => "true")
 
-      expect(result).to include(customer[:email])
+      expect(data["orderId"]).to eq("TEST-REF-123")
+      expect(data).not_to have_key("transactionReference")
     end
 
-    it 'includes return URLs in data' do
-      result = gateway.create_payment(
-        reference: reference,
-        amount_cents: amount_cents,
-        currency: currency,
-        return_urls: return_urls,
-        customer: customer
-      )
+    it 'reprend la version de clé du contrat' do
+      _request, data = payment_data("SHERLOCK_KEY_VERSION" => "3")
 
-      expect(result).to include(return_urls[:success])
-      expect(result).to include(return_urls[:auto])
+      expect(data["keyVersion"]).to eq("3")
     end
 
-    it 'computes seal using sha256 algorithm' do
-      result = gateway.create_payment(
-        reference: reference,
-        amount_cents: amount_cents,
-        currency: currency,
-        return_urls: return_urls,
-        customer: customer
-      )
+    it 'poste sur l’URL d’init configurée' do
+      request, = payment_data("SHERLOCK_PAYMENT_INIT_URL" => "https://recette.example.com/paymentInit")
 
-      # The seal should be present in the HTML
-      expect(result).to match(/name="Seal" value="[^"]+"/)
+      expect(request.url).to eq("https://recette.example.com/paymentInit")
     end
 
-    context 'with HMAC-SHA-256 algorithm' do
-      before do
-        allow(ENV).to receive(:fetch).with("SHERLOCK_SEAL_ALGO", anything).and_return("HMAC-SHA-256")
-      end
-
-      it 'computes seal using HMAC-SHA-256' do
-        result = gateway.create_payment(
-          reference: reference,
-          amount_cents: amount_cents,
-          currency: currency,
-          return_urls: return_urls,
-          customer: customer
-        )
-
-        expect(result).to match(/name="Seal" value="[^"]+"/)
-      end
-    end
   end
 end

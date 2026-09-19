@@ -1,0 +1,42 @@
+<%# Page de transition avant la bascule vers la page de paiement LCL.
+    Le formulaire est posté automatiquement ; le bouton reste la porte de
+    sortie si le script ne s'exécute pas. %>
+<div class="max-w-md mx-auto">
+  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
+    <p class="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-3">Boutique</p>
+
+    <div class="flex justify-center mb-5">
+      <div class="h-12 w-12 border-4 border-gray-200 border-t-asmbv-red rounded-full animate-spin"></div>
+    </div>
+
+    <h1 class="font-bebas-neue text-3xl tracking-wider text-gray-900 uppercase mb-2">
+      Redirection en cours
+    </h1>
+    <p class="text-sm text-gray-600 mb-1">
+      Tu vas être redirigé vers la page de paiement sécurisée de LCL.
+    </p>
+    <p class="text-sm text-gray-900 font-semibold mb-6">
+      <%= @credit_purchase.pack.name %> — <%= number_to_currency(@credit_purchase.amount_eur, unit: "€", format: "%n %u") %>
+    </p>
+
+    <%= form_tag @payment_request.url, method: :post, authenticity_token: false,
+          id: "sherlock-payment", data: { turbo: false } do %>
+      <% @payment_request.fields.each do |name, value| %>
+        <%= hidden_field_tag name, value, id: nil %>
+      <% end %>
+
+      <%= submit_tag "Continuer vers le paiement",
+            class: "w-full inline-flex items-center justify-center rounded-none bg-asmbv-red px-6 py-3 text-base font-semibold text-white hover:bg-asmbv-red-dark transition-all" %>
+    <% end %>
+
+    <p class="text-xs text-gray-500 mt-4">
+      Ne ferme pas cette page. Si rien ne se passe, utilise le bouton ci-dessus.
+    </p>
+  </div>
+</div>
+
+<% content_for :scripts do %>
+  <script>
+    document.getElementById("sherlock-payment").submit();
+  </script>
+<% end %>
