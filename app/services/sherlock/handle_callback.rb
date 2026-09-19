@@ -31,9 +31,7 @@ module Sherlock
     attr_reader :params
 
     def reference
-      @reference ||= params[:reference].presence ||
-                     params[:transactionReference].presence ||
-                     params[:orderId].presence
+      @reference ||= Reference.from(params)
     end
 
     def purchase
