@@ -1,5 +1,12 @@
 # 💳 Implémentation Paiement LCL Sherlock + Crédits + Sidekiq
 
+> ⚠️ **Document historique.** C'est le plan de l'implémentation initiale : il
+> décrit un achat admin de 1000 crédits via `/admin/payments`, page depuis
+> supprimée, et des variables d'environnement qui n'existent plus
+> (`SHERLOCK_TERMINAL_ID`, `SHERLOCK_WEBHOOK_TOKEN`). Pour l'état réel du
+> système, voir **PAIEMENT_README.md** et **ENV_VARIABLES.md**.
+
+
 > Projet : Application Rails 8 (Hotwire/Tailwind)  
 > Objectif : permettre à un **admin** d’acheter **1000 crédits (10 €)** via **LCL Sherlock**  
 > Stack : Rails + Sidekiq + Redis + PostgreSQL  

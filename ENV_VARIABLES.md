@@ -6,24 +6,53 @@
 REDIS_URL=redis://localhost:6379/1
 ```
 
-## Sherlock Payment Gateway
+## Sherlock's (LCL)
 
 ```bash
-# Mode de la gateway (fake pour dev, real pour prod)
+# Mode de la passerelle : fake pour le dev, real pour la prod
 SHERLOCK_GATEWAY=fake
 
-# Identifiants LCL Sherlock (fournis par LCL)
+# Identifiants du contrat, fournis par LCL
 SHERLOCK_MERCHANT_ID=
-SHERLOCK_TERMINAL_ID=
-SHERLOCK_API_KEY=
-
-# URLs de retour après paiement
-SHERLOCK_RETURN_URL_SUCCESS=http://localhost:3000/checkout/success
-SHERLOCK_RETURN_URL_CANCEL=http://localhost:3000/checkout/cancel
-
-# Token de sécurité pour le webhook
-SHERLOCK_WEBHOOK_TOKEN=
+SHERLOCK_API_KEY=            # clé secrète ; obligatoire hors développement
+SHERLOCK_KEY_VERSION=1
 ```
+
+### Facultatif
+
+```bash
+# Moyens de paiement affichés sur la page LCL.
+# APPLEPAY et GOOGLEPAY n'apparaissent qu'une fois les options actives sur le
+# contrat : envoyer une marque inactive fait échouer l'initialisation.
+SHERLOCK_PAYMENT_MEAN_BRAND_LIST=CB,VISA,MASTERCARD,APPLEPAY,GOOGLEPAY
+
+# Feuille de style de la page de paiement (nom du zip déposé chez Sherlock's)
+SHERLOCK_TEMPLATE_NAME=
+
+# Algorithme du sceau : sha256 (défaut) ou HMAC-SHA-256
+SHERLOCK_SEAL_ALGO=sha256
+
+# Langue de la page de paiement (fr par défaut)
+SHERLOCK_CUSTOMER_LANGUAGE=fr
+
+# URL d'init (recette LCL, par exemple)
+SHERLOCK_PAYMENT_INIT_URL=
+SHERLOCK_INTERFACE_VERSION=HP_3.4
+
+# Référence marchande envoyée en orderId au lieu de transactionReference
+SHERLOCK_USE_ORDER_ID=false
+
+# Force l'URL de retour. Sans elle : #{APP_HOST}/checkout/return
+SHERLOCK_RETURN_URL_SUCCESS=
+
+# Dev uniquement : code de réponse simulé par la passerelle fake
+# 00 accepté · 05 refusé · 17 annulé par le client · 97 session expirée
+SHERLOCK_FAKE_RESPONSE_CODE=00
+```
+
+Sherlock's transmet `normalReturnUrl` et `automaticResponseUrl` à chaque
+requête : il n'y a **aucune URL à déclarer côté LCL**. Il n'y a pas non plus
+d'URL d'annulation — le résultat est porté par le `responseCode`.
 
 ## Brevo (emails transactionnels)
 
@@ -57,8 +86,6 @@ Créez un fichier `.env` à la racine avec ces variables :
 # Copier-coller ce template dans votre .env local
 REDIS_URL=redis://localhost:6379/1
 SHERLOCK_GATEWAY=fake
-SHERLOCK_RETURN_URL_SUCCESS=http://localhost:3000/checkout/success
-SHERLOCK_RETURN_URL_CANCEL=http://localhost:3000/checkout/cancel
 BREVO_API_KEY=your_brevo_api_key
 BREVO_SENDER_EMAIL=notifications@example.com
 BREVO_SENDER_NAME="AS Monaco Beach Volley"
@@ -73,11 +100,8 @@ CURRENCY=EUR
 # Ajouter les variables via CLI
 scalingo --app votre-app env-set SHERLOCK_GATEWAY=real
 scalingo --app votre-app env-set SHERLOCK_MERCHANT_ID=votre_merchant_id
-scalingo --app votre-app env-set SHERLOCK_TERMINAL_ID=votre_terminal_id
-scalingo --app votre-app env-set SHERLOCK_API_KEY=votre_api_key
-scalingo --app votre-app env-set SHERLOCK_RETURN_URL_SUCCESS=https://votre-app.osc-fr1.scalingo.io/checkout/success
-scalingo --app votre-app env-set SHERLOCK_RETURN_URL_CANCEL=https://votre-app.osc-fr1.scalingo.io/checkout/cancel
-scalingo --app votre-app env-set SHERLOCK_WEBHOOK_TOKEN=votre_token_secret
+scalingo --app votre-app env-set SHERLOCK_API_KEY=votre_cle_secrete
+scalingo --app votre-app env-set SHERLOCK_KEY_VERSION=1
 scalingo --app votre-app env-set APP_HOST=https://votre-app.osc-fr1.scalingo.io
 scalingo --app votre-app env-set CURRENCY=EUR
 scalingo --app votre-app env-set BREVO_API_KEY=votre_cle_api
