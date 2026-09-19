@@ -63,6 +63,15 @@ class CreditPurchase < ApplicationRecord
     )
   end
 
+  # Achat laissé en plan : le client n'est jamais revenu de la page de paiement
+  # et la banque n'a rien notifié. Aucun débit n'a eu lieu.
+  def mark_as_abandoned!
+    update!(
+      status: :cancelled,
+      sherlock_fields: sherlock_fields.merge("abandoned_at" => Time.current.iso8601)
+    )
+  end
+
   # Motif de refus renvoyé par la banque, tel qu'enregistré à l'échec.
   def failure_reason
     sherlock_fields["failure_reason"].presence

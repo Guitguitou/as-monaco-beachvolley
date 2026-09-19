@@ -123,6 +123,17 @@ RSpec.describe CreditPurchase, type: :model do
     end
   end
 
+  describe '#mark_as_abandoned!' do
+    it 'annule l’achat et note la date d’abandon' do
+      purchase = create(:credit_purchase, user:)
+
+      purchase.mark_as_abandoned!
+
+      expect(purchase.status).to eq("cancelled")
+      expect(purchase.sherlock_fields["abandoned_at"]).to be_present
+    end
+  end
+
   describe '#amount_eur' do
     it 'converts cents to euros' do
       purchase = build(:credit_purchase, amount_cents: 1000)
