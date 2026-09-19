@@ -1,0 +1,76 @@
+<div class="max-w-2xl mx-auto">
+  <div class="bg-white rounded-lg border border-gray-200 shadow-lg overflow-hidden">
+    <%# Success header with gradient %>
+    <div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark p-8 text-white text-center">
+      <p class="text-xs uppercase tracking-widest text-white font-semibold mb-3">Boutique</p>
+      <div class="flex justify-center mb-4">
+        <div class="p-4 bg-white/20 rounded-lg">
+          <%= lucide_icon("check-circle", size: 64) %>
+        </div>
+      </div>
+      <h1 class="font-bebas-neue text-5xl tracking-wider uppercase mb-2">Paiement réussi</h1>
+      <p class="text-base"><%= @credit_purchase.pack&.name || "Ton achat" %> est bien enregistré.</p>
+    </div>
+
+    <%# Content %>
+    <div class="p-8">
+      <% if @credit_purchase.credits.to_i.positive? %>
+        <%# Credits added %>
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-6 py-4">
+            <%= lucide_icon("coins", size: 32, class: "text-asmbv-red") %>
+            <div class="text-left">
+              <p class="text-sm text-gray-600">Crédits ajoutés</p>
+              <p class="text-3xl font-bold text-asmbv-red">+ <%= @credit_purchase.credits %></p>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%# Reference %>
+      <div class="bg-gray-50 rounded-lg p-4 mb-6 space-y-2">
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-gray-600">Montant réglé</span>
+          <span class="font-semibold text-gray-900"><%= number_to_currency(@credit_purchase.amount_eur, unit: "€", format: "%n %u") %></span>
+        </div>
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-gray-600">Référence de transaction</span>
+          <span class="font-mono text-gray-900"><%= @credit_purchase.sherlock_transaction_reference %></span>
+        </div>
+      </div>
+
+      <%# New balance %>
+      <div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-lg p-6 text-white text-center mb-6">
+        <p class="text-sm uppercase tracking-wide mb-2">Nouveau solde</p>
+        <div class="flex items-baseline justify-center gap-2">
+          <%= lucide_icon("wallet", size: 24, class: "opacity-75") %>
+          <span class="text-4xl font-bold"><%= @credit_purchase.user.balance&.amount || 0 %></span>
+          <span class="text-lg">crédits</span>
+        </div>
+      </div>
+
+      <%# Actions %>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <%= link_to packs_path,
+              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-asmbv-red-dark transition-all" do %>
+          <%= lucide_icon("package", size: 20) %>
+          Voir les packs
+        <% end %>
+
+        <% if user_signed_in? %>
+          <%= link_to sessions_path,
+                class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
+            <%= lucide_icon("calendar", size: 20) %>
+            Mes séances
+          <% end %>
+        <% else %>
+          <%= link_to new_user_session_path,
+                class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
+            <%= lucide_icon("log-in", size: 20) %>
+            Me connecter
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,57 @@
+<div class="max-w-2xl mx-auto">
+  <div class="bg-white rounded-lg border border-gray-200 shadow-lg overflow-hidden">
+    <div class="bg-gradient-to-r from-gray-800 to-gray-900 p-8 text-white text-center">
+      <p class="text-xs uppercase tracking-widest text-white font-semibold mb-3">Boutique</p>
+      <div class="flex justify-center mb-4">
+        <div class="p-4 bg-white/20 rounded-lg">
+          <%= lucide_icon("alert-triangle", size: 64) %>
+        </div>
+      </div>
+      <h1 class="font-bebas-neue text-5xl tracking-wider uppercase mb-2">Paiement refusé</h1>
+      <p class="text-base">Aucun débit n'a été effectué.</p>
+    </div>
+
+    <div class="p-8">
+      <%# Motif renvoyé par la banque : c'est ce qui permet au joueur de savoir
+          s'il doit réessayer ou appeler sa banque. %>
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+        <div class="flex gap-3">
+          <%= lucide_icon("info", size: 20, class: "text-gray-700 flex-shrink-0 mt-0.5") %>
+          <div class="text-sm text-gray-700">
+            <p class="font-semibold mb-1">Motif transmis par la banque</p>
+            <p><%= @credit_purchase.failure_reason || "Le paiement n'a pas abouti." %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 rounded-lg p-4 mb-6 space-y-2">
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-gray-600">Montant</span>
+          <span class="font-semibold text-gray-900"><%= number_to_currency(@credit_purchase.amount_eur, unit: "€", format: "%n %u") %></span>
+        </div>
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-gray-600">Référence de transaction</span>
+          <span class="font-mono text-gray-900"><%= @credit_purchase.sherlock_transaction_reference %></span>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <% if @credit_purchase.pack %>
+          <%= button_to buy_pack_path(@credit_purchase.pack),
+                method: :post,
+                class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-6 py-3 text-base font-semibold text-white hover:bg-asmbv-red-dark transition-all",
+                data: { turbo: false } do %>
+            <%= lucide_icon("refresh-cw", size: 20) %>
+            Réessayer
+          <% end %>
+        <% end %>
+
+        <%= link_to packs_path,
+              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
+          <%= lucide_icon("package", size: 20) %>
+          Voir les packs
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
