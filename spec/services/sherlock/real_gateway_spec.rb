@@ -119,5 +119,54 @@ RSpec.describe Sherlock::RealGateway do
       expect(request.url).to eq("https://recette.example.com/paymentInit")
     end
 
+    describe 'champs facultatifs' do
+      it 'n’envoie ni marques ni template quand rien n’est configuré' do
+        _request, data = payment_data(
+          "SHERLOCK_PAYMENT_MEAN_BRAND_LIST" => nil,
+          "SHERLOCK_TEMPLATE_NAME" => nil
+        )
+
+        expect(data).not_to have_key("paymentMeanBrandList")
+        expect(data).not_to have_key("templateName")
+      end
+
+      # C'est ce champ qui ouvre Apple Pay et Google Pay, une fois les options
+      # actives sur le contrat Sherlock's.
+      it 'transmet la liste des moyens de paiement quand elle est configurée' do
+        _request, data = payment_data(
+          "SHERLOCK_PAYMENT_MEAN_BRAND_LIST" => "CB,VISA,MASTERCARD,APPLEPAY,GOOGLEPAY"
+        )
+
+        expect(data["paymentMeanBrandList"]).to eq("CB,VISA,MASTERCARD,APPLEPAY,GOOGLEPAY")
+      end
+
+      it 'transmet la feuille de style de la page de paiement' do
+        _request, data = payment_data("SHERLOCK_TEMPLATE_NAME" => "asmbv")
+
+        expect(data["templateName"]).to eq("asmbv")
+      end
+
+      it 'n’annonce pas l’algorithme historique, qui est celui par défaut' do
+        _request, data = payment_data
+
+        expect(data).not_to have_key("sealAlgorithm")
+      end
+
+      it 'annonce l’algorithme HMAC quand il est utilisé' do
+        hmac_seal = Sherlock::Seal.new(secret: "test_secret", algorithm: Sherlock::Seal::HMAC_ALGORITHM)
+        gateway = described_class.new(seal: hmac_seal)
+
+        request = with_env("SHERLOCK_MERCHANT_ID" => "TEST_MERCHANT") do
+          gateway.create_payment(
+            reference: "TEST-REF-123", amount_cents: 10_000, currency: "EUR",
+            return_urls: return_urls, customer: customer
+          )
+        end
+        data = Sherlock::DataParser.parse(request.fields["Data"])
+
+        expect(data["sealAlgorithm"]).to eq(Sherlock::Seal::HMAC_ALGORITHM)
+        expect(request.fields["Seal"]).to eq(hmac_seal.compute(request.fields["Data"]))
+      end
+    end
   end
 end
