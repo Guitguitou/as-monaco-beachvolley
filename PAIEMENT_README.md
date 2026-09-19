@@ -1,237 +1,224 @@
-# 💳 Système de Paiement LCL Sherlock
+# 💳 Système de Paiement LCL Sherlock's
 
 ## 🎯 Vue d'ensemble
 
-Système complet de paiement en ligne permettant aux utilisateurs d'acheter des crédits via LCL Sherlock.
+Achat de packs (crédits, licences, stages, inscriptions tournoi, équipements)
+via **LCL Sherlock's**, l'habillage LCL de Worldline Sips 2.0.
 
 **Conversion** : 100 crédits = 1 EUR
-
-## ✅ Fonctionnalités implémentées
-
-### 1. Modèle CreditPurchase
-- ✅ Statuts : pending, paid, failed, cancelled
-- ✅ Méthode `credit!` idempotente
-- ✅ Pack prédéfini 10 EUR = 1000 crédits
-- ✅ Génération automatique de référence unique
-
-### 2. Gateway de paiement
-- ✅ **FakeGateway** : Pour développement (redirige auto vers success)
-- ✅ **RealGateway** : Pour production avec signature HMAC
-- ✅ Factory pattern pour sélection selon `ENV['SHERLOCK_GATEWAY']`
-
-### 3. Webhook Sidekiq
-- ✅ Endpoint `/webhooks/sherlock`
-- ✅ Vérification signature HMAC
-- ✅ Traitement asynchrone via `SherlockCallbackJob`
-- ✅ Service `HandleCallback` pour normaliser les statuts
-- ✅ `PostPaymentFulfillmentJob` pour actions post-paiement (email Brevo)
-
-### 4. Interface Admin
-- ✅ Page `/admin/payments`
-- ✅ Bouton "Acheter 10 € (1000 crédits)"
-- ✅ Historique des achats avec statuts
-- ✅ Affichage du solde actuel
-
-### 5. Pages Checkout
-- ✅ `/checkout/success` : Confirmation de paiement
-- ✅ `/checkout/cancel` : Annulation de paiement
-- ✅ Design moderne avec Tailwind CSS
-
-### 6. Tests RSpec
-- ✅ Tests modèle CreditPurchase
-- ✅ Tests d'idempotence
-- ✅ Factory avec traits
-
-## 🚀 Utilisation
-
-### En développement (FakeGateway)
-
-1. **Configurer les variables d'environnement** :
-   ```bash
-   # Dans .env
-   REDIS_URL=redis://localhost:6379/1
-   SHERLOCK_GATEWAY=fake
-   BREVO_API_KEY=your_brevo_api_key
-   BREVO_SENDER_EMAIL=notifications@example.com
-   BREVO_SENDER_NAME="AS Monaco Beach Volley"
-   BREVO_TEMPLATE_PAYMENT_SUCCESS=1
-   APP_HOST=http://localhost:3000
-   CURRENCY=EUR
-   ```
-
-2. **Démarrer les services** :
-   ```bash
-   # Terminal 1 : Redis
-   redis-server
-   
-   # Terminal 2 : Rails + Sidekiq
-   bin/dev
-   ```
-
-3. **Tester le flux** :
-   - Aller sur `/admin/payments`
-   - Cliquer sur "Acheter 10 € (1000 crédits)"
-   - Redirection automatique vers `/checkout/success`
-   - Vérifier le solde mis à jour
-
-### En production (RealGateway)
-
-1. **Configurer les variables Scalingo** :
-   ```bash
-   scalingo --app votre-app env-set SHERLOCK_GATEWAY=real
-   scalingo --app votre-app env-set SHERLOCK_MERCHANT_ID=votre_merchant_id
-   scalingo --app votre-app env-set SHERLOCK_TERMINAL_ID=votre_terminal_id
-   scalingo --app votre-app env-set SHERLOCK_API_KEY=votre_api_key
-   scalingo --app votre-app env-set SHERLOCK_RETURN_URL_SUCCESS=https://votre-app.osc-fr1.scalingo.io/checkout/success
-   scalingo --app votre-app env-set SHERLOCK_RETURN_URL_CANCEL=https://votre-app.osc-fr1.scalingo.io/checkout/cancel
-   scalingo --app votre-app env-set SHERLOCK_WEBHOOK_TOKEN=votre_token_secret
-   scalingo --app votre-app env-set APP_HOST=https://votre-app.osc-fr1.scalingo.io
-   scalingo --app votre-app env-set BREVO_API_KEY=votre_cle_api
-   scalingo --app votre-app env-set BREVO_SENDER_EMAIL=notifications@votre-domaine
-   scalingo --app votre-app env-set BREVO_SENDER_NAME="AS Monaco Beach Volley"
-   scalingo --app votre-app env-set BREVO_TEMPLATE_PAYMENT_SUCCESS=123
-   ```
-
-2. **Configurer le webhook chez LCL** :
-   - URL : `https://votre-app.osc-fr1.scalingo.io/webhooks/sherlock`
-   - Méthode : POST
-   - Header : `X-Sherlock-Signature` (signature HMAC)
-
-3. **Déployer** :
-   ```bash
-   git push scalingo Implem-paiement:master
-   ```
 
 ## 📊 Flux de paiement
 
 ```
-1. User → Clique "Acheter 10 €"
+1. Joueur → clique « Acheter » sur /packs
    ↓
-2. CreditPurchase créé (status: pending)
+2. CreditPurchase créé (status: pending) + référence marchande figée
    ↓
-3. Redirection vers gateway (Fake ou Real)
+3. Page de transition aux couleurs du club, qui poste vers paymentInit
    ↓
-4. User → Paiement sur plateforme LCL
+4. Joueur → paie sur la page LCL (CB, et Apple Pay / Google Pay si activés)
    ↓
-5. LCL → Callback webhook
+5. LCL → POST cross-site sur /checkout/return  (Data + Seal signés)
+   │  ├─ vérification du Seal
+   │  ├─ lecture du responseCode et de la référence
+   │  ├─ Sherlock::ApplyOutcome (idempotent)
+   │  └─ 302 → GET /checkout/:signed_id
    ↓
-6. SherlockCallbackJob → HandleCallback
-   ↓
-7. CreditPurchase.credit! (idempotent)
-   ↓
-8. Balance mise à jour
-   ↓
-9. CreditTransaction créée
-   ↓
-10. PostPaymentFulfillmentJob (email Brevo, analytics)
+6. Page de résultat : payé / refusé / annulé / en attente
 ```
 
-## 🔐 Sécurité
+En parallèle, LCL notifie `/webhooks/sherlock` de serveur à serveur. C'est le
+**filet de sécurité** : le joueur peut fermer son onglet avant de revenir, et
+cette notification est alors la seule qu'on recevra. Les deux entrées
+traversent le même `Sherlock::ApplyOutcome`, dans n'importe quel ordre.
 
-### En développement
-- Vérification signature désactivée
-- FakeGateway sans vraie transaction
+### Pourquoi une URL de retour et une redirection
 
-### En production
-- ✅ Vérification HMAC SHA-256 du webhook
-- ✅ Signature des paramètres vers LCL
-- ✅ Protection CSRF (sauf webhook)
-- ✅ Protection admin uniquement
+LCL renvoie le joueur en **POST cross-site**. Avec des cookies en
+`SameSite=Lax`, cette requête n'emporte ni jeton CSRF ni cookie de session :
+`current_user` y est toujours nil. Le résultat est donc appliqué à partir de la
+réponse signée — qui fait autorité — puis on redirige vers un GET, où la
+session est de nouveau présente et où la page de résultat peut être rendue.
 
-## 🧪 Tests
+### Il n'y a pas d'URL d'annulation
 
-```bash
-# Lancer les tests
-bundle exec rspec spec/models/credit_purchase_spec.rb
+Sherlock's n'expose qu'un `normalReturnUrl`. Accepté, refusé, annulé par le
+client et session expirée reviennent **tous** sur cette URL : c'est le
+`responseCode` de la réponse signée qui porte le résultat.
 
-# Créer un paiement en console
-rails console
-purchase = CreditPurchase.create_pack_10_eur(user: User.first)
-purchase.credit!
-User.first.balance.amount # Devrait avoir augmenté de 1000
-```
+| responseCode | Issue |
+|---|---|
+| `00` | payé |
+| `17` | annulé par le client |
+| tout le reste | refusé |
 
-## 📁 Structure du code
+`Sherlock::Outcome` porte la table complète des codes documentés et **échoue
+par défaut** : un code inconnu marque l'achat en échec plutôt que de le laisser
+bloqué en `pending`.
+
+## 🧩 Structure du code
 
 ```
 app/
 ├── models/
-│   └── credit_purchase.rb          # Modèle principal
+│   └── credit_purchase.rb
 ├── services/
-│   └── sherlock/
-│       ├── gateway.rb               # Interface abstraite
-│       ├── fake_gateway.rb          # Gateway dev
-│       ├── real_gateway.rb          # Gateway prod
-│       ├── create_payment.rb        # Service création paiement
-│       └── handle_callback.rb       # Service traitement callback
+│   ├── sherlock/
+│   │   ├── seal.rb              # calcule et vérifie le sceau (les 2 algos)
+│   │   ├── response.rb          # réponse signée → champs vérifiés
+│   │   ├── outcome.rb           # responseCode → payé / refusé / annulé
+│   │   ├── apply_outcome.rb     # applique l'issue, idempotent
+│   │   ├── gateway.rb           # interface + fabrique selon SHERLOCK_GATEWAY
+│   │   ├── real_gateway.rb      # requête paymentInit signée
+│   │   ├── fake_gateway.rb      # réponse scellée, pour le dev
+│   │   ├── payment_request.rb   # URL + champs à poster
+│   │   ├── create_payment.rb    # prépare la requête d'un achat
+│   │   ├── handle_callback.rb   # entrée du webhook
+│   │   └── data_parser.rb       # "k=v|k=v" → hash
+│   └── credit_purchases/
+│       ├── process_payment.rb   # aiguille vers le processeur du type de pack
+│       └── processors/
 ├── jobs/
-│   ├── sherlock_callback_job.rb    # Job traitement webhook
-│   └── post_payment_fulfillment_job.rb  # Job post-paiement
+│   ├── sherlock_callback_job.rb
+│   ├── post_payment_fulfillment_job.rb  # email de confirmation (Brevo)
+│   └── expire_stale_purchases_job.rb    # clôture les pending abandonnés
 ├── controllers/
-│   ├── admin/
-│   │   └── payments_controller.rb  # Interface admin
-│   ├── checkout_controller.rb      # Success/Cancel
+│   ├── packs_controller.rb      # #buy → page de transition
+│   ├── checkout_controller.rb   # #create (retour LCL) + #show (résultat)
 │   └── webhooks/
-│       └── sherlock_controller.rb  # Webhook endpoint
+│       └── sherlock_controller.rb
 └── views/
-    ├── admin/payments/
-    │   └── show.html.erb           # Page achat crédits
-    └── checkout/
-        ├── success.html.erb        # Page succès
-        └── cancel.html.erb         # Page annulation
+    ├── packs/redirect.html.erb
+    └── checkout/{paid,failed,cancelled,pending}.html.erb
 ```
+
+## 🚀 Développement
+
+La passerelle simulée poste sur l'URL de retour une réponse **scellée avec le
+même sceau que la vraie passerelle**. Le flux complet est donc exercé en local,
+vérification du sceau comprise.
+
+```bash
+# .env
+SHERLOCK_GATEWAY=fake
+APP_HOST=http://localhost:3000
+CURRENCY=EUR
+REDIS_URL=redis://localhost:6379/1
+```
+
+```bash
+redis-server        # terminal 1
+bin/dev             # terminal 2 (Rails + Sidekiq)
+```
+
+Aller sur `/packs`, acheter un pack, vérifier le solde et le statut de l'achat.
+
+Pour rejouer un refus ou une annulation sans toucher au code :
+
+```bash
+SHERLOCK_FAKE_RESPONSE_CODE=05   # autorisation refusée
+SHERLOCK_FAKE_RESPONSE_CODE=17   # annulation par le client
+SHERLOCK_FAKE_RESPONSE_CODE=97   # session expirée
+```
+
+## 🏦 Production
+
+Voir `ENV_VARIABLES.md` pour la liste complète. Le minimum :
+
+```bash
+SHERLOCK_GATEWAY=real
+SHERLOCK_MERCHANT_ID=...
+SHERLOCK_API_KEY=...          # clé secrète du contrat
+SHERLOCK_KEY_VERSION=1
+APP_HOST=https://...
+```
+
+`normalReturnUrl` et `automaticResponseUrl` sont transmis à chaque requête : il
+n'y a **rien à déclarer côté LCL**. `SHERLOCK_RETURN_URL_SUCCESS` permet de
+forcer l'URL de retour ; sans elle, c'est `#{APP_HOST}/checkout/return`.
+
+## 🍎 Apple Pay et Google Pay
+
+`paymentMeanBrandList` fait apparaître les wallets sur la page de paiement :
+
+```bash
+SHERLOCK_PAYMENT_MEAN_BRAND_LIST=CB,VISA,MASTERCARD,APPLEPAY,GOOGLEPAY
+```
+
+⚠️ Envoyer une marque **non active sur le contrat** fait échouer
+l'initialisation du paiement. D'où le pilotage par variable d'environnement :
+on ajoute chaque moyen au moment où LCL le confirme, sans redéployer.
+
+**Apple Pay** — en mode Paypage, il suffit de souscrire l'option sur le contrat
+Sherlock's. C'est LCL qui gère l'enrôlement auprès d'Apple : pas de compte
+développeur Apple, pas de validation de domaine, rien à coder. Restrictions :
+appareil Apple uniquement, pas d'iframe, pas de one-click, `captureDay` ≤ 6,
+CVV non valorisé, 3DS porté par Apple Pay.
+
+**Google Pay** — demande en plus un contrat CB de vente à distance auprès de
+LCL, une inscription sur la console Google Pay, et la transmission du numéro de
+contrat à Sherlock's. `gatewayMerchantId` = notre `merchantId` Sherlock's.
+Marques acceptées : MASTERCARD, VISA, ELECTRON.
+
+Documentation : [Apple Pay](https://sherlocks-documentation.secure.lcl.fr/fr/integration-apple-pay.html)
+· [Google Pay](https://sherlocks-documentation.secure.lcl.fr/fr/integration-google-pay.html)
+· [paymentMeanBrandList](https://sherlocks-documentation.secure.lcl.fr/en/data-dictionary/paymentmeanbrandlist.html)
+
+## 🔐 Sécurité
+
+- Sceau vérifié sur **le retour navigateur comme sur le webhook** : c'est la
+  seule source de vérité du résultat, les paramètres bruts ne le sont pas.
+- Deux algorithmes supportés selon le contrat : `sha256` (historique,
+  `SHA256(Data + secret)`) et `HMAC-SHA-256`, alors annoncé dans le Data via
+  `sealAlgorithm`.
+- `SHERLOCK_API_KEY` est obligatoire hors développement : son absence lève une
+  erreur au lieu de retomber silencieusement sur un secret de test.
+- La page de résultat est atteinte par un `signed_id` daté (2 h), ce qui permet
+  de l'afficher à un acheteur non connecté sans exposer d'identifiant.
+- CSRF désactivé uniquement sur le retour de paiement et le webhook, qui sont
+  des requêtes cross-site par nature.
+
+## 🎨 Personnalisation de la page de paiement
+
+`SHERLOCK_TEMPLATE_NAME` désigne la feuille de style (nom du zip déposé chez
+Sherlock's, 32 caractères max) qui habille la page de paiement. Sans elle, le
+joueur passe du rouge ASMBV à un écran LCL générique.
+
+## 🧪 Tests
+
+```bash
+bundle exec rspec spec/services/sherlock spec/requests/checkout_spec.rb \
+                  spec/requests/webhooks spec/requests/packs_spec.rb \
+                  spec/models/credit_purchase_spec.rb spec/jobs
+```
+
+## 🆘 Dépannage
+
+### Le paiement ne se crédite pas
+
+1. Statut de l'achat et réponse brute reçue :
+   ```bash
+   bin/rails runner 'p CreditPurchase.last.slice(:status, :sherlock_fields)'
+   ```
+2. Sidekiq tourne-t-il ? `bundle exec sidekiq -C config/sidekiq.yml`
+3. Chercher `[Sherlock:webhook]` et `[Sherlock:return]` dans les logs.
+
+### « Nous n'avons pas pu vérifier ce retour de paiement »
+
+Le sceau ne correspond pas. Vérifier `SHERLOCK_API_KEY` et que
+`SHERLOCK_SEAL_ALGO` correspond bien à l'algorithme du contrat.
+
+### L'initialisation du paiement échoue chez LCL
+
+Le plus souvent une marque de `SHERLOCK_PAYMENT_MEAN_BRAND_LIST` non active sur
+le contrat. Vider la variable pour revenir aux moyens par défaut.
 
 ## 🎯 Prochaines évolutions
 
-### Court terme
-- [x] Emails de confirmation (via PostPaymentFulfillmentJob + Brevo)
-- [ ] Analytics/Sentry sur les paiements
-- [ ] Page admin pour voir tous les paiements
-
-### Moyen terme
-- [ ] Imports journaliers CSV (cron jobs)
-- [ ] Gestion des impayés/chargebacks
-- [ ] Remboursements partiels
-- [ ] Badge 3DS garanti/non garanti
-
-### Long terme
+- [ ] Imports journaliers CSV (transactions, opérations, impayés)
 - [ ] Rapprochement bancaire
-- [ ] Monitoring des paiements > 30min
-- [ ] Alertes impayés
-- [ ] Dashboard analytics paiements
-
-## 📚 Documentation
-
-- **Variables d'environnement** : Voir `ENV_VARIABLES.md`
-- **Guide détaillé** : Voir `setup_real_sherlock.md`
-- **Migration Sidekiq** : Voir `MIGRATION_SIDEKIQ.md`
-- **Déploiement Scalingo** : Voir `SCALINGO_DEPLOYMENT.md`
-
-## 📧 Emails Brevo (confirmation paiement)
-
-- Le job `PostPaymentFulfillmentJob` envoie un email de confirmation via Brevo dès que le paiement est crédité.
-- Template transactionnel Brevo attendu :
-  - Variables : `user_first_name`, `user_last_name`, `purchase_reference`, `credits`, `amount_eur`, `paid_at_iso`
-  - Expéditeur : `BREVO_SENDER_EMAIL` / `BREVO_SENDER_NAME`
-- L'email est envoyé uniquement si le `CreditPurchase` est rattaché à un utilisateur.
-
-## 🆘 Troubleshooting
-
-### Le paiement ne se crédite pas
-1. Vérifier que Sidekiq tourne : `bundle exec sidekiq -C config/sidekiq.yml`
-2. Vérifier les logs du worker
-3. Vérifier que le webhook a bien été reçu
-
-### Erreur "CreditPurchase not found"
-- La référence dans le callback ne correspond pas
-- Vérifier les logs du webhook
-
-### Signature invalide
-- Vérifier `SHERLOCK_WEBHOOK_TOKEN`
-- Vérifier le header `X-Sherlock-Signature`
-
----
-
-**Statut** : ✅ Prêt pour développement (FakeGateway)  
-**Prochaine étape** : Configuration LCL Sherlock pour production
-
+- [ ] Gestion des impayés et chargebacks
+- [ ] Remboursements partiels
+- [ ] Badge 3DS garanti / non garanti (`threed_ls_code`)
+- [ ] Alertes Sentry sur achat payé non rapproché > 72 h
+- [ ] Flux invité : ne créer le compte qu'après paiement accepté
