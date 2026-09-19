@@ -57,7 +57,7 @@ module Sherlock
         # ticket Sherlock's, qui impose un clic « Continuer » de plus.
         "bypassReceiptPage" => "true",
         "customerLanguage" => ENV.fetch("SHERLOCK_CUSTOMER_LANGUAGE", DEFAULT_CUSTOMER_LANGUAGE)
-      }.merge(reference_field(reference))
+      }.merge(reference_field(reference)).merge(optional_data).compact_blank
     end
 
     # Sherlock's accepte la référence marchande sous deux noms selon le contrat.
@@ -67,6 +67,18 @@ module Sherlock
       else
         { "transactionReference" => reference }
       end
+    end
+
+    # Champs facultatifs, pilotés par variables d'environnement pour pouvoir
+    # être activés sans redéployer. `paymentMeanBrandList` est ce qui ouvre
+    # Apple Pay et Google Pay (APPLEPAY, GOOGLEPAY) : envoyer une marque non
+    # active sur le contrat fait échouer l'init, d'où le pilotage par ENV.
+    def optional_data
+      {
+        "paymentMeanBrandList" => ENV["SHERLOCK_PAYMENT_MEAN_BRAND_LIST"],
+        "templateName" => ENV["SHERLOCK_TEMPLATE_NAME"],
+        "sealAlgorithm" => seal.declared_algorithm
+      }
     end
 
     def to_data_string(pairs)
