@@ -75,6 +75,7 @@ RSpec.describe "Packs", type: :request do
       expect(response.body).to include(Sherlock::RealGateway::DEFAULT_INIT_URL)
       expect(response.body).to include("Continuer vers le paiement")
       expect(response.body).to include('name="Data"', 'name="Seal"', 'name="InterfaceVersion"')
+      expect(response.body).to include('document.getElementById("sherlock-payment").submit()')
     end
 
     it "renvoie vers la boutique quand la passerelle échoue" do
