@@ -68,6 +68,7 @@ group :development, :test do
   gem "faker"
   gem "shoulda-matchers"
   gem "rubocop-config-captive", "~> 2.3.0"
+  gem "rubycritic", "5.0.0", require: false
   gem "rails-controller-testing"
 end
 
