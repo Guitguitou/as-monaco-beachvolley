@@ -43,7 +43,7 @@ module Sessions
       amount = session.coaching_prive? ? 0 : session.price.to_i
 
       if amount.positive? && registration.user.balance.amount < amount
-        notify_insufficient_credits(registration.user)
+        notifier.insufficient_credits(registration.user)
         return false
       end
 
@@ -56,37 +56,14 @@ module Sessions
         TransactionService.new(registration.user, session, amount).create_transaction if amount.positive?
       end
 
-      notify_promoted(registration.user)
+      notifier.promoted(registration.user, cause: "Quelqu'un s'est désinscrit de la session")
       true
     rescue ActiveRecord::RecordInvalid
       false
     end
 
-    def notify_insufficient_credits(user)
-      SendPushNotificationJob.perform_later(
-        user.id,
-        title: "Pas assez de crédits",
-        body: "Tu n'as pas assez de crédits pour passer en liste principale.",
-        url: Rails.application.routes.url_helpers.session_path(session)
-      )
-    rescue StandardError => e
-      Rails.logger.error "Failed to enqueue notification job: #{e.message}"
-    end
-
-    def notify_promoted(user)
-      session_name = session.title || session.session_type.humanize
-      session_date = session.start_at.strftime("%d/%m/%Y")
-      session_time = session.start_at.strftime("%Hh%M")
-
-      SendPushNotificationJob.perform_later(
-        user.id,
-        title: "Tu passes en liste principale !",
-        body: "Quelqu'un s'est désinscrit de la session #{session_name} du #{session_date} à #{session_time}, tu viens de passer en liste principale",
-        url: Rails.application.routes.url_helpers.session_path(session)
-      )
-      SessionMailer.promoted_to_main_list(user, session).deliver_later
-    rescue StandardError => e
-      Rails.logger.error "Failed to enqueue notification job: #{e.message}"
+    def notifier
+      @notifier ||= WaitlistNotifier.new(session)
     end
   end
 end

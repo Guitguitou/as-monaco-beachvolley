@@ -77,13 +77,7 @@ module ApplicationHelper
 
   # Whitelisted query params for linking back to sessions#index (grid or calendar, week, terrain).
   def sessions_index_return_params(source_params = nil)
-    p = source_params || params
-    {
-      view: p[:view].presence_in(%w[grid calendar]),
-      date: p[:date].presence,
-      for_me: ActiveModel::Type::Boolean.new.cast(p[:for_me]) ? "1" : nil,
-      terrain: p[:terrain].presence
-    }.compact
+    Sessions::ReturnParams.from(source_params || params)
   end
 
   # Session show URL from the calendar view with stable week anchor (for FullCalendar event.url fallback).

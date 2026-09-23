@@ -11,7 +11,7 @@
         <% revenue_cards.each do |card| %>
           <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <div class="<%= card_color_classes(card[:color]) %> rounded-lg p-2 mr-3">
+              <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-lg p-2 mr-3">
                 <%= lucide_icon(card[:icon], class: 'w-4 h-4') %>
               </div>
               <span class="text-sm font-medium text-gray-600"><%= card[:title] %></span>
@@ -32,7 +32,7 @@
         <% salary_cards.each do |card| %>
           <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <div class="<%= card_color_classes(card[:color]) %> rounded-lg p-2 mr-3">
+              <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-lg p-2 mr-3">
                 <%= lucide_icon(card[:icon], class: 'w-4 h-4') %>
               </div>
               <span class="text-sm font-medium text-gray-600"><%= card[:title] %></span>
@@ -53,7 +53,7 @@
         <% profit_cards.each do |card| %>
           <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <div class="<%= card_color_classes(card[:color]) %> rounded-lg p-2 mr-3">
+              <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-lg p-2 mr-3">
                 <%= lucide_icon(card[:icon], class: 'w-4 h-4') %>
               </div>
               <span class="text-sm font-medium text-gray-600"><%= card[:title] %></span>

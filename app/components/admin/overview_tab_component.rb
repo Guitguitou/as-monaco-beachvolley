@@ -58,22 +58,5 @@ module Admin
         }
       ]
     end
-
-    def card_color_classes(color)
-      case color
-      when "blue"
-        "bg-blue-50 text-blue-600"
-      when "green"
-        "bg-green-50 text-green-600"
-      when "purple"
-        "bg-purple-50 text-purple-600"
-      when "red"
-        "bg-red-50 text-red-600"
-      when "orange"
-        "bg-orange-50 text-orange-600"
-      else
-        "bg-gray-50 text-gray-600"
-      end
-    end
   end
 end

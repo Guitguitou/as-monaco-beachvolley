@@ -2,58 +2,29 @@
 
 module Stats
   class PerformanceDashboard
+    GENDERS = %w[male female].freeze
+
     def initialize(timezone: "Europe/Paris")
       @timezone = ActiveSupport::TimeZone[timezone]
     end
 
     def call
       {
-        all_time: all_time_stats,
-        free_play_week: free_play_week_stats,
-        free_play_month: free_play_month_stats,
-        training_week: training_week_stats,
-        training_month: training_month_stats,
-        inactivity: inactivity_stats
+        all_time: by_gender { |user_ids| SessionCountRanking.new(user_ids: user_ids).top },
+        free_play_week: top_by_gender(Session.free_plays.in_current_week(current_week_start)),
+        free_play_month: top_by_gender(Session.free_plays.in_current_month(current_month_start)),
+        training_week: top_by_gender(Session.trainings.in_current_week(current_week_start)),
+        training_month: top_by_gender(Session.trainings.in_current_month(current_month_start)),
+        inactivity: by_gender { |user_ids| InactivityRanking.new(user_ids: user_ids, timezone: timezone).top }
       }
     end
 
     def by_group
-      levels = Level.all.order(:name)
-      levels.each_with_object({}) do |level, result|
-        # Get user IDs directly from UserLevel - include all users with this level
-        # (not just "players" as coaches/responsables can also have levels and registrations)
+      Level.all.order(:name).each_with_object({}) do |level, result|
+        # Tous les utilisateurs du niveau, pas seulement les joueurs : coachs et
+        # responsables peuvent aussi avoir un niveau et des inscriptions.
         user_ids = UserLevel.where(level_id: level.id).joins(:user).pluck(:user_id)
-        users_in_level = User.where(id: user_ids)
-
-        result[level.id] = {
-          level: level,
-          level_name: level.display_name,
-          all_time: {
-            players: top_player_by_sessions(users_in_level),
-            full_ranking: full_ranking_by_sessions(users_in_level)
-          },
-          free_play_week: {
-            players: top_player_by_sessions_in_period(users_in_level, Session.free_plays.in_current_week(current_week_start))
-          },
-          free_play_month: {
-            players: top_player_by_sessions_in_period(users_in_level, Session.free_plays.in_current_month(current_month_start))
-          },
-          free_play_total: {
-            full_ranking: full_ranking_by_sessions_in_period(users_in_level, Session.free_plays)
-          },
-          training_week: {
-            players: top_player_by_sessions_in_period(users_in_level, Session.trainings.in_current_week(current_week_start))
-          },
-          training_month: {
-            players: top_player_by_sessions_in_period(users_in_level, Session.trainings.in_current_month(current_month_start))
-          },
-          training_total: {
-            full_ranking: full_ranking_by_sessions_in_period(users_in_level, Session.trainings)
-          },
-          inactivity: {
-            players: most_inactive_player(users_in_level)
-          }
-        }
+        result[level.id] = { level: level, level_name: level.display_name, **group_stats(user_ids) }
       end
     end
 
@@ -61,424 +32,38 @@ module Stats
 
     attr_reader :timezone
 
-    def all_time_stats
+    def group_stats(user_ids)
       {
-        male: top_player_by_sessions_by_gender("male"),
-        female: top_player_by_sessions_by_gender("female")
+        all_time: {
+          players: SessionCountRanking.new(user_ids: user_ids).top,
+          full_ranking: SessionCountRanking.new(user_ids: user_ids).full
+        },
+        free_play_week: { players: top(user_ids, Session.free_plays.in_current_week(current_week_start)) },
+        free_play_month: { players: top(user_ids, Session.free_plays.in_current_month(current_month_start)) },
+        free_play_total: { full_ranking: SessionCountRanking.new(user_ids: user_ids, sessions: Session.free_plays).full },
+        training_week: { players: top(user_ids, Session.trainings.in_current_week(current_week_start)) },
+        training_month: { players: top(user_ids, Session.trainings.in_current_month(current_month_start)) },
+        training_total: { full_ranking: SessionCountRanking.new(user_ids: user_ids, sessions: Session.trainings).full },
+        inactivity: { players: InactivityRanking.new(user_ids: user_ids, timezone: timezone, include_never_played: true).top }
       }
     end
 
-    def free_play_week_stats
-      week_start = current_week_start
-      sessions = Session.free_plays.in_current_week(week_start)
-      {
-        male: top_player_by_sessions_in_period_by_gender(sessions, "male"),
-        female: top_player_by_sessions_in_period_by_gender(sessions, "female")
-      }
+    def top_by_gender(sessions)
+      by_gender { |user_ids| top(user_ids, sessions) }
     end
 
-    def free_play_month_stats
-      month_start = current_month_start
-      sessions = Session.free_plays.in_current_month(month_start)
-      {
-        male: top_player_by_sessions_in_period_by_gender(sessions, "male"),
-        female: top_player_by_sessions_in_period_by_gender(sessions, "female")
-      }
+    def top(user_ids, sessions)
+      SessionCountRanking.new(user_ids: user_ids, sessions: sessions).top
     end
 
-    def training_week_stats
-      week_start = current_week_start
-      sessions = Session.trainings.in_current_week(week_start)
-      {
-        male: top_player_by_sessions_in_period_by_gender(sessions, "male"),
-        female: top_player_by_sessions_in_period_by_gender(sessions, "female")
-      }
+    def by_gender
+      GENDERS.to_h { |gender| [ gender.to_sym, yield(user_ids_for(gender)) ] }
     end
 
-    def training_month_stats
-      month_start = current_month_start
-      sessions = Session.trainings.in_current_month(month_start)
-      {
-        male: top_player_by_sessions_in_period_by_gender(sessions, "male"),
-        female: top_player_by_sessions_in_period_by_gender(sessions, "female")
-      }
-    end
-
-    def inactivity_stats
-      {
-        male: most_inactive_player_with_sessions_by_gender("male"),
-        female: most_inactive_player_with_sessions_by_gender("female")
-      }
-    end
-
-    def top_player_by_sessions(users_scope)
-      # Get user IDs using select distinct to avoid issues with joins
-      user_ids = users_scope.select("DISTINCT users.id").pluck(:id)
-      return [] if user_ids.empty?
-
-      results = Registration
-        .valid
-        .joins(:user, :session)
-        .where(users: { id: user_ids })
-        .where.not(users: { last_name: "Test" })
-        .group("users.id", "users.first_name", "users.last_name")
-        .order("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC")
-        .limit(3)
-        .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
-
-      return [] if results.blank?
-
-      results.map do |user_id, first_name, last_name, count|
-        {
-          user: User.find(user_id),
-          count: count,
-          name: "#{first_name} #{last_name}".strip
-        }
-      end
-    end
-
-    def top_player_by_sessions_in_period(users_scope, sessions_scope)
-      # Get user IDs - always use pluck(:id) for simple scopes, select distinct for complex ones
-      # Check if it's a simple User.where(id: ...) scope
-      if users_scope.respond_to?(:where_values_hash) && users_scope.where_values_hash.key?(:id)
-        # Simple scope with where(id: ...), extract IDs directly
-        user_ids = users_scope.pluck(:id)
-      else
-        # Complex scope with joins, use select distinct
-        user_ids = users_scope.select("DISTINCT users.id").pluck(:id)
-      end
-      return [] if user_ids.empty?
-
-      session_ids = sessions_scope.pluck(:id)
-      return [] if session_ids.empty?
-
-      results = Registration
-        .valid
-        .joins(:user)
-        .where(users: { id: user_ids })
-        .where.not(users: { last_name: "Test" })
-        .where(session_id: session_ids)
-        .group("users.id", "users.first_name", "users.last_name")
-        .order("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC")
-        .limit(3)
-        .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
-
-      return [] if results.blank?
-
-      results.map do |user_id, first_name, last_name, count|
-        {
-          user: User.find(user_id),
-          count: count,
-          name: "#{first_name} #{last_name}".strip
-        }
-      end
-    end
-
-    def most_inactive_player(users_scope)
-      # Get user IDs using select distinct to avoid issues with joins
-      user_ids = users_scope.select("DISTINCT users.id").pluck(:id)
-      return [] if user_ids.empty?
-
-      # Find the last session date for each user who has played
-      users_with_sessions = Registration
-        .valid
-        .joins(:user, :session)
-        .where(users: { id: user_ids })
-        .where.not(users: { last_name: "Test" })
-        .group("users.id")
-        .maximum("sessions.start_at")
-
-      # Find users who never played (excluding Test users)
-      users_without_sessions = User.where(id: user_ids).where.not(last_name: "Test").where.not(id: users_with_sessions.keys).to_a
-
-      # Build results array
-      results = []
-
-      # Add users who never played first (most inactive)
-      users_without_sessions.each do |user|
-        results << {
-          user: user,
-          last_session_at: nil,
-          days_since: nil,
-          name: user.full_name
-        }
-      end
-
-      # Add users with sessions, sorted by oldest last session first
-      if users_with_sessions.any?
-        sorted_users = users_with_sessions.sort_by { |_uid, date| date || Time.at(0) }
-        sorted_users.each do |user_id, last_session_at|
-          user = User.find(user_id)
-          days_since = last_session_at ? ((timezone.now - last_session_at.in_time_zone(timezone)) / 1.day).round : nil
-          results << {
-            user: user,
-            last_session_at: last_session_at,
-            days_since: days_since,
-            name: user.full_name
-          }
-        end
-      end
-
-      # Return top 3 most inactive
-      results.first(3)
-    end
-
-    def most_inactive_player_with_sessions(users_scope)
-      # Get user IDs directly to avoid issues with joins in the scope
-      user_ids = users_scope.distinct.pluck(:id)
-      return [] if user_ids.empty?
-
-      # Only include users who have at least one session
-      users_with_sessions = Registration
-        .valid
-        .joins(:user, :session)
-        .where(users: { id: user_ids })
-        .where.not(users: { last_name: "Test" })
-        .group("users.id")
-        .maximum("sessions.start_at")
-
-      return [] if users_with_sessions.blank?
-
-      # Sort by oldest last session first (most inactive)
-      sorted_users = users_with_sessions.sort_by { |_uid, date| date || Time.at(0) }
-
-      results = sorted_users.map do |user_id, last_session_at|
-        user = User.find(user_id)
-        days_since = last_session_at ? ((timezone.now - last_session_at.in_time_zone(timezone)) / 1.day).round : nil
-        {
-          user: user,
-          last_session_at: last_session_at,
-          days_since: days_since,
-          name: user.full_name
-        }
-      end
-
-      # Return top 3 most inactive
-      results.first(3)
-    end
-
-    def most_inactive_player_with_sessions_by_gender(gender)
-      # Get user IDs for the specific gender by joining through user_levels
-      # Include all users (not just "players") as coaches/responsables/admins can also have levels and registrations
-      user_ids = User
-        .joins(:user_levels)
-        .joins("INNER JOIN levels ON levels.id = user_levels.level_id")
-        .where(levels: { gender: gender })
-        .distinct
-        .pluck(:id)
-
-      return [] if user_ids.empty?
-
-      # Only include users who have at least one session
-      users_with_sessions = Registration
-        .valid
-        .joins(:user, :session)
-        .where(users: { id: user_ids })
-        .where.not(users: { last_name: "Test" })
-        .group("users.id")
-        .maximum("sessions.start_at")
-
-      return [] if users_with_sessions.blank?
-
-      # Sort by oldest last session first (most inactive)
-      sorted_users = users_with_sessions.sort_by { |_uid, date| date || Time.at(0) }
-
-      results = sorted_users.map do |user_id, last_session_at|
-        user = User.find(user_id)
-        days_since = last_session_at ? ((timezone.now - last_session_at.in_time_zone(timezone)) / 1.day).round : nil
-        {
-          user: user,
-          last_session_at: last_session_at,
-          days_since: days_since,
-          name: user.full_name
-        }
-      end
-
-      # Return top 3 most inactive
-      results.first(3)
-    end
-
-    def top_player_by_sessions_by_gender(gender)
-      # Get user IDs for the specific gender by joining through user_levels
-      # Include all users (not just "players") as coaches/responsables/admins can also have levels and registrations
-      user_ids = User
-        .joins(:user_levels)
-        .joins("INNER JOIN levels ON levels.id = user_levels.level_id")
-        .where(levels: { gender: gender })
-        .distinct
-        .pluck(:id)
-
-      return [] if user_ids.empty?
-
-      results = Registration
-        .valid
-        .joins(:user, :session)
-        .where(users: { id: user_ids })
-        .where.not(users: { last_name: "Test" })
-        .group("users.id", "users.first_name", "users.last_name")
-        .order("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC")
-        .limit(3)
-        .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
-
-      return [] if results.blank?
-
-      results.map do |user_id, first_name, last_name, count|
-        {
-          user: User.find(user_id),
-          count: count,
-          name: "#{first_name} #{last_name}".strip
-        }
-      end
-    end
-
-    def top_player_by_sessions_in_period_by_gender(sessions_scope, gender)
-      # Get user IDs for the specific gender by joining through user_levels
-      # Include all users (not just "players") as coaches/responsables/admins can also have levels and registrations
-      user_ids = User
-        .joins(:user_levels)
-        .joins("INNER JOIN levels ON levels.id = user_levels.level_id")
-        .where(levels: { gender: gender })
-        .distinct
-        .pluck(:id)
-
-      return [] if user_ids.empty?
-
-      session_ids = sessions_scope.pluck(:id)
-      return [] if session_ids.empty?
-
-      results = Registration
-        .valid
-        .joins(:user)
-        .where(users: { id: user_ids })
-        .where.not(users: { last_name: "Test" })
-        .where(session_id: session_ids)
-        .group("users.id", "users.first_name", "users.last_name")
-        .order("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC")
-        .limit(3)
-        .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
-
-      return [] if results.blank?
-
-      results.map do |user_id, first_name, last_name, count|
-        {
-          user: User.find(user_id),
-          count: count,
-          name: "#{first_name} #{last_name}".strip
-        }
-      end
-    end
-
-    def full_ranking_by_sessions(users_scope)
-      # Get user IDs using select distinct to avoid issues with joins
-      user_ids = users_scope.select("DISTINCT users.id").pluck(:id)
-      return [] if user_ids.empty?
-
-      results = Registration
-        .valid
-        .joins(:user, :session)
-        .where(users: { id: user_ids })
-        .where.not(users: { last_name: "Test" })
-        .group("users.id", "users.first_name", "users.last_name")
-        .order("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC")
-        .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
-
-      return [] if results.blank?
-
-      results.map.with_index(1) do |(user_id, first_name, last_name, count), rank|
-        {
-          rank: rank,
-          user: User.find(user_id),
-          count: count,
-          name: "#{first_name} #{last_name}".strip
-        }
-      end
-    end
-
-    def full_ranking_by_sessions_in_period(users_scope, sessions_scope)
-      # Get user IDs - always use pluck(:id) for simple scopes, select distinct for complex ones
-      # Check if it's a simple User.where(id: ...) scope
-      if users_scope.respond_to?(:where_values_hash) && users_scope.where_values_hash.key?(:id)
-        # Simple scope with where(id: ...), extract IDs directly
-        user_ids = users_scope.pluck(:id)
-      else
-        # Complex scope with joins, use select distinct
-        user_ids = users_scope.select("DISTINCT users.id").pluck(:id)
-      end
-      return [] if user_ids.empty?
-
-      session_ids = sessions_scope.pluck(:id)
-      return [] if session_ids.empty?
-
-      results = Registration
-        .valid
-        .joins(:user)
-        .where(users: { id: user_ids })
-        .where.not(users: { last_name: "Test" })
-        .where(session_id: session_ids)
-        .group("users.id", "users.first_name", "users.last_name")
-        .order("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC")
-        .pluck("users.id", "users.first_name", "users.last_name", "COUNT(registrations.id)")
-
-      return [] if results.blank?
-
-      results.map.with_index(1) do |(user_id, first_name, last_name, count), rank|
-        {
-          rank: rank,
-          user: User.find(user_id),
-          count: count,
-          name: "#{first_name} #{last_name}".strip
-        }
-      end
-    end
-
-    def full_ranking_inactivity(users_scope)
-      # Get user IDs using select distinct to avoid issues with joins
-      user_ids = users_scope.select("DISTINCT users.id").pluck(:id)
-      return [] if user_ids.empty?
-
-      # Find the last session date for each user who has played
-      users_with_sessions = Registration
-        .valid
-        .joins(:user, :session)
-        .where(users: { id: user_ids })
-        .where.not(users: { last_name: "Test" })
-        .group("users.id")
-        .maximum("sessions.start_at")
-
-      # Find users who never played (excluding Test users)
-      users_without_sessions = User.where(id: user_ids).where.not(last_name: "Test").where.not(id: users_with_sessions.keys).to_a
-
-      # Build results array
-      results = []
-
-      # Add users who never played first (most inactive)
-      users_without_sessions.each_with_index do |user, index|
-        results << {
-          rank: index + 1,
-          user: user,
-          last_session_at: nil,
-          days_since: nil,
-          name: user.full_name
-        }
-      end
-
-      # Add users with sessions, sorted by oldest last session first
-      if users_with_sessions.any?
-        sorted_users = users_with_sessions.sort_by { |_uid, date| date || Time.at(0) }
-        sorted_users.each_with_index do |(user_id, last_session_at), index|
-          user = User.find(user_id)
-          days_since = last_session_at ? ((timezone.now - last_session_at.in_time_zone(timezone)) / 1.day).round : nil
-          results << {
-            rank: users_without_sessions.count + index + 1,
-            user: user,
-            last_session_at: last_session_at,
-            days_since: days_since,
-            name: user.full_name
-          }
-        end
-      end
-
-      results
+    # Tous les utilisateurs ayant un niveau de ce genre, pas seulement les
+    # joueurs : coachs, responsables et admins peuvent aussi s'inscrire.
+    def user_ids_for(gender)
+      User.joins(user_levels: :level).where(levels: { gender: gender }).distinct.pluck(:id)
     end
 
     def current_week_start

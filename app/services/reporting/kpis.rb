@@ -46,22 +46,6 @@ module Reporting
       }
     end
 
-    # Sessions avec alertes de capacité
-    def capacity_alerts
-      upcoming_range = @current_time..(@current_time + 7.days)
-      sessions = Session.upcoming
-                       .where(start_at: upcoming_range)
-                       .includes(:registrations, :user)
-                       .where.not(max_players: nil)
-
-      sessions.select do |session|
-        next false unless session.max_players.present?
-
-        capacity_ratio = session.registrations.confirmed.count.to_f / session.max_players
-        capacity_ratio < 0.4 || capacity_ratio >= 0.9
-      end
-    end
-
     # Désinscriptions hors délai récentes
     def recent_late_cancellations(limit: 10)
       LateCancellation.for_trainings

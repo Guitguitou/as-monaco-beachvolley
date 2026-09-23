@@ -87,7 +87,7 @@ module Sessions
         registration.update!(status: :waitlisted)
         TransactionService.new(registration.user, session, price).refund_transaction if price.positive?
       end
-      notify_displaced(registration.user)
+      notifier.displaced(registration.user)
     rescue StandardError => e
       Rails.logger.error "PriorityBalancer demote failed: #{e.message}"
     end
@@ -97,41 +97,13 @@ module Sessions
         registration.update!(status: :confirmed)
         TransactionService.new(registration.user, session, price).create_transaction if price.positive?
       end
-      notify_promoted(registration.user)
+      notifier.promoted(registration.user, cause: "Une place s'est libérée pour la session")
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error "PriorityBalancer promote failed: #{e.message}"
     end
 
-    def notify_displaced(user)
-      session_name = session.title || session.session_type.humanize
-      session_date = session.start_at.strftime("%d/%m/%Y")
-      session_time = session.start_at.strftime("%Hh%M")
-
-      SendPushNotificationJob.perform_later(
-        user.id,
-        title: "Tu repasses en liste d'attente",
-        body: "Un joueur prioritaire s'est inscrit à #{session_name} du #{session_date} à #{session_time}, tu repasses en liste d'attente (crédits recrédités).",
-        url: Rails.application.routes.url_helpers.session_path(session)
-      )
-      SessionMailer.displaced_to_waitlist(user, session).deliver_later
-    rescue StandardError => e
-      Rails.logger.error "Failed to enqueue notification job: #{e.message}"
-    end
-
-    def notify_promoted(user)
-      session_name = session.title || session.session_type.humanize
-      session_date = session.start_at.strftime("%d/%m/%Y")
-      session_time = session.start_at.strftime("%Hh%M")
-
-      SendPushNotificationJob.perform_later(
-        user.id,
-        title: "Tu passes en liste principale !",
-        body: "Une place s'est libérée pour la session #{session_name} du #{session_date} à #{session_time}, tu viens de passer en liste principale",
-        url: Rails.application.routes.url_helpers.session_path(session)
-      )
-      SessionMailer.promoted_to_main_list(user, session).deliver_later
-    rescue StandardError => e
-      Rails.logger.error "Failed to enqueue notification job: #{e.message}"
+    def notifier
+      @notifier ||= WaitlistNotifier.new(session)
     end
   end
 end
