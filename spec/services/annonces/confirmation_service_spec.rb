@@ -58,4 +58,14 @@ RSpec.describe Annonces::ConfirmationService do
     expect(annonce.reload).to be_confirmed
     expect(annonce.session).to eq(result.session)
   end
+
+  describe described_class::Result do
+    it "sums up the registrations for the organiser" do
+      result = described_class.new(session: nil, registered: [ 1, 2 ], skipped: [])
+      with_skipped = described_class.new(session: nil, registered: [ 1 ], skipped: [ 2 ])
+
+      expect(result.summary).to eq("Session de jeu libre créée 🎉 2 joueur(s) inscrit(s).")
+      expect(with_skipped.summary).to eq("Session de jeu libre créée 🎉 1 joueur(s) inscrit(s). 1 ignoré(s) (crédits/conflit).")
+    end
+  end
 end

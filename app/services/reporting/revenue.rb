@@ -18,25 +18,6 @@ module Reporting
       end
     end
 
-    # Breakdown du CA par type d'achat
-    def breakdown_by_purchase_type(period_range)
-      # CA des packs de crédits
-      credit_packs_revenue = credit_packs_revenue_for_period(period_range)
-
-      # CA des licences
-      licenses_revenue = licenses_revenue_for_period(period_range)
-
-      # CA des stages
-      stages_revenue = stages_revenue_for_period(period_range)
-
-      {
-        credit_packs: credit_packs_revenue,
-        licenses: licenses_revenue,
-        stages: stages_revenue,
-        total: credit_packs_revenue + licenses_revenue + stages_revenue
-      }
-    end
-
     # Breakdown détaillé des packs de crédits par type
     def pack_breakdown_by_type(period_range)
       purchases = CreditPurchase
@@ -61,28 +42,6 @@ module Reporting
       transactions.transform_values { |amount| -amount / 100.0 }
     end
 
-    # Évolution des revenus (comparaison avec période précédente)
-    def revenue_evolution
-      current_week = revenue_for_period(week_range)
-      previous_week = revenue_for_period(previous_week_range)
-
-      current_month = revenue_for_period(month_range)
-      previous_month = revenue_for_period(previous_month_range)
-
-      {
-        week: {
-          current: current_week,
-          previous: previous_week,
-          evolution: evolution_percentage(current_week, previous_week)
-        },
-        month: {
-          current: current_month,
-          previous: previous_month,
-          evolution: evolution_percentage(current_month, previous_month)
-        }
-      }
-    end
-
     private
 
     def week_range
@@ -90,18 +49,8 @@ module Reporting
       week_start..week_start.end_of_week(:monday)
     end
 
-    def previous_week_range
-      week_start = @current_time.beginning_of_week(:monday) - 1.week
-      week_start..week_start.end_of_week(:monday)
-    end
-
     def month_range
       month_start = @current_time.beginning_of_month
-      month_start..month_start.end_of_month
-    end
-
-    def previous_month_range
-      month_start = @current_time.beginning_of_month - 1.month
       month_start..month_start.end_of_month
     end
 
@@ -130,11 +79,6 @@ module Reporting
     def stages_revenue_for_period(range)
       # TODO: Implémenter quand le système de stages sera créé
       0.0
-    end
-
-    def evolution_percentage(current, previous)
-      return 0 if previous.zero?
-      ((current - previous) / previous * 100).round(1)
     end
   end
 end

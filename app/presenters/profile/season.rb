@@ -70,10 +70,6 @@ module Profile
       )
     end
 
-    def history_pagination
-      credits_history? ? transactions : purchases
-    end
-
     private
 
     attr_reader :user, :page, :history

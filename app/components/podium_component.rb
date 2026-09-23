@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class PodiumComponent < ApplicationComponent
+  MEDALS = { 1 => "🥇", 2 => "🥈", 3 => "🥉" }.freeze
+
   def initialize(players:, title:, icon: "trophy", empty_message: "Aucune donnée")
     @players = players || []
     @title = title
@@ -29,11 +31,6 @@ class PodiumComponent < ApplicationComponent
   end
 
   def medal_emoji(position)
-    case position
-    when 1 then "🥇"
-    when 2 then "🥈"
-    when 3 then "🥉"
-    else ""
-    end
+    MEDALS.fetch(position, "")
   end
 end

@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class SessionsController < ApplicationController
-    layout "dashboard"
-    before_action :authenticate_user!
+  class SessionsController < BaseController
     load_and_authorize_resource
     before_action :set_session, only: [ :show, :edit, :update, :destroy, :duplicate ]
 
@@ -48,32 +46,17 @@ module Admin
     end
 
     def update
-      old_start = @session.start_at
-      @session.assign_attributes(session_params)
-      recalculate_deadlines_on_reschedule(old_start)
-
-      if @session.save
-        max_players_changed = @session.saved_change_to_max_players?
-        @session.sync_level_priorities(params.dig(:session, :level_priorities))
+      result = Sessions::AdminUpdate.new(
+        session: @session, attributes: session_params, level_priorities: params.dig(:session, :level_priorities),
+        levels_submitted: params.dig(:session, :level_ids).present?, scope: scope_param
+      ).call do
         # Only sync participants if the form included participant_ids to avoid unintended removals
         sync_participants(@session) if params.dig(:session, :participant_ids).present?
-        # Rééquilibrer uniquement si le nombre de places ou les groupes ont pu changer
-        rebalance_after_edit = max_players_changed || params.dig(:session, :level_priorities).present? || params.dig(:session, :level_ids).present?
-        @session.rebalance! if @session.entrainement? && rebalance_after_edit
-
-        notice = "Session mise à jour avec succès."
-        if scope_param == "following" && @session.has_following_in_series?
-          result = Sessions::SeriesUpdateService.call(
-            edited_session: @session, old_start: old_start, scope: "following"
-          )
-          notice = "Session et #{result[:updated_count]} suivante(s) mises à jour ✅"
-          flash[:alert] = [ "Certaines sessions n'ont pas pu être mises à jour :", *result[:failures] ].join("\n") if result[:failures].any?
-        end
-
-        redirect_to admin_session_path(@session), notice: notice
-      else
-        render :edit, status: :unprocessable_entity
       end
+      return render(:edit, status: :unprocessable_entity) unless result.saved?
+
+      alert_failures("Certaines sessions n'ont pas pu être mises à jour :", result.failures)
+      redirect_to admin_session_path(@session), notice: result.notice
     end
 
     def destroy
@@ -85,7 +68,7 @@ module Admin
         else
           "Session supprimée avec succès."
         end
-      flash[:alert] = [ "Certaines suppressions ont échoué :", *result[:failures] ].join("\n") if result[:failures].any?
+      alert_failures("Certaines suppressions ont échoué :", result[:failures])
 
       redirect_to admin_sessions_path, notice: notice
     end
@@ -112,25 +95,13 @@ module Admin
       @session = Session.find(params[:id])
     end
 
+    def alert_failures(heading, failures)
+      flash[:alert] = [ heading, *failures ].join("\n") if failures.any?
+    end
+
     # Portée d'une action multi-sessions : "this" (défaut) ou "following".
     def scope_param
       %w[this following].include?(params[:scope]) ? params[:scope] : "this"
-    end
-
-    # Si la date de début change et que l'admin n'a pas modifié manuellement les
-    # deadlines, on les décale du même delta pour garder la cohérence (ouverture
-    # des inscriptions, date limite de désinscription). La deadline 17h jour J
-    # est dérivée à la volée et suit start_at automatiquement.
-    def recalculate_deadlines_on_reschedule(old_start)
-      return unless @session.start_at_changed? && old_start.present? && @session.start_at.present?
-
-      delta = @session.start_at - old_start
-      if @session.cancellation_deadline_at.present? && !@session.cancellation_deadline_at_changed?
-        @session.cancellation_deadline_at += delta
-      end
-      if @session.registration_opens_at.present? && !@session.registration_opens_at_changed?
-        @session.registration_opens_at += delta
-      end
     end
 
     def session_params
@@ -152,24 +123,9 @@ module Admin
     def create_on_all_terrains
       authorize! :manage, Session
 
-      base_attrs = session_params.to_h
-      base_attrs.delete("terrain")
-
-      created = []
-      errors = []
-
-      ActiveRecord::Base.transaction do
-        %w[Terrain\ 1 Terrain\ 2 Terrain\ 3].each do |terrain_label|
-          s = Session.new(base_attrs)
-          s.terrain = terrain_label
-          unless s.save
-            errors << s.errors.full_messages.to_sentence
-            raise ActiveRecord::Rollback
-          end
-          s.sync_level_priorities(params.dig(:session, :level_priorities))
-          created << s
-          sync_participants(s)
-        end
+      errors = Sessions::AllTerrainsCreation.new(session_params.to_h).call do |session|
+        session.sync_level_priorities(params.dig(:session, :level_priorities))
+        sync_participants(session)
       end
 
       if errors.empty?

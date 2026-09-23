@@ -62,6 +62,13 @@ RSpec.describe Sessions::UpcomingGrid do
     expect(grid.conflict_session_ids).to contain_exactly(booked.id, overlapping.id)
   end
 
+  it "ranks each shown session in the player's weekly priority" do
+    session = free_play(day)
+    allow(Registrations::UserWeeklyPriorityMap).to receive(:call).with(user: player, sessions: [ session ]).and_return({ session.id => 1 })
+
+    expect(grid.weekly_ranks_by_session_id).to eq({ session.id => 1 })
+  end
+
   it "exposes the player's balance" do
     expect(grid.balance_amount).to eq(1000)
   end

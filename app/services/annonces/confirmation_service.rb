@@ -8,7 +8,12 @@ module Annonces
   #   result.session   # la Session créée
   #   result.registered / result.skipped  # joueurs inscrits / ignorés
   class ConfirmationService
-    Result = Struct.new(:session, :registered, :skipped, keyword_init: true)
+    Result = Struct.new(:session, :registered, :skipped, keyword_init: true) do
+      def summary
+        text = "Session de jeu libre créée 🎉 #{registered.size} joueur(s) inscrit(s)."
+        skipped.any? ? "#{text} #{skipped.size} ignoré(s) (crédits/conflit)." : text
+      end
+    end
 
     def initialize(annonce:, slot:, terrain:)
       @annonce = annonce

@@ -42,4 +42,12 @@ RSpec.describe Sessions::CancelSessionService do
       waitlisted.id, anything
     )
   end
+
+  it "refunds the coach who paid for a private coaching" do
+    coaching = create(:session, :coaching_prive, user: coach, start_at: 4.days.from_now, end_at: 4.days.from_now + 1.hour)
+
+    expect {
+      described_class.call(session: coaching)
+    }.to change { coach.reload.credit_balance }.by(Session::PRIVATE_COACHING_PRICE)
+  end
 end

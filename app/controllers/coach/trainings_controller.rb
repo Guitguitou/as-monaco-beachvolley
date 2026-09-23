@@ -19,28 +19,9 @@ module Coach
     private
 
     def load_library_data
-      # Show trainings grouped by level with latest notes first
-      trainings = Session.includes(:levels)
-                         .where(session_type: "entrainement")
-                         .where.not(coach_notes: [ nil, "" ])
-                         .order(start_at: :desc)
-
-      # Optional filter: only sessions coached by me
-      if params[:only_mine].present?
-        trainings = trainings.where(user_id: current_user.id)
-      end
-
-      # Group by level id (sessions may have multiple levels; duplicate in multiple groups)
-      @by_level_id = Hash.new { |h, k| h[k] = [] }
-      trainings.each do |s|
-        if s.levels.any?
-          s.levels.each { |lvl| @by_level_id[lvl.id] << s }
-        else
-          @by_level_id[nil] << s
-        end
-      end
-
-      @levels = Level.where(id: @by_level_id.keys.compact).index_by(&:id)
+      library = TrainingLibrary.new(user: current_user, only_mine: params[:only_mine].present?)
+      @by_level_id = library.by_level_id
+      @levels = library.levels
     end
 
     def ensure_coach_or_admin!

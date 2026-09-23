@@ -11,19 +11,15 @@ module Registrations
     end
 
     def call
-      open_ok, open_reason = if registration.allow_deadline_bypass
-        registration.session.registration_open_state_for(registration.user, skip_deadline: true)
-      else
-        registration.session.registration_open_state_for(registration.user)
-      end
+      open_ok, open_reason = session.registration_open_state_for(registration.user, skip_deadline: registration.allow_deadline_bypass.present?)
       return disallowed(:registration_closed, open_reason) unless open_ok
 
-      if registration.session.coaching_prive? && !registration.allow_private_coaching_registration
+      if session.coaching_prive? && !registration.allow_private_coaching_registration
         return disallowed(:private_coaching_closed, "Les coachings privés ne sont pas ouverts à l’inscription.")
       end
 
       return disallowed(:invalid_level, "Ce n’est pas ton niveau d'entrainement.") unless registration.level_allowed?
-      return disallowed(:session_full, "Session complète.") if registration.confirmed? && registration.session.full?
+      return disallowed(:session_full, "Session complète.") if registration.confirmed? && session.full?
       return disallowed(:insufficient_credits, "Pas assez de crédits.") unless registration.enough_credits?
 
       EligibilityResult.new(allowed?: true, code: nil, reason: nil)
@@ -32,6 +28,8 @@ module Registrations
     private
 
     attr_reader :registration
+
+    delegate :session, to: :registration
 
     def disallowed(code, reason)
       EligibilityResult.new(allowed?: false, code: code, reason: reason)

@@ -8,13 +8,9 @@ module Stats
   # classement. L'appeler pour n'en garder qu'une ligne coûterait la totalité
   # de ces requêtes. Cette classe fait le travail scopé à un seul joueur.
   #
-  # Le classement reprend volontairement les mêmes règles que
-  # PerformanceDashboard#full_ranking_by_sessions (toutes les inscriptions
-  # confirmées, comptes de test exclus, égalité tranchée par ancienneté) pour
-  # que le rang affiché ici soit le même que sur /performances.
+  # Le rang vient de Stats::SessionCountRanking, comme les classements de
+  # /performances : le rang affiché ici est donc le même.
   class PlayerStats
-    EXCLUDED_LAST_NAME = "Test"
-
     Result = Struct.new(
       :sessions_played,
       :trainings_played,
@@ -58,22 +54,15 @@ module Stats
 
     # Une seule requête : nombre de sessions jouées par type.
     def played_counts
-      @played_counts ||= Registration
-        .valid
-        .joins(:session)
-        .where(user_id: user.id)
-        .where(sessions: { start_at: ...Time.current })
-        .group("sessions.session_type")
-        .count
+      @played_counts ||= past_registrations.group("sessions.session_type").count
     end
 
     def last_session_at
-      @last_session_at ||= Registration
-        .valid
-        .joins(:session)
-        .where(user_id: user.id)
-        .where(sessions: { start_at: ...Time.current })
-        .maximum("sessions.start_at")
+      @last_session_at ||= past_registrations.maximum("sessions.start_at")
+    end
+
+    def past_registrations
+      Registration.valid.joins(:session).where(user_id: user.id).where(sessions: { start_at: ...Time.current })
     end
 
     def level
@@ -94,15 +83,7 @@ module Stats
       peer_ids = UserLevel.where(level_id: level.id).pluck(:user_id)
       return NO_RANKING if peer_ids.empty?
 
-      ordered_ids = Registration
-        .valid
-        .joins(:user, :session)
-        .where(users: { id: peer_ids })
-        .where.not(users: { last_name: EXCLUDED_LAST_NAME })
-        .group("users.id")
-        .order(Arel.sql("COUNT(registrations.id) DESC, MIN(registrations.created_at) ASC"))
-        .count
-        .keys
+      ordered_ids = SessionCountRanking.new(user_ids: peer_ids).ordered_user_ids
 
       position = ordered_ids.index(user.id)
 

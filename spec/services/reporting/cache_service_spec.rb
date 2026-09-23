@@ -106,32 +106,4 @@ RSpec.describe Reporting::CacheService do
       expect(call_count).to eq(1)
     end
   end
-
-  describe '.clear_for_date' do
-    before do
-      Rails.cache.clear
-    end
-
-    it 'clears cache entries for a specific date' do
-      today = Date.current
-      yesterday = today - 1.day
-
-      described_class.fetch('Service', 'method') { 'today_value' }
-
-      travel_to(yesterday) do
-        described_class.fetch('Service', 'method') { 'yesterday_value' }
-      end
-
-      described_class.clear_for_date(today)
-
-      # Today's cache should be cleared
-      call_count = 0
-      described_class.fetch('Service', 'method') do
-        call_count += 1
-        'new_value'
-      end
-
-      expect(call_count).to eq(1)
-    end
-  end
 end

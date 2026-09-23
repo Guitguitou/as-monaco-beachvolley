@@ -1,59 +1,18 @@
 # frozen_string_literal: true
 
 module Admin
-  class UsersController < ApplicationController
-    layout "dashboard"
-    before_action :authenticate_user!
+  class UsersController < BaseController
     load_and_authorize_resource
     before_action :set_user, only: %i[show edit update adjust_credits disable enable]
 
     PER_PAGE = 25
 
     def index
-      @users = @users
-
-      # Search by name or email
-      if params[:q].present?
-        query = "%#{params[:q].strip}%"
-        @users = @users.where(
-          User.arel_table[:first_name].matches(query)
-          .or(User.arel_table[:last_name].matches(query))
-          .or(User.arel_table[:email].matches(query))
-        )
-      end
-
-      @users = @users.joins(:levels).where(levels: { gender: params[:gender] }).distinct if params[:gender].present?
-
-      @users = @users.where(license_type: params[:license_type]) if params[:license_type].present?
-
-      # Sorting
-      allowed_sorts = {
-        "name" => [ "last_name ASC, first_name ASC", "last_name DESC, first_name DESC" ],
-        "email" => [ "email ASC", "email DESC" ],
-        "license_type" => [ "license_type ASC", "license_type DESC" ]
-      }
-      sort_key = params[:sort].to_s
-      direction = params[:direction] == "desc" ? 1 : 0
-      @users = if allowed_sorts.key?(sort_key)
-                 @users.order(Arel.sql(allowed_sorts[sort_key][direction]))
-      else
-                 # Default stable ordering for pagination
-                 @users.order(:last_name, :first_name)
-      end
-
-      # Pagination (25 per page)
-      @per_page = PER_PAGE
-      @total_users_count = @users.count
-      @total_pages = (@total_users_count.to_f / @per_page).ceil
-
-      requested_page = params.fetch(:page, 1).to_i
-      @current_page = [ requested_page, 1 ].max
-      # Ensure current page stays within bounds (handle empty collections too)
-      upper_bound = [ @total_pages, 1 ].max
-      @current_page = [ @current_page, upper_bound ].min
-
-      offset = (@current_page - 1) * @per_page
-      @users = @users.limit(@per_page).offset(offset).includes(:levels)
+      users = Users::AdminFilterQuery.call(relation: @users, params: params)
+      page = Pagination.new(scope: users.includes(:levels), page: params[:page], per_page: PER_PAGE)
+      @users = page.records
+      @total_pages = page.total_pages
+      @current_page = page.current_page
     end
 
     def show
@@ -70,12 +29,7 @@ module Admin
     end
 
     def create
-      @user = User.new(user_params)
-      # If no password provided, generate a secure random one
-      @user.password = SecureRandom.hex(8) if @user.password.blank?
-
-      # Handle immediate activation checkbox
-      @user.activated_at = Time.current if params[:user][:activate_immediately] == "1"
+      @user = Users::AdminAttributes.apply(User.new, user_params, activate: params[:user][:activate_immediately])
 
       if @user.save
         redirect_to admin_user_path(@user), notice: "Utilisateur créé avec succès"
@@ -87,22 +41,9 @@ module Admin
     def edit; end
 
     def update
-      # Remove blank password fields so Devise doesn't try to reset it
-      sanitized_params = user_params.dup
-      if sanitized_params[:password].blank?
-        sanitized_params.delete(:password)
-        sanitized_params.delete(:password_confirmation)
-      end
+      Users::AdminAttributes.apply(@user, user_params, activate: params[:user][:activate_immediately])
 
-      # Handle immediate activation checkbox
-      if params[:user][:activate_immediately] == "1" && !@user.activated?
-        @user.activated_at = Time.current
-      elsif params[:user][:activate_immediately] == "0" && @user.activated?
-        # Allow admin to deactivate
-        @user.activated_at = nil
-      end
-
-      if @user.update(sanitized_params)
+      if @user.save
         redirect_to admin_user_path(@user), notice: "Utilisateur mis à jour"
       else
         render :edit, status: :unprocessable_entity
@@ -121,7 +62,7 @@ module Admin
         amount: amount
       )
 
-      notice = amount.positive? ? 'Crédits ajoutés avec succès' : 'Crédits déduits avec succès'
+      notice = amount.positive? ? "Cr\u00E9dits ajout\u00E9s avec succ\u00E8s" : "Cr\u00E9dits d\u00E9duits avec succ\u00E8s"
       redirect_to admin_user_path(@user), notice:
     end
 

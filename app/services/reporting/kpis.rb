@@ -7,117 +7,47 @@ module Reporting
       @current_time = Time.current.in_time_zone(@time_zone)
     end
 
+    UPCOMING_TYPES = %w[entrainement jeu_libre coaching_prive].freeze
+
     # KPIs pour la semaine en cours (Lun→Dim)
     def week_kpis
       Reporting::CacheService.fetch("kpis", "week_kpis", @current_time.to_date) do
-        week_range = week_start..week_end
-
+        range = @current_time.beginning_of_week(:monday)..@current_time.end_of_week(:monday)
+        counts = Session.where(start_at: range).group(:session_type).count
+        revenue = revenue_for_period(range)
+        salaries = Reporting::CoachSalaries.new.total_for_period(range)
         {
-          trainings_count: trainings_count(week_range),
-          free_plays_count: free_plays_count(week_range),
-          private_coachings_count: private_coachings_count(week_range),
-          late_cancellations_count: late_cancellations_count,
-          revenue: revenue_for_period(week_range),
-          coach_salaries: coach_salaries_for_period(week_range),
-          net_profit: net_profit_for_period(week_range)
+          trainings_count: counts["entrainement"].to_i,
+          free_plays_count: counts["jeu_libre"].to_i,
+          private_coachings_count: counts["coaching_prive"].to_i,
+          late_cancellations_count: LateCancellation.joins(:session).count,
+          revenue: revenue,
+          coach_salaries: salaries,
+          net_profit: revenue - salaries
         }
       end
     end
 
     # Nombre total de personnes inscrites (confirmed) par type sur un mois donné
     def monthly_participants(month_start)
-      range = month_start..month_start.end_of_month
-      {
-        jeu_libre: Registration.confirmed.joins(:session)
-          .where(sessions: { session_type: "jeu_libre", start_at: range }).count,
-        entrainement: Registration.confirmed.joins(:session)
-          .where(sessions: { session_type: "entrainement", start_at: range }).count
-      }
+      counts = Registration.confirmed.joins(:session)
+        .where(sessions: { start_at: month_start..month_start.end_of_month }).group("sessions.session_type").count
+      { jeu_libre: counts["jeu_libre"].to_i, entrainement: counts["entrainement"].to_i }
     end
 
-    # Sessions à venir (7 prochains jours)
+    # Sessions à venir (7 prochains jours), par type
     def upcoming_sessions(limit: 7)
-      upcoming_range = @current_time..(@current_time + 7.days)
-
-      {
-        "entrainement" => upcoming_trainings(upcoming_range, limit),
-        "jeu_libre" => upcoming_free_plays(upcoming_range, limit),
-        "coaching_prive" => upcoming_private_coachings(upcoming_range, limit)
-      }
-    end
-
-    # Désinscriptions hors délai récentes
-    def recent_late_cancellations(limit: 10)
-      LateCancellation.for_trainings
-                      .with_associations
-                      .recent(limit)
-    end
-
-    def revenue_for_period(range)
-      # CA = Achats de packs de crédits uniquement
-      CreditPurchase
-        .where(status: :paid, paid_at: range)
-        .sum(:amount_cents) / 100.0
-    end
-
-    def coach_salaries_for_period(range)
-      Reporting::CoachSalaries.new.total_for_period(range)
-    end
-
-    def net_profit_for_period(range)
-      revenue_for_period(range) - coach_salaries_for_period(range)
+      range = @current_time..(@current_time + 7.days)
+      UPCOMING_TYPES.index_with do |type|
+        Session.where(session_type: type, start_at: range).includes(:registrations, :levels, :user).ordered_by_start.limit(limit)
+      end
     end
 
     private
 
-    def week_start
-      @current_time.beginning_of_week(:monday)
-    end
-
-    def week_end
-      @current_time.end_of_week(:monday)
-    end
-
-    def trainings_count(range)
-      Session.trainings_in_range(range.begin, range.end).count
-    end
-
-    def free_plays_count(range)
-      Session.free_plays_in_range(range.begin, range.end).count
-    end
-
-    def private_coachings_count(range)
-      Session.private_coachings_in_range(range.begin, range.end).count
-    end
-
-    def late_cancellations_count(range = nil)
-      scope = LateCancellation.joins(:session)
-      scope = scope.where(sessions: { start_at: range }) if range
-      scope.count
-    end
-
-    def upcoming_trainings(range, limit)
-      Session.trainings
-             .where(start_at: range)
-             .includes(:registrations, :levels, :user)
-             .ordered_by_start
-             .limit(limit)
-    end
-
-    def upcoming_free_plays(range, limit)
-      Session.free_plays
-             .where(start_at: range)
-             .includes(:registrations, :user)
-             .ordered_by_start
-             .limit(limit)
-    end
-
-    def upcoming_private_coachings(range, limit)
-      Session.private_coachings
-             .where(start_at: range)
-             .includes(:registrations, :user)
-             .ordered_by_start
-             .limit(limit)
+    # CA = Achats de packs de crédits uniquement
+    def revenue_for_period(range)
+      CreditPurchase.where(status: :paid, paid_at: range).sum(:amount_cents) / 100.0
     end
   end
 end

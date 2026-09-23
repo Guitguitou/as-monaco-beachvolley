@@ -33,16 +33,10 @@ class Session < ApplicationRecord
     "Terrain 3": 3
   }
 
-  before_validation :set_price_from_type
-  before_validation :set_default_cancellation_deadline
-  before_validation :set_default_registration_opens_at
+  before_validation { Sessions::TypeDefaults.apply(self) }
 
-  validate :end_at_after_start_at
-  validate :no_overlapping_sessions_on_same_terrain
-  validate :validate_unique_participants
-  validate :validate_max_registrations
+  validates_with Sessions::ScheduleValidator, Sessions::RosterValidator
   validate :coach_has_enough_credits_for_private_coaching, if: :coaching_prive?
-  validate :terrain_not_closed_on_session_date
 
   after_create :charge_coach_for_private_coaching, if: :coaching_prive?
 
@@ -58,7 +52,6 @@ class Session < ApplicationRecord
     month_start ||= Time.zone.now.beginning_of_month
     in_month(month_start)
   }
-  scope :in_year, ->(year_start) { where(start_at: year_start..year_start.end_of_year) }
   scope :trainings, -> { where(session_type: "entrainement") }
   scope :free_plays, -> { where(session_type: "jeu_libre") }
   scope :private_coachings, -> { where(session_type: "coaching_prive") }
@@ -67,22 +60,6 @@ class Session < ApplicationRecord
   end
   scope :ordered_by_start, -> { order(:start_at) }
 
-  # Scopes pour les sessions à venir par type
-  scope :upcoming_trainings, -> { upcoming.trainings.ordered_by_start }
-  scope :upcoming_free_plays, -> { upcoming.free_plays.ordered_by_start }
-  scope :upcoming_private_coachings, -> { upcoming.private_coachings.ordered_by_start }
-
-  # Scopes pour les sessions passées
-  scope :past, -> { where("start_at < ?", Time.current) }
-  scope :past_trainings, -> { past.trainings.ordered_by_start }
-  scope :past_free_plays, -> { past.free_plays.ordered_by_start }
-  scope :past_private_coachings, -> { past.private_coachings.ordered_by_start }
-
-  # Scopes pour les sessions dans une plage de dates
-  scope :in_date_range, ->(start_date, end_date) { where(start_at: start_date..end_date) }
-  scope :trainings_in_range, ->(start_date, end_date) { in_date_range(start_date, end_date).trainings }
-  scope :free_plays_in_range, ->(start_date, end_date) { in_date_range(start_date, end_date).free_plays }
-  scope :private_coachings_in_range, ->(start_date, end_date) { in_date_range(start_date, end_date).private_coachings }
 
   PRIORITY_WINDOW_HOURS = 24
   REGISTRATION_DEADLINE_HOUR = 17 # 17h le jour J
@@ -102,20 +79,7 @@ class Session < ApplicationRecord
   end
 
   def display_name
-    case session_type
-    when "entrainement"
-      title + " - " + levels.map(&:display_name).join(", ")
-    when "jeu_libre"
-      title
-    when "tournoi"
-      title
-    when "coaching_prive"
-      title
-    when "stage"
-      title
-    else
-      title
-    end
+    entrainement? ? "#{title} - #{levels.map(&:display_name).join(', ')}" : title
   end
 
   def full?
@@ -166,18 +130,12 @@ class Session < ApplicationRecord
 
   # Groupe(s) prioritaire(s) de la session (plus petit rang de priorité).
   def priority_levels
-    ordered = session_levels.ordered_by_priority.includes(:level)
-    top = ordered.first&.priority
-    return [] if top.nil?
-    ordered.select { |sl| sl.priority == top }.map(&:level)
+    levels_by_priority_rank.first
   end
 
   # Groupe(s) secondaire(s) (rang de priorité au-dessus du plus prioritaire).
   def secondary_levels
-    ordered = session_levels.ordered_by_priority.includes(:level)
-    top = ordered.first&.priority
-    return [] if top.nil?
-    ordered.reject { |sl| sl.priority == top }.map(&:level)
+    levels_by_priority_rank.last
   end
 
   # Met à jour le rang de priorité de chaque session_level à partir d'un hash
@@ -194,80 +152,17 @@ class Session < ApplicationRecord
 
   private
 
-  def set_price_from_type
-    self.price = default_price
-  end
-
-  def set_default_registration_opens_at
-    # Only trainings use registration opening rules
-    if session_type == "entrainement"
-      if registration_opens_at.blank? && start_at.present?
-        self.registration_opens_at = start_at - 7.days
-      end
-    else
-      # For non-trainings, ensure field does not affect anything
-      self.registration_opens_at = nil
-    end
-  end
-
-  def set_default_cancellation_deadline
-    return unless session_type == "entrainement"
-    return if cancellation_deadline_at.present?
-    return if start_at.blank?
-    # Default: 22:00 on the day before the training
-    self.cancellation_deadline_at = (start_at - 1.day).change(hour: 22, min: 0)
-  end
-
-  def default_price
-    PRICE_BY_TYPE[session_type] || 0
-  end
-
-  def end_at_after_start_at
-    return if end_at.blank? || start_at.blank?
-
-    if end_at <= start_at
-      errors.add(:end_at, "doit être après la date de début")
-    end
-  end
-
-  def terrain_not_closed_on_session_date
-    return if start_at.blank? || terrain.blank?
-    return unless TerrainClosure.covers?(terrain: terrain, date: start_at.to_date)
-
-    errors.add(:terrain, "est indisponible à cette date (fermeture ou maintenance)")
-  end
-
-  def no_overlapping_sessions_on_same_terrain
-    return if start_at.blank? || end_at.blank? || terrain.blank?
-
-    overlapping_sessions = Sessions::OverlappingOnTerrainQuery.call(session: self)
-
-    if overlapping_sessions.exists?
-      errors.add(:terrain, "est déjà pris sur ce créneau")
-      errors.add(:start_at, "chevauche une autre session sur ce terrain")
-      errors.add(:end_at, "chevauche une autre session sur ce terrain")
-      errors.add(:base, "Une session existe déjà sur ce terrain pendant ces horaires")
-    end
-  end
-
-  def validate_unique_participants
-    ids = registrations.reject(&:marked_for_destruction?).map(&:user_id)
-    if ids.uniq.length != ids.length
-      errors.add(:registrations, "ne peut participer qu'une seule fois à une session")
-    end
-  end
-
-  def validate_max_registrations
-    return unless max_players.present?
-    if registrations.select { |r| r.status_before_type_cast == Registration.statuses[:confirmed] }.count > max_players
-      errors.add(:registrations, "le nombre de participants ne peut pas dépasser #{max_players}")
-    end
+  # [niveaux au meilleur rang, autres niveaux], chacun dans l'ordre de priorité.
+  def levels_by_priority_rank
+    ordered = session_levels.ordered_by_priority.includes(:level).to_a
+    top = ordered.first&.priority
+    ordered.partition { |session_level| session_level.priority == top }.map { |group| group.map(&:level) }
   end
 
   def coach_has_enough_credits_for_private_coaching
     return if Sessions::PrivateCoachingChargeService.new(session: self).coach_can_pay?
 
-    errors.add(:base, "Le coach n'a pas assez de crédits pour créer un coaching privé (#{default_price} requis)")
+    errors.add(:base, "Le coach n'a pas assez de crédits pour créer un coaching privé (#{price} requis)")
   end
 
   def charge_coach_for_private_coaching

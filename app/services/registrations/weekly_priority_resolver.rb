@@ -32,12 +32,6 @@ module Registrations
                     WeeklyPriorityRule.key(registration.created_at, registration.id))
     end
 
-    # Rang qu'aurait une inscription créée maintenant — ce qu'on affiche au joueur
-    # avant qu'il ne clique.
-    def rank_for_new(user_id)
-      rank_for_user(user_id, WeeklyPriorityRule.key(nil, nil))
-    end
-
     private
 
     attr_reader :session, :peers, :primed_user_ids

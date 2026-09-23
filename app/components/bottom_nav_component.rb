@@ -8,6 +8,21 @@
 class BottomNavComponent < ApplicationComponent
   Item = Struct.new(:label, :path, :icon, :match, keyword_init: true)
 
+  # [libellé, route, icône, préfixes d'URL qui gardent l'onglet actif]
+  MEMBER_ITEMS = [
+    [ "Terrain", :home_path, "house", %w[/mon-terrain] ],
+    [ "Calendrier", :sessions_path, "calendar", %w[/sessions] ],
+    [ "Annonces", :annonces_path, "megaphone", %w[/annonces] ],
+    [ "Boutique", :packs_path, "credit-card", %w[/packs /stages] ],
+    [ "Profil", :profile_path, "user", %w[/profile] ]
+  ].freeze
+  # Un compte pas encore activé n'accède qu'à la boutique, aux stages et à son profil.
+  GUEST_ITEMS = [
+    [ "Boutique", :packs_path, "credit-card", %w[/packs] ],
+    [ "Stages", :stages_path, "flag", %w[/stages] ],
+    [ "Profil", :profile_path, "user", %w[/profile] ]
+  ].freeze
+
   def initialize(user:, current_path:)
     @user = user
     @current_path = current_path
@@ -22,20 +37,8 @@ class BottomNavComponent < ApplicationComponent
   attr_reader :user, :current_path
 
   def items
-    @items ||= if user.activated?
-      [
-        Item.new(label: "Terrain", path: helpers.home_path, icon: "house", match: %w[/mon-terrain]),
-        Item.new(label: "Calendrier", path: helpers.sessions_path, icon: "calendar", match: %w[/sessions]),
-        Item.new(label: "Annonces", path: helpers.annonces_path, icon: "megaphone", match: %w[/annonces]),
-        Item.new(label: "Boutique", path: helpers.packs_path, icon: "credit-card", match: %w[/packs /stages]),
-        Item.new(label: "Profil", path: helpers.profile_path, icon: "user", match: %w[/profile])
-      ]
-    else
-      [
-        Item.new(label: "Boutique", path: helpers.packs_path, icon: "credit-card", match: %w[/packs]),
-        Item.new(label: "Stages", path: helpers.stages_path, icon: "flag", match: %w[/stages]),
-        Item.new(label: "Profil", path: helpers.profile_path, icon: "user", match: %w[/profile])
-      ]
+    @items ||= (user.activated? ? MEMBER_ITEMS : GUEST_ITEMS).map do |label, route, icon, match|
+      Item.new(label: label, path: helpers.public_send(route), icon: icon, match: match)
     end
   end
 

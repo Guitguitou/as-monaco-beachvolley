@@ -45,36 +45,19 @@ module Sessions
       params[:coach_id].present? ? scope.where(user_id: params[:coach_id]) : scope
     end
 
+    # Une période nommée (week, month, year) prime sur les dates saisies ; une
+    # seule borne saisie donne une plage ouverte.
     def filter_by_date(scope)
-      if params[:period].present?
-        range = period_range(params[:period])
-        range ? scope.where(start_at: range) : scope
-      else
-        filter_by_range(scope)
-      end
-    end
+      return filter_by_period(scope) if params[:period].present?
 
-    def period_range(period)
-      case period
-      when "week"  then Time.zone.today.beginning_of_week..(Time.zone.today.beginning_of_week + 7.days)
-      when "month" then Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
-      when "year"  then Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
-      end
-    end
-
-    def filter_by_range(scope)
       from = parse_time(params[:start_at_from])
-      to   = parse_time(params[:start_at_to])
+      to = parse_time(params[:start_at_to])
+      from || to ? scope.where(start_at: from..to) : scope
+    end
 
-      if from && to
-        scope.where(start_at: from..to)
-      elsif from
-        scope.where("start_at >= ?", from)
-      elsif to
-        scope.where("start_at <= ?", to)
-      else
-        scope
-      end
+    def filter_by_period(scope)
+      range = Reporting::CurrentPeriods.ranges[params[:period].to_sym]
+      range ? scope.where(start_at: range) : scope
     end
 
     def parse_time(value)

@@ -38,10 +38,11 @@ module Registrations
       return WeeklyPriorityRule::PRIORITY if WeeklyPriorityRule.neutral_week?(session.start_at)
 
       week = WeeklyPriorityRule.week_range(session.start_at)
-      own = rows.find { |row| row[:session_id] == session.id }
-      own_key = WeeklyPriorityRule.key(own&.fetch(:key)&.first, own&.fetch(:key)&.last)
+      own, others = rows.partition { |row| row[:session_id] == session.id }
+      # Pas encore confirmé : le rang qu'il aurait en s'inscrivant maintenant.
+      own_key = own.first&.fetch(:key) || WeeklyPriorityRule.key(nil, nil)
 
-      peers = rows.select { |row| row[:session_id] != session.id && week.cover?(row[:start_at]) }
+      peers = others.select { |row| week.cover?(row[:start_at]) }
       WeeklyPriorityRule.rank(earliest_peer_key: peers.map { |row| row[:key] }.min, own_key: own_key)
     end
   end

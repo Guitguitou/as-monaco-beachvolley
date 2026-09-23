@@ -40,26 +40,20 @@ module Sessions
     end
 
     def promote_registration(registration)
-      amount = session.coaching_prive? ? 0 : session.price.to_i
-
-      if amount.positive? && registration.user.balance.amount < amount
+      unless list_move.affordable?(registration)
         notifier.insufficient_credits(registration.user)
         return false
       end
 
-      promote_with_transaction(registration, amount)
-    end
-
-    def promote_with_transaction(registration, amount)
-      ActiveRecord::Base.transaction do
-        registration.update!(status: :confirmed)
-        TransactionService.new(registration.user, session, amount).create_transaction if amount.positive?
-      end
-
+      list_move.confirm(registration)
       notifier.promoted(registration.user, cause: "Quelqu'un s'est désinscrit de la session")
       true
     rescue ActiveRecord::RecordInvalid
       false
+    end
+
+    def list_move
+      @list_move ||= ListMove.new(session)
     end
 
     def notifier

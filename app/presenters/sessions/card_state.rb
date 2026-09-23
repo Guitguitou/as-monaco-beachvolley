@@ -73,28 +73,14 @@ module Sessions
       (session.level_ids & @user_level_ids).empty?
     end
 
-    # Le joueur a déjà un entraînement plus ancien sur cette semaine : il passe
-    # derrière ceux qui n'en ont pas encore. Jamais bloquant — seulement signalé.
-    def weekly_secondary?
-      return false unless session.entrainement?
-
-      @weekly_rank.to_i == Registrations::WeeklyPriorityRule::SECONDARY
-    end
-
-    def weekly_badge_label
-      registered? || waitlisted? ? "Non prioritaire" : "2e entraînement"
-    end
+    delegate :secondary?, :badge_label, to: :weekly, prefix: :weekly
 
     def weekly_notice
-      return nil unless weekly_secondary?
+      weekly.message
+    end
 
-      if registered?
-        "Tu as déjà un entraînement cette semaine : si un joueur prioritaire s'inscrit, tu repasses en liste d'attente (crédits rendus)."
-      elsif waitlisted?
-        "Tu as déjà un entraînement cette semaine : tu passes après les joueurs qui n'en ont pas encore."
-      else
-        "Ce serait ton 2e entraînement de la semaine : tu passes après les joueurs qui n'en ont pas encore."
-      end
+    def weekly
+      @weekly ||= WeeklyNotice.new(session: session, rank: @weekly_rank, registration: registration)
     end
 
     def not_enough_credits?
@@ -116,48 +102,18 @@ module Sessions
       open_state.last
     end
 
-    # L'action unique proposée sur la carte.
-    # :unregister, :leave_waitlist, :register, :waitlist ou :blocked
-    def action
-      return :leave_waitlist if waitlisted?
-      return :unregister if registered?
-      return :blocked unless actionable?
-      return :waitlist if full?
+    # L'action unique proposée sur la carte, et pourquoi elle est bloquée.
+    def action = card_action.name
+    def action_label = card_action.label
+    def blocked_reason = card_action.blocked_reason
+    def actionable? = card_action.actionable?
+    def destructive_action? = card_action.destructive?
 
-      :register
-    end
-
-    def actionable?
-      return false if @user.blank?
-      return false unless open?
-      return false if conflict?
-      return false if not_enough_credits?
-
-      true
-    end
-
-    # Pourquoi l'action est indisponible — le premier obstacle rencontré.
-    def blocked_reason
-      return "Connecte-toi pour t'inscrire" if @user.blank?
-      return closed_reason unless open?
-      return "Déjà une session sur ce créneau" if conflict?
-      return "Crédits insuffisants" if not_enough_credits?
-
-      nil
-    end
-
-    def action_label
-      case action
-      when :unregister then "Je me désinscris"
-      when :leave_waitlist then "Quitter la liste d'attente"
-      when :waitlist then "Rejoindre la liste d'attente"
-      when :register then "Je m'inscris"
-      else blocked_reason
-      end
-    end
-
-    def destructive_action?
-      action == :unregister || action == :leave_waitlist
+    def card_action
+      @card_action ||= CardAction.new(
+        signed_in: @user.present?, registered: registered?, waitlisted: waitlisted?, full: full?,
+        open: open?, closed_reason: closed_reason, conflict: conflict?, not_enough_credits: not_enough_credits?
+      )
     end
 
     # Participants confirmés, pour les avatars. Trié pour un rendu stable.

@@ -11,10 +11,7 @@ module Stats
     def call
       {
         all_time: by_gender { |user_ids| SessionCountRanking.new(user_ids: user_ids).top },
-        free_play_week: top_by_gender(Session.free_plays.in_current_week(current_week_start)),
-        free_play_month: top_by_gender(Session.free_plays.in_current_month(current_month_start)),
-        training_week: top_by_gender(Session.trainings.in_current_week(current_week_start)),
-        training_month: top_by_gender(Session.trainings.in_current_month(current_month_start)),
+        **current_periods.transform_values { |sessions| by_gender { |user_ids| top(user_ids, sessions) } },
         inactivity: by_gender { |user_ids| InactivityRanking.new(user_ids: user_ids, timezone: timezone).top }
       }
     end
@@ -38,18 +35,11 @@ module Stats
           players: SessionCountRanking.new(user_ids: user_ids).top,
           full_ranking: SessionCountRanking.new(user_ids: user_ids).full
         },
-        free_play_week: { players: top(user_ids, Session.free_plays.in_current_week(current_week_start)) },
-        free_play_month: { players: top(user_ids, Session.free_plays.in_current_month(current_month_start)) },
+        **current_periods.transform_values { |sessions| { players: top(user_ids, sessions) } },
         free_play_total: { full_ranking: SessionCountRanking.new(user_ids: user_ids, sessions: Session.free_plays).full },
-        training_week: { players: top(user_ids, Session.trainings.in_current_week(current_week_start)) },
-        training_month: { players: top(user_ids, Session.trainings.in_current_month(current_month_start)) },
         training_total: { full_ranking: SessionCountRanking.new(user_ids: user_ids, sessions: Session.trainings).full },
         inactivity: { players: InactivityRanking.new(user_ids: user_ids, timezone: timezone, include_never_played: true).top }
       }
-    end
-
-    def top_by_gender(sessions)
-      by_gender { |user_ids| top(user_ids, sessions) }
     end
 
     def top(user_ids, sessions)
@@ -66,12 +56,16 @@ module Stats
       User.joins(user_levels: :level).where(levels: { gender: gender }).distinct.pluck(:id)
     end
 
-    def current_week_start
-      timezone.now.beginning_of_week(:monday)
-    end
-
-    def current_month_start
-      timezone.now.beginning_of_month
+    # Jeu libre et entraînement, sur la semaine et le mois en cours.
+    def current_periods
+      week_start = timezone.now.beginning_of_week(:monday)
+      month_start = timezone.now.beginning_of_month
+      {
+        free_play_week: Session.free_plays.in_current_week(week_start),
+        free_play_month: Session.free_plays.in_current_month(month_start),
+        training_week: Session.trainings.in_current_week(week_start),
+        training_month: Session.trainings.in_current_month(month_start)
+      }
     end
   end
 end

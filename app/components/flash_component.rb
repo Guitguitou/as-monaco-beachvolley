@@ -20,6 +20,14 @@ class FlashComponent < ApplicationComponent
     "info" => :info
   }.freeze
 
+  # Apparence de chaque type : bordure du toast, icône et couleur de l'icône.
+  STYLES = {
+    success: { border: "border-green-600", icon: "check-circle", text: "text-green-600" },
+    error: { border: "border-asmbv-red", icon: "alert-circle", text: "text-asmbv-red" },
+    warning: { border: "border-orange-500", icon: "alert-triangle", text: "text-orange-500" },
+    info: { border: "border-blue-700", icon: "info", text: "text-blue-700" }
+  }.freeze
+
   # Délai avant disparition automatique, en millisecondes.
   # Les erreurs et avertissements ne disparaissent jamais seuls.
   AUTO_DISMISS_MS = 6000
@@ -61,32 +69,19 @@ class FlashComponent < ApplicationComponent
   end
 
   def kind_classes(kind)
-    case kind
-    when :success then "bg-white border-green-600 text-gray-900"
-    when :error then "bg-white border-asmbv-red text-gray-900"
-    when :warning then "bg-white border-orange-500 text-gray-900"
-    else "bg-white border-blue-700 text-gray-900"
-    end
+    "bg-white #{style(kind)[:border]} text-gray-900"
   end
 
   def icon_name(kind)
-    case kind
-    when :success then "check-circle"
-    when :error then "alert-circle"
-    when :warning then "alert-triangle"
-    else "info"
-    end
+    style(kind)[:icon]
   end
 
   def icon_classes(kind)
-    base = "w-5 h-5 shrink-0 mt-0.5"
-    color = case kind
-    when :success then "text-green-600"
-    when :error then "text-asmbv-red"
-    when :warning then "text-orange-500"
-    else "text-blue-700"
-    end
-    "#{base} #{color}"
+    "w-5 h-5 shrink-0 mt-0.5 #{style(kind)[:text]}"
+  end
+
+  def style(kind)
+    STYLES.fetch(kind, STYLES[:info])
   end
 
   # Les erreurs interrompent l'utilisateur, les succès se contentent de l'informer.

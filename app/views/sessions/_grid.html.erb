@@ -11,7 +11,7 @@
   <% counts = @grid.confirmed_counts_by_session_id %>
   <% user_level_ids = @grid.user_level_ids %>
   <% user_balance = @grid.balance_amount %>
-  <% weekly_ranks = @weekly_ranks_by_session_id || {} %>
+  <% weekly_ranks = @grid.weekly_ranks_by_session_id %>
   <% return_params = sessions_index_return_params %>
 
   <%# Construit l'état d'une carte à partir des données déjà préchargées par le

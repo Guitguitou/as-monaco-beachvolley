@@ -52,31 +52,6 @@ RSpec.describe Reporting::Revenue do
     end
   end
 
-  describe '#breakdown_by_purchase_type' do
-    let!(:user) { create(:user) }
-    let!(:credits_pack) { create(:pack, pack_type: :credits, amount_cents: 10000, credits: 100) }
-    let(:period_range) { current_time..(current_time + 7.days) }
-
-    before do
-      # Credit pack revenue
-      create(:credit_purchase,
-             user: user,
-             pack: credits_pack,
-             status: :paid,
-             paid_at: current_time + 1.day,
-             amount_cents: 10000) # 100€
-    end
-
-    it 'breaks down revenue by purchase type' do
-      breakdown = revenue_service.breakdown_by_purchase_type(period_range)
-
-      expect(breakdown[:credit_packs]).to eq(100.0)
-      expect(breakdown[:licenses]).to eq(0.0) # Not implemented yet
-      expect(breakdown[:stages]).to eq(0.0) # Not implemented yet
-      expect(breakdown[:total]).to eq(100.0)
-    end
-  end
-
   describe '#pack_breakdown_by_type' do
     let!(:user) { create(:user) }
     let!(:stage) { create(:stage) }
@@ -152,36 +127,6 @@ RSpec.describe Reporting::Revenue do
       expect(breakdown['entrainement']).to eq(4.0)
       expect(breakdown['jeu_libre']).to eq(3.0)
       expect(breakdown['coaching_prive']).to eq(15.0)
-    end
-  end
-
-  describe '#revenue_evolution' do
-    let!(:user) { create(:user) }
-    let!(:week_start) { current_time.beginning_of_week(:monday) }
-    let!(:previous_week_start) { week_start - 1.week }
-
-    before do
-      # Current week revenue
-      create(:credit_purchase,
-             user: user,
-             status: :paid,
-             paid_at: week_start + 1.day,
-             amount_cents: 10000) # 100€
-
-      # Previous week revenue
-      create(:credit_purchase,
-             user: user,
-             status: :paid,
-             paid_at: previous_week_start + 1.day,
-             amount_cents: 8000) # 80€
-    end
-
-    it 'calculates revenue evolution' do
-      evolution = revenue_service.revenue_evolution
-
-      expect(evolution[:week][:current]).to eq(100.0)
-      expect(evolution[:week][:previous]).to eq(80.0)
-      expect(evolution[:week][:evolution]).to eq(25.0) # (100-80)/80 * 100
     end
   end
 end

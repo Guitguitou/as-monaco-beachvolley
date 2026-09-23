@@ -11,101 +11,31 @@ class RegistrationsController < ApplicationController
       return
     end
 
-    # Only admins or the session owner (coach/responsable assigned to the session)
-    # can register someone else via user_id. Otherwise, register current_user.
-    target_user = if params[:user_id].present? && (current_user.admin? || current_user == @session.user)
-                    User.find(params[:user_id])
-    else
-                    current_user
-    end
-    requested_waitlist = ActiveModel::Type::Boolean.new.cast(params[:waitlist])
-    registration = Registration.new(user: target_user, session: @session, status: requested_waitlist ? :waitlisted : :confirmed)
-    # Allow admin or session owner to add participants to private coachings
-    registration.allow_private_coaching_registration = true if @session.coaching_prive? && (current_user.admin? || current_user == @session.user)
-    # Allow admin or session owner to bypass registration deadline (17h)
-    registration.allow_deadline_bypass = true if can_bypass_deadline?
-
-    begin
-      ActiveRecord::Base.transaction do
-        registration.save!
-        amount = registration.required_credits_for(registration.user)
-        if amount.positive? && registration.confirmed?
-          TransactionService.new(registration.user, @session, amount).create_transaction
-        end
-        # Applique la priorité : un joueur prioritaire arrivé en liste d'attente
-        # peut immédiatement passer en liste principale en déplaçant un secondaire.
-        @session.rebalance!
-      end
-      notice_msg = registration.reload.confirmed? ? "Inscription réussie ✅" : "Ajout en liste d'attente ✅"
-      respond_after_change(notice_msg)
-    rescue StandardError => e
-      error_message = registration.errors.full_messages.presence || [ e.message ]
-      respond_after_change(error_message.to_sentence, kind: :alert)
-    end
+    target_user = acting_for_someone? ? User.find(params[:user_id]) : current_user
+    result = Registrations::Enrollment.new(
+      user: target_user, session: @session,
+      waitlist: ActiveModel::Type::Boolean.new.cast(params[:waitlist]), privileged: can_bypass_deadline?
+    ).call
+    respond_after_change(result.message, kind: result.success? ? :notice : :alert)
   end
 
   def destroy
     authorize! :destroy, Registration
-    # Only admins or the session owner (coach/responsable assigned to the session)
-    # can remove someone else. Otherwise, users can remove themselves only.
-    registration = if params[:user_id].present? && (current_user.admin? || current_user == @session.user)
+    registration = if acting_for_someone?
                      @session.registrations.find_by(user_id: params[:user_id])
     else
                      current_user.registrations.find_by(session: @session)
     end
+    return respond_after_change("Tu n'es pas inscrit.", kind: :alert) unless registration
 
-    if registration
-      # Forbid self/unprivileged unregistration after the session has ended.
-      # After the session, only admins can remove players to handle refunds manually.
-      if Time.current > @session.end_at && !current_user.admin?
-        respond_after_change("La session est passée. Seul un administrateur peut retirer des joueurs.", kind: :alert)
-        return
-      end
-
-      amount = registration.required_credits_for(registration.user)
-      # Une session déjà commencée n'est jamais remboursée, quel que soit son type.
-      session_started = Time.current > @session.start_at
-      # Pour les entraînements, le délai d'annulation coupe aussi le remboursement.
-      past_deadline = @session.entrainement? &&
-                      @session.cancellation_deadline_at.present? &&
-                      Time.current > @session.cancellation_deadline_at
-      # (doit rester hors du bloc `transaction` pour la portée Ruby)
-      refundable = amount.positive? && !session_started && !past_deadline
-      begin
-        ActiveRecord::Base.transaction do
-          registration.destroy!
-          if refundable
-            TransactionService.new(
-              registration.user,
-              @session,
-              amount
-            ).refund_transaction
-          end
-          # Log late cancellation when past refund deadline
-          if amount.positive? && past_deadline
-            LateCancellation.create!(user: registration.user, session: @session)
-          end
-          # After freeing up a spot, promote the first in waitlist if any
-          @session.promote_from_waitlist!
-        end
-        # Le joueur a libéré un entraînement : ses autres inscriptions de la même
-        # semaine peuvent redevenir prioritaires. Hors transaction, les promotions
-        # notifient les joueurs.
-        Sessions::WeeklyCascadeService.call(user: registration.user, session: @session)
-        notice_msg = if amount.positive? && session_started
-                        "Désinscription réussie, mais la session a déjà eu lieu — pas de remboursement."
-        elsif amount.positive? && past_deadline
-                        "Désinscription réussie, mais délai dépassé — pas de remboursement."
-        else
-                        "Désinscription réussie ✅"
-        end
-        respond_after_change(notice_msg)
-      rescue StandardError => e
-        respond_after_change("Erreur lors de la désinscription: #{e.message}", kind: :alert)
-      end
-    else
-      respond_after_change("Tu n'es pas inscrit.", kind: :alert)
+    # Après la session, seul un admin peut retirer un joueur (remboursement manuel).
+    if Time.current > @session.end_at && !current_user.admin?
+      return respond_after_change("La session est passée. Seul un administrateur peut retirer des joueurs.", kind: :alert)
     end
+
+    respond_after_change(Registrations::Cancellation.new(registration).call)
+  rescue StandardError => e
+    respond_after_change("Erreur lors de la désinscription: #{e.message}", kind: :alert)
   end
 
   private
@@ -141,6 +71,11 @@ class RegistrationsController < ApplicationController
 
   def set_session
     @session = Session.find(params[:session_id])
+  end
+
+  # Seuls un admin ou le coach de la session agissent pour un autre joueur.
+  def acting_for_someone?
+    params[:user_id].present? && can_bypass_deadline?
   end
 
   # Admins and the session coach can bypass the registration deadline

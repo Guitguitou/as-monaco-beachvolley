@@ -37,7 +37,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
         get admin_purchase_history_index_path
         expect(response).to have_http_status(:redirect)
         follow_redirect!
-        expect(flash[:alert]).to eq("Accès interdit")
+        expect(flash[:alert]).to eq("Accès non autorisé")
       end
     end
 
@@ -293,7 +293,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
 
         expect(response).to have_http_status(:redirect)
         follow_redirect!
-        expect(flash[:alert]).to eq("Accès interdit")
+        expect(flash[:alert]).to eq("Accès non autorisé")
       end
     end
   end

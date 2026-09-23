@@ -1,8 +1,6 @@
 module Admin
-  class PacksController < ApplicationController
-    layout "dashboard"
-    before_action :authenticate_user!
-    before_action :ensure_admin!
+  class PacksController < BaseController
+    before_action :require_admin!
     before_action :set_pack, only: [ :edit, :update, :destroy ]
 
     def index
@@ -52,10 +50,6 @@ module Admin
 
     def pack_params
       params.require(:pack).permit(:name, :description, :pack_type, :amount_cents, :credits, :stage_id, :active, :position, :public)
-    end
-
-    def ensure_admin!
-      redirect_to root_path, alert: "Accès interdit" unless current_user.admin?
     end
   end
 end

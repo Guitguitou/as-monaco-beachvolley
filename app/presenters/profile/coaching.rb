@@ -30,18 +30,13 @@ module Profile
     def earnings
       return nil unless earnings?
 
-      @earnings ||= salaries.periods_for_coach(
-        user,
-        week_range: week_range,
-        month_range: month_range,
-        year_range: year_range
-      )
+      @earnings ||= payroll.current_periods
     end
 
     def monthly_history
       return [] unless earnings?
 
-      @monthly_history ||= salaries.monthly_history_for_coach(user)
+      @monthly_history ||= payroll.monthly_history
     end
 
     # Sessions dont l'utilisateur est le titulaire (coach ou responsable).
@@ -87,20 +82,8 @@ module Profile
 
     attr_reader :user
 
-    def salaries
-      @salaries ||= Reporting::CoachSalaries.new
-    end
-
-    def week_range
-      Time.zone.today.beginning_of_week..(Time.zone.today.beginning_of_week + 7.days)
-    end
-
-    def month_range
-      Time.zone.now.beginning_of_month..Time.zone.now.end_of_month
-    end
-
-    def year_range
-      Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
+    def payroll
+      @payroll ||= Reporting::CoachPayroll.new(user)
     end
   end
 end

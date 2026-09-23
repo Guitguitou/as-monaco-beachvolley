@@ -13,6 +13,12 @@ module Stats
       rows(limit)
     end
 
+    def ordered_user_ids
+      return [] if @user_ids.empty?
+
+      registrations.count.keys.map(&:first)
+    end
+
     def full
       rows(nil).map.with_index(1) { |row, rank| { rank: rank, **row } }
     end

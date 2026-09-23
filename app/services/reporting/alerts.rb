@@ -44,41 +44,14 @@ module Reporting
       end
     end
 
-    # Alertes de capacité (sessions presque pleines ou en sous-capacité)
+    # Sessions de la semaine en sous-capacité (< 40 %) ou presque pleines (> 90 %).
     def capacity_alerts
-      upcoming_range = @current_time..(@current_time + 7.days)
-
-      sessions = Session
-        .upcoming
-        .where(start_at: upcoming_range)
-        .includes(:registrations, :user)
-        .where.not(max_players: nil)
-
-      sessions.select do |session|
-        next false unless session.max_players.present?
-
-        capacity_ratio = session.registrations.confirmed.count.to_f / session.max_players
-
-        # Sous-capacité (< 40%) ou presque plein (> 90%)
-        capacity_ratio < 0.4 || capacity_ratio > 0.9
-      end
+      sessions_filled_within(7.days) { |ratio| ratio < 0.4 || ratio > 0.9 }
     end
 
-    # Alertes de faible participation
+    # Sessions des 3 prochains jours remplies à moins de 30 %.
     def low_attendance_alerts
-      upcoming_range = @current_time..(@current_time + 3.days)
-
-      Session
-        .upcoming
-        .where(start_at: upcoming_range)
-        .includes(:registrations, :user)
-        .where.not(max_players: nil)
-        .select do |session|
-          next false unless session.max_players.present?
-
-          capacity_ratio = session.registrations.confirmed.count.to_f / session.max_players
-          capacity_ratio < 0.3 # Moins de 30% de remplissage
-        end
+      sessions_filled_within(3.days) { |ratio| ratio < 0.3 }
     end
 
     # Sessions à venir nécessitant une attention
@@ -92,59 +65,12 @@ module Reporting
         .order(:start_at)
     end
 
-    # Compteurs d'alertes
-    def alert_counts
-      {
-        late_cancellations: LateCancellation.for_trainings.count,
-        capacity_alerts: capacity_alerts.count,
-        low_attendance: low_attendance_alerts.count,
-        upcoming_sessions: upcoming_sessions_alerts.count
-      }
-    end
-
-    # Alertes critiques (nécessitent une action immédiate)
-    def critical_alerts
-      {
-        late_cancellations_today: late_cancellations_today,
-        sessions_starting_soon: sessions_starting_soon,
-        empty_sessions: empty_sessions
-      }
-    end
-
     private
 
-    def late_cancellations_today
-      today_range = @current_time.beginning_of_day..@current_time.end_of_day
-
-      LateCancellation
-        .for_trainings
-        .where(created_at: today_range)
-        .includes(:user, :session)
-        .order(created_at: :desc)
-    end
-
-    def sessions_starting_soon
-      # Sessions dans les 2 prochaines heures
-      soon_range = @current_time..(@current_time + 2.hours)
-
-      Session
-        .upcoming
-        .where(start_at: soon_range)
+    def sessions_filled_within(duration)
+      Session.upcoming.where(start_at: @current_time..(@current_time + duration)).where.not(max_players: nil)
         .includes(:registrations, :user)
-        .order(:start_at)
-    end
-
-    def empty_sessions
-      # Sessions à venir sans inscription
-      upcoming_range = @current_time..(@current_time + 7.days)
-
-      Session
-        .upcoming
-        .where(start_at: upcoming_range)
-        .left_joins(:registrations)
-        .where(registrations: { id: nil })
-        .includes(:user)
-        .order(:start_at)
+        .select { |session| yield(session.registrations.confirmed.count.to_f / session.max_players) }
     end
   end
 end

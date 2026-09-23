@@ -118,22 +118,6 @@ RSpec.describe Registrations::WeeklyPriorityResolver do
     end
   end
 
-  describe '#rank_for_new' do
-    it 'déclasse une inscription hypothétique dès qu\'un pair existe' do
-      s1 = training(day_offset: 1, hour: 10)
-      s2 = training(day_offset: 3, hour: 10, terrain: 'Terrain 2')
-      create(:registration, user: user, session: s1, status: :confirmed)
-
-      resolver = described_class.new(session: s2)
-      expect(resolver.rank_for_new(user.id)).to eq(1)
-    end
-
-    it 'reste prioritaire sans pair' do
-      s2 = training(day_offset: 3, hour: 10, terrain: 'Terrain 2')
-      expect(described_class.new(session: s2).rank_for_new(user.id)).to eq(0)
-    end
-  end
-
   describe 'coût en requêtes' do
     it 'ne fait qu\'une requête pour tout un lot d\'inscriptions' do
       s1 = training(day_offset: 1, hour: 10)

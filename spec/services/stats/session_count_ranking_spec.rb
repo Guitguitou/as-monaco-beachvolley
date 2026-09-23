@@ -47,6 +47,12 @@ RSpec.describe Stats::SessionCountRanking do
     end
   end
 
+  describe "#ordered_user_ids" do
+    it "gives every ranked player id, best first" do
+      expect(described_class.new(user_ids: [ bob.id, john.id ]).ordered_user_ids).to eq([ john.id, bob.id ])
+    end
+  end
+
   describe "#full" do
     it "ranks every player" do
       ranking = described_class.new(user_ids: [ john.id, bob.id ])
