@@ -44,21 +44,6 @@ module Admin
       ]
     end
 
-    def card_color_classes(color)
-      case color
-      when "red"
-        "bg-red-50 text-red-600"
-      when "yellow"
-        "bg-yellow-50 text-yellow-600"
-      when "orange"
-        "bg-orange-50 text-orange-600"
-      when "blue"
-        "bg-blue-50 text-blue-600"
-      else
-        "bg-gray-50 text-gray-600"
-      end
-    end
-
     def capacity_alert_type(session)
       return "unknown" unless session.max_players.present?
 

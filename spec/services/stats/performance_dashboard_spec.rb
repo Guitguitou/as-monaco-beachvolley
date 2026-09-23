@@ -229,4 +229,27 @@ RSpec.describe Stats::PerformanceDashboard do
       end
     end
   end
+
+  describe "#by_group" do
+    it "ranks each level's players, never-played first for inactivity" do
+      week_start = timezone.now.beginning_of_week(:monday)
+      week_session = create(:session, :jeu_libre, start_at: week_start + 1.hour, end_at: week_start + 2.hours, user: coach)
+      old_session = create(:session, :jeu_libre, start_at: 60.days.ago, end_at: 60.days.ago + 90.minutes, user: coach)
+      create(:registration, user: male_player1, session: week_session, status: :confirmed)
+      create(:registration, user: male_player1, session: old_session, status: :confirmed)
+
+      group = service.by_group[male_level.id]
+
+      expect(group[:level]).to eq(male_level)
+      expect(group[:all_time][:players].map { |entry| [ entry[:user], entry[:count], entry[:name] ] }).to eq([ [ male_player1, 2, "John Doe" ] ])
+      expect(group[:all_time][:full_ranking].map { |entry| [ entry[:rank], entry[:user] ] }).to eq([ [ 1, male_player1 ] ])
+      expect(group[:free_play_week][:players].map { |entry| entry[:count] }).to eq([ 1 ])
+      expect(group[:free_play_total][:full_ranking].map { |entry| [ entry[:rank], entry[:count] ] }).to eq([ [ 1, 2 ] ])
+      expect(group[:training_week][:players]).to eq([])
+      expect(group[:training_total][:full_ranking]).to eq([])
+      inactivity = group[:inactivity][:players]
+      expect(inactivity.map { |entry| [ entry[:user], entry[:last_session_at].nil? ] }).to eq([ [ male_player2, true ], [ male_player1, false ] ])
+      expect(inactivity.first[:days_since]).to be_nil
+    end
+  end
 end

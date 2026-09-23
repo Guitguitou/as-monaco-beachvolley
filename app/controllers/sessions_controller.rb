@@ -3,9 +3,7 @@
 class SessionsController < ApplicationController
   before_action :authenticate_user!
   load_and_authorize_resource
-  before_action :set_session, only: [ :show, :edit, :update, :destroy, :calendar ]
-  before_action :set_session_for_cancel, only: [ :cancel ]
-  before_action :set_session_for_duplicate, only: []
+  before_action :set_session, only: [ :show, :edit, :update, :destroy, :calendar, :cancel ]
 
   def index
     @view = params[:view].presence_in(%w[grid calendar]) || "calendar"
@@ -26,72 +24,18 @@ class SessionsController < ApplicationController
 
     return unless @view == "grid"
 
-    # Grid view data.
-    # `registrations: :user` alimente les avatars des inscrits sur les cartes
-    # sans requête par session.
-    @sessions_grid = Session.upcoming.ordered_by_start.includes(:levels, :user, registrations: :user)
-    @sessions_grid = @sessions_grid.terrain(params[:terrain]) if params[:terrain].present?
-    @sessions_grid = @sessions_grid.for_user_levels(user_level_ids) if @for_me
-
-    session_ids = @sessions_grid.pluck(:id)
-    @registrations_by_session_id = current_user
-      .registrations
-      .where(session_id: session_ids)
-      .index_by(&:session_id)
-
-    @user_level_ids = user_level_ids
-    @user_balance_amount = current_user.balance&.amount.to_i
-
-    @conflict_session_ids = conflict_session_ids_for(session_ids)
-
-    confirmed_counts = Registration
-      .where(session_id: session_ids, status: Registration.statuses[:confirmed])
-      .group(:session_id)
-      .count
-    @confirmed_counts_by_session_id = confirmed_counts
-
-    @sessions_registered_grid = @sessions_grid.select { |s| @registrations_by_session_id.key?(s.id) }
-
-    @sessions_eligible_grid = @sessions_grid.reject { |s| @registrations_by_session_id.key?(s.id) }.select do |s|
-      eligible_for_grid?(s, confirmed_counts: confirmed_counts)
-    end
-
-    # Only show sessions that are either registered/waitlisted or eligible to register
-    @sessions_grid = @sessions_registered_grid + @sessions_eligible_grid
-
+    upcoming = Session.upcoming.ordered_by_start
+    upcoming = upcoming.terrain(params[:terrain]) if params[:terrain].present?
+    upcoming = upcoming.for_user_levels(user_level_ids) if @for_me
+    @grid = Sessions::UpcomingGrid.new(user: current_user, sessions: upcoming)
     # Priorité hebdomadaire : une seule requête pour toute la grille.
     @weekly_ranks_by_session_id = Registrations::UserWeeklyPriorityMap.call(
-      user: current_user, sessions: @sessions_grid
+      user: current_user, sessions: @grid.registered + @grid.eligible
     )
   end
 
   def show
-    if can?(:manage, Registration)
-      registered_ids = @session.registrations.pluck(:user_id)
-      base = User.where.not(id: registered_ids)
-
-      # Level filter for trainings with specific levels: allow users with any matching level
-      if @session.entrainement? && @session.levels.any?
-        base = base.joins(:user_levels).where(user_levels: { level_id: @session.level_ids }).distinct
-      end
-
-      # Credits filter only for non-private sessions
-      unless @session.coaching_prive?
-        base = base.joins(:balance).where("balances.amount >= ?", @session.price)
-      end
-
-      # Avoid schedule conflicts for confirmed adds
-      if !@session.full?
-        base = base.where.not(
-          id: User
-                .joins(:sessions_registered)
-                .where("sessions.start_at < ? AND sessions.end_at > ?", @session.end_at, @session.start_at)
-                .select(:id)
-        )
-      end
-
-      @candidate_users = base.order(:first_name, :last_name).distinct
-    end
+    @candidate_users = Sessions::CandidateUsersQuery.call(session: @session) if can?(:manage, Registration)
   end
 
   def calendar
@@ -159,8 +103,6 @@ class SessionsController < ApplicationController
     redirect_to session_path(@session, session_show_query_params), alert: "Erreur lors de l'annulation: #{e.message}"
   end
 
-  # Duplicate moved to admin area
-
   private
 
   def safe_calendar_week_anchor
@@ -172,77 +114,15 @@ class SessionsController < ApplicationController
   end
 
   def sessions_index_redirect_params
-    {
-      date: @session.start_at.strftime("%Y-%m-%d"),
-      terrain: params[:terrain].presence,
-      for_me: ActiveModel::Type::Boolean.new.cast(params[:for_me]) ? "1" : nil,
-      view: params[:view].presence_in(%w[grid calendar])
-    }.compact
+    Sessions::ReturnParams.from(params).merge(date: @session.start_at.strftime("%Y-%m-%d"))
   end
 
   def session_show_query_params
-    {
-      view: params[:view].presence_in(%w[grid calendar]),
-      date: params[:date].presence,
-      for_me: ActiveModel::Type::Boolean.new.cast(params[:for_me]) ? "1" : nil,
-      terrain: params[:terrain].presence
-    }.compact
+    Sessions::ReturnParams.from(params)
   end
 
   def set_session
     @session = Session.find(params[:id])
-  end
-
-  def set_session_for_cancel
-    @session = Session.find(params[:id])
-  end
-
-  def set_session_for_duplicate
-    @session = Session.find(params[:id])
-  end
-
-  def conflict_session_ids_for(candidate_session_ids)
-    confirmed = current_user.sessions_registered.select(:start_at, :end_at)
-    return [] if confirmed.blank?
-
-    # Build an OR of overlap predicates:
-    # existing.start < candidate.end AND existing.end > candidate.start
-    overlap_sql = []
-    overlap_params = []
-    confirmed.each do |s|
-      overlap_sql << "(start_at < ? AND end_at > ?)"
-      overlap_params << s.end_at
-      overlap_params << s.start_at
-    end
-
-    Session
-      .where(id: candidate_session_ids)
-      .where(overlap_sql.join(" OR "), *overlap_params)
-      .pluck(:id)
-  end
-
-  def eligible_for_grid?(session_record, confirmed_counts:)
-    # Keep private coachings out of the “inscriptible” list
-    return false if session_record.coaching_prive?
-
-    open_ok, = session_record.registration_open_state_for(current_user)
-    return false unless open_ok
-
-    # Level constraint for trainings
-    if session_record.entrainement? && session_record.levels.any?
-      return false unless (session_record.level_ids & @user_level_ids).any?
-    end
-
-    # Capacity
-    if session_record.max_players.present?
-      confirmed = confirmed_counts[session_record.id].to_i
-      return false if confirmed >= session_record.max_players
-    end
-
-    # Credits constraint (non-private only)
-    return false if @user_balance_amount < session_record.price.to_i
-
-    true
   end
 
   def session_params
@@ -275,49 +155,7 @@ class SessionsController < ApplicationController
   end
 
   def sync_participants(session_record)
-    participant_ids = Array(params.dig(:session, :participant_ids)).reject(&:blank?).map(&:to_i)
-    current_ids = session_record.participants.pluck(:id)
-
-    ids_to_add = participant_ids - current_ids
-    ids_to_remove = current_ids - participant_ids
-
-    errors = []
-
-    ids_to_add.each do |uid|
-      registration = Registration.new(user_id: uid, session: session_record, status: :confirmed)
-      # Allow privileged add for private coachings
-      registration.allow_private_coaching_registration = true if session_record.coaching_prive? && can?(:manage, Registration)
-      begin
-        ActiveRecord::Base.transaction do
-          registration.save!
-          amount = registration.required_credits_for(registration.user)
-          if amount.positive?
-            TransactionService.new(registration.user, session_record, amount).create_transaction
-          end
-        end
-      rescue StandardError => e
-        errors << "#{User.find(uid).full_name}: #{registration.errors.full_messages.presence || e.message}"
-      end
-    end
-
-    ids_to_remove.each do |uid|
-      registration = session_record.registrations.find_by(user_id: uid)
-      next unless registration
-      amount = registration.required_credits_for(registration.user)
-      ActiveRecord::Base.transaction do
-        registration.destroy!
-        if amount.positive?
-          TransactionService.new(User.find(uid), session_record, amount).refund_transaction
-        end
-        # After freeing up a spot, promote the first in waitlist if any
-        session_record.promote_from_waitlist!
-      end
-    end
-
-    flash[:alert] = [ flash[:alert], errors.join("; ") ].compact.reject(&:blank?).join("; ") if errors.any?
-  end
-
-  def ensure_admin!
-    redirect_to root_path, alert: "Accès refusé" unless current_user.admin?
+    sync = Sessions::ParticipantsSync.new(session: session_record, allow_private_coaching: can?(:manage, Registration))
+    append_flash_alert(sync.call(params.dig(:session, :participant_ids)))
   end
 end

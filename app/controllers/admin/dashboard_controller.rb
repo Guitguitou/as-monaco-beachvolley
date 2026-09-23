@@ -65,13 +65,13 @@ module Admin
           .ordered_by_start
           .limit(100)
       else
-        @sessions_period = params[:period].presence || "week"
-        @period_anchor = parse_period_anchor
-        range = period_range(@sessions_period, @period_anchor)
-        @sessions_by_type = sessions_for_type_and_range(@sessions_sub_tab, range)
-        @period_label = period_label(@sessions_period, @period_anchor)
-        @prev_period_params = prev_period_params
-        @next_period_params = next_period_params
+        period = SessionsPeriod.new(params[:period].presence, params[:period_anchor])
+        @sessions_period = period.name
+        @sessions_by_type = sessions_for_type_and_range(@sessions_sub_tab, period.range)
+        @period_label = period.label
+        base = { tab: "sessions", session_type: @sessions_sub_tab, period: period.name }
+        @prev_period_params = base.merge(period_anchor: period.previous_anchor)
+        @next_period_params = base.merge(period_anchor: period.next_anchor)
       end
     end
 
@@ -128,85 +128,6 @@ module Admin
       @alerts = alerts_service.all_alerts
     end
 
-    def parse_period_anchor
-      tz = "Europe/Paris"
-      now = Time.current.in_time_zone(tz)
-      case @sessions_period
-      when "week"
-        if params[:period_anchor].present?
-          Time.zone.parse(params[:period_anchor]).in_time_zone(tz).beginning_of_week(:monday)
-        else
-          now.beginning_of_week(:monday)
-        end
-      when "month"
-        if params[:period_anchor].present?
-          # format YYYY-MM or YYYY-MM-DD
-          Time.zone.parse("#{params[:period_anchor]}-01").in_time_zone(tz).beginning_of_month
-        else
-          now.beginning_of_month
-        end
-      when "year"
-        y = params[:period_anchor].presence || now.year
-        Time.zone.parse("#{y}-01-01").in_time_zone(tz).beginning_of_year
-      else
-        now.beginning_of_week(:monday)
-      end
-    end
-
-    def period_range(period, anchor)
-      case period
-      when "week"
-        anchor..anchor.end_of_week(:monday)
-      when "month"
-        anchor..anchor.end_of_month
-      when "year"
-        anchor..anchor.end_of_year
-      else
-        anchor..anchor.end_of_week(:monday)
-      end
-    end
-
-    def period_label(period, anchor)
-      case period
-      when "week"
-        I18n.l(anchor, format: :short) + " – " + I18n.l(anchor.end_of_week(:monday), format: :short)
-      when "month"
-        I18n.l(anchor, format: :month_and_year)
-      when "year"
-        anchor.year.to_s
-      else
-        I18n.l(anchor, format: :short)
-      end
-    end
-
-    def prev_period_params
-      base = { tab: "sessions", session_type: @sessions_sub_tab, period: @sessions_period }
-      case @sessions_period
-      when "week"
-        base.merge(period_anchor: (@period_anchor - 1.week).strftime("%Y-%m-%d"))
-      when "month"
-        base.merge(period_anchor: (@period_anchor - 1.month).strftime("%Y-%m"))
-      when "year"
-        base.merge(period_anchor: (@period_anchor.year - 1).to_s)
-      else
-        base
-      end
-    end
-
-    def next_period_params
-      base = { tab: "sessions", session_type: @sessions_sub_tab, period: @sessions_period }
-      case @sessions_period
-      when "week"
-        base.merge(period_anchor: (@period_anchor + 1.week).strftime("%Y-%m-%d"))
-      when "month"
-        base.merge(period_anchor: (@period_anchor + 1.month).strftime("%Y-%m"))
-      when "year"
-        base.merge(period_anchor: (@period_anchor.year + 1).to_s)
-      else
-        base
-      end
-    end
-
     def sessions_for_type_and_range(session_type, range)
       scope = Session.where(start_at: range).includes(:registrations, :user)
       scope = case session_type
@@ -220,22 +141,10 @@ module Admin
       scope.order(start_at: :desc)
     end
 
-    def week_range
-      current_time = Time.current.in_time_zone("Europe/Paris")
-      week_start = current_time.beginning_of_week(:monday)
-      week_start..week_start.end_of_week(:monday)
-    end
+    def week_range = SessionsPeriod.new("week", nil).range
 
-    def month_range
-      current_time = Time.current.in_time_zone("Europe/Paris")
-      month_start = current_time.beginning_of_month
-      month_start..month_start.end_of_month
-    end
+    def month_range = SessionsPeriod.new("month", nil).range
 
-    def year_range
-      current_time = Time.current.in_time_zone("Europe/Paris")
-      year_start = current_time.beginning_of_year
-      year_start..year_start.end_of_year
-    end
+    def year_range = SessionsPeriod.new("year", nil).range
   end
 end

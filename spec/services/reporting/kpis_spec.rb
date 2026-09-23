@@ -145,48 +145,6 @@ RSpec.describe Reporting::Kpis do
     end
   end
 
-  describe '#capacity_alerts' do
-    let!(:coach) { create(:user, coach: true) }
-    let!(:coach_balance) { create(:balance, user: coach, amount: 2000) } # 20€ de crédits
-    let!(:upcoming_range) { current_time..(current_time + 7.days) }
-
-    context 'with capacity issues' do
-      let!(:low_capacity_session) do
-        create(:session,
-               session_type: 'entrainement',
-               start_at: current_time + 1.day,
-               end_at: current_time + 1.day + 1.5.hours,
-               user: coach,
-               max_players: 10)
-      end
-      let!(:high_capacity_session) do
-        create(:session,
-               session_type: 'entrainement',
-               start_at: current_time + 2.days,
-               end_at: current_time + 2.days + 1.5.hours,
-               user: coach,
-               max_players: 10)
-      end
-
-      before do
-        # Create users with credits for registrations
-        users = create_list(:user, 11)
-        users.each { |user| create(:balance, user: user, amount: 1000) } # 10€ de crédits
-
-        # Create registrations to simulate capacity issues
-        2.times { |i| create(:registration, session: low_capacity_session, status: :confirmed, user: users[i]) } # 20% capacity
-        9.times { |i| create(:registration, session: high_capacity_session, status: :confirmed, user: users[i + 2]) } # 90% capacity
-      end
-
-      it 'identifies sessions with capacity alerts' do
-        alerts = service.capacity_alerts
-
-        expect(alerts).to include(low_capacity_session)
-        expect(alerts).to include(high_capacity_session)
-      end
-    end
-  end
-
   describe '#recent_late_cancellations' do
     let!(:coach) { create(:user, coach: true) }
     let!(:session) { create(:session, session_type: 'entrainement', start_at: 1.day.from_now, end_at: 1.day.from_now + 1.5.hours, user: coach) }

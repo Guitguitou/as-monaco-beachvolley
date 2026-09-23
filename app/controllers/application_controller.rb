@@ -41,6 +41,11 @@ class ApplicationController < ActionController::Base
 
   private
 
+  # Ajoute des messages à l'alerte déjà en flash au lieu de l'écraser.
+  def append_flash_alert(messages)
+    flash[:alert] = [ flash[:alert], *messages ].compact_blank.join("; ") if messages.any?
+  end
+
   # Redirect non-activated users to limited pages
   def redirect_non_activated_users
     return unless user_signed_in?

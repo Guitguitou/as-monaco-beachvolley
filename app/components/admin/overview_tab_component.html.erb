@@ -5,7 +5,7 @@
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <div class="<%= card_color_classes(card[:color]) %> rounded-lg p-2">
+            <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-lg p-2">
               <%= lucide_icon(card[:icon], class: 'w-6 h-6') %>
             </div>
           </div>

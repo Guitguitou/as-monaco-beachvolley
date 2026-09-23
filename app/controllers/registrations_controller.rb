@@ -136,12 +136,7 @@ class RegistrationsController < ApplicationController
   end
 
   def session_show_redirect_params
-    {
-      view: params[:view].presence_in(%w[grid calendar]),
-      date: params[:date].presence,
-      for_me: ActiveModel::Type::Boolean.new.cast(params[:for_me]) ? "1" : nil,
-      terrain: params[:terrain].presence
-    }.compact
+    Sessions::ReturnParams.from(params)
   end
 
   def set_session

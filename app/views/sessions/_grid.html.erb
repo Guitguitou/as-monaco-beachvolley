@@ -1,16 +1,16 @@
-<% registered_sessions = Array(@sessions_registered_grid) %>
-<% eligible_sessions = Array(@sessions_eligible_grid) %>
+<% registered_sessions = @grid.registered %>
+<% eligible_sessions = @grid.eligible %>
 
 <% if registered_sessions.empty? && eligible_sessions.empty? %>
   <%= render CardComponent.new(padding: :lg, class_name: "mt-6 text-center") do %>
     <p class="text-sm text-gray-500">Aucune session à venir.</p>
   <% end %>
 <% else %>
-  <% conflict_ids = Array(@conflict_session_ids).map(&:to_i).to_set %>
-  <% regs = @registrations_by_session_id || {} %>
-  <% counts = @confirmed_counts_by_session_id || {} %>
-  <% user_level_ids = Array(@user_level_ids).map(&:to_i) %>
-  <% user_balance = @user_balance_amount.to_i %>
+  <% conflict_ids = @grid.conflict_session_ids.to_set %>
+  <% regs = @grid.registrations_by_session_id %>
+  <% counts = @grid.confirmed_counts_by_session_id %>
+  <% user_level_ids = @grid.user_level_ids %>
+  <% user_balance = @grid.balance_amount %>
   <% weekly_ranks = @weekly_ranks_by_session_id || {} %>
   <% return_params = sessions_index_return_params %>
 
