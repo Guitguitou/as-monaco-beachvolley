@@ -58,16 +58,7 @@ class AnnoncesController < ApplicationController
   # Un joueur (dé)clare sa disponibilité sur un créneau de l'annonce.
   def toggle_availability
     authorize! :toggle_availability, @annonce
-    slot = @annonce.slots.find(params[:slot_id])
-    availability = AnnonceAvailability.find_by(annonce_slot: slot, user: current_user)
-
-    if availability
-      availability.destroy
-    else
-      AnnonceAvailability.create(annonce_slot: slot, user: current_user)
-      Annonces::CreationNotifier.new(annonce: @annonce).notify_creator_of_response(from: current_user)
-    end
-
+    Annonces::AvailabilityToggle.new(annonce: @annonce, slot: @annonce.slots.find(params[:slot_id]), user: current_user).call
     redirect_to @annonce
   end
 
@@ -75,22 +66,12 @@ class AnnoncesController < ApplicationController
   def confirm
     authorize! :confirm, @annonce
 
-    if request.get?
-      @confirmable_slots = @annonce.confirmable_slots
-      @terrains_by_slot_id = @confirmable_slots.index_with do |slot|
-        Annonces::AvailableTerrainsForSlotQuery.call(slot: slot)
-      end
-      return
-    end
+    return prepare_confirmation if request.get?
 
     slot = @annonce.slots.find(params[:slot_id])
-    terrain = params[:terrain]
-    result = Annonces::ConfirmationService.new(annonce: @annonce, slot: slot, terrain: terrain).call
+    result = Annonces::ConfirmationService.new(annonce: @annonce, slot: slot, terrain: params[:terrain]).call
     Annonces::CreationNotifier.new(annonce: @annonce).notify_confirmed(session: result.session, users: result.registered)
-
-    notice = "Session de jeu libre créée 🎉 #{result.registered.size} joueur(s) inscrit(s)."
-    notice += " #{result.skipped.size} ignoré(s) (crédits/conflit)." if result.skipped.any?
-    redirect_to result.session, notice: notice
+    redirect_to result.session, notice: result.summary
   rescue ActiveRecord::RecordInvalid => e
     redirect_to confirm_annonce_path(@annonce), alert: "Confirmation impossible : #{e.record.errors.full_messages.to_sentence.presence || e.message}"
   end
@@ -102,6 +83,11 @@ class AnnoncesController < ApplicationController
   end
 
   private
+
+  def prepare_confirmation
+    @confirmable_slots = @annonce.confirmable_slots
+    @terrains_by_slot_id = @confirmable_slots.index_with { |slot| Annonces::AvailableTerrainsForSlotQuery.call(slot: slot) }
+  end
 
   def set_annonce
     @annonce = Annonce.includes(:levels, slots: { availabilities: :user }).find(params[:id])

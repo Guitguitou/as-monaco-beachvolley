@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class LevelsController < ApplicationController
-    layout "dashboard"
+  class LevelsController < BaseController
     before_action :set_level, only: [ :show, :edit, :update, :destroy ]
 
     def index

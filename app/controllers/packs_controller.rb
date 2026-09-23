@@ -2,23 +2,11 @@ class PacksController < ApplicationController
   skip_before_action :authenticate_user!, only: [ :index, :buy ]
 
   def index
-    # Charger tous les packs actifs
-    all_packs = Pack.active.ordered
-
     # Connecté : CanCanCan filtre selon les permissions
     # Non connecté : uniquement les packs marqués "public" par l’admin
-    if user_signed_in?
-      accessible_packs = all_packs.select { |pack| can?(:read, pack) }
-    else
-      accessible_packs = all_packs.select(&:public?)
-    end
-
-    # Regrouper par type
-    @credits_packs = accessible_packs.select(&:pack_type_credits?)
-    @licence_packs = accessible_packs.select(&:pack_type_licence?)
-    @stage_packs = accessible_packs.select(&:pack_type_stage?)
-    @inscription_tournoi_packs = accessible_packs.select(&:pack_type_inscription_tournoi?)
-    @equipements_packs = accessible_packs.select(&:pack_type_equipements?)
+    packs = Pack.active.ordered.select { |pack| user_signed_in? ? can?(:read, pack) : pack.public? }
+    @credits_packs, @licence_packs, @stage_packs, @inscription_tournoi_packs, @equipements_packs =
+      %w[credits licence stage inscription_tournoi equipements].map { |type| packs.select { |pack| pack.pack_type == type } }
 
     # Afficher la notice si user non activé
     @show_activation_notice = user_signed_in? && !current_user.activated?
@@ -27,41 +15,21 @@ class PacksController < ApplicationController
 
   def buy
     @pack = Pack.find(params[:id])
+    return redirect_to(packs_path, alert: "Ce pack n'est plus disponible") unless @pack.active?
 
-    unless @pack.active?
-      redirect_to packs_path, alert: "Ce pack n'est plus disponible"
-      return
-    end
-
-    # Vérification des permissions CanCanCan
+    # Vérification des permissions CanCanCan ; hors connexion, seuls les packs
+    # "public" sont achetables.
     if user_signed_in?
       authorize! :buy, @pack
     elsif !@pack.public?
-      # Hors connexion : seuls les packs "public" sont achetables
-      redirect_to new_user_session_path, alert: "Connecte-toi pour acheter ce pack."
-      return
+      return redirect_to(new_user_session_path, alert: "Connecte-toi pour acheter ce pack.")
     end
 
-    user_for_purchase =
-      if user_signed_in?
-        current_user
-      else
-        ensure_guest_user!
-      end
-
+    buyer = user_signed_in? ? current_user : ensure_guest_user!
     return if performed? # ensure_guest_user! peut render/redirect
 
-    @credit_purchase = user_for_purchase.credit_purchases.create!(
-      pack: @pack,
-      amount_cents: @pack.amount_cents,
-      currency: "EUR",
-      credits: @pack.credits || 0, # 0 pour les stages et licences
-      status: :pending
-    )
-
     # Page de transition aux couleurs du club, qui poste vers Sherlock's.
-    @payment_request = Sherlock::CreatePayment.new(@credit_purchase).call
-
+    @credit_purchase, @payment_request = CreditPurchases::Start.new(user: buyer, pack: @pack).call
     render :redirect
   rescue StandardError => e
     Rails.logger.error("Payment creation failed: #{e.message}")
@@ -77,28 +45,10 @@ class PacksController < ApplicationController
       return
     end
 
-    guest = guest_identity_params
-    email = guest[:email].to_s.strip.downcase
+    result = Users::GuestSignup.new(**guest_identity_params.to_h.symbolize_keys).call
+    return result.user if result.user
 
-    if User.exists?(email:)
-      flash.now[:alert] = "Cet email a déjà un compte. Connecte-toi pour acheter ce pack."
-      render :guest_info, status: :unprocessable_entity
-      return
-    end
-
-    password = Devise.friendly_token.first(24)
-    user = User.create!(
-      email:,
-      first_name: guest[:first_name],
-      last_name: guest[:last_name],
-      password:,
-      password_confirmation: password
-    )
-
-    user.send_reset_password_instructions
-    user
-  rescue ActiveRecord::RecordInvalid => e
-    flash.now[:alert] = e.record.errors.full_messages.to_sentence
+    flash.now[:alert] = result.error
     render :guest_info, status: :unprocessable_entity
   end
 

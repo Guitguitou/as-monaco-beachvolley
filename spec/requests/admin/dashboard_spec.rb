@@ -51,6 +51,12 @@ RSpec.describe "Admin::Dashboard", type: :request do
         get admin_root_path, params: { tab: 'alerts' }
         expect(response).to have_http_status(:success)
       end
+
+      it "falls back to the overview for an unknown tab" do
+        get admin_root_path, params: { tab: "inconnu" }
+        expect(response).to have_http_status(:success)
+        expect(assigns(:active_tab)).to eq("overview")
+      end
     end
 
     context "when user is financial manager" do

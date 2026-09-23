@@ -8,30 +8,13 @@ class SessionsController < ApplicationController
   def index
     @view = params[:view].presence_in(%w[grid calendar]) || "calendar"
     @for_me = ActiveModel::Type::Boolean.new.cast(params[:for_me])
-    user_level_ids = current_user.levels.pluck(:id)
+    filter = Sessions::ListingFilter.new(terrain: params[:terrain], for_me: @for_me, level_ids: current_user.levels.pluck(:id))
 
-    if @view == "calendar"
-      anchor = safe_calendar_week_anchor
-      week_start = anchor.beginning_of_week(:monday)
-      week_end = week_start + 6.days
-      @terrain_closures_week = TerrainClosure.intersecting_range(week_start, week_end).order(:terrain, :starts_on)
-    end
-
-    # Calendar (existing behavior)
-    @sessions = Session.includes(:levels, :user).order(start_at: :desc)
-    @sessions = @sessions.terrain(params[:terrain]) if params[:terrain].present?
-    @sessions = @sessions.for_user_levels(user_level_ids) if @for_me
-
+    @terrain_closures_week = Sessions::CalendarWeek.new(params[:date]).closures if @view == "calendar"
+    @sessions = filter.apply(Session.includes(:levels, :user).order(start_at: :desc))
     return unless @view == "grid"
 
-    upcoming = Session.upcoming.ordered_by_start
-    upcoming = upcoming.terrain(params[:terrain]) if params[:terrain].present?
-    upcoming = upcoming.for_user_levels(user_level_ids) if @for_me
-    @grid = Sessions::UpcomingGrid.new(user: current_user, sessions: upcoming)
-    # Priorité hebdomadaire : une seule requête pour toute la grille.
-    @weekly_ranks_by_session_id = Registrations::UserWeeklyPriorityMap.call(
-      user: current_user, sessions: @grid.registered + @grid.eligible
-    )
+    @grid = Sessions::UpcomingGrid.new(user: current_user, sessions: filter.apply(Session.upcoming.ordered_by_start))
   end
 
   def show
@@ -72,10 +55,7 @@ class SessionsController < ApplicationController
   def update
     update_params = normalized_session_params
     # Restrict coach_notes editing to admins or the coach responsible for the session
-    if update_params.key?(:coach_notes)
-      allowed = current_user.admin? || current_user == @session.user
-      update_params.delete(:coach_notes) unless allowed
-    end
+    update_params.delete(:coach_notes) unless current_user.admin? || current_user == @session.user
     @session.assign_attributes(update_params)
     if @session.save
       @session.sync_level_priorities(params.dig(:session, :level_priorities))
@@ -83,8 +63,8 @@ class SessionsController < ApplicationController
       sync_participants(@session) if params.dig(:session, :participant_ids).present?
       redirect_to sessions_path(sessions_index_redirect_params), notice: "Session mise à jour avec succès."
     else
-      render :edit, status: :unprocessable_entity
       flash.now[:alert] = "Erreur lors de la mise à jour de la session: #{@session.errors.full_messages.join(', ')}"
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -104,14 +84,6 @@ class SessionsController < ApplicationController
   end
 
   private
-
-  def safe_calendar_week_anchor
-    return Time.zone.today if params[:date].blank?
-
-    Date.parse(params[:date])
-  rescue ArgumentError
-    Time.zone.today
-  end
 
   def sessions_index_redirect_params
     Sessions::ReturnParams.from(params).merge(date: @session.start_at.strftime("%Y-%m-%d"))
@@ -136,22 +108,9 @@ class SessionsController < ApplicationController
   end
 
   def normalized_session_params
-    sp = session_params.dup
     # Avoid implicit creation of registrations via has_many :participants setter.
     # We handle participant syncing (with debit/refund) explicitly in sync_participants.
-    sp.delete(:participant_ids)
-    if sp[:end_at].blank? && sp[:start_at].present?
-      type = sp[:session_type]
-      if [ "entrainement", "jeu_libre", "coaching_prive" ].include?(type)
-        begin
-          start_time = Time.zone.parse(sp[:start_at].to_s)
-          sp[:end_at] = start_time + 90.minutes if start_time
-        rescue ArgumentError
-          # leave end_at blank if parse fails
-        end
-      end
-    end
-    sp
+    Sessions::DefaultEndAt.fill(session_params.except(:participant_ids))
   end
 
   def sync_participants(session_record)

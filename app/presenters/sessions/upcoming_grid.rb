@@ -35,6 +35,11 @@ module Sessions
         .pluck(:id)
     end
 
+    # Priorité hebdomadaire : une seule requête pour toute la grille.
+    def weekly_ranks_by_session_id
+      @weekly_ranks_by_session_id ||= Registrations::UserWeeklyPriorityMap.call(user: @user, sessions: registered + eligible)
+    end
+
     def user_level_ids
       @user_level_ids ||= @user.levels.pluck(:id)
     end

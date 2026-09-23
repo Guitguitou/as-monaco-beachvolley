@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "webpush"
-
 # Service for sending push notifications to users
 class PushNotificationService
   class << self
@@ -12,10 +10,9 @@ class PushNotificationService
     # @param url [String] Optional URL to open when notification is clicked
     # @param icon [String] Optional icon URL
     def send_to_user(user, title:, body:, url: nil, icon: nil)
-      return if user.push_subscriptions.empty?
-
+      sender = delivery
       user.push_subscriptions.find_each do |subscription|
-        send_to_subscription(subscription, title: title, body: body, url: url, icon: icon)
+        sender.call(subscription, title: title, body: body, url: url, icon: icon)
       end
     end
 
@@ -36,150 +33,46 @@ class PushNotificationService
     # @param event_type [String] The event type (e.g., 'session_created')
     # @param context [Hash] Context data for the event (e.g., { session: session, user: user })
     def send_for_event(event_type, context: {})
-      rules = NotificationRule.enabled.for_event(event_type)
-
-      rules.each do |rule|
+      NotificationRule.enabled.for_event(event_type).each do |rule|
         next unless rule.matches?(context)
 
-        # Determine target users based on context
-        users = determine_target_users(event_type, context)
-
-        users.find_each do |user|
-          title = rule.render_title(context.merge(user: user))
-          body = rule.render_body(context.merge(user: user))
-          url = determine_notification_url(event_type, context)
-
-          send_to_user(user, title: title, body: body, url: url)
+        routing = PushNotifications::EventRouting.new(event_type, context)
+        routing.users.find_each do |user|
+          user_context = context.merge(user: user)
+          send_to_user(user, title: rule.render_title(user_context), body: rule.render_body(user_context), url: routing.url)
         end
       end
     end
 
     private
 
-    def send_to_subscription(subscription, title:, body:, url: nil, icon: nil)
-      message = {
-        title: title,
-        body: body,
-        icon: icon || default_icon,
-        badge: default_icon,
-        data: {
-          url: url || root_url
-        }
-      }
-
-      Webpush.payload_send(
-        message: JSON.generate(message),
-        endpoint: subscription.endpoint,
-        p256dh: subscription.p256dh,
-        auth: subscription.auth,
-        vapid: {
-          subject: vapid_subject,
-          public_key: vapid_public_key,
-          private_key: vapid_private_key
-        }
-      )
-    rescue Webpush::InvalidSubscription, Webpush::ExpiredSubscription => e
-      # Subscription is invalid, remove it
-      Rails.logger.warn "Removing invalid push subscription: #{e.message}"
-      subscription.destroy
-    rescue StandardError => e
-      Rails.logger.error "Error sending push notification: #{e.message}"
-      raise
+    def delivery
+      PushNotifications::WebpushDelivery.new(vapid: vapid, default_icon: default_icon, default_url: root_url)
     end
 
-    def determine_target_users(event_type, context)
-      case event_type
-      when "session_created", "session_cancelled", "registration_opened"
-        # Notify all activated users
-        User.activated
-      when "registration_confirmed", "registration_cancelled"
-        # Notify the user who registered
-        User.where(id: context[:user]&.id)
-      when "credit_low"
-        # Notify users with low credits
-        User.activated.joins(:balance).where("balances.amount < ?", 10)
-      when "stage_created", "stage_registration_opened"
-        # Notify all activated users
-        User.activated
-      else
-        User.none
-      end
-    end
-
-    def determine_notification_url(event_type, context)
-      case event_type
-      when "session_created", "session_cancelled", "registration_opened"
-        context[:session] ? session_path(context[:session]) : sessions_path
-      when "registration_confirmed", "registration_cancelled"
-        context[:session] ? session_path(context[:session]) : me_sessions_path
-      when "credit_low"
-        packs_path
-      when "stage_created", "stage_registration_opened"
-        context[:stage] ? stage_path(context[:stage]) : stages_path
-      else
-        root_path
-      end
+    def routes
+      Rails.application.routes.url_helpers
     end
 
     def default_icon
       # Utilise le logo de l'app pour les notifications
-      asset_url("logo.png") || "/logo.png"
+      ActionController::Base.helpers.asset_url("logo.png").presence || "/logo.png"
+    rescue StandardError
+      "/logo.png"
     end
 
     def root_url
-      Rails.application.routes.url_helpers.root_url(host: default_host)
+      host = Rails.application.config.action_mailer.default_url_options[:host] || ENV["HOST"] || "localhost:3000"
+      routes.root_url(host: host)
     end
 
-    def root_path
-      Rails.application.routes.url_helpers.root_path
-    end
-
-    def sessions_path
-      Rails.application.routes.url_helpers.sessions_path
-    end
-
-    def session_path(session)
-      Rails.application.routes.url_helpers.session_path(session)
-    end
-
-    def me_sessions_path
-      Rails.application.routes.url_helpers.me_sessions_path
-    end
-
-    def packs_path
-      Rails.application.routes.url_helpers.packs_path
-    end
-
-    def stages_path
-      Rails.application.routes.url_helpers.stages_path
-    end
-
-    def stage_path(stage)
-      Rails.application.routes.url_helpers.stage_path(stage)
-    end
-
-    def default_host
-      Rails.application.config.action_mailer.default_url_options[:host] ||
-        ENV["HOST"] ||
-        "localhost:3000"
-    end
-
-    def asset_url(path)
-      ActionController::Base.helpers.asset_url(path)
-    rescue StandardError
-      nil
-    end
-
-    def vapid_public_key
-      ENV["VAPID_PUBLIC_KEY"] || Rails.application.credentials.dig(:vapid, :public_key) || ""
-    end
-
-    def vapid_private_key
-      ENV["VAPID_PRIVATE_KEY"] || Rails.application.credentials.dig(:vapid, :private_key) || ""
-    end
-
-    def vapid_subject
-      ENV["VAPID_SUBJECT"] || Rails.application.credentials.dig(:vapid, :subject) || root_url
+    def vapid
+      credentials = Rails.application.credentials.vapid || {}
+      {
+        subject: ENV["VAPID_SUBJECT"] || credentials[:subject] || root_url,
+        public_key: ENV["VAPID_PUBLIC_KEY"] || credentials[:public_key] || "",
+        private_key: ENV["VAPID_PRIVATE_KEY"] || credentials[:private_key] || ""
+      }
     end
   end
 end

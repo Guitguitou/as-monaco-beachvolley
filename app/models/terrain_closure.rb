@@ -32,10 +32,6 @@ class TerrainClosure < ApplicationRecord
     for_date(d).where(terrain: terrain).exists?
   end
 
-  def self.unavailable_terrain_keys_for_date(date)
-    for_date(date).distinct.pluck(:terrain)
-  end
-
   def self.as_json_for_forms
     for_forms_upcoming.map do |c|
       {

@@ -22,20 +22,10 @@ class NextSessionComponent < ApplicationComponent
     registration.waitlisted?
   end
 
-  def title
-    session.title.presence || session.display_name
-  end
+  delegate :title, :day_label, :time_range, :terrain_label, to: :schedule
 
-  def day_label
-    l(session.start_at.to_date, format: :day_and_month)
-  end
-
-  def time_range
-    "#{l(session.start_at, format: :time)} – #{l(session.end_at, format: :time)}"
-  end
-
-  def terrain_label
-    session.terrain.to_s.split("_").last
+  def schedule
+    @schedule ||= Sessions::Schedule.new(session)
   end
 
   # Compte à rebours en clair : « aujourd'hui », « demain », « dans 3 jours ».

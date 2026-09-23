@@ -11,14 +11,14 @@ module Sessions
     # `cause` ouvre le message : ce qui a libéré la place.
     def promoted(user, cause:)
       push(user, title: "Tu passes en liste principale !",
-                 body: "#{cause} #{session_label}, tu viens de passer en liste principale") do
+                 body: "#{cause} #{label}, tu viens de passer en liste principale") do
         SessionMailer.promoted_to_main_list(user, @session).deliver_later
       end
     end
 
     def displaced(user)
       push(user, title: "Tu repasses en liste d'attente",
-                 body: "Un joueur prioritaire s'est inscrit à #{session_label}, tu repasses en liste d'attente (crédits recrédités).") do
+                 body: "Un joueur prioritaire s'est inscrit à #{label}, tu repasses en liste d'attente (crédits recrédités).") do
         SessionMailer.displaced_to_waitlist(user, @session).deliver_later
       end
     end
@@ -36,9 +36,8 @@ module Sessions
       Rails.logger.error "Failed to enqueue notification job: #{e.message}"
     end
 
-    def session_label
-      name = @session.title || @session.session_type.humanize
-      "#{name} du #{@session.start_at.strftime('%d/%m/%Y')} à #{@session.start_at.strftime('%Hh%M')}"
+    def label
+      NotificationLabel.new(@session)
     end
   end
 end

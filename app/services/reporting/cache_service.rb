@@ -20,10 +20,5 @@ module Reporting
     def self.clear_all
       Rails.cache.delete_matched("reporting_*")
     end
-
-    def self.clear_for_date(date)
-      date_str = date.strftime("%Y%m%d")
-      Rails.cache.delete_matched("reporting_*_#{date_str}")
-    end
   end
 end

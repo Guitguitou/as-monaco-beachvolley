@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class SeasonController < ApplicationController
-    layout "dashboard"
-    before_action :authenticate_user!
+  class SeasonController < BaseController
     before_action :require_admin!
 
     def show
@@ -21,9 +19,5 @@ module Admin
     end
 
     private
-
-    def require_admin!
-      redirect_to root_path, alert: "Accès non autorisé" unless current_user&.admin?
-    end
   end
 end

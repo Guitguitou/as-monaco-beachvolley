@@ -55,23 +55,17 @@ class NotificationRule < ApplicationRecord
 
   private
 
+  NUMERIC_COMPARISONS = { "gt" => :>, "gte" => :>=, "lt" => :<, "lte" => :<= }.freeze
+
   def check_condition(value, condition_hash)
     condition_hash.all? do |operator, expected|
+      comparison = NUMERIC_COMPARISONS[operator.to_s]
+      next value.to_f.public_send(comparison, expected.to_f) if comparison
+
       case operator.to_s
-      when "gt"
-        value.to_f > expected.to_f
-      when "gte"
-        value.to_f >= expected.to_f
-      when "lt"
-        value.to_f < expected.to_f
-      when "lte"
-        value.to_f <= expected.to_f
-      when "in"
-        Array(expected).include?(value)
-      when "not_in"
-        !Array(expected).include?(value)
-      else
-        value == expected
+      when "in" then Array(expected).include?(value)
+      when "not_in" then !Array(expected).include?(value)
+      else value == expected
       end
     end
   end

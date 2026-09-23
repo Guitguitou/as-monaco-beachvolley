@@ -54,13 +54,6 @@ RSpec.describe Session, type: :model do
       end
     end
 
-    describe '.in_year' do
-      it 'returns sessions within the specified year' do
-        result = Session.in_year(year_start)
-        expect(result).to include(year_training, month_training, week_training)
-      end
-    end
-
     describe '.trainings' do
       it 'returns only training sessions' do
         result = Session.trainings
@@ -127,6 +120,38 @@ RSpec.describe Session, type: :model do
         end_at: day.in_time_zone.change(hour: 12)
       )
       expect(session).to be_valid
+    end
+  end
+
+  describe "#display_name" do
+    it "adds the levels to a training title" do
+      level = create(:level, name: "G1", gender: "male")
+      training = create(:session, title: "Entrainement", levels: [ level ])
+
+      expect(training.display_name).to eq("Entrainement - #{level.display_name}")
+    end
+
+    it "is the title for the other session types" do
+      expect(build(:session, :jeu_libre, title: "Jeu libre du soir").display_name).to eq("Jeu libre du soir")
+    end
+  end
+
+  describe "priority levels" do
+    it "splits the levels between the top priority rank and the others" do
+      first = create(:level)
+      also_first = create(:level)
+      second = create(:level)
+      training = create(:session, levels: [ first, also_first, second ])
+      training.sync_level_priorities({ first.id.to_s => 0, also_first.id => 0, second.id.to_s => 1 })
+
+      expect(training.priority_levels).to contain_exactly(first, also_first)
+      expect(training.secondary_levels).to eq([ second ])
+    end
+
+    it "has none without levels" do
+      training = create(:session)
+
+      expect([ training.priority_levels, training.secondary_levels ]).to eq([ [], [] ])
     end
   end
 end

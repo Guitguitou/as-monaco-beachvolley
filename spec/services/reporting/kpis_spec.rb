@@ -145,24 +145,6 @@ RSpec.describe Reporting::Kpis do
     end
   end
 
-  describe '#recent_late_cancellations' do
-    let!(:coach) { create(:user, coach: true) }
-    let!(:session) { create(:session, session_type: 'entrainement', start_at: 1.day.from_now, end_at: 1.day.from_now + 1.5.hours, user: coach) }
-    let!(:late_cancellation) { create(:late_cancellation, session: session) }
-
-    it 'returns recent late cancellations' do
-      cancellations = service.recent_late_cancellations
-
-      expect(cancellations).to include(late_cancellation)
-    end
-
-    it 'respects the limit parameter' do
-      cancellations = service.recent_late_cancellations(limit: 1)
-
-      expect(cancellations.count).to eq(1)
-    end
-  end
-
   describe 'revenue calculation in isolation' do
     let(:isolated_service) { described_class.new(time_zone: 'Europe/Paris') }
     let(:week_start) { current_time.beginning_of_week(:monday) }

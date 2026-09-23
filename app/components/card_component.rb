@@ -4,6 +4,15 @@ class CardComponent < ApplicationComponent
   renders_one :header
   renders_one :footer
 
+  PADDINGS = { none: "", sm: "p-4", md: "p-5", lg: "p-6" }.freeze
+  ACCENTS = {
+    training: "border-t-4 border-t-asmbv-red",
+    free_play: "border-t-4 border-t-blue-700",
+    private_coaching: "border-t-4 border-t-gray-900",
+    tournament: "border-t-4 border-t-amber-500",
+    stage: "border-t-4 border-t-orange-600"
+  }.freeze
+
   def initialize(href: nil, accent: nil, padding: :md, class_name: nil)
     @href = href
     @accent = accent
@@ -34,43 +43,9 @@ class CardComponent < ApplicationComponent
       "shadow-sm",
       "transition-shadow duration-150",
       "hover:shadow-md",
-      padding_classes,
-      accent_border_classes,
+      PADDINGS.fetch(padding.to_sym, PADDINGS[:md]),
+      ACCENTS[accent&.to_sym],
       class_name
     ].compact.join(" ")
-  end
-
-  def padding_classes
-    case padding.to_sym
-    when :none
-      ""
-    when :sm
-      "p-4"
-    when :md
-      "p-5"
-    when :lg
-      "p-6"
-    else
-      "p-5"
-    end
-  end
-
-  def accent_border_classes
-    return nil if accent.blank?
-
-    case accent.to_sym
-    when :training
-      "border-t-4 border-t-asmbv-red"
-    when :free_play
-      "border-t-4 border-t-blue-700"
-    when :private_coaching
-      "border-t-4 border-t-gray-900"
-    when :tournament
-      "border-t-4 border-t-amber-500"
-    when :stage
-      "border-t-4 border-t-orange-600"
-    else
-      nil
-    end
   end
 end

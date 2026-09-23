@@ -65,9 +65,4 @@ class Pack < ApplicationRecord
     return 0 unless pack_type_credits? && credits.present? && amount_cents.positive?
     (credits.to_f / amount_eur).round(2)
   end
-
-  # Packs visibles et achetables hors connexion : l’admin décide via le champ public
-  def buyable_without_login?
-    public?
-  end
 end

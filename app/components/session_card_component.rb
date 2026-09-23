@@ -49,20 +49,10 @@ class SessionCardComponent < ApplicationComponent
     end
   end
 
-  def terrain_label
-    session.terrain.to_s.split("_").last
-  end
+  delegate :title, :day_label, :time_range, :terrain_label, to: :schedule
 
-  def title
-    session.title.presence || session.display_name
-  end
-
-  def day_label
-    l(session.start_at.to_date, format: :day_and_month)
-  end
-
-  def time_range
-    "#{l(session.start_at, format: :time)} – #{l(session.end_at, format: :time)}"
+  def schedule
+    @schedule ||= Sessions::Schedule.new(session)
   end
 
   def duration

@@ -19,7 +19,7 @@ RSpec.describe "Admin::Packs", type: :request do
       get admin_packs_path
       # Convention de l'app pour un espace admin : retour à l'accueil avec alerte.
       expect(response).to redirect_to(root_path)
-      expect(flash[:alert]).to eq("Accès interdit")
+      expect(flash[:alert]).to eq("Accès non autorisé")
     end
   end
 

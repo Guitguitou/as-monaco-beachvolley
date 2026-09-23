@@ -14,32 +14,35 @@ module Sessions
     # Détruit la session en remboursant/notifiant. Lève en cas d'échec de la
     # transaction destructive (à charge de l'appelant de rescue si besoin).
     def call
-      session_name = @session.title || @session.session_type.humanize
-      session_date = @session.start_at.strftime("%d/%m/%Y")
+      label = NotificationLabel.new(@session)
       registered_users = @session.registrations.confirmed.includes(:user).map(&:user)
 
       ActiveRecord::Base.transaction do
-        @session.registrations.includes(:user).find_each do |registration|
-          amount = registration.required_credits_for(registration.user)
-          TransactionService.new(registration.user, @session, amount).refund_transaction if amount.positive?
-          registration.destroy!
-        end
-
-        if @session.coaching_prive?
-          coach_amount = @session.send(:default_price)
-          TransactionService.new(@session.user, @session, coach_amount).refund_transaction if coach_amount.positive?
-        end
-
-        CreditTransaction.where(session_id: @session.id).update_all(session_id: nil)
-        @session.destroy!
+        refund_and_destroy
       end
 
-      notify(registered_users, session_name, session_date)
+      notify(registered_users, label.name, label.date)
 
-      { session_name: session_name, session_date: session_date, notified_users: registered_users }
+      { session_name: label.name, session_date: label.date, notified_users: registered_users }
     end
 
     private
+
+    # Rembourse les inscrits (et le coach d'un coaching privé, qui l'avait payé),
+    # garde l'historique des transactions en les détachant, puis supprime.
+    def refund_and_destroy
+      @session.registrations.includes(:user).find_each do |registration|
+        refund(registration.user, registration.required_credits_for(registration.user))
+        registration.destroy!
+      end
+      refund(@session.user, @session.price) if @session.coaching_prive?
+      CreditTransaction.where(session_id: @session.id).update_all(session_id: nil)
+      @session.destroy!
+    end
+
+    def refund(user, amount)
+      TransactionService.new(user, @session, amount).refund_transaction if amount.positive?
+    end
 
     def notify(registered_users, session_name, session_date)
       registered_users.each do |user|

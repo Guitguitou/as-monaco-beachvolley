@@ -6,68 +6,15 @@ module ApplicationHelper
   end
 
   def get_session_type_label(session_type)
-    labels = {
-      "entrainement" => "Entraînement",
-      "jeu_libre" => "Jeu libre",
-      "tournoi" => "Tournoi",
-      "coaching_prive" => "Coaching privé",
-      "stage" => "Stage"
-    }
-    labels[session_type] || session_type.humanize
+    Sessions::SessionType.for(session_type).label
   end
 
   def session_type_icon(session_type)
-    icons = {
-      "entrainement" => "dumbbell",
-      "jeu_libre" => "volleyball",
-      "tournoi" => "trophy",
-      "coaching_prive" => "shield-user",
-      "stage" => "calendar"
-    }
-    icons[session_type] || "volleyball"
+    Sessions::SessionType.for(session_type).icon
   end
 
   def get_session_type_classes(session_type)
-    classes = {
-      "entrainement" => "bg-green-100 text-green-800",
-      "jeu_libre" => "bg-blue-100 text-blue-800",
-      "tournoi" => "bg-purple-100 text-purple-800",
-      "coaching_prive" => "bg-orange-100 text-orange-800",
-      "stage" => "bg-yellow-100 text-yellow-800"
-    }
-    classes[session_type] || "bg-gray-100 text-gray-800"
-  end
-
-  def session_type_badge_variant(session_type)
-    {
-      "entrainement" => :type_training,
-      "jeu_libre" => :type_free_play,
-      "tournoi" => :type_tournament,
-      "coaching_prive" => :type_private,
-      "stage" => :type_stage
-    }[session_type.to_s] || :neutral
-  end
-
-  def sessions_type_bg_class(session)
-    classes = {
-      "entrainement" => "bg-green-50",
-      "jeu_libre" => "bg-blue-50",
-      "tournoi" => "bg-purple-50",
-      "coaching_prive" => "bg-orange-50",
-      "stage" => "bg-yellow-50"
-    }
-    classes[session.session_type] || "bg-white"
-  end
-
-  def sessions_type_border_class(session)
-    classes = {
-      "entrainement" => "border-green-200 hover:border-green-300",
-      "jeu_libre" => "border-blue-200 hover:border-blue-300",
-      "tournoi" => "border-purple-200 hover:border-purple-300",
-      "coaching_prive" => "border-orange-200 hover:border-orange-300",
-      "stage" => "border-yellow-200 hover:border-yellow-300"
-    }
-    classes[session.session_type] || "border-gray-200 hover:border-gray-300"
+    Sessions::SessionType.for(session_type).classes
   end
 
   # Serialized for Stimulus `session-form` (terrain options filtered by closure ranges).
@@ -82,15 +29,8 @@ module ApplicationHelper
 
   # Session show URL from the calendar view with stable week anchor (for FullCalendar event.url fallback).
   def sessions_calendar_event_path(session_record)
-    session_path(
-      session_record,
-      {
-        view: "calendar",
-        date: params[:date].presence || session_record.start_at.to_date.iso8601,
-        for_me: ActiveModel::Type::Boolean.new.cast(params[:for_me]) ? "1" : nil,
-        terrain: params[:terrain].presence
-      }.compact
-    )
+    date = params[:date].presence || session_record.start_at.to_date.iso8601
+    session_path(session_record, Sessions::ReturnParams.from(params).merge(view: "calendar", date: date))
   end
 
   def nav_link(name, path, icon:, extra_classes: nil)
@@ -126,23 +66,17 @@ module ApplicationHelper
     end
   end
 
+  CREDIT_TRANSACTION_TYPE_LABELS = {
+    "purchase" => "Achat",
+    "training_payment" => "Paiement d'entraînement",
+    "free_play_payment" => "Paiement de jeu libre",
+    "private_coaching_payment" => "Paiement de coaching privé",
+    "refund" => "Remboursement",
+    "manual_adjustment" => "Ajustement de l'admin"
+  }.freeze
+
   def humanize_credit_transaction_type(transaction_type)
-    case transaction_type
-    when "purchase"
-      "Achat"
-    when "training_payment"
-      "Paiement d'entraînement"
-    when "free_play_payment"
-      "Paiement de jeu libre"
-    when "private_coaching_payment"
-      "Paiement de coaching privé"
-    when "refund"
-      "Remboursement"
-    when "manual_adjustment"
-      "Ajustement de l'admin"
-    else
-      "Transaction"
-    end
+    CREDIT_TRANSACTION_TYPE_LABELS.fetch(transaction_type.to_s, "Transaction")
   end
 
   # Builds a sortable link for table headers, preserving current filters.

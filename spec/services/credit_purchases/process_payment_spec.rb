@@ -15,5 +15,12 @@ RSpec.describe CreditPurchases::ProcessPayment do
       expect(purchase.reload).to be_paid_status
       expect(purchase.paid_at).to be_present
     end
+
+    it "marks a pack that credits nothing as paid without touching the balance" do
+      purchase = create(:credit_purchase, user: user, pack: create(:pack, pack_type: "equipements"), amount_cents: 3000)
+
+      expect { described_class.call(purchase: purchase) }.not_to change { user.reload.balance.amount }
+      expect(purchase.reload).to be_paid_status
+    end
   end
 end

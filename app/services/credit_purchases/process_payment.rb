@@ -23,10 +23,10 @@ module CreditPurchases
 
     def processor_for(purchase)
       return Processors::Credits.new(purchase:) if purchase.credits_pack?
-      return Processors::Stage.new(purchase:) if purchase.stage_pack?
+      return Processors::LogOnly.new(purchase:, label: "Stage") if purchase.stage_pack?
       return Processors::Licence.new(purchase:) if purchase.licence_pack?
-      return Processors::InscriptionTournoi.new(purchase:) if purchase.inscription_tournoi_pack?
-      return Processors::Equipements.new(purchase:) if purchase.equipements_pack?
+      return Processors::LogOnly.new(purchase:, label: "Inscription tournoi") if purchase.inscription_tournoi_pack?
+      return Processors::LogOnly.new(purchase:, label: "Equipements") if purchase.equipements_pack?
 
       raise "Type de pack non reconnu"
     end

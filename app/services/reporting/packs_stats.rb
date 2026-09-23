@@ -44,31 +44,6 @@ module Reporting
       stats.reverse # Plus récent en premier
     end
 
-    # Détail par pack pour une période donnée
-    def pack_details_for_period(period_range)
-      purchases = CreditPurchase
-        .where(status: :paid, paid_at: period_range)
-        .joins(:pack)
-        .group("packs.id", "packs.name", "packs.pack_type")
-        .select(
-          "packs.id as pack_id",
-          "packs.name as pack_name",
-          "packs.pack_type as pack_type",
-          "COUNT(*) as purchase_count",
-          "SUM(credit_purchases.amount_cents) as total_cents"
-        )
-
-      purchases.map do |p|
-        {
-          pack_id: p.pack_id,
-          pack_name: p.pack_name,
-          pack_type: p.pack_type,
-          count: p.purchase_count,
-          total: p.total_cents / 100.0
-        }
-      end
-    end
-
     private
 
     def monthly_breakdown(month_range, month_date)

@@ -47,7 +47,7 @@ module Coach
     end
 
     def monthly_history
-      @monthly_history ||= salaries.monthly_history_for_coach(coach)
+      @monthly_history ||= payroll.monthly_history
     end
 
     def past_trainings
@@ -71,16 +71,11 @@ module Coach
     end
 
     def periods
-      @periods ||= salaries.periods_for_coach(
-        coach,
-        week_range: Time.zone.today.beginning_of_week..(Time.zone.today.beginning_of_week + 7.days),
-        month_range: Time.zone.now.beginning_of_month..Time.zone.now.end_of_month,
-        year_range: Time.zone.now.beginning_of_year..Time.zone.now.end_of_year
-      )
+      @periods ||= payroll.current_periods
     end
 
-    def salaries
-      @salaries ||= Reporting::CoachSalaries.new
+    def payroll
+      @payroll ||= Reporting::CoachPayroll.new(coach)
     end
   end
 end

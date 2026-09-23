@@ -54,10 +54,6 @@ module Sessions
       @weekly ||= Registrations::WeeklyPriorityResolver.new(session: session)
     end
 
-    def price
-      @price ||= session.coaching_prive? ? 0 : session.price.to_i
-    end
-
     # Précharge users/levels et session_levels pour éviter les N+1 dans priority_rank.
     def load_registrations
       session.association(:session_levels).reset
@@ -68,38 +64,28 @@ module Sessions
     # Les max_players inscriptions les plus prioritaires et solvables.
     # Un confirmed a déjà payé (solvable) ; un waitlisted doit avoir assez de crédits.
     def desired_confirmed_ids(registrations)
-      sorted = registrations.sort_by { |r| sort_key(r) }
-      desired = []
-      sorted.each do |registration|
-        break if desired.size >= session.max_players
-        next unless registration.confirmed? || affordable?(registration)
-        desired << registration.id
-      end
-      desired
-    end
-
-    def affordable?(registration)
-      price <= 0 || registration.user.balance.amount >= price
+      registrations.sort_by { |r| sort_key(r) }
+                   .select { |registration| registration.confirmed? || list_move.affordable?(registration) }
+                   .first(session.max_players)
+                   .map(&:id)
     end
 
     def demote(registration)
-      ActiveRecord::Base.transaction do
-        registration.update!(status: :waitlisted)
-        TransactionService.new(registration.user, session, price).refund_transaction if price.positive?
-      end
+      list_move.waitlist(registration)
       notifier.displaced(registration.user)
     rescue StandardError => e
       Rails.logger.error "PriorityBalancer demote failed: #{e.message}"
     end
 
     def promote(registration)
-      ActiveRecord::Base.transaction do
-        registration.update!(status: :confirmed)
-        TransactionService.new(registration.user, session, price).create_transaction if price.positive?
-      end
+      list_move.confirm(registration)
       notifier.promoted(registration.user, cause: "Une place s'est libérée pour la session")
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error "PriorityBalancer promote failed: #{e.message}"
+    end
+
+    def list_move
+      @list_move ||= ListMove.new(session)
     end
 
     def notifier
