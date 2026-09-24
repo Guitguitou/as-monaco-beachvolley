@@ -109,6 +109,11 @@ class User < ApplicationRecord
     admin? || financial_manager?
   end
 
+  # Accès complet de membre : licence active, ou rôle staff dispensé d'activation.
+  def full_access?
+    activated? || staff?
+  end
+
   # Joueur « simple » : aucun rôle particulier.
   def player?
     !admin? && !coach? && !responsable? && !financial_manager?

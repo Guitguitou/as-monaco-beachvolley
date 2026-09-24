@@ -10,7 +10,7 @@
       <%= render BadgeComponent.new(label: "Crédits & Équipements", variant: :neutral, size: :sm) %>
     <% end %>
     <% hero.with_actions do %>
-      <% if current_user&.activated? %>
+      <% if current_user&.full_access? %>
         <div class="w-full lg:w-auto flex justify-start">
           <div class="w-[170px] rounded-none border border-gray-200 bg-gray-50 px-3 py-3 text-gray-900">
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-500 text-center leading-none">Tes crédits</p>

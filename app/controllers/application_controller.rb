@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
 
   def accueil
     # Redirect authenticated non-activated users to packs
-    if user_signed_in? && !current_user.activated? && !current_user.admin? && !current_user.financial_manager?
+    if user_signed_in? && !current_user.full_access?
       redirect_to packs_path
       return
     end
@@ -24,7 +24,7 @@ class ApplicationController < ActionController::Base
 
   def after_sign_in_path_for(resource)
     # Redirect non-activated users to packs
-    if !resource.activated? && !resource.admin? && !resource.financial_manager?
+    if !resource.full_access?
       packs_path
     else
       # « Mon terrain » : sa prochaine session et les sessions ouvertes pour lui.
@@ -44,8 +44,7 @@ class ApplicationController < ActionController::Base
   # Redirect non-activated users to limited pages
   def redirect_non_activated_users
     return unless user_signed_in?
-    return if current_user.activated?
-    return if current_user.admin? || current_user.financial_manager? # Admins and financial managers always have full access
+    return if current_user.full_access?
 
     # Allow access to specific paths for non-activated users
     allowed_paths = [

@@ -21,17 +21,17 @@ class Ability
       can [ :read, :update ], User, id: user.id
     end
 
-    # Responsable financier : accès limité au dashboard et historique des achats
+    # Responsable financier : dashboard et historique des achats, EN PLUS de
+    # ses droits de joueur. Un retour anticipé ici lui vidait la boutique.
     if user.financial_manager?
       can :read, :admin_dashboard
       can :read, CreditPurchase
-      return
     end
 
     # Base permissions for all authenticated users
     if user.id.present? && !user.disabled?
       # Non-activated users: limited access to licenses, stages and infos
-      if !user.activated?
+      if !user.full_access?
         can :read, Pack, pack_type: [ "licence", "stage", "inscription_tournoi", "equipements" ]
         can :buy, Pack, pack_type: [ "licence", "stage", "inscription_tournoi", "equipements" ]
         can :read, Stage
