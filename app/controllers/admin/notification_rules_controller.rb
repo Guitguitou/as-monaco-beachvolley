@@ -2,10 +2,7 @@
 
 module Admin
   # Controller for managing notification rules in the admin panel
-  class NotificationRulesController < ApplicationController
-    layout "dashboard"
-    before_action :authenticate_user!
-    before_action :require_admin!
+  class NotificationRulesController < BaseController
     before_action :set_notification_rule, only: [ :show, :edit, :update, :destroy ]
 
     def index
@@ -46,10 +43,6 @@ module Admin
     end
 
     private
-
-    def require_admin!
-      redirect_to root_path, alert: "Accès non autorisé" unless current_user&.admin?
-    end
 
     def set_notification_rule
       @notification_rule = NotificationRule.find(params[:id])

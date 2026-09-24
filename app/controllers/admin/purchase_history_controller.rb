@@ -1,5 +1,5 @@
 module Admin
-  class PurchaseHistoryController < ApplicationController
+  class PurchaseHistoryController < BaseController
     PURCHASE_EXPORT_HEADERS = [
       "Date",
       "Heure",
@@ -15,10 +15,6 @@ module Admin
     ].freeze
 
     XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".freeze
-
-    layout "dashboard"
-    before_action :authenticate_user!
-    before_action :ensure_admin!
 
     def index
       base_scope = CreditPurchase.includes(:user, :pack).order(created_at: :desc)
@@ -77,8 +73,8 @@ module Admin
 
     private
 
-    def ensure_admin!
-      redirect_to root_path, alert: "Accès interdit" unless current_user.admin? || current_user.financial_manager?
+    def authorized_user?
+      current_user.staff?
     end
 
     def parse_date(date_string)
