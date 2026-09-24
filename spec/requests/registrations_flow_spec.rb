@@ -46,6 +46,16 @@ RSpec.describe "Registrations flow", type: :request do
     expect(player.reload.balance.amount).to eq(1000 - s.price + (refundable ? s.price : 0))
   end
 
+  it "prévient le coach d'une inscription le jour même à son entraînement" do
+    allow(SendPushNotificationJob).to receive(:perform_later)
+    sign_in player, scope: :user
+
+    post session_registrations_path(session_record)
+
+    expect(SendPushNotificationJob).to have_received(:perform_later)
+      .with(coach.id, hash_including(title: "Inscription de dernière minute 🏐"))
+  end
+
   it 'prevents registration if overlapping with another confirmed session' do
     sign_in player, scope: :user
     post session_registrations_path(session_record)

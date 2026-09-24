@@ -80,6 +80,7 @@ module Sessions
     def promote(registration)
       list_move.confirm(registration)
       notifier.promoted(registration.user, cause: "Une place s'est libérée pour la session")
+      Registrations::SameDayCoachNotifier.new(registration, promoted: true).call
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error "PriorityBalancer promote failed: #{e.message}"
     end
