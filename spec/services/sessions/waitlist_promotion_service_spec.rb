@@ -47,6 +47,16 @@ RSpec.describe Sessions::WaitlistPromotionService, type: :service do
     expect(early.reload).to be_waitlisted
   end
 
+  it "prévient le coach d'une promotion le jour même de l'entraînement" do
+    session = training(day_offset: -7, terrain: "Terrain 1")
+    create(:registration, :waitlisted, user: player, session: session)
+
+    described_class.call(session: session)
+
+    expect(SendPushNotificationJob).to have_received(:perform_later)
+      .with(session.user_id, hash_including(title: "Inscription de dernière minute 🏐"))
+  end
+
   it "accepte un résolveur déjà chargé sans requête de priorité supplémentaire" do
     session = training(day_offset: 2, terrain: "Terrain 2")
     registration = create(:registration, :waitlisted, user: player, session: session)

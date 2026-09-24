@@ -47,6 +47,7 @@ module Sessions
 
       list_move.confirm(registration)
       notifier.promoted(registration.user, cause: "Quelqu'un s'est désinscrit de la session")
+      Registrations::SameDayCoachNotifier.new(registration, promoted: true).call
       true
     rescue ActiveRecord::RecordInvalid
       false

@@ -7,6 +7,8 @@ module Registrations
   #
   # `privileged` : un admin ou le coach de la session peut inscrire en coaching
   # privé et passer outre la deadline de 17h.
+  #
+  # Une inscription confirmée le jour même à un entraînement prévient le coach.
   class Enrollment
     Result = Data.define(:success?, :message)
 
@@ -23,7 +25,9 @@ module Registrations
         charge if @registration.confirmed?
         @session.rebalance!
       end
-      Result.new(success?: true, message: @registration.reload.confirmed? ? "Inscription réussie ✅" : "Ajout en liste d'attente ✅")
+      @registration.reload
+      SameDayCoachNotifier.new(@registration).call
+      Result.new(success?: true, message: @registration.confirmed? ? "Inscription réussie ✅" : "Ajout en liste d'attente ✅")
     rescue StandardError => e
       Result.new(success?: false, message: (@registration.errors.full_messages.presence || [ e.message ]).to_sentence)
     end
