@@ -1,7 +1,5 @@
 module Admin
-  class StagesController < ApplicationController
-    layout "dashboard"
-    before_action :authenticate_user!
+  class StagesController < BaseController
     load_and_authorize_resource
     before_action :set_stage, only: [ :show, :edit, :update ]
 

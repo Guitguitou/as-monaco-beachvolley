@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class SessionsController < ApplicationController
-    layout "dashboard"
-    before_action :authenticate_user!
+  class SessionsController < BaseController
     load_and_authorize_resource
     before_action :set_session, only: [ :show, :edit, :update, :destroy, :duplicate ]
 

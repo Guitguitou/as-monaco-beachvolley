@@ -25,6 +25,17 @@ RSpec.describe "Packs", type: :request do
 
       expect(response.body).to include(pack.name)
     end
+
+    # Le responsable financier joue aussi : son rôle ne doit pas lui retirer
+    # la boutique (elle s'affichait vide).
+    it "affiche les packs crédits au responsable financier, même sans licence active" do
+      pack = create(:pack, :credits, name: "Pack crédits", public: false)
+      login_as(create(:user, :financial_manager, activated_at: nil), scope: :user)
+
+      get packs_path
+
+      expect(response.body).to include(pack.name)
+    end
   end
 
   describe "POST /packs/:id/buy" do

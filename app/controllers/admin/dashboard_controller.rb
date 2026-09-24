@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class DashboardController < ApplicationController
-    layout "dashboard"
-    before_action :authenticate_user!
-    before_action :require_admin!
-
+  class DashboardController < BaseController
     def index
       @active_tab = params[:tab] || "overview"
 
@@ -29,8 +25,8 @@ module Admin
 
     private
 
-    def require_admin!
-      redirect_to root_path, alert: "Accès non autorisé" unless current_user&.admin? || current_user&.financial_manager?
+    def authorized_user?
+      current_user.staff?
     end
 
     def render_overview_tab

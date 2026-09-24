@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class UsersController < ApplicationController
-    layout "dashboard"
-    before_action :authenticate_user!
+  class UsersController < BaseController
     load_and_authorize_resource
     before_action :set_user, only: %i[show edit update adjust_credits disable enable]
 
@@ -121,7 +119,7 @@ module Admin
         amount: amount
       )
 
-      notice = amount.positive? ? 'Crédits ajoutés avec succès' : 'Crédits déduits avec succès'
+      notice = amount.positive? ? "Crédits ajoutés avec succès" : "Crédits déduits avec succès"
       redirect_to admin_user_path(@user), notice:
     end
 
@@ -152,7 +150,5 @@ module Admin
         level_ids: []
       )
     end
-
-    # Authorization handled by CanCanCan
   end
 end

@@ -46,6 +46,20 @@ RSpec.describe Ability do
       session = create(:session)
       expect(ability).not_to be_able_to(:manage, session)
     end
+
+    it 'keeps player rights: reads sessions, buys credits' do
+      credits_pack = create(:pack, :credits)
+
+      expect(ability).to be_able_to(:read, create(:session))
+      expect(ability).to be_able_to(:read, credits_pack)
+      expect(ability).to be_able_to(:buy, credits_pack)
+    end
+
+    it 'buys credits even without an active licence, like the rest of the app allows' do
+      ability = Ability.new(create(:user, :financial_manager, activated_at: nil))
+
+      expect(ability).to be_able_to(:buy, create(:pack, :credits))
+    end
   end
 
   describe 'disabled user' do

@@ -21,7 +21,7 @@ class PacksController < ApplicationController
     @equipements_packs = accessible_packs.select(&:pack_type_equipements?)
 
     # Afficher la notice si user non activé
-    @show_activation_notice = user_signed_in? && !current_user.activated?
+    @show_activation_notice = user_signed_in? && !current_user.full_access?
     @current_balance = current_user&.balance&.amount || 0
   end
 

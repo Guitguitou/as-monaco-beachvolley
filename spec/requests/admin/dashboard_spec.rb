@@ -74,7 +74,7 @@ RSpec.describe "Admin::Dashboard", type: :request do
       it "redirects with alert" do
         get admin_root_path
         expect(response).to have_http_status(:redirect)
-        expect(flash[:alert]).to include("Accès non autorisé")
+        expect(flash[:alert]).to eq("Accès interdit")
       end
     end
 

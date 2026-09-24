@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
 module Admin
-  class TerrainClosuresController < ApplicationController
-    layout "dashboard"
-    before_action :authenticate_user!
-    before_action :require_admin!
+  class TerrainClosuresController < BaseController
     before_action :set_terrain_closure, only: [ :edit, :update, :destroy ]
 
     def index
@@ -40,10 +37,6 @@ module Admin
     end
 
     private
-
-    def require_admin!
-      redirect_to root_path, alert: "Accès non autorisé" unless current_user&.admin?
-    end
 
     def set_terrain_closure
       @terrain_closure = TerrainClosure.find(params[:id])
