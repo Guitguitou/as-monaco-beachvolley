@@ -22,8 +22,7 @@ module Reporting
     def pack_breakdown_by_type(period_range)
       purchases = CreditPurchase
         .where(status: :paid, paid_at: period_range)
-        .joins(:pack)
-        .group("packs.pack_type")
+        .grouped_by_pack_type
         .sum(:amount_cents)
 
       purchases.transform_values { |cents| cents / 100.0 }

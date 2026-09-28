@@ -71,24 +71,11 @@ module Reporting
     end
 
     def pack_breakdown_by_type(period_range)
-      purchases = CreditPurchase
+      CreditPurchase
         .where(status: :paid, paid_at: period_range)
-        .joins(:pack)
-        .group("packs.pack_type")
-        .select(
-          "packs.pack_type",
-          "COUNT(*) as count",
-          "SUM(credit_purchases.amount_cents) as total_cents"
-        )
-
-      result = {}
-      purchases.each do |p|
-        result[p.pack_type] = {
-          count: p.count,
-          amount: p.total_cents / 100.0
-        }
-      end
-      result
+        .grouped_by_pack_type
+        .pluck(CreditPurchase::PACK_TYPE_SQL, Arel.sql("COUNT(*)"), Arel.sql("SUM(credit_purchases.amount_cents)"))
+        .to_h { |type, count, cents| [ type, { count: count, amount: cents / 100.0 } ] }
     end
   end
 end

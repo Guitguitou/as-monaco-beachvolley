@@ -49,7 +49,7 @@ module Admin
 
       @monthly_stats = packs_stats_service.monthly_stats_for_current_year
       @yearly_stats = packs_stats_service.yearly_stats
-      @pack_types = Pack.pack_types.keys
+      @pack_types = CreditPurchase::REPORTING_PACK_TYPES
     end
 
     def render_coaches_tab

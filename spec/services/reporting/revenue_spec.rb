@@ -90,6 +90,15 @@ RSpec.describe Reporting::Revenue do
       expect(breakdown['stage']).to eq(200.0)
       expect(breakdown['licence']).to eq(300.0)
     end
+
+    it 'categorizes purchases of deleted packs as "autre"' do
+      licence_pack.destroy!
+
+      breakdown = revenue_service.pack_breakdown_by_type(period_range)
+
+      expect(breakdown['autre']).to eq(300.0)
+      expect(breakdown).not_to have_key('licence')
+    end
   end
 
   describe '#session_breakdown_by_type' do

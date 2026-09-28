@@ -75,7 +75,7 @@
 
 <!-- Évolution mensuelle du CA par type de pack -->
 <div class="mb-8">
-  <%= render Admin::MonthlyRevenueChartComponent.new(months: @monthly_revenue, pack_types: Pack.pack_types.keys) %>
+  <%= render Admin::MonthlyRevenueChartComponent.new(months: @monthly_revenue, pack_types: CreditPurchase::REPORTING_PACK_TYPES) %>
 </div>
 
 <!-- Tableaux de Différences CA - Salaires -->
@@ -236,6 +236,7 @@
                     when 'licence' then 'Packs de Licence'
                     when 'inscription_tournoi' then 'Inscriptions tournoi'
                     when 'equipements' then 'Équipements'
+                    when 'autre' then 'Autres (pack supprimé)'
                     else pack_type.humanize
                     end %>
               </span>

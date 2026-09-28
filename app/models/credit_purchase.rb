@@ -16,6 +16,14 @@ class CreditPurchase < ApplicationRecord
   validates :currency, presence: true
   validates :credits, presence: true, numericality: { greater_than: 0 }, if: :credits_pack?
 
+  # Un pack supprimé laisse ses achats avec pack_id à NULL (dependent: :nullify) :
+  # dans les statistiques, ils sont regroupés sous ce type.
+  OTHER_PACK_TYPE = "autre"
+  REPORTING_PACK_TYPES = [ *Pack.pack_types.keys, OTHER_PACK_TYPE ].freeze
+  PACK_TYPE_SQL = Arel.sql("COALESCE(packs.pack_type, '#{OTHER_PACK_TYPE}')")
+
+  scope :grouped_by_pack_type, -> { left_joins(:pack).group(PACK_TYPE_SQL) }
+
   before_create :generate_reference
 
   # Conversion: 100 crédits = 1 EUR

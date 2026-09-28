@@ -140,6 +140,15 @@ RSpec.describe Reporting::PacksStats do
       expect(stats.first[:total]).to eq(30.0)
       expect(stats.last[:total]).to eq(0.0)
     end
+
+    it 'keeps purchases of deleted packs under "autre"' do
+      pack_credits.destroy!
+
+      december = service.last_months_stats(4).first
+
+      expect(december[:by_type]).to eq('autre' => { count: 1, amount: 30.0 })
+      expect(december[:total]).to eq(30.0)
+    end
   end
 
   describe '#yearly_stats' do
