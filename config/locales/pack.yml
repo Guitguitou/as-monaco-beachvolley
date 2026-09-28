@@ -16,3 +16,11 @@ fr:
               blank: "Le stage est obligatoire pour les packs de stage"
             pack_type:
               blank: "Le type de pack est obligatoire"
+    attributes:
+      pack:
+        pack_types:
+          credits: "Crédits"
+          licence: "Licences"
+          stage: "Stages"
+          inscription_tournoi: "Inscriptions tournoi"
+          equipements: "Équipements"

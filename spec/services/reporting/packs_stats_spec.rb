@@ -124,6 +124,24 @@ RSpec.describe Reporting::PacksStats do
     end
   end
 
+  describe '#last_months_stats' do
+    let!(:user) { create(:user) }
+    let!(:pack_credits) { create(:pack, pack_type: :credits, name: 'Pack 10 crédits', amount_cents: 1000, credits: 10) }
+
+    before do
+      create(:credit_purchase, user: user, pack: pack_credits, status: :paid,
+             paid_at: Time.zone.parse('2023-12-10 10:00:00'), amount_cents: 3000, credits: 30)
+    end
+
+    it 'returns the requested months in chronological order, across years' do
+      stats = service.last_months_stats(4)
+
+      expect(stats.map { |s| [ s[:year], s[:month] ] }).to eq([ [ 2023, 12 ], [ 2024, 1 ], [ 2024, 2 ], [ 2024, 3 ] ])
+      expect(stats.first[:total]).to eq(30.0)
+      expect(stats.last[:total]).to eq(0.0)
+    end
+  end
+
   describe '#yearly_stats' do
     let!(:user) { create(:user) }
     let!(:pack_credits) { create(:pack, pack_type: :credits, name: 'Pack 10 crédits', amount_cents: 1000, credits: 10) }

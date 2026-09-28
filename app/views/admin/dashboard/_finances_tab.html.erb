@@ -73,6 +73,11 @@
   </div>
 </div>
 
+<!-- Évolution mensuelle du CA par type de pack -->
+<div class="mb-8">
+  <%= render Admin::MonthlyRevenueChartComponent.new(months: @monthly_revenue, pack_types: Pack.pack_types.keys) %>
+</div>
+
 <!-- Tableaux de Différences CA - Salaires -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
   <!-- Différence Semaine -->

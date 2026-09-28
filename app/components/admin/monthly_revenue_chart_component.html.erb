@@ -1,0 +1,93 @@
+<div class="bg-white rounded-lg shadow">
+  <div class="px-6 py-4 border-b border-gray-200 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h3 class="text-lg font-medium text-gray-900 flex items-center">
+        <%= lucide_icon('chart-column', class: 'w-5 h-5 mr-2 text-asmbv-red') %>
+        Évolution mensuelle du CA
+      </h3>
+      <p class="text-sm text-gray-500 mt-1"><%= months.size %> derniers mois, par type de pack — le mois en cours est partiel</p>
+    </div>
+    <div class="text-right">
+      <p class="text-xs font-medium text-gray-500 uppercase tracking-wider"><%= month_title(current_month) %></p>
+      <p class="text-2xl font-semibold text-gray-900 tabular-nums"><%= format_currency(current_month[:total]) %></p>
+      <% if previous_month %>
+        <% change = delta(current_month[:total], previous_month[:total]) %>
+        <p class="text-xs <%= delta_classes(change) %>">
+          <%= format_delta(change) %> <span class="text-gray-500">vs <%= month_label(previous_month) %></span>
+        </p>
+      <% end %>
+    </div>
+  </div>
+
+  <% if empty? %>
+    <p class="text-gray-500 text-center py-8">Aucune vente de pack sur la période</p>
+  <% else %>
+    <div class="p-6 space-y-4">
+      <ul class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-700">
+        <% types.each do |type| %>
+          <li class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-sm <%= color(type)[:swatch] %>"></span>
+            <%= type_label(type) %>
+          </li>
+        <% end %>
+      </ul>
+
+      <svg viewBox="0 0 <%= chart.width %> <%= chart.height %>" class="w-full h-auto" role="img"
+           aria-label="Histogramme du CA mensuel par type de pack">
+        <% chart.ticks.each do |tick| %>
+          <line x1="<%= chart.left %>" x2="<%= chart.right %>" y1="<%= tick.y %>" y2="<%= tick.y %>"
+                class="stroke-gray-200" stroke-width="1" />
+          <text x="<%= chart.left - 8 %>" y="<%= tick.y %>" text-anchor="end" dominant-baseline="middle"
+                class="fill-gray-500 text-[11px] tabular-nums"><%= format_currency(tick.value) %></text>
+        <% end %>
+
+        <% months.each_with_index do |month, index| %>
+          <g>
+            <title><%= month_title(month) %> : <%= format_currency(month[:total]) %></title>
+            <% chart.segments(index).each do |segment| %>
+              <rect x="<%= segment.x %>" y="<%= segment.y %>" width="<%= segment.width %>" height="<%= segment.height %>"
+                    class="<%= color(segment.key)[:fill] %>">
+                <title><%= month_title(month) %> — <%= type_label(segment.key) %> : <%= format_currency(segment.value) %></title>
+              </rect>
+            <% end %>
+            <% if month[:total].positive? %>
+              <text x="<%= chart.center_x(index) %>" y="<%= chart.total_y(index) - 6 %>" text-anchor="middle"
+                    class="fill-gray-700 text-[11px] font-semibold tabular-nums"><%= format_currency(month[:total]) %></text>
+            <% end %>
+            <text x="<%= chart.center_x(index) %>" y="<%= chart.baseline_y + 18 %>" text-anchor="middle"
+                  class="fill-gray-500 text-[11px]"><%= month_label(month) %></text>
+          </g>
+        <% end %>
+      </svg>
+    </div>
+
+    <div class="overflow-x-auto border-t border-gray-200">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mois</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+            <% types.each do |type| %>
+              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                <span class="inline-block w-2 h-2 rounded-sm mr-1 <%= color(type)[:swatch] %>"></span><%= type_label(type) %>
+              </th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% comparison_rows.each do |month, previous| %>
+            <tr>
+              <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900"><%= month_title(month) %></td>
+              <% comparison_cells(month, previous).each_with_index do |(value, change), column| %>
+                <td class="px-4 py-3 whitespace-nowrap text-right tabular-nums">
+                  <span class="text-sm text-gray-900 <%= 'font-bold' if column.zero? %>"><%= format_currency(value) %></span>
+                  <span class="block text-xs <%= delta_classes(change) %>"><%= format_delta(change) %></span>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

@@ -9,19 +9,15 @@ module Reporting
 
     # Statistiques par mois pour l'année en cours
     def monthly_stats_for_current_year
-      year_start = @current_time.beginning_of_year
-      year_end = @current_time.end_of_year
+      last_months_stats(@current_time.month).reverse # Plus récent en premier
+    end
 
-      stats = []
-      current_month = year_start
-
-      while current_month <= year_end && current_month <= @current_time.end_of_month
-        month_range = current_month.beginning_of_month..current_month.end_of_month
-        stats << monthly_breakdown(month_range, current_month)
-        current_month = current_month.next_month
+    # Statistiques des `count` derniers mois, mois en cours inclus, du plus ancien au plus récent
+    def last_months_stats(count)
+      (count - 1).downto(0).map do |offset|
+        month_start = @current_time.beginning_of_month.months_ago(offset)
+        monthly_breakdown(month_start..month_start.end_of_month, month_start)
       end
-
-      stats.reverse # Plus récent en premier
     end
 
     # Statistiques annuelles (toutes les années avec des achats)

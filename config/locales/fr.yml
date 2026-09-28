@@ -13,6 +13,7 @@ fr:
       default: "%d/%m/%Y"
       long: "%d %B %Y"
       month_and_year: "%B %Y"
+      month_short: "%b %y"
       # Séparateurs de jour de la grille et en-tête des cartes de session.
       day_and_month: "%A %-d %B"
     month_names: [~, janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre]

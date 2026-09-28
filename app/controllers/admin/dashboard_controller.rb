@@ -41,6 +41,7 @@ module Admin
         sessions: revenue_service.session_breakdown_by_type(month_range),
         packs: revenue_service.pack_breakdown_by_type(month_range)
       }
+      @monthly_revenue = Reporting::PacksStats.new.last_months_stats(12)
     end
 
     def render_packs_tab
