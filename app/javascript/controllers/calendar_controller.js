@@ -294,24 +294,20 @@ export default class extends Controller {
         if (!anchor) return
         event.preventDefault()
         try {
-          const url = new URL(anchor.href, window.location.origin)
-          const selectedTerrain = url.searchParams.get('terrain') || ''
-          const forMe = url.searchParams.get('for_me') === '1'
-          this.applyFilters({ selectedTerrain, forMe })
+          // Une pastille ne change que son propre filtre : son href, rendu au
+          // chargement, ignore les filtres choisis depuis sans rechargement.
+          const param = anchor.dataset.filterPill === 'audience' ? 'for_me' : 'terrain'
+          const value = new URL(anchor.href, window.location.origin).searchParams.get(param)
 
           // Update URL (preserve date param already set by datesSet)
           const currentUrl = new URL(window.location.href)
-          if (selectedTerrain) {
-            currentUrl.searchParams.set('terrain', selectedTerrain)
+          if (value) {
+            currentUrl.searchParams.set(param, value)
           } else {
-            currentUrl.searchParams.delete('terrain')
-          }
-          if (forMe) {
-            currentUrl.searchParams.set('for_me', '1')
-          } else {
-            currentUrl.searchParams.delete('for_me')
+            currentUrl.searchParams.delete(param)
           }
           window.history.replaceState({}, '', currentUrl.toString())
+          this.applyFiltersFromUrl()
         } catch (_) {
           // ignore
         }
