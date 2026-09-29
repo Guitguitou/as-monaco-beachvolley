@@ -55,14 +55,15 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          # Base jetable du job : pas de mot de passe à gérer
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
 
     env:
       RAILS_ENV: test
-      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/as_monaco_beach_volley_app_test
+      TEST_DATABASE_URL: postgres://postgres@localhost:5432/as_monaco_beach_volley_app_test
 
     steps:
       - name: Install packages
