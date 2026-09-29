@@ -1,5 +1,0 @@
-expire_stale_purchases:
-  cron: "*/30 * * * *" # Toutes les 30 minutes
-  class: ExpireStalePurchasesJob
-  queue: default
-  description: "Clôture les achats restés en attente de réponse Sherlock's"

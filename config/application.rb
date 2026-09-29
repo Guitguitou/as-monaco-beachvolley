@@ -26,6 +26,9 @@ module AsMonacoBeachVolleyApp
     config.active_record.default_timezone = :local
     config.i18n.default_locale = :fr
     config.i18n.load_path += Dir[Rails.root.join("config", "locales", "**", "*.{rb,yml}")]
+
+    # Mission Control est protégé par la session Devise (cf. routes), pas par HTTP Basic.
+    config.mission_control.jobs.http_basic_auth_enabled = false
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end
