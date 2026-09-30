@@ -16,6 +16,8 @@ fr:
       month_short: "%b %y"
       # Séparateurs de jour de la grille et en-tête des cartes de session.
       day_and_month: "%A %-d %B"
+      # Libellé compact des créneaux de jeu libre : « sam 4 oct ».
+      short_day: "%a %-d %b"
     month_names: [~, janvier, février, mars, avril, mai, juin, juillet, août, septembre, octobre, novembre, décembre]
     abbr_month_names: [~, jan, fév, mar, avr, mai, juin, juil, août, sep, oct, nov, déc]
     day_names: [dimanche, lundi, mardi, mercredi, jeudi, vendredi, samedi]

@@ -5,6 +5,16 @@ default: &default
     queue: default
     schedule: every 30 minutes
     description: "Clôture les achats restés en attente de réponse Sherlock's"
+  auto_confirm_annonces:
+    class: AutoConfirmAnnoncesJob
+    queue: default
+    schedule: every hour
+    description: "Confirme les parties de jeu libre prêtes à moins de 24 h"
+  expire_annonces:
+    class: ExpireAnnoncesJob
+    queue: default
+    schedule: every hour at minute 30
+    description: "Expire les parties de jeu libre dont tous les créneaux sont passés"
 
 development:
   <<: *default

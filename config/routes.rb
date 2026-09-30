@@ -31,8 +31,11 @@ Rails.application.routes.draw do
     resources :registrations, only: [ :create, :destroy ]
   end
 
-  # Annonces de jeu libre (« matcher » de joueurs)
-  resources :annonces do
+  # Jeu libre : parties lancées par les joueurs (modèle Annonce, « matcher » de
+  # joueurs). Les anciennes URL /annonces, déjà envoyées en push, redirigent.
+  get "annonces(/*rest)", to: redirect { |params, _request| [ "/jeu-libre", params[:rest] ].compact.join("/") }
+  resources :annonces, path: "jeu-libre" do
+    post :quick, on: :collection
     member do
       get :confirm
       patch :confirm
