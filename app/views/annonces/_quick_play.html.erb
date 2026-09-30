@@ -1,0 +1,17 @@
+<%# « Tu es libre quand ? » : rejoindre ou lancer une partie en un tap. %>
+<div class="border border-dashed border-gray-300 bg-white rounded-xl p-4">
+  <p class="font-semibold text-gray-900">Tu es libre quand ?</p>
+  <p class="text-xs text-gray-600 mt-0.5">On te met sur une partie existante, ou on en lance une et on prévient les joueurs de ton niveau.</p>
+  <div class="mt-3 flex flex-wrap gap-2">
+    <% quick_slots.each do |quick_slot| %>
+      <%= button_to quick_annonces_path(slot: quick_slot.key), method: :post,
+            class: "inline-flex flex-col items-start px-3 py-2 border border-gray-300 hover:border-asmbv-red hover:text-asmbv-red text-left" do %>
+        <span class="text-sm font-semibold"><%= quick_slot.label %></span>
+        <span class="text-[11px] text-gray-500"><%= l(quick_slot.start_at.to_date, format: :short_day) %> · <%= l(quick_slot.start_at, format: :time) %>–<%= l(quick_slot.end_at, format: :time) %></span>
+      <% end %>
+    <% end %>
+    <%= link_to new_annonce_path, class: "inline-flex items-center gap-1 px-3 py-2 border border-gray-300 text-sm font-semibold text-gray-700 hover:border-asmbv-red hover:text-asmbv-red" do %>
+      <%= lucide_icon("plus", class: "size-4") %> Autre créneau
+    <% end %>
+  </div>
+</div>

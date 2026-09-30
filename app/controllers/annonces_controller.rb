@@ -1,23 +1,25 @@
 # frozen_string_literal: true
 
+# Jeu libre : parties lancées par les joueurs (modèle Annonce), où chacun
+# indique sur quels créneaux il en est, jusqu'à la confirmation en session.
 class AnnoncesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_annonce, only: [ :show, :edit, :update, :destroy, :confirm, :cancel, :toggle_availability ]
 
   def index
     authorize! :read, Annonce
-    @eligible_annonces = Annonces::EligibleAnnoncesQuery.call(user: current_user)
-    @my_annonces = Annonce.where(user_id: current_user.id).ordered_by_recent.includes(:levels, slots: :availabilities)
+    @board = Annonces::Board.new(user: current_user)
   end
 
   def show
     authorize! :read, @annonce
     @available_slot_ids = current_slot_ids_for(current_user)
+    @terrain_free_by_slot = @annonce.upcoming_slots.index_with { |slot| Annonces::AvailableTerrainsForSlotQuery.call(slot: slot).any? }
   end
 
   def new
     authorize! :create, Annonce
-    @annonce = Annonce.new
+    @annonce = Annonce.new(levels: current_user.levels)
     2.times { @annonce.slots.build }
   end
 
@@ -27,12 +29,23 @@ class AnnoncesController < ApplicationController
     authorize! :create, @annonce
 
     if @annonce.save
-      Annonces::CreationNotifier.new(annonce: @annonce).notify_eligible_players
-      redirect_to @annonce, notice: "Annonce publiée ✅ Les joueurs éligibles ont été prévenus."
+      Annonces::Notifier.new(annonce: @annonce).notify_eligible_players
+      redirect_to @annonce, notice: "Partie lancée ✅ Les joueurs éligibles ont été prévenus."
     else
       @annonce.slots.build if @annonce.slots.empty?
       render :new, status: :unprocessable_entity
     end
+  end
+
+  # « Tu es libre quand ? » : rejoint une partie existante sur ce moment, ou en lance une.
+  def quick
+    authorize! :create, Annonce
+    quick_slot = Annonces::QuickSlot.find(params[:slot])
+    return redirect_back(fallback_location: annonces_path, alert: "Ce créneau n'est plus disponible.") unless quick_slot
+
+    result = Annonces::QuickPlay.new(user: current_user, quick_slot: quick_slot).call
+    notice = result.joined ? "Une partie existait déjà sur ce créneau : tu en es ✅" : "Partie lancée ✅ Les joueurs éligibles ont été prévenus."
+    redirect_to result.annonce, notice: notice
   end
 
   def edit
@@ -42,7 +55,7 @@ class AnnoncesController < ApplicationController
   def update
     authorize! :update, @annonce
     if @annonce.update(annonce_params)
-      redirect_to @annonce, notice: "Annonce mise à jour ✅"
+      redirect_to @annonce, notice: "Partie mise à jour ✅"
     else
       @annonce.slots.build if @annonce.slots.empty?
       render :edit, status: :unprocessable_entity
@@ -52,14 +65,15 @@ class AnnoncesController < ApplicationController
   def destroy
     authorize! :destroy, @annonce
     @annonce.destroy
-    redirect_to annonces_path, notice: "Annonce supprimée."
+    redirect_to annonces_path, notice: "Partie supprimée."
   end
 
-  # Un joueur (dé)clare sa disponibilité sur un créneau de l'annonce.
+  # Un joueur (dé)clare sa disponibilité sur un créneau à venir, depuis la
+  # partie ou depuis l'accueil : il reste sur la page d'où il vient.
   def toggle_availability
     authorize! :toggle_availability, @annonce
-    Annonces::AvailabilityToggle.new(annonce: @annonce, slot: @annonce.slots.find(params[:slot_id]), user: current_user).call
-    redirect_to @annonce
+    Annonces::AvailabilityToggle.new(annonce: @annonce, slot: @annonce.slots.upcoming.find(params[:slot_id]), user: current_user).call
+    redirect_back fallback_location: annonce_path(@annonce)
   end
 
   # GET : formulaire de choix du créneau + terrain. PATCH : confirmation effective.
@@ -68,9 +82,9 @@ class AnnoncesController < ApplicationController
 
     return prepare_confirmation if request.get?
 
-    slot = @annonce.slots.find(params[:slot_id])
+    slot = @annonce.slots.upcoming.find(params[:slot_id])
     result = Annonces::ConfirmationService.new(annonce: @annonce, slot: slot, terrain: params[:terrain]).call
-    Annonces::CreationNotifier.new(annonce: @annonce).notify_confirmed(session: result.session, users: result.registered)
+    Annonces::Notifier.new(annonce: @annonce).notify_confirmed(session: result.session, users: result.registered)
     redirect_to result.session, notice: result.summary
   rescue ActiveRecord::RecordInvalid => e
     redirect_to confirm_annonce_path(@annonce), alert: "Confirmation impossible : #{e.record.errors.full_messages.to_sentence.presence || e.message}"
@@ -79,7 +93,7 @@ class AnnoncesController < ApplicationController
   def cancel
     authorize! :cancel, @annonce
     @annonce.cancelled!
-    redirect_to annonces_path, notice: "Annonce annulée."
+    redirect_to annonces_path, notice: "Partie annulée."
   end
 
   private

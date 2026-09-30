@@ -2,13 +2,16 @@
 
 module Sessions
   # Sessions à proposer à un joueur : ouvertes à ses niveaux, pas encore
-  # rejointes, avec de la place, hors coachings privés.
+  # rejointes, avec de la place, hors coachings privés. `types` restreint aux
+  # types voulus (ex. les seuls jeux libres sur la page Jeu libre).
   class Recommendations
     LIMIT = 3
     CANDIDATES = 30
 
-    def initialize(user:)
+    def initialize(user:, types: nil, limit: LIMIT)
       @user = user
+      @types = types
+      @limit = limit
       @level_ids = user.levels.map(&:id)
     end
 
@@ -16,7 +19,7 @@ module Sessions
       @sessions ||= candidates
         .reject { |session| joined_ids.include?(session.id) || full?(session) }
         .select { |session| session.registration_open_state_for(@user).first }
-        .first(LIMIT)
+        .first(@limit)
     end
 
     def card_state_for(session)
@@ -28,9 +31,14 @@ module Sessions
 
     private
 
+    def candidate_relation
+      relation = Session.upcoming.ordered_by_start.where.not(session_type: "coaching_prive")
+      @types ? relation.where(session_type: @types) : relation
+    end
+
     def candidates
       EligibleForUserLevelsQuery.call(
-        relation: Session.upcoming.ordered_by_start.where.not(session_type: "coaching_prive"),
+        relation: candidate_relation,
         level_ids: @level_ids
       ).includes(:levels, :user, registrations: :user).limit(CANDIDATES).to_a
     end

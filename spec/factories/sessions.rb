@@ -4,9 +4,10 @@ FactoryBot.define do
     description { "Description de test" }
     # Un terrain n'accepte qu'une session à la fois : sans créneau distinct,
     # deux sessions par défaut se chevauchent et la validation les rejette.
-    # La séquence est remise à zéro avant chaque exemple (cf. rails_helper),
-    # les créneaux restent donc proches de l'heure courante.
-    sequence(:start_at) { |n| 1.hour.from_now.change(min: 0) + (n - 1) * 2.hours }
+    # La séquence est remise à zéro avant chaque exemple (cf. rails_helper).
+    # Créneaux dès demain matin : une session du jour même serait fermée aux
+    # inscriptions passé 17h (REGISTRATION_DEADLINE_HOUR), selon l'heure du run.
+    sequence(:start_at) { |n| 1.day.from_now.change(hour: 9) + (n - 1) * 2.hours }
     end_at { start_at + 90.minutes }
     session_type { "entrainement" }
     terrain { "Terrain 1" }
