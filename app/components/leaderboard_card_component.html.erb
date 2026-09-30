@@ -1,0 +1,14 @@
+<%= render CardComponent.new(accent: accent, class_name: "h-full") do %>
+  <div class="flex items-center gap-3">
+    <span class="<%= icon_classes %>">
+      <%= lucide_icon(icon, class: "w-5 h-5", aria: { hidden: true }) %>
+    </span>
+    <h3 class="font-anton text-lg uppercase tracking-tight text-gray-900"><%= category %></h3>
+  </div>
+
+  <% if switcher %>
+    <div class="mt-3"><%= switcher %></div>
+  <% end %>
+
+  <div class="mt-4"><%= content %></div>
+<% end %>
