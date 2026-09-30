@@ -59,6 +59,8 @@ Rails.application.routes.draw do
   namespace :admin do
     root to: "dashboard#index"
 
+    get "finances", to: "finances#show", as: :finances
+
     # Gestion de la saison (réinitialisation des licences)
     get "saison", to: "season#show", as: :season
     post "saison/reinitialiser", to: "season#reset", as: :reset_season
