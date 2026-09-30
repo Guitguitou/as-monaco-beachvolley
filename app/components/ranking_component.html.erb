@@ -1,46 +1,63 @@
-<div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-  <% if title %>
-    <h4 class="text-sm font-medium text-gray-700 mb-4"><%= title %></h4>
-  <% end %>
-
-  <% if has_players? %>
-    <div class="space-y-2">
-      <% players.each do |player| %>
-        <div class="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-50 transition-colors">
-          <div class="flex items-center gap-3 flex-1 min-w-0">
-            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-              <span class="text-xs font-bold text-gray-600"><%= player[:rank] %></span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate" title="<%= player[:name] %>">
-                <%= player[:name] %>
-              </p>
-            </div>
-          </div>
-          <div class="flex-shrink-0 ml-4">
-            <% if player[:count] %>
-              <span class="text-sm font-semibold text-gray-700">
-                <%= pluralize(player[:count], "session") %>
-              </span>
-            <% elsif player[:days_since] %>
-              <span class="text-sm text-gray-600">
-                Il y a <%= pluralize(player[:days_since], "jour") %>
-              </span>
-            <% elsif player[:last_session_at].nil? %>
-              <span class="text-sm text-gray-500 italic">Jamais joué</span>
-            <% elsif player[:last_session_at] %>
-              <span class="text-xs text-gray-500">
-                <%= player[:last_session_at].in_time_zone("Europe/Paris").strftime("%d/%m/%Y") %>
-              </span>
-            <% end %>
-          </div>
-        </div>
+<% if has_players? %>
+  <div data-controller="ranking" data-ranking-visible-value="<%= visible %>">
+    <div class="flex flex-wrap items-center gap-2">
+      <label class="relative flex-1 min-w-[12rem]">
+        <span class="sr-only">Chercher un joueur</span>
+        <%= lucide_icon("search", class: "pointer-events-none absolute left-3 top-1/2 w-4 h-4 -translate-y-1/2 text-gray-400", aria: { hidden: true }) %>
+        <input type="search" placeholder="Chercher un joueur…" autocomplete="off"
+               data-ranking-target="query" data-action="input->ranking#filter"
+               class="w-full rounded-none border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-asmbv-red focus:outline-none focus:ring-1 focus:ring-asmbv-red">
+      </label>
+      <% if includes_me? %>
+        <button type="button" data-action="ranking#locate"
+                class="inline-flex items-center gap-1.5 rounded-none border border-gray-200 bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-gray-700 hover:border-asmbv-red hover:text-asmbv-red transition-colors">
+          <%= lucide_icon("crosshair", class: "w-4 h-4", aria: { hidden: true }) %>
+          Me trouver
+        </button>
       <% end %>
     </div>
-  <% else %>
-    <div class="text-center py-8">
-      <p class="text-gray-400 italic">Aucune donnée</p>
-    </div>
-  <% end %>
-</div>
 
+    <ol class="mt-3 space-y-0.5">
+      <% players.each_with_index do |player, index| %>
+        <li data-ranking-target="row" data-name="<%= search_key(player) %>" <%= "data-me" if me?(player) %>
+            class="<%= row_classes(player) %>" <%= "hidden" if index >= visible %>>
+          <span class="<%= rank_classes(player[:rank]) %>"><%= player[:rank] %></span>
+          <%= render AvatarComponent.new(user: player[:user], size: :xs, variant: me?(player) ? :solid : :light) %>
+          <div class="min-w-0 flex-1">
+            <p class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
+              <span class="truncate" title="<%= player[:name] %>"><%= player[:name] %></span>
+              <% if me?(player) %>
+                <span class="shrink-0 rounded-full bg-asmbv-red px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-white">Toi</span>
+              <% end %>
+            </p>
+            <% if player[:count] %>
+              <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                <div class="h-full rounded-full <%= player[:rank] <= 3 ? 'bg-asmbv-red' : 'bg-gray-400' %> origin-left animate-grow-x motion-reduce:animate-none"
+                     style="width: <%= bar_width(player) %>%"></div>
+              </div>
+            <% end %>
+          </div>
+          <p class="shrink-0 text-right leading-none">
+            <span class="font-anton text-lg tabular-nums text-gray-900"><%= score(player).value %></span>
+            <span class="block text-[10px] text-gray-500"><%= score(player).unit %></span>
+          </p>
+        </li>
+      <% end %>
+    </ol>
+
+    <p data-ranking-target="empty" hidden class="py-6 text-center text-sm text-gray-400">Aucun joueur ne correspond.</p>
+
+    <% if hidden_count.positive? %>
+      <button type="button" data-ranking-target="more" data-action="ranking#toggle"
+              data-more-label="Voir les <%= hidden_count %> autres" data-less-label="Réduire"
+              class="mt-3 w-full rounded-none border border-gray-200 bg-white py-2 text-xs font-bold uppercase tracking-wide text-gray-600 hover:border-gray-300 hover:text-gray-900 transition-colors">
+        Voir les <%= hidden_count %> autres
+      </button>
+    <% end %>
+  </div>
+<% else %>
+  <div class="flex flex-col items-center justify-center rounded-lg bg-gray-50 py-10 text-center">
+    <%= lucide_icon("list", class: "w-8 h-8 text-gray-300", aria: { hidden: true }) %>
+    <p class="mt-2 text-sm text-gray-400">Aucune donnée</p>
+  </div>
+<% end %>

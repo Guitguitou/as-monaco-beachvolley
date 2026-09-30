@@ -19,8 +19,6 @@ import CollapseController from "controllers/collapse_controller"
 application.register("collapse", CollapseController)
 import TabsController from "controllers/tabs_controller"
 application.register("tabs", TabsController)
-import GroupTabsController from "controllers/group_tabs_controller"
-application.register("group-tabs", GroupTabsController)
 import FlashController from "controllers/flash_controller"
 application.register("flash", FlashController)
 eagerLoadControllersFrom("controllers", application)

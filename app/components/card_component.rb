@@ -10,7 +10,8 @@ class CardComponent < ApplicationComponent
     free_play: "border-t-4 border-t-blue-700",
     private_coaching: "border-t-4 border-t-gray-900",
     tournament: "border-t-4 border-t-amber-500",
-    stage: "border-t-4 border-t-orange-600"
+    stage: "border-t-4 border-t-orange-600",
+    cold: "border-t-4 border-t-sky-400"
   }.freeze
 
   def initialize(href: nil, accent: nil, padding: :md, class_name: nil)

@@ -1,0 +1,35 @@
+<%# Les quatre catégories de podiums pour une population (un genre ou un groupe).
+    `players` : { all_time:, free_play_week:, free_play_month:, training_week:,
+    training_month:, inactivity: } → tableau des 3 premiers. %>
+<% periods = [ { key: "week", label: "Semaine" }, { key: "month", label: "Mois" } ] %>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+  <%= render LeaderboardCardComponent.new(category: "Records all-time", icon: "trophy", accent: :tournament) do %>
+    <%= render PodiumComponent.new(players: players[:all_time], title: "Le sable lui dit bonjour", current_user_id: current_user.id) %>
+  <% end %>
+
+  <% [
+    { category: "Jeu libre", icon: "activity", accent: :free_play, prefix: :free_play,
+      titles: { "week" => "C'est pas une addiction, c'est un mode de vie", "month" => "Est en CDI à la Turbie" } },
+    { category: "Entraînement", icon: "graduation-cap", accent: :training, prefix: :training,
+      titles: { "week" => "Élève modèle de la semaine", "month" => "Major de promo du mois" } }
+  ].each do |board| %>
+    <div data-controller="switch">
+      <%= render LeaderboardCardComponent.new(category: board[:category], icon: board[:icon], accent: board[:accent]) do |card| %>
+        <% card.with_switcher do %>
+          <%= render SegmentedControlComponent.new(options: periods, label: "Période", full_width: true) %>
+        <% end %>
+        <% periods.each_with_index do |period, index| %>
+          <div data-switch-target="panel" data-key="<%= period[:key] %>" <%= "hidden" unless index.zero? %>>
+            <%= render PodiumComponent.new(players: players[:"#{board[:prefix]}_#{period[:key]}"],
+                                           title: board[:titles][period[:key]],
+                                           current_user_id: current_user.id) %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= render LeaderboardCardComponent.new(category: "Le frigo", icon: "snowflake", accent: :cold) do %>
+    <%= render PodiumComponent.new(players: players[:inactivity], title: frigo_title, current_user_id: current_user.id) %>
+  <% end %>
+</div>
