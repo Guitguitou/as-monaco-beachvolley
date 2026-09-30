@@ -1,0 +1,46 @@
+<div class="border border-gray-200 bg-white rounded-xl p-4 flex flex-col gap-3">
+  <%= link_to helpers.annonce_path(annonce), class: "block group" do %>
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <p class="font-anton text-lg uppercase tracking-tight text-gray-900 leading-tight first-letter:uppercase">
+          <%= day_label %> · <%= time_label %>
+        </p>
+        <p class="text-xs text-gray-600 truncate group-hover:text-asmbv-red"><%= subtitle %></p>
+      </div>
+      <% if own? %>
+        <%= render BadgeComponent.new(label: "Ta partie", variant: :info, size: :xs) %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div>
+    <div class="flex items-center gap-1" aria-hidden="true">
+      <% dots.each do |filled| %>
+        <span class="h-2.5 w-2.5 rounded-full <%= filled ? 'bg-asmbv-red' : 'bg-gray-200' %>"></span>
+      <% end %>
+    </div>
+    <p class="mt-1.5 text-sm font-semibold <%= status_classes %>"><%= status_label %></p>
+    <% if players.any? %>
+      <div class="mt-2 flex items-center gap-2">
+        <div class="flex -space-x-2">
+          <% players.first(MAX_NAMES).each do |player| %>
+            <%= render AvatarComponent.new(user: player, size: :xs, variant: :light, ring: true) %>
+          <% end %>
+        </div>
+        <p class="text-xs text-gray-600 truncate"><%= player_names %></p>
+      </div>
+    <% else %>
+      <p class="mt-2 text-xs text-gray-500">Personne encore : sois le premier.</p>
+    <% end %>
+  </div>
+
+  <div class="mt-auto">
+    <%= button_to toggle_path, method: :post, class: toggle_classes do %>
+      <%= lucide_icon(joined? ? "user-minus" : "user-plus", class: "size-4") %>
+      <%= joined? ? "Je n'y suis plus" : "J'en suis" %>
+    <% end %>
+    <% unless joined? %>
+      <p class="mt-1.5 text-[11px] text-gray-500"><%= price_hint %></p>
+    <% end %>
+  </div>
+</div>

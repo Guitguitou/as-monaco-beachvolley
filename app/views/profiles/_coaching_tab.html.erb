@@ -137,15 +137,15 @@
     </section>
   <% end %>
 
-  <%# 4. Mes annonces de jeu libre — le contenu du responsable, qui n'avait
+  <%# 4. Mes parties de jeu libre — le contenu du responsable, qui n'avait
       aucune page dédiée dans l'app. %>
   <section>
     <%= render SectionHeaderComponent.new(
-          title: "Mes annonces",
-          subtitle: "Les annonces de jeu libre que tu as lancées."
+          title: "Mes parties",
+          subtitle: "Les parties de jeu libre que tu as lancées."
         ) do |header| %>
       <% header.with_action do %>
-        <%= link_to "Toutes les annonces", annonces_path,
+        <%= link_to "Jeu libre", annonces_path,
                     data: { turbo_frame: "_top" },
                     class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
       <% end %>
@@ -177,12 +177,12 @@
     <% else %>
       <div class="mt-4">
         <%= render EmptyStateComponent.new(
-              icon: "megaphone",
-              title: "Aucune annonce",
-              description: "Lance une annonce pour monter une session de jeu libre."
+              icon: "users",
+              title: "Aucune partie",
+              description: "Lance une partie pour réunir des joueurs sur un créneau."
             ) do |empty| %>
           <% empty.with_action do %>
-            <%= button("Créer une annonce", variant: :primary, size: :medium,
+            <%= button("Lancer une partie", variant: :primary, size: :medium,
                        href: new_annonce_path, data: { turbo_frame: "_top" }) %>
           <% end %>
         <% end %>

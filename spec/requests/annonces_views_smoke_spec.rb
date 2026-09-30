@@ -20,7 +20,7 @@ RSpec.describe "Annonces views smoke", type: :request do
                      slots: [ build(:annonce_slot, start_at: start_at, end_at: start_at + 2.hours) ])
     get annonce_path(annonce)
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Je suis dispo")
+    expect(response.body).to include("J&#39;en suis")
   end
 
   it "renders confirm page for the owner" do

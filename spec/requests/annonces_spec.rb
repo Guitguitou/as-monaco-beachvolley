@@ -30,8 +30,8 @@ RSpec.describe "Annonces", type: :request do
 
       it "notifie les joueurs éligibles à la création" do
         eligible = create(:user, activated_at: Time.current)
-        notifier = instance_double(Annonces::CreationNotifier, notify_eligible_players: true)
-        allow(Annonces::CreationNotifier).to receive(:new).and_return(notifier)
+        notifier = instance_double(Annonces::Notifier, notify_eligible_players: true)
+        allow(Annonces::Notifier).to receive(:new).and_return(notifier)
 
         post annonces_path, params: valid_params
 
@@ -94,5 +94,62 @@ RSpec.describe "Annonces", type: :request do
       }.to raise_error(CanCan::AccessDenied)
       expect(Session.count).to eq(0)
     end
+  end
+end
+
+RSpec.describe "Jeu libre", type: :request do
+  let(:player) { create(:user) }
+
+  before do
+    allow(SendPushNotificationJob).to receive(:perform_later)
+    login_as(player, scope: :user)
+  end
+
+  it "sert la page sous /jeu-libre" do
+    expect(annonces_path).to eq("/jeu-libre")
+
+    get annonces_path
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Tu es libre quand ?")
+  end
+
+  it "redirige les anciens liens /annonces reçus en push" do
+    annonce = create(:annonce, :with_slot)
+
+    get "/annonces/#{annonce.id}"
+
+    expect(response).to redirect_to("/jeu-libre/#{annonce.id}")
+  end
+
+  describe "POST /jeu-libre/quick" do
+    it "lance une partie sur le créneau choisi" do
+      expect { post quick_annonces_path(slot: "demain_soir") }.to change(Annonce, :count).by(1)
+
+      expect(response).to redirect_to(Annonce.last)
+      expect(Annonce.last.slots.first.available_users).to eq([ player ])
+    end
+
+    it "refuse un créneau inconnu" do
+      expect { post quick_annonces_path(slot: "hier") }.not_to change(Annonce, :count)
+
+      expect(flash[:alert]).to eq("Ce créneau n'est plus disponible.")
+    end
+  end
+
+  it "met en avant les parties à rejoindre sur Mon terrain" do
+    create(:annonce, :with_slot, user: create(:user, first_name: "Julie"))
+
+    get home_path
+
+    expect(response.body).to include("Ça joue bientôt", "Il manque 4 joueurs", "J&#39;en suis")
+  end
+
+  it "revient sur la page d'origine après « J'en suis »" do
+    annonce = create(:annonce, :with_slot)
+
+    post toggle_availability_annonce_path(annonce, slot_id: annonce.slots.first.id), headers: { "HTTP_REFERER" => home_url }
+
+    expect(response).to redirect_to(home_url)
   end
 end
