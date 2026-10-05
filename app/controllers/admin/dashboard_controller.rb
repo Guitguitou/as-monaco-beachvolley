@@ -4,7 +4,7 @@ module Admin
   class DashboardController < BaseController
     before_action :require_admin_or_financial_manager!
 
-    TABS = %w[overview sessions finances packs coaches alerts].freeze
+    TABS = %w[overview sessions packs coaches alerts].freeze
 
     def index
       @active_tab = TABS.include?(params[:tab]) ? params[:tab] : "overview"
@@ -33,17 +33,6 @@ module Admin
       @sessions_tab = SessionsTab.new(params)
     end
 
-    def render_finances_tab
-      revenue_service = Reporting::Revenue.new
-      @revenues = revenue_service.period_revenues
-      @coach_salaries = current_ranges.transform_values { |range| Reporting::CoachSalaries.new.total_for_period(range) }
-      @breakdowns = {
-        sessions: revenue_service.session_breakdown_by_type(month_range),
-        packs: revenue_service.pack_breakdown_by_type(month_range)
-      }
-      @monthly_revenue = Reporting::PacksStats.new.last_months_stats(12)
-    end
-
     def render_packs_tab
       packs_stats_service = Reporting::PacksStats.new
 
@@ -68,10 +57,6 @@ module Admin
       @alerts = Reporting::Alerts.new.all_alerts
     end
 
-    def current_ranges
-      %w[week month year].to_h { |period| [ period.to_sym, SessionsPeriod.new(period, nil).range ] }
-    end
-
-    def month_range = current_ranges[:month]
+    def current_ranges = SessionsPeriod.current_ranges
   end
 end

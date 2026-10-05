@@ -1,0 +1,83 @@
+<div class="bg-white rounded-lg shadow" id="players">
+  <div class="px-6 py-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h3 class="text-lg font-medium text-gray-900 flex items-center">
+        <%= lucide_icon('users', class: 'w-5 h-5 mr-2 text-asmbv-red') %>
+        Sessions par joueur
+      </h3>
+      <p class="text-sm text-gray-500 mt-1">Sessions faites et payées en crédits, remboursements déduits</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="flex gap-1">
+        <% PERIODS.each do |name, label| %>
+          <%= link_to label, period_path(name: name), class: period_link_classes(name) %>
+        <% end %>
+      </div>
+      <div class="flex items-center gap-2">
+        <%= link_to period_path(anchor: period.previous_anchor), class: "p-1.5 text-gray-500 hover:text-asmbv-red", aria: { label: "Période précédente" } do %>
+          <%= lucide_icon('chevron-left', class: 'w-4 h-4') %>
+        <% end %>
+        <span class="text-sm font-medium text-gray-900 min-w-28 text-center"><%= period.label %></span>
+        <%= link_to period_path(anchor: period.next_anchor), class: "p-1.5 text-gray-500 hover:text-asmbv-red", aria: { label: "Période suivante" } do %>
+          <%= lucide_icon('chevron-right', class: 'w-4 h-4') %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% if rows.empty? %>
+    <p class="text-gray-500 text-center py-8">Aucune session payée sur la période</p>
+  <% else %>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joueur</th>
+            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+            <% session_types.each do |type| %>
+              <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"><%= type_label(type) %></th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <% rows.each do |row| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 whitespace-nowrap text-sm">
+                <%= link_to row.user.full_name, helpers.admin_user_path(row.user), class: "font-medium text-gray-900 hover:text-asmbv-red" %>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap text-right tabular-nums">
+                <span class="block text-sm font-bold text-gray-900"><%= format_currency(row.total.amount) %></span>
+                <span class="block text-xs text-gray-500"><%= sessions_label(row.total.count) %></span>
+              </td>
+              <% session_types.each do |type| %>
+                <td class="px-4 py-3 whitespace-nowrap text-right tabular-nums">
+                  <% if (cell = stat(row, type)) %>
+                    <span class="block text-sm text-gray-900"><%= format_currency(cell.amount) %></span>
+                    <span class="block text-xs text-gray-500"><%= sessions_label(cell.count) %></span>
+                  <% else %>
+                    <span class="text-sm text-gray-300">—</span>
+                  <% end %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot class="bg-gray-50 border-t-2 border-gray-200">
+          <tr>
+            <td class="px-4 py-3 text-sm font-bold text-gray-900"><%= rows.size %> <%= "joueur".pluralize(rows.size) %></td>
+            <td class="px-4 py-3 whitespace-nowrap text-right tabular-nums">
+              <span class="block text-sm font-bold text-gray-900"><%= format_currency(grand_total.amount) %></span>
+              <span class="block text-xs text-gray-500"><%= sessions_label(grand_total.count) %></span>
+            </td>
+            <% session_types.each do |type| %>
+              <td class="px-4 py-3 whitespace-nowrap text-right tabular-nums">
+                <span class="block text-sm font-bold text-gray-900"><%= format_currency(totals[type].amount) %></span>
+                <span class="block text-xs text-gray-500"><%= sessions_label(totals[type].count) %></span>
+              </td>
+            <% end %>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>

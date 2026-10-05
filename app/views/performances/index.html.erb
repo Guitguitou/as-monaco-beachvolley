@@ -1,423 +1,78 @@
-<div class="px-4 py-6">
+<% content_for :hero do %>
+  <%= render PageHeaderComponent.new(title: "Performances & stats",
+                                     subtitle: "Qui squatte le sable ? Les podiums du club, par groupe et par période.") %>
+<% end %>
 
-  <!-- Tabs -->
-  <div data-controller="tabs">
-    <div class="mb-6 border-b border-gray-200">
-      <nav class="flex space-x-8 justify-center" aria-label="Tabs">
-        <button
-          type="button"
-          data-tabs-target="tab"
-          data-action="click->tabs#switch"
-          data-tab="all"
-          class="py-4 px-1 border-b-2 border-asmbv-red font-medium text-sm text-asmbv-red"
-        >
-          Tous
-        </button>
-        <button
-          type="button"
-          data-tabs-target="tab"
-          data-action="click->tabs#switch"
-          data-tab="groups"
-          class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
-        >
-          Par groupe
-        </button>
-      </nav>
+<% podium_keys = %i[all_time free_play_week free_play_month training_week training_month inactivity] %>
+
+<div class="max-w-6xl mx-auto" data-controller="switch">
+  <%# Portée : tout le club ou un groupe. Défile horizontalement sur mobile. %>
+  <div role="tablist" aria-label="Groupe" class="-mx-4 px-4 sm:mx-0 sm:px-0 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none]">
+    <% scope_chip = "group shrink-0 inline-flex items-center gap-2 rounded-none border px-3 py-2 text-sm font-semibold transition-colors " \
+                    "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:text-gray-900 " \
+                    "aria-selected:border-(--chip) aria-selected:bg-(--chip) aria-selected:text-white" %>
+    <button type="button" role="tab" aria-selected="true" data-switch-target="option" data-key="club" data-action="switch#select"
+            class="<%= scope_chip %>" style="--chip: var(--color-asmbv-ink)">
+      <%= lucide_icon("users", class: "w-4 h-4", aria: { hidden: true }) %>
+      Tout le club
+    </button>
+    <% @stats_by_group.each do |level_id, group_stats| %>
+      <button type="button" role="tab" aria-selected="false" data-switch-target="option" data-key="level-<%= level_id %>" data-action="switch#select"
+              class="<%= scope_chip %>" style="--chip: <%= group_stats[:level].color %>">
+        <span class="h-2.5 w-2.5 rounded-full bg-(--chip) group-aria-selected:bg-white"></span>
+        <%= group_stats[:level_name] %>
+      </button>
+    <% end %>
+  </div>
+
+  <%# Tout le club, un genre à la fois. %>
+  <%# Le sélecteur de genre vit dans une div : posé sur la section elle-même, il
+      soustrairait la cible `panel` au contrôleur parent. %>
+  <section data-switch-target="panel" data-key="club" class="mt-4">
+    <div data-controller="switch">
+      <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <%= render SectionHeaderComponent.new(title: "Tout le club", subtitle: "Tous types de sessions confondus.") %>
+        <%= render SegmentedControlComponent.new(label: "Genre", options: [
+              { key: "male", label: "Hommes" }, { key: "female", label: "Femmes" }
+            ]) %>
+      </div>
+
+      <% { male: "Porté disparu", female: "Portée disparue" }.each_with_index do |(gender, frigo_title), index| %>
+        <div data-switch-target="panel" data-key="<%= gender %>" <%= "hidden" unless index.zero? %>>
+          <%= render "leaderboards", players: podium_keys.index_with { |key| @stats[key][gender] }, frigo_title: frigo_title %>
+        </div>
+      <% end %>
     </div>
+  </section>
 
-    <!-- Tab Content: All -->
-    <div data-tabs-target="panel" data-panel="all" class="tab-panel">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <!-- Section A: Records all-time -->
-      <div class="space-y-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Records all-time (tous types de sessions)</h2>
-        
-        <div class="flex items-center gap-3 my-4">
-          <div class="flex-1 border-t border-gray-300"></div>
-          <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">All Time</span>
-          <div class="flex-1 border-t border-gray-300"></div>
+  <%# Un panneau par groupe : podiums puis classement complet. %>
+  <% @stats_by_group.each do |level_id, group_stats| %>
+    <section data-switch-target="panel" data-key="level-<%= level_id %>" hidden class="mt-4 space-y-8">
+      <div>
+        <div class="mb-4">
+          <%= render SectionHeaderComponent.new(title: group_stats[:level_name], subtitle: "Les podiums du groupe.") %>
         </div>
-        
-        <%= render PodiumComponent.new(
-          players: @stats[:all_time][:male],
-          title: "Le sable lui dit bonjour",
-          icon: "home"
-        ) %>
-
-        <%= render PodiumComponent.new(
-          players: @stats[:all_time][:female],
-          title: "Le sable, c'est sa résidence principale",
-          icon: "home"
-        ) %>
+        <%= render "leaderboards", players: podium_keys.index_with { |key| group_stats[key][:players] }, frigo_title: "Porté(e) disparu(e)" %>
       </div>
 
-      <!-- Section B: Jeu libre -->
-      <div class="space-y-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Jeu libre</h2>
-        
-        <div class="space-y-4">
-          <div class="flex items-center gap-3 my-4">
-            <div class="flex-1 border-t border-gray-300"></div>
-            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
-            <div class="flex-1 border-t border-gray-300"></div>
+      <div data-controller="switch">
+        <%= render CardComponent.new do %>
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <%= render SectionHeaderComponent.new(title: "Classement complet", subtitle: "Toutes les sessions depuis le début.") %>
+            <%= render SegmentedControlComponent.new(label: "Type de session", options: [
+                  { key: "all", label: "Général", icon: "trophy" },
+                  { key: "free_play", label: "Jeu libre", icon: "activity" },
+                  { key: "training", label: "Entraînement", icon: "graduation-cap" }
+                ]) %>
           </div>
-          
-          <%= render PodiumComponent.new(
-            players: @stats[:free_play_week][:male],
-            title: "C'est pas une addiction, c'est un mode de vie",
-            icon: "activity"
-          ) %>
 
-          <%= render PodiumComponent.new(
-            players: @stats[:free_play_week][:female],
-            title: "C'est pas une addiction, c'est un mode de vie",
-            icon: "activity"
-          ) %>
-        </div>
-
-        <div class="space-y-4">
-          <div class="flex items-center gap-3 my-4">
-            <div class="flex-1 border-t border-gray-300"></div>
-            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
-            <div class="flex-1 border-t border-gray-300"></div>
-          </div>
-          
-          <%= render PodiumComponent.new(
-            players: @stats[:free_play_month][:male],
-            title: "Est en CDI à la turbie",
-            icon: "file-text"
-          ) %>
-
-          <%= render PodiumComponent.new(
-            players: @stats[:free_play_month][:female],
-            title: "Est en CDI à la turbie",
-            icon: "file-text"
-          ) %>
-        </div>
-      </div>
-
-      <!-- Section C: Entraînement -->
-      <div class="space-y-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Entraînement</h2>
-        
-        <div class="space-y-4">
-          <div class="flex items-center gap-3 my-4">
-            <div class="flex-1 border-t border-gray-300"></div>
-            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
-            <div class="flex-1 border-t border-gray-300"></div>
-          </div>
-          
-          <%= render PodiumComponent.new(
-            players: @stats[:training_week][:male],
-            title: "Élève modèle (cette semaine)",
-            icon: "book-open"
-          ) %>
-
-          <%= render PodiumComponent.new(
-            players: @stats[:training_week][:female],
-            title: "Élève modèle (cette semaine)",
-            icon: "book-open"
-          ) %>
-        </div>
-
-        <div class="space-y-4">
-          <div class="flex items-center gap-3 my-4">
-            <div class="flex-1 border-t border-gray-300"></div>
-            <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
-            <div class="flex-1 border-t border-gray-300"></div>
-          </div>
-          
-          <%= render PodiumComponent.new(
-            players: @stats[:training_month][:male],
-            title: "Major de promo (ce mois-ci)",
-            icon: "graduation-cap"
-          ) %>
-
-          <%= render PodiumComponent.new(
-            players: @stats[:training_month][:female],
-            title: "Major de promo (ce mois-ci)",
-            icon: "graduation-cap"
-          ) %>
-        </div>
-      </div>
-
-      <!-- Section D: Inactivité -->
-      <div class="space-y-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Le frigo (inactivité)</h2>
-        
-        <div class="flex items-center gap-3 my-4">
-          <div class="flex-1 border-t border-gray-300"></div>
-          <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">All Time</span>
-          <div class="flex-1 border-t border-gray-300"></div>
-        </div>
-        
-        <%= render PodiumComponent.new(
-          players: @stats[:inactivity][:male],
-          title: "Porté disparu",
-          icon: "snowflake",
-          empty_message: "Aucune donnée"
-        ) %>
-
-        <%= render PodiumComponent.new(
-          players: @stats[:inactivity][:female],
-          title: "Portée disparue",
-          icon: "snowflake",
-          empty_message: "Aucune donnée"
-        ) %>
-      </div>
-    </div>
-    </div>
-
-    <!-- Tab Content: By Group -->
-    <div data-tabs-target="panel" data-panel="groups" class="tab-panel hidden">
-    <% if @stats_by_group.any? %>
-      <!-- Group Tabs -->
-      <div data-controller="group-tabs" class="mb-8">
-        <!-- Mobile Menu Button -->
-        <div class="lg:hidden mb-4">
-          <button
-            type="button"
-            data-group-tabs-target="mobileButton"
-            data-action="click->group-tabs#toggleMobileMenu"
-            class="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-none shadow-sm hover:bg-gray-50 transition-colors"
-          >
-            <div class="flex items-center gap-3">
-              <% first_group = @stats_by_group.first[1] %>
-              <span
-                data-group-tabs-target="mobileButtonBadge"
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-xs font-semibold text-white"
-                style="background-color: <%= first_group[:level].color %>;"
-              >
-                <%= first_group[:level].name %>
-              </span>
-              <span class="font-medium text-gray-900" data-group-tabs-target="mobileButtonLabel">
-                <%= first_group[:level_name] %>
-              </span>
+          <% { all: :all_time, free_play: :free_play_total, training: :training_total }.each_with_index do |(key, stat), index| %>
+            <div data-switch-target="panel" data-key="<%= key %>" class="mt-4" <%= "hidden" unless index.zero? %>>
+              <%= render RankingComponent.new(players: group_stats[stat][:full_ranking], current_user_id: current_user.id) %>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs text-gray-500">Sélectionner</span>
-              <%= lucide_icon("chevron-down", class: "w-5 h-5 text-gray-400 transition-transform") %>
-            </div>
-          </button>
-        </div>
-
-        <!-- Mobile Menu Overlay -->
-        <div
-          data-group-tabs-target="mobileOverlay"
-          data-action="click->group-tabs#closeMobileMenu"
-          class="lg:hidden hidden fixed inset-0 bg-black/50 z-40 transition-opacity"
-        ></div>
-
-        <!-- Mobile Menu Dropdown -->
-        <div
-          data-group-tabs-target="mobileMenu"
-          class="lg:hidden hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white rounded-lg shadow-2xl z-50 max-h-[80vh] overflow-hidden"
-        >
-          <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900">Sélectionner un groupe</h3>
-            <button
-              type="button"
-              data-action="click->group-tabs#closeMobileMenu"
-              class="p-2 hover:bg-gray-100 rounded-none transition-colors"
-            >
-              <%= lucide_icon("x", class: "w-5 h-5 text-gray-500") %>
-            </button>
-          </div>
-          <div class="overflow-y-auto max-h-[calc(80vh-80px)]">
-            <% @stats_by_group.each_with_index do |(level_id, group_stats), index| %>
-              <button
-                type="button"
-                data-group-tabs-target="mobileMenuItem"
-                data-action="click->group-tabs#switch"
-                data-group="<%= level_id %>"
-                data-level-color="<%= group_stats[:level].color %>"
-                class="w-full flex items-center gap-3 px-4 py-3 text-left border-l-4 transition-all hover:bg-gray-50 <%= index == 0 ? 'active' : '' %>"
-                style="<%= index == 0 ? "border-left-color: #{group_stats[:level].color}; background-color: #{group_stats[:level].color}15;" : "border-left-color: transparent; background-color: transparent;" %>"
-              >
-                <%= level_badge(group_stats[:level]) %>
-                <span class="flex-1 font-medium text-gray-900"><%= group_stats[:level_name] %></span>
-                <span class="check-icon hidden">
-                  <%= lucide_icon("check", class: "w-5 h-5") %>
-                </span>
-              </button>
-            <% end %>
-          </div>
-        </div>
-
-        <!-- Desktop Tabs -->
-        <div class="hidden lg:block border-b border-gray-200">
-          <nav class="flex space-x-4 overflow-x-auto pb-px" aria-label="Group Tabs">
-            <% @stats_by_group.each_with_index do |(level_id, group_stats), index| %>
-              <button
-                type="button"
-                data-group-tabs-target="tab"
-                data-action="click->group-tabs#switch"
-                data-group="<%= level_id %>"
-                data-level-color="<%= group_stats[:level].color %>"
-                class="group-tab-button py-3 px-4 border-b-2 font-medium text-sm whitespace-nowrap transition-colors hover:opacity-80 <%= index == 0 ? 'active' : '' %>"
-                style="<%= index == 0 ? "border-color: #{group_stats[:level].color}; color: #{group_stats[:level].color};" : "border-color: transparent; color: #6b7280;" %>"
-              >
-                <%= level_badge(group_stats[:level]) %>
-                <span class="ml-2"><%= group_stats[:level_name] %></span>
-              </button>
-            <% end %>
-          </nav>
-        </div>
-
-        <!-- Group Content -->
-        <% @stats_by_group.each_with_index do |(level_id, group_stats), index| %>
-          <div
-            data-group-tabs-target="panel"
-            data-group="<%= level_id %>"
-            class="group-panel <%= index == 0 ? '' : 'hidden' %>"
-          >
-            <div class="mt-8 space-y-12">
-              <!-- Tous les podiums côte à côte -->
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Section A: Records all-time -->
-                <div class="space-y-6">
-                  <h2 class="text-xl font-semibold text-gray-800 mb-4">Records all-time</h2>
-                  
-                  <div class="flex items-center gap-3 my-4">
-                    <div class="flex-1 border-t border-gray-300"></div>
-                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">All Time</span>
-                    <div class="flex-1 border-t border-gray-300"></div>
-                  </div>
-                  
-                  <%= render PodiumComponent.new(
-                    players: group_stats[:all_time][:players],
-                    title: "Le sable lui dit bonjour",
-                    icon: "home"
-                  ) %>
-                </div>
-
-                <!-- Section B: Jeu libre -->
-                <div class="space-y-6">
-                  <h2 class="text-xl font-semibold text-gray-800 mb-4">Jeu libre</h2>
-                  
-                  <div class="space-y-4">
-                    <div class="flex items-center gap-3 my-4">
-                      <div class="flex-1 border-t border-gray-300"></div>
-                      <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
-                      <div class="flex-1 border-t border-gray-300"></div>
-                    </div>
-                    
-                    <%= render PodiumComponent.new(
-                      players: group_stats[:free_play_week][:players],
-                      title: "C'est pas une addiction, c'est un mode de vie",
-                      icon: "activity"
-                    ) %>
-                  </div>
-
-                  <div class="space-y-4">
-                    <div class="flex items-center gap-3 my-4">
-                      <div class="flex-1 border-t border-gray-300"></div>
-                      <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
-                      <div class="flex-1 border-t border-gray-300"></div>
-                    </div>
-                    
-                    <%= render PodiumComponent.new(
-                      players: group_stats[:free_play_month][:players],
-                      title: "Est en CDI à la turbie",
-                      icon: "file-text"
-                    ) %>
-                  </div>
-                </div>
-
-                <!-- Section C: Entraînement -->
-                <div class="space-y-6">
-                  <h2 class="text-xl font-semibold text-gray-800 mb-4">Entraînement</h2>
-                  
-                  <div class="space-y-4">
-                    <div class="flex items-center gap-3 my-4">
-                      <div class="flex-1 border-t border-gray-300"></div>
-                      <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Cette semaine</span>
-                      <div class="flex-1 border-t border-gray-300"></div>
-                    </div>
-                    
-                    <%= render PodiumComponent.new(
-                      players: group_stats[:training_week][:players],
-                      title: "Élève modèle (cette semaine)",
-                      icon: "book-open"
-                    ) %>
-                  </div>
-
-                  <div class="space-y-4">
-                    <div class="flex items-center gap-3 my-4">
-                      <div class="flex-1 border-t border-gray-300"></div>
-                      <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">Ce mois</span>
-                      <div class="flex-1 border-t border-gray-300"></div>
-                    </div>
-                    
-                    <%= render PodiumComponent.new(
-                      players: group_stats[:training_month][:players],
-                      title: "Major de promo (ce mois-ci)",
-                      icon: "graduation-cap"
-                    ) %>
-                  </div>
-                </div>
-
-                <!-- Section D: Inactivité -->
-                <div class="space-y-6">
-                  <h2 class="text-xl font-semibold text-gray-800 mb-4">Le frigo</h2>
-                  
-                  <div class="flex items-center gap-3 my-4">
-                    <div class="flex-1 border-t border-gray-300"></div>
-                    <span class="text-sm font-medium text-gray-500 uppercase tracking-wide">All Time</span>
-                    <div class="flex-1 border-t border-gray-300"></div>
-                  </div>
-                  
-                  <%= render PodiumComponent.new(
-                    players: group_stats[:inactivity][:players],
-                    title: "Porté(e) disparu(e)",
-                    icon: "snowflake",
-                    empty_message: "Aucune donnée"
-                  ) %>
-                </div>
-              </div>
-
-              <!-- Section Classements complets côte à côte -->
-              <div class="mt-16">
-                <h2 class="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-                  <%= lucide_icon("list", class: "w-6 h-6 text-asmbv-red") %>
-                  Classements complets
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  <!-- Records all-time -->
-                  <div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Records all-time</h3>
-                    <%= render RankingComponent.new(
-                      players: group_stats[:all_time][:full_ranking]
-                    ) %>
-                  </div>
-
-                  <!-- Jeu libre total -->
-                  <div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Jeu libre</h3>
-                    <%= render RankingComponent.new(
-                      players: group_stats[:free_play_total][:full_ranking]
-                    ) %>
-                  </div>
-
-                  <!-- Entraînement total -->
-                  <div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Entraînement</h3>
-                    <%= render RankingComponent.new(
-                      players: group_stats[:training_total][:full_ranking]
-                    ) %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <% end %>
         <% end %>
       </div>
-    <% else %>
-      <div class="text-center py-12">
-        <p class="text-gray-400 italic">Aucun groupe disponible</p>
-      </div>
-    <% end %>
-    </div>
-  </div>
+    </section>
+  <% end %>
 </div>

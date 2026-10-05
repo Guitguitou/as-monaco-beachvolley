@@ -1,0 +1,9 @@
+<div class="py-8 px-4 sm:px-6 lg:px-8">
+  <h1 class="text-3xl font-bold text-asmbv-red mb-8">Finances</h1>
+
+  <%= render "summary" %>
+
+  <div class="mt-8">
+    <%= render Admin::PlayerSpendingComponent.new(spending: @player_spending, period: @players_period) %>
+  </div>
+</div>

@@ -32,9 +32,9 @@ RSpec.describe "Admin::Dashboard", type: :request do
         expect(response).to have_http_status(:success)
       end
 
-      it "shows finances tab" do
+      it "no longer has a finances tab, moved to its own page" do
         get admin_root_path, params: { tab: 'finances' }
-        expect(response).to have_http_status(:success)
+        expect(assigns(:active_tab)).to eq("overview")
       end
 
       it "shows packs tab" do

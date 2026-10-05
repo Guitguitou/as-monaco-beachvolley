@@ -29,6 +29,11 @@ module Admin
 
     attr_reader :name, :range
 
+    # Semaine, mois et année en cours.
+    def self.current_ranges(now: Time.current)
+      UNITS.keys.to_h { |name| [ name.to_sym, new(name, nil, now:).range ] }
+    end
+
     def initialize(name, anchor, now: Time.current)
       @name = UNITS.key?(name) ? name : "week"
       @unit = UNITS.fetch(@name)

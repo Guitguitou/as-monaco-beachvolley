@@ -30,6 +30,22 @@
   --color-asmbv-gold: #d4af37;
 
   --color-asmbv-sand: #f5e6d3;
+
+  /* Podiums et classements de la page Performances. Une animation CSS rejoue
+     quand son élément repasse de `hidden` à visible : changer d'onglet refait
+     monter les marches. */
+  --animate-rise: rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-grow-x: grow-x 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  @keyframes rise {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  @keyframes grow-x {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
 }
 
 /* ---------------------------------------------------------------------------
