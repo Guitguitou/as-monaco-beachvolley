@@ -6,7 +6,11 @@ export default class extends Controller {
     vapidPublicKey: String
   }
 
-  static targets = ["enableButton"]
+  static targets = ["enableButton", "reenableButton", "disableButton", "deniedHelp"]
+
+  // Choix explicite de couper les notifications sur cet appareil : sans lui,
+  // la permission « granted » réabonnerait l'appareil à chaque chargement.
+  static OPT_OUT_KEY = "push-notifications-opt-out"
 
   connect() {
     this.checkSupport()
@@ -36,7 +40,7 @@ export default class extends Controller {
       // Check current permission status (without prompting)
       const permission = Notification.permission
       
-      if (permission === "granted") {
+      if (permission === "granted" && !this.optedOut) {
         // Already granted, subscribe automatically
         await this.subscribe(registration)
       } else if (permission === "default") {
@@ -60,6 +64,7 @@ export default class extends Controller {
       const permission = await Notification.requestPermission()
       
       if (permission === "granted") {
+        this.optedOut = false
         const registration = await navigator.serviceWorker.ready
         await this.subscribe(registration)
         this.updateButtonVisibility()
@@ -83,17 +88,73 @@ export default class extends Controller {
     }
   }
 
-  updateButtonVisibility() {
-    if (!this.hasEnableButtonTarget) return
+  // Réactive après une désactivation : la permission étant déjà accordée,
+  // aucun prompt navigateur ne réapparaît.
+  async enable() {
+    this.optedOut = false
+    const registration = await navigator.serviceWorker.ready
+    await this.subscribe(registration)
+    this.reload()
+  }
+
+  async disable() {
+    this.optedOut = true
+    await this.unsubscribe()
+    this.reload()
+  }
+
+  async updateButtonVisibility() {
+    const permission = "Notification" in window ? Notification.permission : "denied"
+    const subscribed = permission === "granted" && !this.optedOut && await this.hasSubscription()
 
     // Plusieurs boutons coexistent (navbar, menu mobile, réglages du profil) :
-    // `enableButtonTarget` n'en renvoyait que le premier, laissant les autres
-    // visibles alors que la permission était déjà tranchée.
-    const visible = Notification.permission === "default"
+    // on itère sur tous les targets, pas seulement le premier.
+    this.toggle(this.enableButtonTargets, permission === "default")
+    this.toggle(this.reenableButtonTargets, permission === "granted" && !subscribed)
+    this.toggle(this.disableButtonTargets, subscribed)
+    this.toggle(this.deniedHelpTargets, permission === "denied")
+  }
 
-    this.enableButtonTargets.forEach((button) => {
-      button.style.display = visible ? "flex" : "none"
+  toggle(elements, visible) {
+    elements.forEach((element) => {
+      element.style.display = visible ? "" : "none"
     })
+  }
+
+  async hasSubscription() {
+    if (!("serviceWorker" in navigator)) return false
+
+    const registration = await navigator.serviceWorker.getRegistration()
+    return Boolean(await registration?.pushManager.getSubscription())
+  }
+
+  get optedOut() {
+    try {
+      return localStorage.getItem(this.constructor.OPT_OUT_KEY) === "true"
+    } catch {
+      return false
+    }
+  }
+
+  set optedOut(value) {
+    try {
+      if (value) {
+        localStorage.setItem(this.constructor.OPT_OUT_KEY, "true")
+      } else {
+        localStorage.removeItem(this.constructor.OPT_OUT_KEY)
+      }
+    } catch {
+      // Stockage indisponible (navigation privée) : rien à mémoriser.
+    }
+  }
+
+  // Le statut du profil (nombre d'appareils) est rendu côté serveur.
+  reload() {
+    if (window.Turbo) {
+      window.Turbo.visit(window.location.href, { action: "replace" })
+    } else {
+      window.location.reload()
+    }
   }
 
   async subscribe(registration) {
