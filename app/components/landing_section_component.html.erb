@@ -1,0 +1,12 @@
+<section id="<%= id %>" class="<%= section_classes %>">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <span class="inline-flex bg-asmbv-red px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-white"><%= eyebrow %></span>
+    <h2 class="mt-4 font-anton text-4xl uppercase leading-none sm:text-5xl"><%= title %></h2>
+    <% if subtitle.present? %>
+      <p class="<%= subtitle_classes %>"><%= subtitle %></p>
+    <% end %>
+    <div class="mt-10">
+      <%= content %>
+    </div>
+  </div>
+</section>
