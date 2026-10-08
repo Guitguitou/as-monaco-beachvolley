@@ -1,9 +1,18 @@
+<% card_dark = "rounded-xl border border-white/10 bg-white/5 p-6" %>
+<% btn_primary = "inline-flex items-center gap-2 bg-asmbv-red px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition hover:bg-asmbv-red-dark" %>
+<% btn_outline_light = "inline-flex items-center gap-2 border border-white/50 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition hover:bg-white hover:text-black" %>
+<% btn_outline_dark = "inline-flex items-center gap-2 border border-gray-900 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-gray-900 transition hover:bg-gray-900 hover:text-white" %>
+<% maps_url = "https://www.google.com/maps/search/?api=1&query=AS+Monaco+Beach-Volley+La+Turbie" %>
+<% instagram_url = "https://www.instagram.com/asmonacobeachvolley" %>
+<% contact_email = "asm.beachvolley@gmail.com" %>
+
 <div class="bg-white">
   <% stage = @next_stage %>
 
+  <%# ——— Hero ——— %>
   <section class="relative flex min-h-screen flex-col overflow-hidden bg-black text-white">
     <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('<%= asset_path('beach-volley-monaco.webp') %>');"></div>
-    <div class="absolute inset-0 bg-black/55"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/30"></div>
 
     <% if stage %>
       <div class="relative z-20 border-b border-white/15 bg-black/50">
@@ -19,7 +28,7 @@
     <div class="relative z-10 mx-auto flex w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8">
       <div class="w-full pt-24 pb-20 sm:pt-28 sm:pb-24 lg:pt-36 lg:pb-32">
         <div class="inline-flex items-center bg-asmbv-red px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-white">
-          Saison 2026 - Inscriptions ouvertes
+          AS Monaco Volley-Ball · Saison 2026-2027
         </div>
 
         <h1 class="mt-6 font-anton text-6xl uppercase leading-[0.9] text-white sm:text-7xl lg:text-8xl">
@@ -29,115 +38,229 @@
         </h1>
 
         <p class="mt-6 max-w-xl text-base text-white/90 sm:text-lg">
-          Le club de référence à Monaco. Entraînements, stages et compétitions pour tous les niveaux.
+          Depuis 2023, le beach-volley est de retour en Principauté. Entraînements, jeu libre et tournois sur les terrains du Centre de Loisirs Albert II, à La Turbie.
         </p>
-        <p class="mt-6 max-w-xl text-base text-white/90 sm:text-lg">
-          DAGHE MUNEGU
-        </p>
+        <p class="mt-4 font-anton text-lg uppercase tracking-widest text-white/80">Daghe Munegu</p>
 
         <div class="mt-8 flex flex-wrap items-center gap-3">
           <% if user_signed_in? %>
-            <%= link_to "Mon espace", home_path, class: "inline-flex items-center bg-asmbv-red px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition hover:bg-asmbv-red-dark" %>
+            <%= link_to "Mon espace", home_path, class: btn_primary %>
           <% else %>
-            <%= link_to "Rejoindre le club", new_user_registration_path, class: "inline-flex items-center bg-asmbv-red px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition hover:bg-asmbv-red-dark" %>
+            <%= link_to "Rejoindre le club", "#adherer", class: btn_primary %>
           <% end %>
-          <%= link_to "Voir les sessions", sessions_path, class: "inline-flex items-center border border-white/50 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition hover:bg-white hover:text-black" %>
+          <%= link_to "Voir les sessions", sessions_path, class: btn_outline_light %>
         </div>
       </div>
     </div>
 
     <div class="relative z-10 mt-auto border-t border-white/15 bg-black/70">
-      <div class="mx-auto grid max-w-7xl grid-cols-3 px-4 py-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-          <p class="font-anton text-3xl leading-none text-asmbv-red sm:text-4xl"><%= @members_count %></p>
-          <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70 sm:text-xs">Membres</p>
-        </div>
-        <div class="text-center">
-          <p class="font-anton text-3xl leading-none text-asmbv-red sm:text-4xl"><%= @terrains_count %></p>
-          <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70 sm:text-xs">Terrains</p>
-        </div>
-        <div class="text-center">
-          <p class="font-anton text-3xl leading-none text-asmbv-red sm:text-4xl"><%= @sessions_per_month %></p>
-          <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70 sm:text-xs">Sessions/mois</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="bg-[#f3f3f3] py-16 sm:py-20">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div class="mb-8 sm:mb-10">
-        <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-gray-600">Nos activites</p>
-        <h2 class="mt-2 font-bebas-neue text-5xl uppercase leading-none text-gray-900 sm:text-6xl">Découvre le club</h2>
-      </div>
-
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <%= link_to sessions_path, class: "relative min-h-[340px] overflow-hidden lg:col-span-2" do %>
-          <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('<%= asset_path('beach-volley-monaco.webp') %>');"></div>
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent"></div>
-          <div class="absolute bottom-0 left-0 p-6">
-            <span class="inline-flex bg-asmbv-red px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">Sessions</span>
-            <h3 class="mt-3 font-bebas-neue text-4xl uppercase leading-none text-white">Entraînements & jeu libre</h3>
-            <p class="mt-3 text-sm text-white/85">Voir le calendrier</p>
+      <div class="mx-auto grid max-w-7xl grid-cols-2 gap-y-4 px-4 py-4 sm:grid-cols-4 sm:px-6 lg:px-8">
+        <% [
+          [@members_count, "Membres"],
+          [@terrains_count, "Terrains"],
+          [@sessions_per_month, "Sessions/mois"],
+          ["Or", "JPEE 2025"]
+        ].each do |value, label| %>
+          <div class="text-center">
+            <p class="font-anton text-3xl leading-none text-asmbv-red sm:text-4xl"><%= value %></p>
+            <p class="mt-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/70 sm:text-xs"><%= label %></p>
           </div>
         <% end %>
+      </div>
+    </div>
+  </section>
 
-        <div class="grid grid-rows-3 gap-4">
-          <%= link_to stages_path, class: "relative min-h-[105px] overflow-hidden" do %>
-            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('<%= asset_path('beach-volley-monaco.webp') %>');"></div>
-            <div class="absolute inset-0 bg-black/45"></div>
-            <div class="absolute inset-0 p-4">
-              <span class="inline-flex bg-blue-600 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">Stages</span>
-              <p class="mt-3 font-bebas-neue text-3xl uppercase leading-none text-white">Stages intensifs</p>
-            </div>
-          <% end %>
-
-          <%= link_to packs_path, class: "relative min-h-[105px] overflow-hidden" do %>
-            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('<%= asset_path('beach-volley-monaco.webp') %>');"></div>
-            <div class="absolute inset-0 bg-black/45"></div>
-            <div class="absolute inset-0 p-4">
-              <span class="inline-flex bg-green-600 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">Boutique</span>
-              <p class="mt-3 font-bebas-neue text-3xl uppercase leading-none text-white">Packs & credits</p>
-            </div>
-          <% end %>
-
-          <%= link_to infos_root_path, class: "relative min-h-[105px] bg-asmbv-red p-4 text-white transition hover:bg-asmbv-red-dark" do %>
-            <span class="inline-flex bg-black/20 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider">Infos</span>
-            <p class="mt-4 font-bebas-neue text-3xl uppercase leading-none">Informations</p>
-            <p class="mt-2 text-xs uppercase tracking-wide text-white/90">Reglement, horaires, tarifs</p>
-          <% end %>
+  <%# ——— Comment jouer ——— %>
+  <%= render LandingSectionComponent.new(eyebrow: "Fonctionnement", title: "Comment jouer ?",
+                                         subtitle: "Les terrains ne sont pas en accès libre : une licence beach-volley est obligatoire, puis deux façons de jouer.") do %>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <%= render CardComponent.new(href: sessions_path, accent: :training, padding: :lg) do %>
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Entraînements</p>
+            <h3 class="mt-2 font-anton text-3xl uppercase leading-none text-gray-900">Encadrés par un coach</h3>
+          </div>
+          <p class="shrink-0 font-anton text-4xl leading-none text-asmbv-red">4 €</p>
         </div>
-      </div>
+        <p class="mt-4 text-sm text-gray-600">Par groupe de niveau, 6 personnes max par terrain et par entraîneur. Séance maintenue dès 2 inscrits.</p>
+        <p class="mt-4 text-sm font-semibold text-asmbv-red">S'inscrire à une séance →</p>
+      <% end %>
+
+      <%= render CardComponent.new(href: annonces_path, accent: :free_play, padding: :lg) do %>
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Jeu libre</p>
+            <h3 class="mt-2 font-anton text-3xl uppercase leading-none text-gray-900">Jouer entre amis</h3>
+          </div>
+          <p class="shrink-0 font-anton text-4xl leading-none text-blue-700">3 €</p>
+        </div>
+        <p class="mt-4 text-sm text-gray-600">Créneaux de 1h30 réservés par un responsable de réservation, présent sur place. Contacte-en un ou rejoins un créneau existant.</p>
+        <p class="mt-4 text-sm font-semibold text-blue-700">Trouver un créneau →</p>
+      <% end %>
     </div>
-  </section>
 
-  <section class="bg-[#f3f3f3] pb-20">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div class="mb-8 sm:mb-10">
-        <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-gray-600">Level up</p>
-      </div>
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <article class="border border-gray-200 bg-white p-6">
-          <div class="h-8 w-8 bg-asmbv-red text-white flex items-center justify-center text-sm font-bold">1</div>
-          <h3 class="mt-4 font-bebas-neue text-3xl uppercase leading-none text-gray-900">Debutant</h3>
-          <p class="mt-3 text-sm text-gray-600">Découvre le beach-volley et apprends les fondamentaux avec nos coachs.</p>
-          <div class="mt-5 h-1 w-full bg-gray-200"><div class="h-full w-1/3 bg-asmbv-red"></div></div>
-        </article>
-
-        <article class="border border-gray-200 bg-white p-6">
-          <div class="h-8 w-8 bg-blue-600 text-white flex items-center justify-center text-sm font-bold">2</div>
-          <h3 class="mt-4 font-bebas-neue text-3xl uppercase leading-none text-gray-900">Intermediaire</h3>
-          <p class="mt-3 text-sm text-gray-600">Perfectionne ta technique et lance-toi en compétition.</p>
-          <div class="mt-5 h-1 w-full bg-gray-200"><div class="h-full w-2/3 bg-blue-600"></div></div>
-        </article>
-
-        <article class="border border-gray-200 bg-white p-6">
-          <div class="h-8 w-8 bg-amber-500 text-white flex items-center justify-center text-sm font-bold">3</div>
-          <h3 class="mt-4 font-bebas-neue text-3xl uppercase leading-none text-gray-900">Avance</h3>
-          <p class="mt-3 text-sm text-gray-600">Atteins le plus haut niveau et participe aux compétitions nationales et internationales.</p>
-          <div class="mt-5 h-1 w-full bg-gray-200"><div class="h-full w-full bg-amber-500"></div></div>
-        </article>
-      </div>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <%= link_to "Recharger mes crédits", packs_path, class: btn_outline_dark %>
+      <%= link_to "Responsables de réservation", infos_reservations_leads_path, class: btn_outline_dark %>
     </div>
-  </section>
+  <% end %>
+
+  <%# ——— Groupes de niveau ——— %>
+  <%= render LandingSectionComponent.new(eyebrow: "Entraînements", title: "Quatre groupes de niveau",
+                                         subtitle: "En masculin et en féminin, du loisir à la compétition.", tone: :dark) do %>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <% [
+        ["G4", "Débutants", "Mixte"],
+        ["G3", "Loisirs", "Mixte ou par genre"],
+        ["G2", "Intermédiaire", "Par genre · tournois régionaux (série 3 et série 2)"],
+        ["G1", "Élite", "Par genre · tournois de plus haut niveau national"]
+      ].each do |code, name, detail| %>
+        <article class="<%= card_dark %>">
+          <span class="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-asmbv-red font-anton text-xl text-white"><%= code %></span>
+          <h3 class="mt-5 font-anton text-2xl uppercase leading-none"><%= name %></h3>
+          <p class="mt-2 text-sm text-white/70"><%= detail %></p>
+        </article>
+      <% end %>
+    </div>
+
+    <div class="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <article class="<%= card_dark %>">
+        <p class="text-[11px] font-bold uppercase tracking-widest text-asmbv-red">Fin mars → début novembre</p>
+        <h3 class="mt-2 font-anton text-2xl uppercase">Période estivale</h3>
+        <p class="mt-3 text-sm text-white/80"><span class="font-semibold text-white">2 soirs par semaine</span> · 18h–19h30 ou 19h30–21h</p>
+      </article>
+      <article class="<%= card_dark %>">
+        <p class="text-[11px] font-bold uppercase tracking-widest text-asmbv-red">À partir de début novembre</p>
+        <h3 class="mt-2 font-anton text-2xl uppercase">Période hivernale</h3>
+        <p class="mt-3 text-sm text-white/80"><span class="font-semibold text-white">1 soir par semaine</span> · 18h15–19h45, <span class="font-semibold text-white">+ le samedi</span> entre 10h et 13h</p>
+      </article>
+    </div>
+
+    <div class="mt-4 flex items-start gap-3 rounded-xl bg-asmbv-red p-5 text-sm text-white">
+      <%= lucide_icon("construction", class: "mt-0.5 h-5 w-5 shrink-0") %>
+      <p><span class="font-semibold">Terrains fermés pour travaux de janvier à mars 2027</span> (dates prévisionnelles) en vue des JPEE. À l'issue : vestiaires et 4 terrains.
+        <%= link_to "Planning détaillé", infos_planning_trainings_path, class: "font-semibold underline" %></p>
+    </div>
+  <% end %>
+
+  <%# ——— Adhésion ——— %>
+  <%= render LandingSectionComponent.new(id: "adherer", eyebrow: "Adhérer", title: "Rejoindre le club",
+                                         subtitle: "Une licence à choisir, puis quatre étapes pour accéder aux entraînements et au jeu libre.", tone: :muted) do %>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <%= render CardComponent.new(padding: :lg) do %>
+        <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Licence interne</p>
+        <h3 class="mt-1 font-anton text-3xl uppercase text-asmbv-red">« Libre »</h3>
+        <p class="mt-3 font-anton text-5xl leading-none text-gray-900">50 € <span class="text-base text-gray-500">/an</span></p>
+        <p class="mt-2 text-xs text-gray-500">Gratuite pour les licenciés indoor à Monaco</p>
+        <ul class="mt-5 space-y-2 text-sm text-gray-700">
+          <li class="flex gap-2"><%= lucide_icon("check", class: "h-4 w-4 shrink-0 text-asmbv-red") %>Accès aux terrains et aux entraînements</li>
+          <li class="flex gap-2"><%= lucide_icon("check", class: "h-4 w-4 shrink-0 text-asmbv-red") %>Cumulable avec une licence compétition dans un autre club</li>
+          <li class="flex gap-2 text-gray-500"><%= lucide_icon("x", class: "h-4 w-4 shrink-0") %>Pas d'accès aux tournois FFVB</li>
+        </ul>
+      <% end %>
+
+      <%= render CardComponent.new(padding: :lg, class_name: "ring-2 ring-asmbv-red") do %>
+        <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Licence FFVB</p>
+        <h3 class="mt-1 font-anton text-3xl uppercase text-asmbv-red">« Compétition »</h3>
+        <p class="mt-3 font-anton text-5xl leading-none text-gray-900">100 € <span class="text-base text-gray-500">/an</span></p>
+        <p class="mt-2 text-xs text-gray-500">15 €/an pour les licenciés indoor compétition à Monaco · +50 € en cas de mutation</p>
+        <ul class="mt-5 space-y-2 text-sm text-gray-700">
+          <li class="flex gap-2"><%= lucide_icon("check", class: "h-4 w-4 shrink-0 text-asmbv-red") %>Accès aux terrains et aux entraînements</li>
+          <li class="flex gap-2"><%= lucide_icon("check", class: "h-4 w-4 shrink-0 text-asmbv-red") %>Accès aux tournois via BVS</li>
+          <li class="flex gap-2"><%= lucide_icon("check", class: "h-4 w-4 shrink-0 text-asmbv-red") %>Priorité de 24 h pour l'inscription aux entraînements</li>
+        </ul>
+      <% end %>
+    </div>
+
+    <ol class="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <% [
+        ["Formulaire", "Remplis le formulaire d'adhésion en ligne.", "https://forms.gle/rVGTYtAmFm952C8aA", "Remplir le formulaire"],
+        ["Compte", "L'admin crée ton compte (identifiant : ton e-mail) et t'envoie un mot de passe provisoire.", nil, nil],
+        ["Cotisation", "Une fois connecté, règle ta cotisation pour activer ton compte.", nil, nil],
+        ["WhatsApp", "Rejoins la communauté qui regroupe les différents groupes.", "https://chat.whatsapp.com/J05V2o3sPhdAwoPto5DiVo", "Rejoindre la communauté"]
+      ].each_with_index do |(title, text, url, label), index| %>
+        <li class="rounded-xl border border-gray-200 border-t-4 border-t-asmbv-red bg-white p-5">
+          <p class="font-anton text-4xl leading-none text-asmbv-red"><%= index + 1 %></p>
+          <h3 class="mt-3 font-anton text-xl uppercase text-gray-900"><%= title %></h3>
+          <p class="mt-2 text-sm text-gray-600"><%= text %></p>
+          <% if url %>
+            <%= link_to "#{label} →", url, target: "_blank", rel: "noopener", class: "mt-3 inline-block text-sm font-semibold text-asmbv-red hover:underline" %>
+          <% end %>
+        </li>
+      <% end %>
+    </ol>
+
+    <p class="mt-6 text-sm text-gray-600">
+      Documents (formulaire ASM Volley-ball, certificat médical ou document licence FFVB) à envoyer à
+      <%= mail_to contact_email, class: "font-semibold text-asmbv-red hover:underline" %>.
+      <%= link_to "Détail des règles d'inscription", infos_registration_rules_path, class: "font-semibold text-gray-900 underline" %>
+    </p>
+  <% end %>
+
+  <%# ——— Saison ——— %>
+  <%= render LandingSectionComponent.new(eyebrow: "Événements", title: "La saison 2026-2027") do %>
+    <ol class="grid grid-cols-1 gap-x-6 gap-y-8 border-l-2 border-asmbv-red pl-6 sm:grid-cols-2 lg:grid-cols-4 lg:border-l-0 lg:border-t-2 lg:pl-0 lg:pt-6">
+      <% [
+        ["Oct. → hiver", "Monaco Winter Tour", "Tournois masculins, féminins et mixtes"],
+        ["Novembre", "Soirée club", nil],
+        ["12 déc. 2026", "Tournoi de Noël", "Samedi 12 décembre"],
+        ["Janvier 2027", "Travaux", "Agrandissement du complexe, 4 terrains à terme"],
+        ["Mai 2027", "Zonal Event", "Small Countries, juste avant les JPEE"],
+        ["Mai 2027", "JPEE à Monaco", "Jeux des Petits États d'Europe"],
+        ["Été 2027", "Summer Tour", "Et Série 2 - 750"],
+        ["Sept. 2027", "Monaco Beach Open", "Série 2 - 1000 · 4ᵉ édition"]
+      ].each do |date, name, detail| %>
+        <li class="relative">
+          <span class="absolute -left-[31px] top-1 h-3 w-3 rounded-full border-2 border-asmbv-red bg-white lg:-top-[31px] lg:left-0"></span>
+          <p class="text-[11px] font-bold uppercase tracking-widest text-asmbv-red"><%= date %></p>
+          <h3 class="mt-1 font-anton text-xl uppercase leading-tight text-gray-900"><%= name %></h3>
+          <% if detail %><p class="mt-1 text-sm text-gray-600"><%= detail %></p><% end %>
+        </li>
+      <% end %>
+    </ol>
+  <% end %>
+
+  <%# ——— Accès ——— %>
+  <%= render LandingSectionComponent.new(eyebrow: "Accès", title: "Venir à La Turbie",
+                                         subtitle: "10 min de la Principauté, 5 min de la sortie « La Turbie » de l'A8.", tone: :dark) do %>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <article class="<%= card_dark %>">
+        <%= lucide_icon("map-pin", class: "h-6 w-6 text-asmbv-red") %>
+        <p class="mt-4 text-[11px] font-bold uppercase tracking-widest text-white/60">Centre de Loisirs Albert II</p>
+        <p class="mt-1 text-lg font-semibold">1364 Route de Beausoleil<br>06320 La Turbie</p>
+        <%= link_to "Ouvrir dans Maps", maps_url, target: "_blank", rel: "noopener", class: "#{btn_primary} mt-5" %>
+      </article>
+      <article class="<%= card_dark %>">
+        <%= lucide_icon("footprints", class: "h-6 w-6 text-asmbv-red") %>
+        <h3 class="mt-4 font-anton text-xl uppercase">Accès à pied uniquement</h3>
+        <p class="mt-2 text-sm text-white/70">Par le chemin entre le parking de la compagnie des autobus et l'entrée du centre de loisirs, jusqu'au portail vert. Aucun véhicule autorisé par ce chemin.</p>
+      </article>
+      <article class="<%= card_dark %>">
+        <%= lucide_icon("car", class: "h-6 w-6 text-asmbv-red") %>
+        <h3 class="mt-4 font-anton text-xl uppercase">Stationnement</h3>
+        <p class="mt-2 text-sm text-white/70">Petit parking réservé aux licenciés juste à droite du chemin (cadenas à code, voir le groupe WhatsApp). Garez-vous en épi côté « route » : risque de chutes de pierres côté falaise.</p>
+      </article>
+    </div>
+  <% end %>
+
+  <%# ——— Contact ——— %>
+  <%= render LandingSectionComponent.new(eyebrow: "Contacts", title: "Nous joindre", tone: :muted) do %>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <%= render CardComponent.new(href: "mailto:#{contact_email}", padding: :lg) do %>
+        <%= lucide_icon("mail", class: "h-6 w-6 text-asmbv-red") %>
+        <p class="mt-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Michaël Chamy · responsable beach-volley</p>
+        <p class="mt-1 font-semibold text-gray-900 break-all"><%= contact_email %></p>
+      <% end %>
+      <%= render CardComponent.new(href: instagram_url, padding: :lg) do %>
+        <%= lucide_icon("instagram", class: "h-6 w-6 text-asmbv-red") %>
+        <p class="mt-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Instagram</p>
+        <p class="mt-1 font-semibold text-gray-900">@asmonacobeachvolley</p>
+      <% end %>
+      <%= render CardComponent.new(href: infos_root_path, padding: :lg, class_name: "!bg-asmbv-red !border-asmbv-red") do %>
+        <%= lucide_icon("book-open", class: "h-6 w-6 text-white") %>
+        <p class="mt-4 text-[11px] font-bold uppercase tracking-widest text-white/80">Règles & infos</p>
+        <p class="mt-1 font-semibold text-white">Règlement, plannings, tutos, plaquette →</p>
+      <% end %>
+    </div>
+  <% end %>
 </div>
