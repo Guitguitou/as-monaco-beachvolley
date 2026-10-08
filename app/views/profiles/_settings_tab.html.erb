@@ -70,17 +70,42 @@
             </p>
           </div>
 
-          <%# Même contrat Stimulus que la navbar : le contrôleur masque le
-              bouton quand le navigateur ne le permet pas ou que la permission
-              est déjà accordée. %>
+          <%# Le contrôleur n'affiche que le bouton correspondant à l'état de
+              cet appareil (permission navigateur + abonnement). %>
+          <% button_class = "inline-flex items-center justify-center rounded-none border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:ring-offset-2" %>
           <button type="button"
                   data-action="click->push-notifications#requestPermission"
                   data-push-notifications-target="enableButton"
-                  class="inline-flex items-center justify-center rounded-none border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:ring-offset-2"
+                  class="<%= button_class %>"
                   style="display: none;">
             Activer sur cet appareil
           </button>
+          <button type="button"
+                  data-action="click->push-notifications#enable"
+                  data-push-notifications-target="reenableButton"
+                  class="<%= button_class %>"
+                  style="display: none;">
+            Activer sur cet appareil
+          </button>
+          <button type="button"
+                  data-action="click->push-notifications#disable"
+                  data-push-notifications-target="disableButton"
+                  class="<%= button_class %>"
+                  style="display: none;">
+            Désactiver sur cet appareil
+          </button>
         </div>
+
+        <%# Un refus navigateur est définitif côté JS : seul l'utilisateur peut
+            lever le blocage dans les réglages du site. %>
+        <p data-push-notifications-target="deniedHelp"
+           class="mt-4 text-sm text-gray-600"
+           style="display: none;">
+          Les notifications sont bloquées par ton navigateur pour ce site.
+          Pour les réactiver, ouvre les réglages du site (icône à gauche de l'adresse,
+          ou Réglages &gt; Notifications sur iPhone/Android), autorise les notifications,
+          puis recharge la page.
+        </p>
       <% end %>
     </section>
   <% end %>

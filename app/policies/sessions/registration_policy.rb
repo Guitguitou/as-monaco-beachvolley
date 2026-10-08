@@ -7,6 +7,7 @@ module Sessions
     end
 
     def open_state
+      return [ false, "L'inscription à ce tournoi se fait sur BVS." ] if session.tournament_id.present?
       return [ true, nil ] unless session.entrainement?
       return [ true, nil ] if session.registration_opens_at.blank?
 

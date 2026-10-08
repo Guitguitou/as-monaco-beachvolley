@@ -85,6 +85,19 @@
     </section>
   <% end %>
 
+  <%# 1c. Tournoi organisé par le club %>
+  <% if @dashboard.featured_tournament %>
+    <section>
+      <div class="flex items-end justify-between gap-4">
+        <h2 class="font-anton text-xl uppercase tracking-tight text-gray-900">Prochain tournoi</h2>
+        <%= link_to "Tous les tournois", tournaments_path, class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
+      </div>
+      <div class="mt-4 max-w-xl">
+        <%= render "tournaments/card", tournament: @dashboard.featured_tournament, featured: true %>
+      </div>
+    </section>
+  <% end %>
+
   <%# 2. Jeu libre : rejoindre une partie ou en lancer une, sans connaître personne %>
   <section>
     <%= render SectionHeaderComponent.new(title: "Ça joue bientôt",

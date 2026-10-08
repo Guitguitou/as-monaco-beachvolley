@@ -1,0 +1,25 @@
+<%# Carte d'un tournoi : couverture, date, niveau, et accès au détail. %>
+<% featured = local_assigns.fetch(:featured, false) %>
+<%= link_to tournament_path(tournament), class: "group block bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-asmbv-red #{'opacity-75' unless tournament.upcoming?}" do %>
+  <div class="relative <%= featured ? 'aspect-[4/5] sm:aspect-[16/9]' : 'aspect-[4/5]' %> bg-gray-900">
+    <% if (cover = tournament.cover_image) %>
+      <%= image_tag cover, alt: tournament.title, class: "w-full h-full object-cover #{'grayscale' unless tournament.upcoming?}" %>
+    <% else %>
+      <div class="w-full h-full flex items-center justify-center">
+        <%= lucide_icon("trophy", class: "w-16 h-16 text-gray-600") %>
+      </div>
+    <% end %>
+    <span class="absolute top-3 left-3"><%= render BadgeComponent.new(label: tournament.level_label, variant: :type_tournament, size: :sm) %></span>
+  </div>
+  <div class="p-4">
+    <p class="text-xs font-bold uppercase tracking-widest text-asmbv-red first-letter:uppercase">
+      <%= l tournament.starts_on, format: :day_and_month %><%= " → #{l tournament.ends_on, format: :day_and_month}" if tournament.ends_on != tournament.starts_on %>
+    </p>
+    <p class="mt-1 font-anton text-xl uppercase tracking-tight text-gray-900 group-hover:text-asmbv-red"><%= tournament.title %></p>
+    <p class="mt-1 text-sm text-gray-600">
+      <%= l tournament.start_time, format: :time %> – <%= l tournament.end_time, format: :time %>
+      <%= " · #{tournament.location}" if tournament.location.present? %>
+      · <%= number_to_currency(tournament.price, unit: "€", format: "%n %u", strip_insignificant_zeros: true) %> par équipe
+    </p>
+  </div>
+<% end %>

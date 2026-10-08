@@ -18,6 +18,10 @@ class SessionsController < ApplicationController
   end
 
   def show
+    # Une session tournoi n'est qu'une occupation de terrain : le joueur est
+    # renvoyé vers le tournoi, où se trouvent l'inscription BVS et le paiement.
+    return redirect_to(tournament_path(@session.tournament_id)) if @session.tournament_id.present?
+
     @candidate_users = Sessions::CandidateUsersQuery.call(session: @session) if can?(:manage, Registration)
   end
 

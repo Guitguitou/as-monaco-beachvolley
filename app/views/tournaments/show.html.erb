@@ -1,0 +1,84 @@
+<% content_for :page_title, @tournament.title %>
+
+<div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <%# Images : carrousel qui défile au doigt %>
+  <div>
+    <% images = @tournament.ordered_images %>
+    <% if images.any? %>
+      <div class="flex overflow-x-auto snap-x snap-mandatory gap-3 rounded-xl">
+        <% images.each do |image| %>
+          <%= image_tag image, alt: @tournament.title, class: "snap-center shrink-0 w-full object-contain bg-gray-900 rounded-xl" %>
+        <% end %>
+      </div>
+      <% if images.size > 1 %>
+        <p class="mt-2 text-xs text-gray-500 text-center"><%= images.size %> images · fais défiler</p>
+      <% end %>
+    <% else %>
+      <div class="aspect-[4/5] bg-gray-900 rounded-xl flex items-center justify-center">
+        <%= lucide_icon("trophy", class: "w-16 h-16 text-gray-600") %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="space-y-6">
+    <div>
+      <%= render BadgeComponent.new(label: @tournament.level_label, variant: :type_tournament, size: :md) %>
+      <h1 class="mt-3 font-anton text-3xl uppercase tracking-tight text-gray-900"><%= @tournament.title %></h1>
+    </div>
+
+    <dl class="space-y-3 text-gray-900">
+      <div class="flex items-center gap-3">
+        <%= lucide_icon("calendar-days", class: "w-5 h-5 text-asmbv-red shrink-0") %>
+        <dd class="first-letter:uppercase">
+          <%= l @tournament.starts_on, format: :day_and_month %><%= " → #{l @tournament.ends_on, format: :day_and_month}" if @tournament.ends_on != @tournament.starts_on %>
+          · <%= l @tournament.start_time, format: :time %> – <%= l @tournament.end_time, format: :time %>
+        </dd>
+      </div>
+      <% if @tournament.location.present? %>
+        <div class="flex items-center gap-3">
+          <%= lucide_icon("map-pin", class: "w-5 h-5 text-asmbv-red shrink-0") %>
+          <dd><%= @tournament.location %></dd>
+        </div>
+      <% end %>
+      <div class="flex items-center gap-3">
+        <%= lucide_icon("users", class: "w-5 h-5 text-asmbv-red shrink-0") %>
+        <dd>
+          <%= number_to_currency(@tournament.price, unit: "€", format: "%n %u", strip_insignificant_zeros: true) %> par équipe
+          <%= " · #{@tournament.teams_count} équipes" if @tournament.teams_count %>
+        </dd>
+      </div>
+    </dl>
+
+    <% if @tournament.description.present? %>
+      <p class="text-gray-700 whitespace-pre-line"><%= @tournament.description %></p>
+    <% end %>
+
+    <% if @tournament.upcoming? %>
+      <div class="space-y-3">
+        <% if @tournament.registration_link.present? %>
+          <%= link_to @tournament.registration_link, target: "_blank", rel: "noopener",
+                class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-6 py-3 text-base font-semibold text-white hover:bg-asmbv-red-dark" do %>
+            <%= lucide_icon("external-link", size: 18) %>
+            S'inscrire sur BVS
+          <% end %>
+        <% end %>
+
+        <% if @paid %>
+          <div class="w-full inline-flex items-center justify-center gap-2 rounded-none bg-green-50 border border-green-600 px-6 py-3 text-base font-semibold text-green-700">
+            <%= lucide_icon("check", size: 18) %>
+            Payé
+          </div>
+        <% elsif @tournament.payment_open? %>
+          <%= button_to buy_pack_path(@pack), method: :post, data: { turbo: false },
+                class: "w-full inline-flex items-center justify-center gap-2 rounded-none border border-gray-900 bg-white px-6 py-3 text-base font-semibold text-gray-900 hover:bg-gray-50" do %>
+            <%= lucide_icon("credit-card", size: 18) %>
+            Payer <%= number_to_currency(@pack.amount_eur, unit: "€", format: "%n %u", strip_insignificant_zeros: true) %>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-500 text-center">Le paiement ouvrira une fois les inscriptions BVS validées.</p>
+        <% end %>
+        <p class="text-xs text-gray-500 text-center">L'inscription se fait sur BVS ; le paiement dans l'app règle les frais de ton équipe.</p>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_08_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -173,11 +173,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_120000) do
     t.integer "position", default: 0
     t.boolean "public", default: false, null: false
     t.integer "stage_id"
+    t.bigint "tournament_id"
     t.datetime "updated_at", null: false
     t.index ["active"], name: "index_packs_on_active"
     t.index ["pack_type"], name: "index_packs_on_pack_type"
     t.index ["position"], name: "index_packs_on_position"
     t.index ["stage_id"], name: "index_packs_on_stage_id"
+    t.index ["tournament_id"], name: "index_packs_on_tournament_id", unique: true
   end
 
   create_table "push_subscriptions", force: :cascade do |t|
@@ -229,12 +231,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_120000) do
     t.datetime "start_at"
     t.integer "terrain"
     t.string "title"
+    t.bigint "tournament_id"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["registration_opens_at"], name: "index_sessions_on_registration_opens_at"
     t.index ["series_id"], name: "index_sessions_on_series_id"
     t.index ["session_type", "start_at"], name: "index_sessions_on_type_and_start_at"
     t.index ["start_at", "session_type"], name: "index_sessions_on_start_at_and_type"
+    t.index ["tournament_id"], name: "index_sessions_on_tournament_id"
     t.index ["user_id", "start_at"], name: "index_sessions_on_user_and_start_at"
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
@@ -407,6 +411,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_120000) do
     t.index ["terrain"], name: "index_terrain_closures_on_terrain"
   end
 
+  create_table "tournaments", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.time "end_time", null: false
+    t.date "ends_on", null: false
+    t.bigint "image_order", default: [], null: false, array: true
+    t.string "level", null: false
+    t.string "location"
+    t.integer "points"
+    t.integer "price_cents", null: false
+    t.string "registration_link"
+    t.time "start_time", null: false
+    t.date "starts_on", null: false
+    t.integer "teams_count"
+    t.integer "terrains", default: [], null: false, array: true
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["starts_on"], name: "index_tournaments_on_starts_on"
+  end
+
   create_table "user_levels", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "level_id", null: false
@@ -463,11 +487,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_120000) do
   add_foreign_key "late_cancellations", "sessions"
   add_foreign_key "late_cancellations", "users"
   add_foreign_key "packs", "stages"
+  add_foreign_key "packs", "tournaments"
   add_foreign_key "push_subscriptions", "users"
   add_foreign_key "registrations", "sessions"
   add_foreign_key "registrations", "users"
   add_foreign_key "session_levels", "levels"
   add_foreign_key "session_levels", "sessions"
+  add_foreign_key "sessions", "tournaments"
   add_foreign_key "sessions", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

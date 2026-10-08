@@ -1,0 +1,35 @@
+<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
+  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
+    <%= lucide_icon("trophy") %>
+    Tournois
+  </h1>
+  <%= button("Nouveau tournoi", variant: :primary, size: :medium, href: new_admin_tournament_path) %>
+</div>
+
+<div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
+    <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
+      <tr>
+        <th class="px-4 py-3 text-left">Titre</th>
+        <th class="px-4 py-3 text-left">Dates</th>
+        <th class="px-4 py-3 text-left">Niveau</th>
+        <th class="px-4 py-3 text-left">Paiement</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      <% @tournaments.each do |tournament| %>
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 font-medium text-gray-800"><%= link_to tournament.title, admin_tournament_path(tournament), class: "hover:text-asmbv-red" %></td>
+          <td class="px-4 py-3 text-gray-700"><%= l tournament.starts_on %><%= " — #{l tournament.ends_on}" if tournament.ends_on != tournament.starts_on %></td>
+          <td class="px-4 py-3"><%= render BadgeComponent.new(label: tournament.level_label, variant: :neutral, size: :xs) %></td>
+          <td class="px-4 py-3">
+            <%= render BadgeComponent.new(label: tournament.payment_open? ? "Ouvert" : "Fermé", variant: tournament.payment_open? ? :success : :neutral, size: :xs) %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <% if @tournaments.empty? %>
+    <p class="p-6 text-center text-gray-500">Aucun tournoi pour l'instant.</p>
+  <% end %>
+</div>

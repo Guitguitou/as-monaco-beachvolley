@@ -10,6 +10,7 @@ class Session < ApplicationRecord
     "stage" => STAGE_PRICE
   }.freeze
   belongs_to :user
+  belongs_to :tournament, optional: true
   has_many :session_levels, dependent: :destroy
   has_many :levels, through: :session_levels
   has_many :registrations, dependent: :destroy

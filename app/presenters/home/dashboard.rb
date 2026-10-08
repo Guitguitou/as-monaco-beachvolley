@@ -55,6 +55,13 @@ module Home
 
     delegate :card_state_for, to: :recommendations
 
+    # Prochain tournoi organisé par le club, mis en avant jusqu'au jour J.
+    def featured_tournament
+      return @featured_tournament if defined?(@featured_tournament)
+
+      @featured_tournament = Tournament.featured
+    end
+
     # Créneaux de jeu libre à rejoindre, les plus près d'être complets d'abord.
     def open_slots
       @open_slots ||= Annonces::OpenSlotsQuery.call(user: user, limit: OPEN_SLOTS_LIMIT)
