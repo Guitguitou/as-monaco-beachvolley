@@ -20,12 +20,14 @@
       <% if current_user.activated? %>
         <%= nav_link "Performances & Stats", performances_path, icon: "bar-chart-3", extra_classes: 'sidebar-link' %>
         <%= nav_link "Calendrier", sessions_path, icon: "calendar", extra_classes: 'sidebar-link' %>
+        <%= nav_link "Tournois", tournaments_path, icon: "trophy", extra_classes: 'sidebar-link' %>
         <%= nav_link "Stages", stages_path, icon: "flag", extra_classes: 'sidebar-link' %>
         <%= nav_link "Boutique", packs_path, icon: "credit-card", extra_classes: 'sidebar-link' %>
         <%= nav_link "Mon profil", profile_path, icon: "user", extra_classes: 'sidebar-link' %>
       <% else %>
         <!-- Sidebar limitée pour comptes non activés -->
         <%= nav_link "Boutique", packs_path, icon: "credit-card", extra_classes: 'sidebar-link' %>
+        <%= nav_link "Tournois", tournaments_path, icon: "trophy", extra_classes: 'sidebar-link' %>
         <%= nav_link "Stages", stages_path, icon: "flag", extra_classes: 'sidebar-link' %>
         <%= nav_link "Mon profil", profile_path, icon: "user", extra_classes: 'sidebar-link' %>
       <% end %>

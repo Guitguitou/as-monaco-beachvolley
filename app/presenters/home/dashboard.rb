@@ -54,6 +54,13 @@ module Home
 
     delegate :card_state_for, to: :recommendations
 
+    # Prochain tournoi organisé par le club, mis en avant jusqu'au jour J.
+    def featured_tournament
+      return @featured_tournament if defined?(@featured_tournament)
+
+      @featured_tournament = Tournament.featured
+    end
+
     # Annonce de jeu libre la plus proche que le joueur peut rejoindre.
     def next_annonce
       @next_annonce ||= Annonces::EligibleAnnoncesQuery.call(user: user).first

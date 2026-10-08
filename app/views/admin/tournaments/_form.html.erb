@@ -1,0 +1,46 @@
+<%= form_with model: [ :admin, tournament ], class: "space-y-6 bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto" do |f| %>
+  <%= render "shared/form_errors", object: tournament %>
+
+  <%= render FormFieldComponent.new(form: f, attribute: :title, label: "Titre", required: true, html_options: { placeholder: "Tournoi mixte" }) %>
+  <%= render FormFieldComponent.new(form: f, attribute: :description, type: :text_area, label: "Description", html_options: { rows: 4, placeholder: "Main draw direct, premiers inscrits premiers servis…" }) %>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <%= render FormFieldComponent.new(form: f, attribute: :starts_on, type: :date_field, label: "Début", required: true) %>
+    <%= render FormFieldComponent.new(form: f, attribute: :ends_on, type: :date_field, label: "Fin", required: true) %>
+    <%= render FormFieldComponent.new(form: f, attribute: :start_time, type: :time_field, label: "Heure de début (chaque jour)", required: true) %>
+    <%= render FormFieldComponent.new(form: f, attribute: :end_time, type: :time_field, label: "Heure de fin (chaque jour)", required: true) %>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+    <%= render FormFieldComponent.new(form: f, attribute: :level, type: :select, label: "Niveau", required: true,
+          options: options_for_select(Tournament::LEVELS, tournament.level)) %>
+    <%= render FormFieldComponent.new(form: f, attribute: :points, type: :number_field, label: "Points", html_options: { placeholder: "150" }) %>
+    <%= render FormFieldComponent.new(form: f, attribute: :teams_count, type: :number_field, label: "Nombre d'équipes", html_options: { placeholder: "12" }) %>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <%= render FormFieldComponent.new(form: f, attribute: :price, type: :number_field, label: "Prix par équipe (EUR)", required: true, html_options: { step: 0.01, value: tournament.price_cents && tournament.price }) %>
+    <%= render FormFieldComponent.new(form: f, attribute: :location, label: "Lieu", html_options: { placeholder: "Centre de loisirs Prince Albert II, La Turbie" }) %>
+  </div>
+
+  <%= render FormFieldComponent.new(form: f, attribute: :registration_link, type: :url_field, label: "Lien d'inscription BVS", html_options: { placeholder: "https://..." }) %>
+
+  <fieldset>
+    <legend class="block text-sm font-medium text-gray-700">Terrains occupés</legend>
+    <p class="text-xs text-gray-500">Une session tournoi est créée sur chaque terrain coché, chaque jour. Aucun terrain si le tournoi a lieu ailleurs.</p>
+    <div class="mt-2 flex flex-wrap gap-4">
+      <%= hidden_field_tag "tournament[terrain_names][]", "" %>
+      <% Session.terrains.each_key do |name| %>
+        <label class="inline-flex items-center gap-2 text-sm text-gray-800">
+          <%= check_box_tag "tournament[terrain_names][]", name, tournament.terrain_names.include?(name), class: "rounded-none border-gray-300 text-asmbv-red" %>
+          <%= name %>
+        </label>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <%= render FormFieldComponent.new(form: f, attribute: :images, type: :file_field, label: "Ajouter des images (affiches, photos)",
+        html_options: { multiple: true, accept: "image/*" }, input_class: "block w-full text-sm text-gray-900") %>
+
+  <%= f.submit "Enregistrer", class: "w-full inline-flex justify-center items-center rounded-none bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark transition-colors" %>
+<% end %>

@@ -25,6 +25,11 @@ class PacksController < ApplicationController
       return redirect_to(new_user_session_path, alert: "Connecte-toi pour acheter ce pack.")
     end
 
+    tournament = @pack.tournament
+    if tournament&.paid_by?(current_user)
+      return redirect_to(tournament_path(tournament), notice: "Tu as déjà réglé ce tournoi.")
+    end
+
     buyer = user_signed_in? ? current_user : ensure_guest_user!
     return if performed? # ensure_guest_user! peut render/redirect
 

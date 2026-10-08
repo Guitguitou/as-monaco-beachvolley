@@ -1,0 +1,20 @@
+<%# Bandeau du prochain tournoi, sur toutes les pages, jusqu'au jour J.
+    Fermé par le joueur : mémorisé dans son navigateur, par tournoi. %>
+<div class="hidden bg-gray-900 text-white"
+     data-controller="dismissible"
+     data-dismissible-key-value="tournament-banner-<%= tournament.id %>">
+  <div class="max-w-6xl mx-auto flex items-center gap-3 px-4 py-2 text-sm">
+    <%= lucide_icon("trophy", class: "w-4 h-4 text-amber-400 shrink-0") %>
+    <%= link_to tournament_path(tournament), class: "min-w-0 flex-1 truncate hover:underline" do %>
+      <span class="font-semibold"><%= tournament.title %></span>
+      · <%= l tournament.starts_on, format: :day_and_month %>
+    <% end %>
+    <% if tournament.registration_link.present? %>
+      <%= link_to "S'inscrire sur BVS", tournament.registration_link, target: "_blank", rel: "noopener",
+            class: "shrink-0 rounded-none bg-asmbv-red px-3 py-1 text-xs font-semibold uppercase tracking-wide hover:bg-asmbv-red-dark" %>
+    <% end %>
+    <button type="button" data-action="dismissible#dismiss" class="shrink-0 p-1 text-gray-400 hover:text-white" aria-label="Fermer">
+      <%= lucide_icon("x", class: "w-4 h-4") %>
+    </button>
+  </div>
+</div>

@@ -6,6 +6,10 @@
      <% end %>>
   <%= render "layouts/navbar" %>
 
+  <% if !controller_path.start_with?("admin/") && (featured_tournament = Tournament.featured) %>
+    <%= render "tournaments/banner", tournament: featured_tournament %>
+  <% end %>
+
   <% unless controller_path.start_with?("admin/") %>
     <% if content_for?(:hero) %>
       <%= yield :hero %>

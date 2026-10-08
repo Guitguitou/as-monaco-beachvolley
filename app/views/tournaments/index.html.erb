@@ -1,0 +1,27 @@
+<% content_for :page_title, "Tournois" %>
+
+<div class="max-w-6xl mx-auto space-y-10">
+  <section>
+    <h2 class="font-anton text-xl uppercase tracking-tight text-gray-900">À venir</h2>
+    <% if @upcoming_tournaments.any? %>
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @upcoming_tournaments.each do |tournament| %>
+          <%= render "tournaments/card", tournament: tournament %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="mt-2 text-sm text-gray-600">Aucun tournoi annoncé pour le moment.</p>
+    <% end %>
+  </section>
+
+  <% if @past_tournaments.any? %>
+    <section>
+      <h2 class="font-anton text-xl uppercase tracking-tight text-gray-900">Passés</h2>
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @past_tournaments.each do |tournament| %>
+          <%= render "tournaments/card", tournament: tournament %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+</div>
