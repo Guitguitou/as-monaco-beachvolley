@@ -17,7 +17,7 @@
         <% if current_user&.activated? %>
           <%= nav_link_navbar "Mon terrain", home_path %>
           <%= nav_link_navbar "Calendrier", sessions_path %>
-          <%= nav_link_navbar "Annonces", annonces_path %>
+          <%= nav_link_navbar "Jeu libre", annonces_path %>
           <%= nav_link_navbar "Tournois", tournaments_path %>
           <%= nav_link_navbar "Stages", stages_path %>
           <%= nav_link_navbar "Boutique", packs_path %>
@@ -115,7 +115,7 @@
                   Performances & stats
                 <% end %>
                 <%= link_to annonces_path, class: navbar_mobile_link_class do %>
-                  Annonces
+                  Jeu libre
                 <% end %>
                 <%= link_to tournaments_path, class: navbar_mobile_link_class do %>
                   Tournois

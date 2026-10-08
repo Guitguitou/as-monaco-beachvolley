@@ -18,8 +18,9 @@ RSpec.describe "Sessions participants sync (public flow)", type: :request do
         session_type: 'entrainement',
         terrain: 'Terrain 1',
         user_id: coach.id,
-        start_at: 1.hour.from_now.change(sec: 0).strftime('%Y-%m-%dT%H:%M'),
-        end_at: 2.hours.from_now.change(sec: 0).strftime('%Y-%m-%dT%H:%M'),
+        # Demain : le jour même, les inscriptions ferment à 17h
+        start_at: 1.day.from_now.change(hour: 18).strftime('%Y-%m-%dT%H:%M'),
+        end_at: 1.day.from_now.change(hour: 19).strftime('%Y-%m-%dT%H:%M'),
         max_players: 12,
         participant_ids: [ player.id ]
       }

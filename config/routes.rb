@@ -1,10 +1,7 @@
-require "sidekiq/web"
-require "sidekiq/cron/web"
-
 Rails.application.routes.draw do
-  # Mount Sidekiq Web UI (protected by authentication in routes)
+  # Dashboard Solid Queue (Mission Control), réservé aux admins
   authenticate :user, ->(user) { user.admin? } do
-    mount Sidekiq::Web => "/admin/sidekiq"
+    mount MissionControl::Jobs::Engine => "/admin/jobs"
   end
 
   devise_for :users, controllers: {
@@ -34,8 +31,11 @@ Rails.application.routes.draw do
     resources :registrations, only: [ :create, :destroy ]
   end
 
-  # Annonces de jeu libre (« matcher » de joueurs)
-  resources :annonces do
+  # Jeu libre : parties lancées par les joueurs (modèle Annonce, « matcher » de
+  # joueurs). Les anciennes URL /annonces, déjà envoyées en push, redirigent.
+  get "annonces(/*rest)", to: redirect { |params, _request| [ "/jeu-libre", params[:rest] ].compact.join("/") }
+  resources :annonces, path: "jeu-libre" do
+    post :quick, on: :collection
     member do
       get :confirm
       patch :confirm
