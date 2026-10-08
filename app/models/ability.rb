@@ -35,11 +35,13 @@ class Ability
         can :read, Pack, pack_type: [ "licence", "stage", "inscription_tournoi", "equipements" ]
         can :buy, Pack, pack_type: [ "licence", "stage", "inscription_tournoi", "equipements" ]
         can :read, Stage
+        can :read, Tournament
         # Access to infos pages (handled in routes, no specific permission needed)
       else
         # Activated users: full access
         can :read, Session
         can :read, Stage
+        can :read, Tournament
         can :read, Pack  # Tous les packs
         can :buy, Pack   # Peut acheter tous les packs
 

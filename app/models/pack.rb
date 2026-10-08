@@ -1,6 +1,7 @@
 class Pack < ApplicationRecord
   has_many :credit_purchases, dependent: :nullify
   belongs_to :stage, optional: true
+  belongs_to :tournament, optional: true
 
   # Types de packs
   enum :pack_type, {

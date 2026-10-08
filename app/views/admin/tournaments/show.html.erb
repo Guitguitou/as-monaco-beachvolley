@@ -1,0 +1,98 @@
+<div class="max-w-5xl mx-auto space-y-8">
+  <div class="flex items-center justify-between border-b pb-4 gap-4">
+    <div class="flex items-center gap-2">
+      <%= lucide_icon("trophy", class: "w-6 h-6 text-asmbv-red") %>
+      <h1 class="text-2xl font-bold text-gray-900"><%= @tournament.title %></h1>
+    </div>
+    <div class="flex gap-2 items-center">
+      <%= button("Voir côté joueur", variant: :ghost, size: :small, href: tournament_path(@tournament)) %>
+      <%= button("Modifier", variant: :ghost, size: :small, href: edit_admin_tournament_path(@tournament)) %>
+      <%= button_to "Supprimer", admin_tournament_path(@tournament), method: :delete,
+            form: { data: { turbo_confirm: "Supprimer ce tournoi et libérer ses terrains ?" } },
+            class: "rounded-none border border-red-600 px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-50" %>
+    </div>
+  </div>
+
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-800">Paiement</h2>
+    <% end %>
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <p class="text-gray-900">
+          Pack « <%= @pack.name %> » · <%= number_to_currency(@pack.amount_eur, unit: "€", format: "%n %u") %> par équipe
+        </p>
+        <p class="text-sm text-gray-500">
+          <%= @pack.active? ? "Les joueurs peuvent payer depuis l'app." : "Fermé : ouvre-le une fois les inscriptions BVS validées." %>
+          <%= CreditPurchase.paid_status.where(pack_id: @pack.id).count %> paiement(s) reçu(s).
+        </p>
+      </div>
+      <%= button_to @pack.active? ? "Fermer le paiement" : "Ouvrir le paiement", toggle_payment_admin_tournament_path(@tournament), method: :patch,
+            class: "rounded-none px-4 py-2 text-sm font-semibold #{@pack.active? ? 'bg-gray-100 text-gray-800 hover:bg-gray-200' : 'bg-asmbv-red text-white hover:bg-asmbv-red-dark'}" %>
+    </div>
+  <% end %>
+
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-800">Informations</h2>
+    <% end %>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Dates</dt>
+        <dd class="mt-1 text-gray-900">
+          <%= l @tournament.starts_on, format: :long %><%= " — #{l @tournament.ends_on, format: :long}" if @tournament.ends_on != @tournament.starts_on %>
+          · <%= l @tournament.start_time, format: :time %> – <%= l @tournament.end_time, format: :time %>
+        </dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Niveau</dt>
+        <dd class="mt-1 text-gray-900"><%= @tournament.level_label %><%= " · #{@tournament.teams_count} équipes" if @tournament.teams_count %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Terrains occupés</dt>
+        <dd class="mt-1 text-gray-900"><%= @tournament.terrain_names.to_sentence.presence || "Aucun (hors de nos terrains)" %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500">Inscription BVS</dt>
+        <dd class="mt-1">
+          <% if @tournament.registration_link.present? %>
+            <%= link_to @tournament.registration_link, @tournament.registration_link, target: "_blank", rel: "noopener", class: "text-asmbv-red break-all" %>
+          <% else %>
+            <span class="text-gray-600">—</span>
+          <% end %>
+        </dd>
+      </div>
+    </dl>
+  <% end %>
+
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do |card| %>
+    <% card.with_header do %>
+      <h2 class="text-lg font-semibold text-gray-800">Images</h2>
+      <p class="text-sm text-gray-500">Glisse-les pour changer l'ordre ; la première sert de couverture (accueil, liste des tournois).</p>
+    <% end %>
+    <% images = @tournament.ordered_images %>
+    <% if images.empty? %>
+      <p class="text-sm text-gray-500">Aucune image. Ajoute-les depuis « Modifier ».</p>
+    <% else %>
+      <%= render SortableComponent.new(url: reorder_images_admin_tournament_path(@tournament), class_name: "grid grid-cols-2 sm:grid-cols-4 gap-4") do |list| %>
+        <% images.each do |image| %>
+          <% list.with_item(id: image.id, class_name: "group/item space-y-2 bg-white") do %>
+            <div class="relative">
+              <%= image_tag image, class: "w-full aspect-[4/5] object-cover rounded-lg pointer-events-none select-none", draggable: false %>
+              <%# Badge sur la première image, recalculé par le CSS après un déplacement %>
+              <span class="absolute top-2 left-2 hidden group-first/item:block"><%= render BadgeComponent.new(label: "Couverture", variant: :success, size: :xs) %></span>
+            </div>
+            <div class="flex gap-1">
+              <%= render SortableComponent::Handle.new(label: "Glisser pour réordonner") %>
+              <%= button_to remove_image_admin_tournament_path(@tournament, attachment_id: image.id), method: :delete,
+                    form: { data: { turbo_confirm: "Supprimer cette image ?" } },
+                    class: "rounded-none border border-red-300 p-1.5 text-red-600", title: "Supprimer" do %>
+                <%= lucide_icon("trash-2", size: 14) %>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

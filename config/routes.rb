@@ -76,6 +76,13 @@ Rails.application.routes.draw do
     resources :levels
     resources :terrain_closures, except: [ :show ]
     resources :stages, only: [ :index, :show, :new, :create, :edit, :update ]
+    resources :tournaments do
+      member do
+        patch :toggle_payment
+        patch :reorder_images
+        delete :remove_image
+      end
+    end
 
     # Packs management
     resources :packs
@@ -90,6 +97,8 @@ Rails.application.routes.draw do
     # Notification rules management
     resources :notification_rules
   end
+
+  resources :tournaments, only: [ :index, :show ], path: "tournois"
 
   # Public stages
   resources :stages, only: [ :index, :show ]
