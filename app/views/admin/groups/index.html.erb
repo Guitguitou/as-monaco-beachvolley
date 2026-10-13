@@ -1,0 +1,40 @@
+<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
+  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
+    <%= lucide_icon("users-round") %> Groupes
+  </h1>
+  <p class="text-xs text-gray-500 flex items-center gap-1">
+    <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">+</span>
+    Joueur présent dans plusieurs groupes
+  </p>
+</div>
+
+<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+  <% @level_groups.groups.each do |group| %>
+    <div class="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div class="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-200"
+           style="border-left: 4px solid <%= group.level.color.presence || '#e5e7eb' %>">
+        <span class="font-semibold text-gray-800"><%= group.level.display_name %></span>
+        <span class="text-xs text-gray-500"><%= group.members.size %></span>
+      </div>
+      <table class="min-w-full text-sm">
+        <tbody class="divide-y divide-gray-100">
+          <% group.members.each do |user| %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-1.5">
+                <%= link_to admin_user_path(user), class: "flex items-center gap-2 text-gray-700 hover:text-asmbv-red" do %>
+                  <span><%= user.full_name %></span>
+                  <% if @level_groups.multi_group?(user) %>
+                    <span title="Dans plusieurs groupes" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">+</span>
+                  <% end %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+          <% if group.members.empty? %>
+            <tr><td class="px-4 py-2 text-gray-400 italic">Aucun joueur</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>
