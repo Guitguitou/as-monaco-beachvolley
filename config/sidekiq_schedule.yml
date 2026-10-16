@@ -3,3 +3,9 @@ expire_stale_purchases:
   class: ExpireStalePurchasesJob
   queue: default
   description: "Clôture les achats restés en attente de réponse Sherlock's"
+
+mcp_expire_idle_tokens:
+  cron: "15 3 * * *" # Tous les jours à 3h15
+  class: Mcp::ExpireIdleTokensJob
+  queue: default
+  description: "Révoque les connexions Claude (MCP) inutilisées depuis 30 jours"
