@@ -112,3 +112,7 @@ gem "csv"
 
 # Export tableur (admin)
 gem "caxlsx"
+
+# Serveur MCP pour le Claude du Staff (cf. docs/adr/0001)
+gem "mcp", "1.8.0"
+gem "doorkeeper", "5.9.9"
