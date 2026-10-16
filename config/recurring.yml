@@ -15,6 +15,11 @@ default: &default
     queue: default
     schedule: every hour at minute 30
     description: "Expire les parties de jeu libre dont tous les créneaux sont passés"
+  mcp_expire_idle_tokens:
+    class: Mcp::ExpireIdleTokensJob
+    queue: default
+    schedule: every day at 3:15am
+    description: "Révoque les connexions Claude (MCP) inutilisées depuis 30 jours"
 
 development:
   <<: *default

@@ -23,6 +23,11 @@ class ApplicationController < ActionController::Base
   protected
 
   def after_sign_in_path_for(resource)
+    # Connexion demandée par Claude pendant l'autorisation OAuth du connecteur
+    # MCP : on reprend l'autorisation là où elle s'était arrêtée.
+    stored = stored_location_for(resource)
+    return stored if stored&.start_with?("/oauth/")
+
     # Redirect non-activated users to packs
     if Users::ActivationGate.restricted?(resource)
       packs_path

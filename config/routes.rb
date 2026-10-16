@@ -1,4 +1,13 @@
 Rails.application.routes.draw do
+  # Connecteur MCP du Staff (cf. docs/adr/0001) : OAuth, métadonnées, endpoint.
+  use_doorkeeper do
+    skip_controllers :applications, :authorized_applications
+  end
+  get ".well-known/oauth-protected-resource(/mcp)", to: "well_known#protected_resource"
+  get ".well-known/oauth-authorization-server", to: "well_known#authorization_server"
+  post "mcp", to: "mcp#create"
+  match "mcp", to: "mcp#method_not_allowed", via: [ :get, :delete ]
+
   # Dashboard Solid Queue (Mission Control), réservé aux admins
   authenticate :user, ->(user) { user.admin? } do
     mount MissionControl::Jobs::Engine => "/admin/jobs"
@@ -74,6 +83,8 @@ Rails.application.routes.draw do
       post :duplicate, on: :member
     end
     resources :levels
+    resources :groups, only: [ :index ]
+    resources :claude_connections, only: [ :index, :destroy ], path: "connexions-claude"
     resources :terrain_closures, except: [ :show ]
     resources :stages, only: [ :index, :show, :new, :create, :edit, :update ]
     resources :tournaments do
