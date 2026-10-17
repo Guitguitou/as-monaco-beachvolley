@@ -33,4 +33,20 @@ RSpec.describe AvatarComponent, type: :component do
 
     expect(page.find("span, div")[:class]).to include("h-10", "w-10")
   end
+
+  context "avec une photo de profil" do
+    let(:user) do
+      create(:user, first_name: "Zoé", last_name: "Martin", avatar_crop_x: 30, avatar_crop_y: 70, avatar_zoom: 1.5).tap do |u|
+        u.avatar.attach(io: file_fixture("avatar.png").open, filename: "avatar.png", content_type: "image/png")
+      end
+    end
+
+    it "affiche la photo cadrée à la place des initiales" do
+      render_inline(described_class.new(user: user))
+
+      image = page.find("img")
+      expect(image[:style]).to include("object-position: 30.0% 70.0%", "scale(1.5)")
+      expect(page).to have_no_text("ZM")
+    end
+  end
 end

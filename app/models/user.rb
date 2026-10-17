@@ -20,6 +20,7 @@ class User < ApplicationRecord
   has_many :confirmed_registrations, -> { where(status: Registration.statuses[:confirmed]) }, class_name: "Registration"
   has_many :sessions_registered, through: :confirmed_registrations, source: :session
   has_many :push_subscriptions, dependent: :destroy
+  has_one_attached :avatar
 
   # Callbacks
   after_create :init_balance
@@ -49,6 +50,9 @@ class User < ApplicationRecord
   # admin qui bascule un rôle, par exemple). Le contexte n'est déclenché que
   # par ProfilesController#update.
   validates :first_name, :last_name, presence: true, on: :profile_update
+  validates :avatar, avatar: true
+  validates :avatar_crop_x, :avatar_crop_y, numericality: { in: 0..100 }
+  validates :avatar_zoom, numericality: { in: 1..3 }
 
   # Devise: Prevent login when account is disabled
   # Non-activated users can login but have limited access

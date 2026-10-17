@@ -1,1 +1,8 @@
-<span class="<%= classes %>" title="<%= user&.full_name %>"><%= initials %></span>
+<span class="<%= classes %>" title="<%= user&.full_name %>">
+  <% if photo? %>
+    <%= image_tag user.avatar, alt: user.full_name, loading: "lazy",
+                  class: "absolute inset-0 h-full w-full object-cover", style: photo_style %>
+  <% else %>
+    <%= initials %>
+  <% end %>
+</span>
