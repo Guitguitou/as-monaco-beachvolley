@@ -129,6 +129,11 @@ class SessionsController < ApplicationController
 
   def sync_participants(session_record)
     sync = Sessions::ParticipantsSync.new(session: session_record, allow_private_coaching: can?(:manage, Registration))
-    append_flash_alert(sync.call(params.dig(:session, :participant_ids)))
+    append_flash_alert(sync.call(params.dig(:session, :participant_ids), excused_ids: excused_ids))
+  end
+
+  # Seul le Staff peut excuser une désinscription tardive (cf. GLOSSARY.md).
+  def excused_ids
+    current_user.staff? ? params.dig(:session, :excused_ids) : []
   end
 end

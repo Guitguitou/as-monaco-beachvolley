@@ -25,7 +25,9 @@
         else
           current_user&.admin?
         end %>
-        <% if can_remove %>
+        <% if can_remove && current_user.staff? && Registrations::Cancellation.new(registration).late? %>
+          <%= render "sessions/late_removal", registration: registration, calendar_ctx: calendar_ctx %>
+        <% elsif can_remove %>
           <%= button_to session_registration_path(@session, calendar_ctx.merge(user_id: registration.user_id)), method: :delete,
                         form: { data: { turbo_confirm: "Retirer #{user.full_name} ?" }, class: "shrink-0" },
                         aria: { label: "Retirer #{user.full_name}" },

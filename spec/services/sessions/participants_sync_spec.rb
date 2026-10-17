@@ -26,6 +26,28 @@ RSpec.describe Sessions::ParticipantsSync do
     expect(session_record.registrations.where(user: player)).to be_empty
   end
 
+  context "when a participant is removed after the training cancellation deadline" do
+    let(:training) do
+      create(:session, user: coach, start_at: 1.day.from_now.change(hour: 18), end_at: 1.day.from_now.change(hour: 20))
+    end
+    let(:training_sync) { described_class.new(session: training, allow_private_coaching: false) }
+
+    before do
+      training_sync.call([ player.id ])
+      training.update_columns(cancellation_deadline_at: 1.hour.ago)
+    end
+
+    it "applies the late unregistration" do
+      expect { training_sync.call([]) }.not_to change { player.reload.credit_balance }
+      expect(LateCancellation.where(user: player, session: training)).to exist
+    end
+
+    it "refunds the participants the staff excused" do
+      expect { training_sync.call([], excused_ids: [ player.id.to_s ]) }.to change { player.reload.credit_balance }.by(training.price)
+      expect(LateCancellation.count).to eq(0)
+    end
+  end
+
   it "reports the participants it could not register" do
     broke = create(:user, first_name: "Paul", last_name: "Broke", activated_at: Time.current)
 
