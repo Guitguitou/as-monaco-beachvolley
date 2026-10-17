@@ -18,6 +18,15 @@ RSpec.describe "Connexion OAuth du connecteur MCP", type: :request do
                                               "authorization_servers" => [ "http://test.host" ])
     end
 
+    it "n'annonce que les droits que le client Claude peut obtenir" do
+      get "/.well-known/oauth-protected-resource/mcp"
+      advertised = response.parsed_body["scopes_supported"]
+      get "/.well-known/oauth-authorization-server"
+
+      expect(response.parsed_body["scopes_supported"]).to eq(advertised)
+      expect(advertised).to all(satisfy { |scope| application.scopes.include?(scope) })
+    end
+
     it "décrit le serveur d'autorisation avec PKCE S256" do
       get "/.well-known/oauth-authorization-server"
 
@@ -42,6 +51,14 @@ RSpec.describe "Connexion OAuth du connecteur MCP", type: :request do
       get "/oauth/authorize", params: authorize_params
 
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Consulter les données du club")
+    end
+
+    it "explique en français une demande de droits non autorisés" do
+      sign_in create(:user, :admin)
+      get "/oauth/authorize", params: authorize_params.merge(scope: "read write")
+
+      expect(response.body).to include("Les droits demandés sont invalides")
     end
 
     it "refuse un joueur" do

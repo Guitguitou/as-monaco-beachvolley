@@ -3,7 +3,10 @@
 # Métadonnées OAuth lues par Claude pour découvrir comment se connecter au
 # serveur MCP (RFC 9728 et RFC 8414).
 class WellKnownController < ActionController::API
-  SCOPES = %w[read write].freeze
+  # Claude demande tous les scopes annoncés : n'annoncer que ceux que le client
+  # OAuth peut obtenir, sinon l'autorisation échoue en invalid_scope.
+  # `write` sera ajouté ici et au client avec la phase 2 (écriture).
+  SCOPES = %w[read].freeze
 
   def protected_resource
     render json: {

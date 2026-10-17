@@ -1,0 +1,59 @@
+fr:
+  doorkeeper:
+    scopes:
+      read: "Consulter les données du club (sessions, joueurs, groupes, tournois, stages, statistiques)"
+      write: "Modifier les données du club (sessions, inscriptions, crédits, rôles)"
+
+    authorizations:
+      buttons:
+        authorize: "Autoriser"
+        deny: "Refuser"
+      error:
+        title: "Une erreur est survenue"
+      new:
+        title: "Autorisation requise"
+        prompt: "Autoriser %{client_name} à utiliser ton compte ?"
+        able_to: "Cette application pourra :"
+      show:
+        title: "Code d'autorisation :"
+      form_post:
+        title: "Envoyer ce formulaire"
+
+    pre_authorization:
+      status: "Pré-autorisation"
+
+    errors:
+      messages:
+        invalid_request:
+          unknown: "La requête est incomplète ou mal formée."
+          missing_param: "Paramètre requis manquant : %{value}."
+          request_not_authorized: "La requête doit être autorisée."
+          invalid_code_challenge: "Le code challenge (PKCE) est requis."
+          multiple_client_auth_methods: "La requête utilise plusieurs méthodes d'authentification du client."
+        invalid_redirect_uri: "L'URL de retour ne correspond pas à celle du client."
+        unauthorized_client: "Ce client n'est pas autorisé à effectuer cette requête."
+        access_denied: "L'autorisation a été refusée."
+        invalid_scope: "Les droits demandés sont invalides ou inconnus."
+        invalid_code_challenge_method:
+          zero: "PKCE n'est pas pris en charge."
+          one: "La méthode code_challenge_method doit être %{challenge_methods}."
+          other: "La méthode code_challenge_method doit être l'une de %{challenge_methods}."
+        server_error: "Le serveur d'autorisation a rencontré une erreur inattendue."
+        temporarily_unavailable: "Le serveur d'autorisation est temporairement indisponible."
+        unsupported_response_type: "Ce type de réponse n'est pas pris en charge."
+        unsupported_response_mode: "Ce mode de réponse n'est pas pris en charge."
+        invalid_client: "Authentification du client échouée."
+        invalid_grant: "L'autorisation est invalide, expirée ou révoquée."
+        unsupported_grant_type: "Ce type d'autorisation n'est pas pris en charge."
+        invalid_token:
+          revoked: "Le jeton d'accès a été révoqué."
+          expired: "Le jeton d'accès a expiré."
+          unknown: "Le jeton d'accès est invalide."
+        revoke:
+          unauthorized: "Tu n'es pas autorisé à révoquer ce jeton."
+        forbidden_token:
+          missing_scope: "L'accès à cette ressource requiert le droit « %{oauth_scopes} »."
+
+    layouts:
+      application:
+        title: "Autorisation requise"
