@@ -116,6 +116,7 @@ export default class extends Controller {
         if (arg.view.type.startsWith('list')) {
           const root = document.createElement('a')
           root.href = arg.event.url
+          root.dataset.turbo = 'false'
           root.className = 'block'
           root.append(`${arg.event.title} `)
           const terrain = document.createElement('span')
@@ -142,24 +143,28 @@ export default class extends Controller {
         const root = document.createElement('div')
         root.className = 'fc-asmbv-card flex flex-col h-full overflow-hidden gap-0.5'
 
-        const meta = document.createElement('div')
-        meta.className = 'fc-asmbv-meta text-[11px] opacity-90'
-        const time = document.createElement('span')
-        time.textContent = arg.timeText
         const terrain = document.createElement('span')
-        terrain.className = 'fc-asmbv-terrain'
+        terrain.className = 'fc-asmbv-terrain mr-1'
         terrain.textContent = props.terrainShort || ''
-        meta.append(time, terrain)
 
         const titleEl = document.createElement('div')
         titleEl.className = 'fc-asmbv-title text-xs sm:text-[13px] font-semibold leading-tight line-clamp-2'
-        titleEl.textContent = title
+        titleEl.append(terrain, title)
 
         const statusEl = document.createElement('div')
         statusEl.className = 'text-[11px] font-medium opacity-90 truncate'
         statusEl.textContent = status.text
 
-        root.append(meta, titleEl)
+        // Dans une grille horaire, la position de l'événement donne déjà l'heure :
+        // la répéter mangeait la moitié d'une colonne étroite. En vue mois, rien
+        // d'autre ne situe l'heure, on la garde.
+        if (!arg.view.type.startsWith('timeGrid')) {
+          const time = document.createElement('div')
+          time.className = 'text-[11px] opacity-90 tabular-nums'
+          time.textContent = arg.timeText
+          root.appendChild(time)
+        }
+        root.appendChild(titleEl)
         if (props.coachName) {
           const coachEl = document.createElement('div')
           coachEl.className = 'text-[11px] opacity-80 truncate'
@@ -181,25 +186,12 @@ export default class extends Controller {
         return { domNodes: [root] }
       },
       eventClick: (info) => {
-        // En vue liste, un clic sur le lien du titre navigue seul : une seconde
-        // visite Turbo lancée ici annulerait la première. Le reste de la ligne
-        // (heure, pastille) passe par la navigation ci-dessous.
-        if (info.jsEvent.target.closest('a[href]')) return
+        // Le lien du titre (vue liste) porte data-turbo="false" : on empêche ici
+        // la navigation du navigateur et on ouvre l'aperçu à la place.
         info.jsEvent.preventDefault()
         const id = info.event.id
         if (!id) return
-        const url = new URL(`/sessions/${id}`, window.location.origin)
-        const current = new URL(window.location.href)
-        ;["view", "date", "terrain", "for_me"].forEach((key) => {
-          const v = current.searchParams.get(key)
-          if (v) url.searchParams.set(key, v)
-        })
-        url.searchParams.set("view", "calendar")
-        if (window.Turbo?.visit) {
-          window.Turbo.visit(url.toString())
-        } else {
-          window.location.assign(url.toString())
-        }
+        this.openPreview(id)
       },
 
       eventDidMount(info) {
@@ -233,6 +225,34 @@ export default class extends Controller {
     this.styleHeaderButtons(calendarEl)
     this.setupFilterTabsInteraction()
     this.applyFiltersFromUrl()
+  }
+
+  // URL d'une session qui garde le contexte du calendrier (semaine, filtres),
+  // pour que « Retour » et les redirections après inscription y ramènent.
+  sessionUrl(id, suffix = '') {
+    const url = new URL(`/sessions/${id}${suffix}`, window.location.origin)
+    const current = new URL(window.location.href)
+    ;['date', 'terrain', 'for_me'].forEach((key) => {
+      const v = current.searchParams.get(key)
+      if (v) url.searchParams.set(key, v)
+    })
+    url.searchParams.set('view', 'calendar')
+    return url.toString()
+  }
+
+  // Aperçu en modale (Turbo Frame chargé à la demande). Sans la modale sur la
+  // page, on retombe sur la fiche complète.
+  openPreview(id) {
+    const wrapper = document.getElementById('session-preview')
+    const dialog = wrapper?.querySelector('dialog')
+    const frame = wrapper?.querySelector('turbo-frame#session_preview')
+    if (!dialog || !frame) {
+      window.Turbo?.visit ? window.Turbo.visit(this.sessionUrl(id)) : window.location.assign(this.sessionUrl(id))
+      return
+    }
+    frame.innerHTML = '<p class="py-8 text-center text-sm text-gray-500">Chargement…</p>'
+    frame.src = this.sessionUrl(id, '/preview')
+    dialog.showModal()
   }
 
   // Ce que le joueur doit savoir avant de cliquer : son statut, sinon les

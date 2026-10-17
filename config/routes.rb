@@ -40,6 +40,7 @@ Rails.application.routes.draw do
   resources :sessions do
     post :cancel, on: :member
     get :calendar, on: :member
+    get :preview, on: :member
     resources :registrations, only: [ :create, :destroy ]
     resources :invitations, only: [ :create ], controller: "session_invitations"
   end

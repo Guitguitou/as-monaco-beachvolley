@@ -1,0 +1,13 @@
+<%# locals: session:
+    Juste après une désinscription : un clic pour revenir sur sa décision.
+    C'est une nouvelle inscription, soumise aux règles habituelles (place,
+    crédits) : si la session s'est remplie entre-temps, on passe en attente. %>
+<div class="flex flex-wrap items-center justify-between gap-3 bg-gray-900 px-4 py-3 text-sm text-white">
+  <span>Tu t'es désinscrit de cette session.</span>
+  <%= button_to session_registrations_path(session), method: :post,
+                params: sessions_index_return_params.merge(waitlist: session.full?),
+                class: "inline-flex items-center gap-1.5 rounded-none px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white bg-asmbv-red hover:bg-asmbv-red-dark" do %>
+    <%= lucide_icon("undo-2", class: "size-4", aria: { hidden: true }) %>
+    <span><%= session.full? ? "Revenir en liste d'attente" : "Me réinscrire" %></span>
+  <% end %>
+</div>

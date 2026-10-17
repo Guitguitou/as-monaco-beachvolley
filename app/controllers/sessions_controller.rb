@@ -3,7 +3,7 @@
 class SessionsController < ApplicationController
   before_action :authenticate_user!
   load_and_authorize_resource
-  before_action :set_session, only: [ :show, :edit, :update, :destroy, :calendar, :cancel ]
+  before_action :set_session, only: [ :show, :preview, :edit, :update, :destroy, :calendar, :cancel ]
 
   def index
     @view = params[:view].presence_in(%w[grid calendar]) || "calendar"
@@ -27,6 +27,12 @@ class SessionsController < ApplicationController
     @candidate_users = Sessions::CandidateUsersQuery.call(session: @session) if can?(:manage, Registration)
     @invitations = Sessions::Invitations.new(session: @session, inviter: current_user)
     @invitation = SessionInvitation.includes(:inviter).find_by(session: @session, invitee: current_user)
+  end
+
+  # Aperçu chargé dans la modale du calendrier (Turbo Frame) : l'essentiel de
+  # la fiche et le bouton d'inscription, sans quitter le planning.
+  def preview
+    render layout: false
   end
 
   def calendar

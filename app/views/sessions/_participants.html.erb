@@ -54,10 +54,11 @@
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
     <% waitlisted.each_with_index do |registration, index| %>
-      <div class="flex items-center justify-between gap-3 p-3 bg-orange-50 text-orange-900 rounded-lg border border-orange-200">
+      <% me = registration.user_id == current_user&.id %>
+      <div class="flex items-center justify-between gap-3 p-3 rounded-lg border <%= me ? "bg-orange-100 border-orange-500 text-orange-950" : "bg-orange-50 border-orange-200 text-orange-900" %>">
         <div class="flex items-center gap-2 min-w-0">
           <span class="inline-flex items-center justify-center w-6 h-6 text-xs font-bold bg-orange-200 text-orange-900 rounded-lg shrink-0"><%= index + 1 %></span>
-          <span class="font-medium text-sm truncate"><%= registration.user.full_name %></span>
+          <span class="font-medium text-sm truncate"><%= registration.user.full_name %><% if me %> <span class="font-semibold">· toi</span><% end %></span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <span class="text-xs">En attente</span>

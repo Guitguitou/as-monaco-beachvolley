@@ -1,0 +1,41 @@
+<%# Aperçu d'une session dans la modale du calendrier. Les formulaires et liens
+    sortent du frame (`_top`) : une inscription mène à la fiche complète. %>
+<turbo-frame id="session_preview" target="_top">
+  <div class="space-y-4">
+    <div>
+      <%= render BadgeComponent.new(
+            label: get_session_type_label(@session.session_type),
+            variant: Sessions::CardState::ACCENTS[@session.session_type] ? :"type_#{@session.session_type}" : :neutral,
+            icon: session_type_icon(@session.session_type),
+            size: :sm
+          ) %>
+      <h2 class="mt-2 font-anton text-2xl uppercase leading-tight text-gray-900"><%= @session.title.presence || @session.display_name %></h2>
+    </div>
+
+    <%= render "hero_meta", session: @session, compact: true %>
+
+    <% if @session.tournament_id.present? %>
+      <%= link_to "Voir le tournoi", tournament_path(@session.tournament_id),
+            class: "w-full inline-flex items-center justify-center rounded-none px-4 py-3 text-sm font-semibold bg-asmbv-red text-white hover:bg-asmbv-red-dark" %>
+    <% else %>
+      <% confirmed = @session.registrations.confirmed.includes(:user).to_a %>
+      <% if confirmed.any? || @session.max_players.present? %>
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex -space-x-2">
+            <% confirmed.first(5).each do |registration| %>
+              <%= render AvatarComponent.new(user: registration.user, size: :xs, variant: :light, ring: true) %>
+            <% end %>
+          </div>
+          <% if (label = spots_left_label(confirmed.size, @session.max_players)) %>
+            <%= render BadgeComponent.new(label: label, variant: label == "Complet" ? :destructive : :success, size: :sm) %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%= render "hero_cta", session: @session %>
+    <% end %>
+
+    <%= link_to "Voir la fiche complète", session_path(@session, sessions_index_return_params),
+          class: "block text-center text-sm text-gray-600 underline hover:text-gray-900" %>
+  </div>
+</turbo-frame>

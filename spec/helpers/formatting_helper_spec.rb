@@ -119,4 +119,19 @@ RSpec.describe FormattingHelper, type: :helper do
       expect(helper.fr_pluralize(-3, "crédit")).to eq("-3 crédits")
     end
   end
+
+  describe "#time_until" do
+    let(:now) { Time.zone.local(2030, 3, 14, 12, 0) }
+
+    it "counts minutes, hours then days" do
+      expect(helper.time_until(now + 45.minutes, from: now)).to eq("45 min")
+      expect(helper.time_until(now + 5.hours + 15.minutes, from: now)).to eq("5h15")
+      expect(helper.time_until(now + 3.days, from: now)).to eq("3 jours")
+      expect(helper.time_until(now + 1.day, from: now)).to eq("1 jour")
+    end
+
+    it "never goes negative" do
+      expect(helper.time_until(now - 1.hour, from: now)).to eq("moins d'une minute")
+    end
+  end
 end

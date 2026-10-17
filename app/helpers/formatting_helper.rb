@@ -24,6 +24,16 @@ module FormattingHelper
     human_duration(((end_at - start_at) / 60).to_i)
   end
 
+  # Temps restant avant un horodatage : « 3 jours », « 5h15 », « 45 min ».
+  def time_until(time, from: Time.current)
+    minutes = ((time - from) / 60).ceil
+    return "moins d'une minute" if minutes <= 0
+    return human_duration(minutes) if minutes < 24 * 60
+
+    days = (minutes / (24 * 60.0)).round
+    "#{days} #{days == 1 ? 'jour' : 'jours'}"
+  end
+
   # Prix en crédits : 0 → « Gratuit », 1 → « 1 crédit », 3 → « 3 crédits ».
   def credits_label(amount)
     amount = amount.to_i
