@@ -10,9 +10,11 @@ class SessionsController < ApplicationController
     @for_me = ActiveModel::Type::Boolean.new.cast(params[:for_me])
     filter = Sessions::ListingFilter.new(terrain: params[:terrain], for_me: @for_me, level_ids: current_user.levels.pluck(:id))
 
-    @terrain_closures_week = Sessions::CalendarWeek.new(params[:date]).closures if @view == "calendar"
-    @sessions = filter.apply(Session.includes(:levels, :user).order(start_at: :desc))
-    return unless @view == "grid"
+    if @view == "calendar"
+      sessions = filter.apply(Session.includes(:levels, :user).order(start_at: :desc))
+      @calendar = Sessions::CalendarEvents.new(user: current_user, sessions: sessions, url_for: ->(s) { helpers.sessions_calendar_event_path(s) })
+      return
+    end
 
     @grid = Sessions::UpcomingGrid.new(user: current_user, sessions: filter.apply(Session.upcoming.ordered_by_start))
   end

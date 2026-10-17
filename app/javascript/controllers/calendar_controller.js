@@ -56,22 +56,24 @@ export default class extends Controller {
   initializeCalendar() {
     const calendarEl = this.element
     const sessions = JSON.parse(calendarEl.dataset.sessions)
+    const closures = JSON.parse(calendarEl.dataset.closures || '[]')
     const initialDate = calendarEl.dataset.initialDate
 
     const isMobile = window.matchMedia('(max-width: 640px)').matches
     const headerToolbar = isMobile
-      ? { left: 'prev,next', center: 'title', right: 'timeGridDay,timeGridWeek' }
+      ? { left: 'prev,next', center: 'title', right: 'listWeek,timeGridDay' }
       : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridThreeDay,timeGridDay' }
 
     const calendar = new window.FullCalendar.Calendar(calendarEl, {
-      // Sur 375 px de large, une semaine laisse ~40 px par jour : les sessions y
-      // sont illisibles. La vue Jour est la seule utilisable au bord du terrain.
-      initialView: isMobile ? 'timeGridDay' : 'timeGridWeek',
+      // Sur 375 px de large, une semaine en grille laisse ~40 px par jour, et la
+      // vue Jour laisse surtout du vide entre deux créneaux. L'agenda de la
+      // semaine liste les sessions jour par jour, lisibles d'un coup d'œil.
+      initialView: isMobile ? 'listWeek' : 'timeGridWeek',
       ...(initialDate ? { initialDate } : {}),
       firstDay: 1,
       headerToolbar,
       locale: 'fr',
-      buttonText: { today: "Aujourd'hui", month: 'Mois', week: 'Semaine', day: 'Jour', timeGridThreeDay: '3 jours' },
+      buttonText: { today: "Aujourd'hui", month: 'Mois', week: 'Semaine', day: 'Jour', list: 'Agenda', timeGridThreeDay: '3 jours' },
       views: {
         timeGridThreeDay: { type: 'timeGrid', duration: { days: 3 } }
       },
@@ -97,39 +99,73 @@ export default class extends Controller {
       slotLabelClassNames: ['text-sm', 'text-gray-600', 'font-medium'],
       eventDisplay: 'block',
       dayHeaderFormat: isMobile ? { weekday: 'short', day: 'numeric', month: 'numeric' } : undefined,
-      events: sessions,
+      events: [...sessions, ...closures],
       eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false },
-      eventContent(arg) {
-        const timeText = arg.timeText
+      noEventsContent: 'Aucune session cette semaine.',
+      eventContent: (arg) => {
+        // Fermetures de terrain : rendu par défaut (titre sur le fond hachuré).
+        if (arg.event.display === 'background') return true
+
+        const props = arg.event.extendedProps
+        const status = this.statusLabel(props)
+
+        // Vue liste (mobile) : le titre, le terrain et une pastille de statut.
+        if (arg.view.type.startsWith('list')) {
+          const root = document.createElement('span')
+          root.append(`${arg.event.title} `)
+          const terrain = document.createElement('span')
+          terrain.className = 'fc-asmbv-terrain text-gray-500'
+          terrain.textContent = props.terrainShort || ''
+          const pill = document.createElement('span')
+          pill.className = `fc-asmbv-pill ${status.tone}`
+          pill.textContent = status.text
+          root.append(terrain, pill)
+          return { domNodes: [root] }
+        }
+
         // Le titre abrégé n'a de sens que dans les colonnes étroites d'une vue
         // semaine sur mobile ; en vue Jour on a toute la largeur.
         const isNarrowColumn = window.matchMedia('(max-width: 640px)').matches && arg.view.type !== 'timeGridDay'
-        const title = (isNarrowColumn ? (arg.event.extendedProps.shortTitle || arg.event.title) : arg.event.title) || ''
-        const coach = arg.event.extendedProps.coachName || ''
+        const title = (isNarrowColumn ? (props.shortTitle || arg.event.title) : arg.event.title) || ''
 
         const root = document.createElement('div')
-        root.className = 'fc-asmbv-card'
+        root.className = 'fc-asmbv-card flex flex-col h-full overflow-hidden gap-0.5'
 
-        const time = document.createElement('div')
-        time.className = 'fc-asmbv-time'
-        time.textContent = timeText
+        const meta = document.createElement('div')
+        meta.className = 'fc-asmbv-meta text-[11px] opacity-90'
+        const time = document.createElement('span')
+        time.textContent = arg.timeText
+        const terrain = document.createElement('span')
+        terrain.className = 'fc-asmbv-terrain'
+        terrain.textContent = props.terrainShort || ''
+        meta.append(time, terrain)
 
         const titleEl = document.createElement('div')
-        titleEl.className = 'fc-asmbv-title'
+        titleEl.className = 'fc-asmbv-title text-xs sm:text-[13px] font-semibold leading-tight line-clamp-2'
         titleEl.textContent = title
 
-        const coachEl = document.createElement('div')
-        coachEl.className = 'fc-asmbv-coach'
-        coachEl.textContent = coach
+        const statusEl = document.createElement('div')
+        statusEl.className = 'text-[11px] font-medium opacity-90 truncate'
+        statusEl.textContent = status.text
 
-        root.appendChild(time)
-        root.appendChild(titleEl)
-        root.appendChild(coachEl)
+        root.append(meta, titleEl, statusEl)
+
+        // Jauge de remplissage : visible sans ouvrir la session.
+        if (props.maxPlayers) {
+          const fill = document.createElement('div')
+          fill.className = `fc-asmbv-fill${status.tone === 'hot' ? ' is-hot' : ''}`
+          const bar = document.createElement('span')
+          bar.style.width = `${Math.min(100, Math.round((props.confirmedCount / props.maxPlayers) * 100))}%`
+          fill.appendChild(bar)
+          root.appendChild(fill)
+        }
+
         return { domNodes: [root] }
       },
       eventClick: (info) => {
         info.jsEvent.preventDefault()
         const id = info.event.id
+        if (!id) return
         const url = new URL(`/sessions/${id}`, window.location.origin)
         const current = new URL(window.location.href)
         ;["view", "date", "terrain", "for_me"].forEach((key) => {
@@ -145,81 +181,17 @@ export default class extends Controller {
       },
 
       eventDidMount(info) {
+        if (info.event.display === 'background') {
+          info.el.title = info.event.title
+          return
+        }
+        if (info.view.type.startsWith('list')) return
+
         const isMobile = window.matchMedia('(max-width: 640px)').matches
-
-        // style "carte"
-        info.el.style.borderRadius = '10px'
-        info.el.style.padding = isMobile ? '4px' : '8px'
-        info.el.style.boxShadow = '0 1px 0 rgba(0,0,0,0.06)'
-        info.el.style.fontWeight = '500'
-        info.el.style.whiteSpace = 'normal'
-        info.el.style.overflow = isMobile ? 'hidden' : 'visible'
-        info.el.style.display = 'block'
-        // Sur mobile, s'assurer que le contenu ne dépasse pas
-        if (isMobile) {
-          info.el.style.width = '100%'
-          info.el.style.boxSizing = 'border-box'
-        }
-
-        // typographies fines via classes utilitaires
-        const card = info.el.querySelector('.fc-asmbv-card')
-        if (card) {
-          card.style.width = '100%'
-          card.style.height = '100%'
-          card.style.display = 'flex'
-          card.style.flexDirection = 'column'
-          card.style.overflow = 'hidden'
-        }
-
-        const time = info.el.querySelector('.fc-asmbv-time')
-        const title = info.el.querySelector('.fc-asmbv-title')
-        const coach = info.el.querySelector('.fc-asmbv-coach')
-
-        if (time) {
-          time.style.fontSize = isMobile ? '10px' : '12px'
-          time.style.opacity = '0.9'
-          time.style.lineHeight = '1.1'
-          time.style.flexShrink = '0'
-          if (isMobile) {
-            time.style.overflow = 'hidden'
-            time.style.textOverflow = 'ellipsis'
-            time.style.whiteSpace = 'nowrap'
-          }
-        }
-
-        if (title) {
-          title.style.fontSize = isMobile ? '11px' : '13px'
-          title.style.fontWeight = '600'
-          title.style.lineHeight = '1.2'
-          title.style.flex = '1'
-          title.style.minHeight = '0'
-          // line-clamp 2 sur desktop, 1 sur mobile pour économiser l'espace
-          title.style.display = '-webkit-box'
-          title.style.webkitLineClamp = isMobile ? '1' : '2'
-          title.style.webkitBoxOrient = 'vertical'
-          title.style.overflow = 'hidden'
-          title.style.textOverflow = 'ellipsis'
-        }
-
-        if (coach) {
-          coach.style.fontSize = isMobile ? '9px' : '12px'
-          coach.style.opacity = '0.9'
-          coach.style.lineHeight = '1.1'
-          coach.style.flexShrink = '0'
-          if (isMobile) {
-            coach.style.overflow = 'hidden'
-            coach.style.textOverflow = 'ellipsis'
-            coach.style.whiteSpace = 'nowrap'
-            coach.style.maxWidth = '100%'
-          }
-        }
-
-        // min height douce pour les events courts - ajusté pour mobile
+        info.el.style.borderRadius = '8px'
+        info.el.style.padding = isMobile ? '3px 4px' : '5px 7px'
+        info.el.style.overflow = 'hidden'
         info.el.style.minHeight = isMobile ? '40px' : '60px'
-        // Sur mobile, hauteur maximale pour éviter les débordements
-        if (isMobile) {
-          info.el.style.maxHeight = '100%'
-        }
       },
 
       datesSet: (info) => {
@@ -233,11 +205,26 @@ export default class extends Controller {
     // Expose for later filtering
     this.calendar = calendar
     this.sessions = sessions
+    this.closures = closures
 
     calendar.render()
     this.styleHeaderButtons(calendarEl)
     this.setupFilterTabsInteraction()
     this.applyFiltersFromUrl()
+  }
+
+  // Ce que le joueur doit savoir avant de cliquer : son statut, sinon les
+  // places restantes. `tone` règle la pastille (vue liste) et la jauge.
+  statusLabel({ status, confirmedCount, maxPlayers }) {
+    if (status === 'registered') return { text: '✓ Inscrit', tone: 'registered' }
+    if (status === 'waitlisted') return { text: "Liste d'attente", tone: 'waitlisted' }
+    if (!maxPlayers) return { text: `${confirmedCount} inscrits`, tone: status === 'open' ? 'ok' : 'full' }
+
+    const left = maxPlayers - confirmedCount
+    if (left <= 0) return { text: 'Complet', tone: 'full' }
+    if (status !== 'open') return { text: `${confirmedCount}/${maxPlayers}`, tone: 'full' }
+    if (left <= 2) return { text: left === 1 ? 'Plus qu’1 place' : `Plus que ${left} places`, tone: 'hot' }
+    return { text: `${confirmedCount}/${maxPlayers} · ${left} places`, tone: 'ok' }
   }
 
   styleHeaderButtons(_calendarEl) {
@@ -343,8 +330,9 @@ export default class extends Controller {
       return terrainMatches && forMeMatches
     })
     this.filteredSessions = filteredEvents
+    const closures = (this.closures || []).filter((c) => !selectedTerrain || c.terrain === selectedTerrain)
     this.calendar.removeAllEvents()
-    this.calendar.addEventSource(filteredEvents)
+    this.calendar.addEventSource([...filteredEvents, ...closures])
 
     // La fenêtre horaire suit le filtrage : ne filtrer que le terrain 2 ne doit
     // pas laisser la grille ouverte sur les heures du terrain 1.
