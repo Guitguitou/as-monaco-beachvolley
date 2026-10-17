@@ -21,7 +21,7 @@ RSpec.describe EmptyStateComponent, type: :component do
   it "rend une carte par défaut" do
     render_inline(described_class.new(icon: "volleyball", title: "Vide"))
 
-    expect(page).to have_css("div.border.rounded-xl")
+    expect(page).to have_css("div.border.rounded-none")
   end
 
   # Variante pour un état vide à l'intérieur d'une carte existante, où un
@@ -29,7 +29,7 @@ RSpec.describe EmptyStateComponent, type: :component do
   it "supprime le cadre en mode compact" do
     render_inline(described_class.new(icon: "volleyball", title: "Vide", compact: true))
 
-    expect(page).not_to have_css("div.rounded-xl")
+    expect(page).not_to have_css("div.rounded-none")
   end
 
   it "rend le slot action" do

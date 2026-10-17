@@ -8,7 +8,7 @@
         label: "Recherche nom/email",
         required: false,
         show_label: true,
-        input_class: "border rounded px-2 py-1 w-56",
+        input_class: "border rounded-none px-2 py-1 w-56",
         html_options: { value: params[:q], placeholder: "Ex: Dupont" }
       ) %>
     </div>
@@ -19,7 +19,7 @@
         type: :select,
         label: "Genre",
         required: false,
-        input_class: "border rounded px-2 py-1",
+        input_class: "border rounded-none px-2 py-1",
         options: options_for_select([["Tous", ""], ["Féminin", "female"], ["Masculin", "male"], ["Mixte", "mixed"]], params[:gender]),
         select_options: { include_blank: false }
       ) %>
@@ -31,13 +31,13 @@
         type: :select,
         label: "Type de licence",
         required: false,
-        input_class: "border rounded px-2 py-1",
+        input_class: "border rounded-none px-2 py-1",
         options: options_for_select([["Toutes", ""], ["Libre", "libre"], ["Compétition", "competition"]], params[:license_type]),
         select_options: { include_blank: false }
       ) %>
     </div>
     <div>
-      <%= submit_tag "Filtrer", class: "inline-flex items-center gap-1 rounded-none bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700" %>
+      <%= render ButtonComponent.new(type: :submit, variant: :secondary) do %>Filtrer<% end %>
     </div>
   <% end %>
 </div>

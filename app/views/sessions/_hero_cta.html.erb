@@ -102,7 +102,7 @@
             <%= cta.kind == :waitlisted ? "Quitter la liste" : "Se désinscrire" %>
           </button>
           <dialog data-dialog-target="dialog" data-action="click->dialog#backdropClose"
-                  class="m-auto w-[min(92vw,26rem)] rounded-xl p-0 backdrop:bg-black/40">
+                  class="m-auto w-[min(92vw,26rem)] rounded-none p-0 backdrop:bg-black/40">
             <div class="p-5 space-y-4 text-left">
               <h3 class="font-anton text-xl uppercase text-gray-900">
                 <%= cta.kind == :waitlisted ? "Quitter la liste d'attente ?" : "Te désinscrire ?" %>
@@ -112,14 +112,14 @@
               <% elsif cta.cost.zero? %>
                 <p class="text-sm text-gray-700">Ta place est rendue aux joueurs en attente.</p>
               <% elsif cta.refundable_now? %>
-                <div class="rounded-lg bg-green-50 px-3 py-2.5 text-sm text-green-800">
+                <div class="rounded-none bg-green-50 px-3 py-2.5 text-sm text-green-800">
                   <p class="font-semibold">Ton crédit te sera rendu</p>
                   <% if cta.refund_deadline %>
                     <p>Tu annules avant le <%= l(cta.refund_deadline, format: :long) %>.</p>
                   <% end %>
                 </div>
               <% else %>
-                <div class="rounded-lg bg-orange-50 px-3 py-2.5 text-sm text-orange-900">
+                <div class="rounded-none bg-orange-50 px-3 py-2.5 text-sm text-orange-900">
                   <p class="font-semibold">Ton crédit ne sera pas rendu</p>
                   <p>Le délai de remboursement est dépassé.</p>
                 </div>

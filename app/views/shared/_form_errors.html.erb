@@ -1,6 +1,6 @@
 <%# Affiche le bloc d'erreurs de validation (DRY). Utilise I18n errors.messages.not_saved (Devise). %>
 <% if object.present? && object.errors.any? %>
-  <div class="rounded-md bg-red-50 border border-red-200 p-4 mb-6" role="alert" data-turbo-cache="false">
+  <div class="rounded-none bg-red-50 border border-red-200 p-4 mb-6" role="alert" data-turbo-cache="false">
     <h3 class="text-sm font-medium text-red-800">
       <%= t("errors.messages.not_saved", count: object.errors.count, resource: object.class.model_name.human.downcase) %>
     </h3>

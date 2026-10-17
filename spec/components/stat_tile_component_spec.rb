@@ -12,7 +12,7 @@ RSpec.describe StatTileComponent, type: :component do
     render_inline(described_class.new(value: 3, label: "À venir"))
 
     expect(page).not_to have_css("a")
-    expect(page).to have_css("div.rounded-xl")
+    expect(page).to have_css("div.rounded-none")
   end
 
   it "devient un lien quand href est fourni" do

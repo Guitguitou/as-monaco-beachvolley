@@ -10,7 +10,7 @@
 
 <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
   <% @level_groups.groups.each do |group| %>
-    <div class="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+    <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden") do %>
       <div class="flex items-center justify-between px-4 py-2 bg-gray-50 border-b border-gray-200"
            style="border-left: 4px solid <%= group.level.color.presence || '#e5e7eb' %>">
         <span class="font-semibold text-gray-800"><%= group.level.display_name %></span>
@@ -35,6 +35,6 @@
           <% end %>
         </tbody>
       </table>
-    </div>
+    <% end %>
   <% end %>
 </div>

@@ -62,7 +62,7 @@ class LicenseCardComponent < ApplicationComponent
   end
 
   def wrapper_classes
-    base = "border rounded-xl p-5 sm:p-6"
+    base = "border rounded-none p-5 sm:p-6"
     activated? ? "#{base} border-gray-200 bg-white" : "#{base} border-asmbv-red bg-asmbv-red-light"
   end
 

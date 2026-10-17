@@ -8,7 +8,7 @@
                 session_form_prices_value: Session::PRICE_BY_TYPE,
                 session_form_terrain_closures_value: terrain_closures_json_for_forms
               },
-               class: "space-y-6 bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto" do |f| %>
+               class: "space-y-6 bg-white p-6 rounded-none shadow-md max-w-3xl mx-auto" do |f| %>
 
   <%= render "shared/form_errors", object: session %>
 
@@ -59,7 +59,7 @@
 
   <!-- Option admin: créer sur les 3 terrains -->
   <div class="flex items-start gap-2">
-    <%= check_box_tag 'session[create_on_all_terrains]', '1', false, id: 'session_create_on_all_terrains', class: "mt-1 h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+    <%= check_box_tag 'session[create_on_all_terrains]', '1', false, id: 'session_create_on_all_terrains', class: "mt-1 h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red" %>
     <div>
       <label for="session_create_on_all_terrains" class="text-sm font-medium text-gray-900">Créer la même session sur les 3 terrains</label>
       <p class="text-xs text-gray-500">Cree 3 sessions identiques, une par terrain (1, 2 et 3).</p>
@@ -184,7 +184,7 @@
       attribute: :price,
       type: :number_field,
       label: "Prix (crédits)",
-      input_class: "block w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+      input_class: "block w-full rounded-none border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
       html_options: { min: 0, step: 1, readonly: true, data: { session_form_target: "price" } }
     ) %>
   </div>
@@ -198,7 +198,7 @@
       <%= f.collection_check_boxes :level_ids, (@levels || Level.all), :id, :name do |b| %>
         <div class="flex items-center justify-between gap-2">
           <label class="flex items-center gap-2">
-            <%= b.check_box(class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red") %>
+            <%= b.check_box(class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red") %>
             <span class="text-sm text-gray-700"><%= "#{b.object.name} - #{b.object.gender.humanize}" %></span>
           </label>
           <%= select_tag "session[level_priorities][#{b.object.id}]",
@@ -206,7 +206,7 @@
                   [ [ "Priorité 1", 1 ], [ "Priorité 2", 2 ], [ "Priorité 3", 3 ] ],
                   level_priorities[b.object.id]&.priority.to_i.clamp(1, 3)
                 ),
-                class: "text-xs border-gray-300 rounded focus:ring-asmbv-red" %>
+                class: "text-xs border-gray-300 rounded-none focus:ring-asmbv-red" %>
         </div>
       <% end %>
     </div>
@@ -217,7 +217,7 @@
 
   <!-- Portée (sessions dupliquées) -->
   <% if session.persisted? && session.has_following_in_series? %>
-    <div class="rounded-md border border-gray-200 bg-gray-50 p-4">
+    <div class="rounded-none border border-gray-200 bg-gray-50 p-4">
       <p class="text-sm font-medium text-gray-900 mb-2">Cette session fait partie d'une série (duplication). Appliquer les modifications à :</p>
       <div class="flex flex-col gap-2">
         <label class="flex items-center gap-2">
@@ -235,10 +235,7 @@
 
   <!-- Bouton -->
   <div>
-    <%= f.submit class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2
-                        text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark 
-                        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 
-                        focus-visible:outline-asmbv-red transition-colors" do %>
+    <%= render ButtonComponent.new(type: :submit, class: "w-full") do %>
       <%= lucide_icon("save", size: 16) %> Enregistrer
     <% end %>
   </div>
