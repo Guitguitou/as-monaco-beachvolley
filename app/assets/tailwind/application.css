@@ -114,6 +114,25 @@
 
 .fc-timegrid-event.status-unavailable { opacity: 0.7; }
 
+/* Le terrain garde sa couleur de club en bordure gauche épaisse, et sur son
+   libellé : le statut remplit l'événement, le terrain le signe. */
+.fc .fc-timegrid-event.terrain-1 { border-left: 5px solid var(--color-asmbv-ocean) !important; }
+.fc .fc-timegrid-event.terrain-2 { border-left: 5px solid var(--color-asmbv-ink) !important; }
+.fc .fc-timegrid-event.terrain-3 { border-left: 5px solid var(--color-asmbv-gold) !important; }
+.fc .fc-timegrid-event.status-registered.terrain-2 { border-left-color: #000000 !important; }
+
+.terrain-1 .fc-asmbv-terrain,
+.terrain-2 .fc-asmbv-terrain,
+.terrain-3 .fc-asmbv-terrain {
+  padding: 0 4px;
+  border-radius: 3px;
+  color: #ffffff;
+}
+.terrain-1 .fc-asmbv-terrain { background: var(--color-asmbv-ocean); }
+.terrain-2 .fc-asmbv-terrain { background: var(--color-asmbv-ink); }
+.terrain-3 .fc-asmbv-terrain { background: var(--color-asmbv-gold); color: var(--color-asmbv-ink); }
+.fc-timegrid-event.status-unavailable .fc-asmbv-terrain { opacity: 0.6; }
+
 /* FullCalendar impose sa propre couleur de texte au contenu de l'événement. */
 .fc-v-event .fc-event-main,
 .fc-h-event .fc-event-main { color: inherit !important; }
@@ -140,6 +159,9 @@
 }
 
 .fc-asmbv-terrain {
+  white-space: nowrap;
+  align-self: flex-start;
+  line-height: 1.3;
   font-family: "Bebas Neue", sans-serif;
   font-size: 1.1em;
   letter-spacing: 0.08em;

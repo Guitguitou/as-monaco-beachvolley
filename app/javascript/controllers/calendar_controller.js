@@ -110,16 +110,27 @@ export default class extends Controller {
         const status = this.statusLabel(props)
 
         // Vue liste (mobile) : le titre, le terrain et une pastille de statut.
+        // Un vrai lien : le contenu personnalisé remplace celui de FullCalendar,
+        // qui portait le <a href> de la ligne. Sans lui, la ligne n'est plus
+        // cliquable (eventClick ne se déclenche pas en vue liste).
         if (arg.view.type.startsWith('list')) {
-          const root = document.createElement('span')
+          const root = document.createElement('a')
+          root.href = arg.event.url
+          root.className = 'block'
           root.append(`${arg.event.title} `)
           const terrain = document.createElement('span')
-          terrain.className = 'fc-asmbv-terrain text-gray-500'
+          terrain.className = 'fc-asmbv-terrain text-[11px]'
           terrain.textContent = props.terrainShort || ''
           const pill = document.createElement('span')
           pill.className = `fc-asmbv-pill ${status.tone}`
           pill.textContent = status.text
           root.append(terrain, pill)
+          if (props.coachName) {
+            const coach = document.createElement('span')
+            coach.className = 'block text-xs text-gray-500'
+            coach.textContent = props.coachName
+            root.appendChild(coach)
+          }
           return { domNodes: [root] }
         }
 
@@ -148,7 +159,14 @@ export default class extends Controller {
         statusEl.className = 'text-[11px] font-medium opacity-90 truncate'
         statusEl.textContent = status.text
 
-        root.append(meta, titleEl, statusEl)
+        root.append(meta, titleEl)
+        if (props.coachName) {
+          const coachEl = document.createElement('div')
+          coachEl.className = 'text-[11px] opacity-80 truncate'
+          coachEl.textContent = props.coachName
+          root.appendChild(coachEl)
+        }
+        root.appendChild(statusEl)
 
         // Jauge de remplissage : visible sans ouvrir la session.
         if (props.maxPlayers) {
@@ -163,6 +181,10 @@ export default class extends Controller {
         return { domNodes: [root] }
       },
       eventClick: (info) => {
+        // En vue liste, un clic sur le lien du titre navigue seul : une seconde
+        // visite Turbo lancée ici annulerait la première. Le reste de la ligne
+        // (heure, pastille) passe par la navigation ci-dessous.
+        if (info.jsEvent.target.closest('a[href]')) return
         info.jsEvent.preventDefault()
         const id = info.event.id
         if (!id) return
