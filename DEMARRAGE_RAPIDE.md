@@ -2,15 +2,15 @@
 
 ## ✅ Ce qui a été fait
 
-### 1. Migration Sidekiq (Terminé)
-- ✅ Sidekiq + Redis configuré
-- ✅ Interface web `/admin/sidekiq`
+### 1. Jobs Solid Queue (Terminé)
+- ✅ Solid Queue / Solid Cache / Solid Cable sur Postgres, sans Redis
+- ✅ Interface web `/admin/jobs`
 - ✅ Prêt pour Scalingo
 
 ### 2. Système de Paiement (Terminé)
 - ✅ Modèle CreditPurchase
 - ✅ Gateway Fake/Real pour LCL Sherlock
-- ✅ Webhook avec Sidekiq
+- ✅ Webhook traité en job
 - ✅ Boutique `/packs` et pages de résultat `/checkout`
 - ✅ Tests RSpec
 
@@ -22,13 +22,8 @@
 # 1. Installer les dépendances
 bundle install
 
-# 2. Installer et démarrer Redis
-brew install redis
-brew services start redis
-
-# 3. Créer le fichier .env
+# 2. Créer le fichier .env
 cat > .env << 'EOF'
-REDIS_URL=redis://localhost:6379/1
 SHERLOCK_GATEWAY=fake
 APP_HOST=http://localhost:3000
 CURRENCY=EUR
@@ -67,23 +62,21 @@ bin/dev
      page de résultat, solde à jour
    - Pour rejouer un refus : `SHERLOCK_FAKE_RESPONSE_CODE=05`
 
-4. **Vérifier Sidekiq** :
-   - Interface : http://localhost:3000/admin/sidekiq
+4. **Vérifier les jobs** :
+   - Interface : http://localhost:3000/admin/jobs
    - Voir les jobs traités
 
 ## 📦 Déploiement sur Scalingo
 
-### 1. Ajouter Redis
+### 1. Traiter les jobs dans le conteneur web
 
 ```bash
-scalingo --app votre-app addons-add redis redis-starter-256
+scalingo --app votre-app env-set SOLID_QUEUE_IN_PUMA=true
 ```
 
-### 2. Activer le worker Sidekiq
+Voir `SCALINGO_DEPLOYMENT.md`.
 
-```bash
-scalingo --app votre-app scale worker:1
-```
+### 2. (rien à faire : plus de Redis ni de worker)
 
 ### 3. Configurer les variables (mode fake pour tester)
 
@@ -108,7 +101,6 @@ Voir `PAIEMENT_README.md` pour la configuration complète de LCL Sherlock.
 | Fichier | Description |
 |---------|-------------|
 | **PAIEMENT_README.md** | Guide complet du système de paiement |
-| **MIGRATION_SIDEKIQ.md** | Documentation Sidekiq complète |
 | **SCALINGO_DEPLOYMENT.md** | Guide déploiement Scalingo |
 | **ENV_VARIABLES.md** | Variables d'environnement |
 | **setup_real_sherlock.md** | Plan d'implémentation original |
@@ -149,7 +141,7 @@ befe3fd docs: variables d'environnement
 - **Mode real** : Production LCL Sherlock
 
 ### Webhook
-- Traitement asynchrone via Sidekiq
+- Traitement asynchrone via Solid Queue
 - Vérification signature HMAC
 - Gestion success/failed/cancelled
 
@@ -159,8 +151,8 @@ befe3fd docs: variables d'environnement
 # Console Rails
 bin/rails console
 
-# Voir les jobs Sidekiq
-bundle exec sidekiq -C config/sidekiq.yml
+# Lancer le traitement des jobs (déjà inclus dans bin/dev)
+bin/jobs
 
 # Créer un paiement test
 bin/rails console
@@ -176,24 +168,18 @@ tail -f log/development.log
 
 ## 🆘 Problèmes courants
 
-### Redis ne démarre pas
+### Les jobs ne sont pas traités
 ```bash
-brew services restart redis
-redis-cli ping  # Devrait répondre PONG
-```
-
-### Sidekiq ne traite pas les jobs
-```bash
-# Vérifier que Sidekiq tourne
-ps aux | grep sidekiq
+# Vérifier que bin/jobs tourne
+ps aux | grep solid-queue
 
 # Redémarrer avec bin/dev
 ```
 
 ### Les crédits ne s'ajoutent pas
-- Vérifier les logs de Sidekiq
+- Vérifier les logs de `bin/jobs`
 - Vérifier que le job `SherlockCallbackJob` s'est exécuté
-- Vérifier l'interface Sidekiq `/admin/sidekiq`
+- Vérifier l'interface `/admin/jobs`
 
 ---
 

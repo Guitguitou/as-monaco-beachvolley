@@ -46,6 +46,27 @@ module Mcp
         def paris_time(time)
           time&.in_time_zone("Europe/Paris")&.iso8601
         end
+
+        # Période demandée en dates, le mois en cours par défaut.
+        def month_period(from, to)
+          start_on = parse_date(from, Date.current.beginning_of_month)
+          start_on..parse_date(to, start_on.end_of_month)
+        end
+
+        # Bornes horaires couvrant tous les jours de la période.
+        def day_bounds(period)
+          period.begin.in_time_zone.beginning_of_day..period.end.in_time_zone.end_of_day
+        end
+
+        def period_payload(period)
+          { from: period.begin.iso8601, to: period.end.iso8601 }
+        end
+
+        # Liste plafonnée à `limit` lignes, et si elle a été tronquée.
+        def capped(relation, limit)
+          rows = relation.limit(limit).to_a
+          [ rows, rows.size == limit ]
+        end
       end
     end
   end

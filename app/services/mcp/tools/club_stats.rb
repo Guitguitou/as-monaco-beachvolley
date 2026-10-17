@@ -20,13 +20,11 @@ module Mcp
         def permission = [ :read, :admin_dashboard ]
 
         def execute(_context, from: nil, to: nil)
-          start_on = parse_date(from, Date.current.beginning_of_month)
-          end_on = parse_date(to, start_on.end_of_month)
-          range = start_on.in_time_zone.beginning_of_day..end_on.in_time_zone.end_of_day
+          period = month_period(from, to)
+          range = day_bounds(period)
 
           {
-            from: start_on.iso8601,
-            to: end_on.iso8601,
+            **period_payload(period),
             sessions_by_type: Session.where(start_at: range).group(:session_type).count,
             confirmed_participants_by_type: Registration.confirmed.joins(:session)
                                                         .where(sessions: { start_at: range })

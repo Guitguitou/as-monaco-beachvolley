@@ -7,25 +7,25 @@ module Sessions
     end
 
     def open_state
-      return [false, "L'inscription à ce tournoi se fait sur BVS."] if session.tournament_id.present?
-      return [true, nil] unless session.entrainement?
-      return [true, nil] if session.registration_opens_at.blank?
+      return [ false, "L'inscription à ce tournoi se fait sur BVS." ] if session.tournament_id.present?
+      return [ true, nil ] unless session.entrainement?
+      return [ true, nil ] if session.registration_opens_at.blank?
 
       now = Time.current
       if now < session.registration_opens_at
-        return [false, "Les inscriptions ouvrent le #{I18n.l(session.registration_opens_at, format: :long)}."]
+        return [ false, "Les inscriptions ouvrent le #{I18n.l(session.registration_opens_at, format: :long)}." ]
       end
 
       within_priority_window = now < (session.registration_opens_at + Session::PRIORITY_WINDOW_HOURS.hours)
       if within_priority_window && user&.license_type != "competition"
-        return [false, "Priorité licence compétition pendant 24h après l'ouverture."]
+        return [ false, "Priorité licence compétition pendant 24h après l'ouverture." ]
       end
 
       if !skip_deadline && past_deadline?
-        return [false, "Les inscriptions sont closes (limite : 17h le jour de la session)."]
+        return [ false, "Les inscriptions sont closes (limite : 17h le jour de la session)." ]
       end
 
-      [true, nil]
+      [ true, nil ]
     end
 
     def past_deadline?

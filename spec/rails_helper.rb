@@ -127,5 +127,6 @@ end
 
 # Increase Capybara wait time for JS to settle a bit
 Capybara.default_max_wait_time = 5
-Capybara.app_host = 'http://test.host'
-Capybara.server_host = 'test.host'
+# Serveur des tests système sur la boucle locale : un nom comme test.host ne
+# se résout que s'il figure dans /etc/hosts (absent en CI).
+Capybara.server_host = "127.0.0.1"

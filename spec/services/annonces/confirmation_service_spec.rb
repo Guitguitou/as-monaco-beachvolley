@@ -59,6 +59,16 @@ RSpec.describe Annonces::ConfirmationService do
     expect(annonce.session).to eq(result.session)
   end
 
+  it "laisse de la place aux joueurs qui arrivent après la confirmation" do
+    available_player
+    available_player
+
+    result = described_class.new(annonce: annonce, slot: slot, terrain: "Terrain 1").call
+
+    expect(result.session.max_players).to eq(Annonce::SESSION_CAPACITY)
+    expect(result.session).not_to be_full
+  end
+
   describe described_class::Result do
     it "sums up the registrations for the organiser" do
       result = described_class.new(session: nil, registered: [ 1, 2 ], skipped: [])

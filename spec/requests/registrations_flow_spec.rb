@@ -11,7 +11,7 @@ RSpec.describe "Registrations flow", type: :request do
   end
 
   # Before 17:00 on the session day so `past_registration_deadline?` does not block players
-  # (factory uses start_at 1.hour.from_now, often still "today" when the suite runs after 17h).
+  # and the same-day example stays on the session day.
   describe "with clock before 17h on the session day" do
     before { travel_to(Time.zone.parse("2025-06-10 10:00")) }
     after { travel_back }
@@ -47,10 +47,12 @@ RSpec.describe "Registrations flow", type: :request do
   end
 
   it "prévient le coach d'une inscription le jour même à son entraînement" do
+    same_day_session = create(:session, session_type: "entrainement", terrain: "Terrain 1", user: coach,
+                                        levels: [ level ], start_at: 1.hour.from_now)
     allow(SendPushNotificationJob).to receive(:perform_later)
     sign_in player, scope: :user
 
-    post session_registrations_path(session_record)
+    post session_registrations_path(same_day_session)
 
     expect(SendPushNotificationJob).to have_received(:perform_later)
       .with(coach.id, hash_including(title: "Inscription de dernière minute 🏐"))

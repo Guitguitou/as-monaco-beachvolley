@@ -33,6 +33,15 @@ port ENV.fetch("PORT", 3000)
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
 
+# Traite les jobs Solid Queue dans le process Puma : un seul conteneur sur
+# Scalingo, sans worker dédié. En mode async (défaut ici), workers, dispatcher
+# et scheduler tournent en threads plutôt qu'en process forkés, pour tenir en
+# mémoire sur un petit conteneur. SOLID_QUEUE_MODE=fork pour plus d'isolation.
+if ENV["SOLID_QUEUE_IN_PUMA"]
+  plugin :solid_queue
+  solid_queue_mode ENV.fetch("SOLID_QUEUE_MODE", "async")
+end
+
 # Specify the PID file. Defaults to tmp/pids/server.pid in development.
 # In other environments, only set the PID file if requested.
 pidfile ENV["PIDFILE"] if ENV["PIDFILE"]

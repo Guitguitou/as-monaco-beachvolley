@@ -1,35 +1,57 @@
-<div class="max-w-5xl mx-auto px-4 py-8">
+<div class="max-w-5xl mx-auto px-4 py-8 space-y-10">
   <%# Titre porté par le PageHeaderComponent du layout. %>
-  <div class="flex items-center justify-between gap-4 mb-6">
-    <p class="text-sm text-gray-600">Trouve des joueurs pour monter une session, ou réponds aux annonces des autres.</p>
-    <%= link_to new_annonce_path, class: "inline-flex items-center gap-2 px-4 py-2.5 font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark shrink-0" do %>
-      <%= lucide_icon("plus", class: "size-5") %> Créer une annonce
-    <% end %>
-  </div>
-
-  <section class="mb-10">
-    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3">Annonces pour toi</h2>
-    <% if @eligible_annonces.any? %>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <% @eligible_annonces.each do |annonce| %>
-          <%= render "annonce_card", annonce: annonce %>
-        <% end %>
-      </div>
-    <% else %>
-      <p class="text-sm text-gray-500 border border-dashed border-gray-200 p-6 text-center">Aucune annonce ne correspond à ton niveau et à tes disponibilités pour le moment.</p>
+  <section class="space-y-4">
+    <p class="text-sm text-gray-600">Pas besoin de connaître du monde : dis quand tu es libre, ou rejoins une partie qui cherche des joueurs.</p>
+    <% if @board.quick_slots.any? %>
+      <%= render "quick_play", quick_slots: @board.quick_slots %>
     <% end %>
   </section>
 
   <section>
-    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3">Mes annonces</h2>
-    <% if @my_annonces.any? %>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <% @my_annonces.each do |annonce| %>
+    <%= render SectionHeaderComponent.new(title: "Ça joue bientôt",
+                                          subtitle: "Parties lancées par les joueurs, les plus près d'être complètes d'abord.") %>
+    <% if @board.open_slots.any? %>
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @board.open_slots.each do |slot| %>
+          <%= render PlaySlotCardComponent.new(slot: slot, user: current_user) %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="mt-4">
+        <%= render EmptyStateComponent.new(icon: "users", title: "Aucune partie pour l'instant",
+                                           description: "Choisis un moment ci-dessus : les joueurs de ton niveau seront prévenus.") %>
+      </div>
+    <% end %>
+  </section>
+
+  <% if @board.club_sessions.any? %>
+    <section>
+      <%= render SectionHeaderComponent.new(title: "Jeu libre du club",
+                                            subtitle: "Sessions encadrées où il reste de la place.") %>
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @board.club_sessions.each do |session| %>
+          <%= render SessionCardComponent.new(state: @board.card_state_for(session)) %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <section>
+    <%= render SectionHeaderComponent.new(title: "Mes parties") do |header| %>
+      <% header.with_action do %>
+        <%= link_to new_annonce_path, class: "inline-flex items-center gap-1 text-sm font-semibold text-asmbv-red hover:underline" do %>
+          <%= lucide_icon("plus", class: "size-4") %> Lancer une partie
+        <% end %>
+      <% end %>
+    <% end %>
+    <% if @board.my_annonces.any? %>
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @board.my_annonces.each do |annonce| %>
           <%= render "annonce_card", annonce: annonce %>
         <% end %>
       </div>
     <% else %>
-      <p class="text-sm text-gray-500 border border-dashed border-gray-200 p-6 text-center">Tu n'as pas encore créé d'annonce.</p>
+      <p class="mt-4 text-sm text-gray-500 border border-dashed border-gray-200 p-6 text-center">Tu n'as pas encore lancé de partie.</p>
     <% end %>
   </section>
 </div>
