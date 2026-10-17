@@ -28,7 +28,7 @@
 
 <!-- Notice pour les comptes non activés -->
 <% if @show_activation_notice %>
-  <div class="mb-6 border-l-4 border-blue-500 bg-blue-50 p-4 rounded-lg">
+  <div class="mb-6 border-l-4 border-blue-500 bg-blue-50 p-4 rounded-none">
     <div class="flex items-start">
       <div class="flex-shrink-0">
         <%= lucide_icon("info", size: 20, class: "text-blue-600") %>
@@ -81,7 +81,7 @@
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <% @credits_packs.each do |pack| %>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+        <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden flex flex-col") do %>
           <%# Header épuré %>
           <div class="p-4 border-b border-gray-100">
             <div class="flex items-start justify-between mb-3">
@@ -132,7 +132,7 @@
               Acheter
             <% end %>
           </div>
-        </div>
+        <% end %>
       <% end %>
     </div>
   </div>
@@ -147,7 +147,7 @@
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <% @stage_packs.each do |pack| %>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+        <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden flex flex-col") do %>
           <%# Header épuré %>
           <div class="p-4 border-b border-gray-100">
             <div class="flex items-start justify-between mb-3">
@@ -211,7 +211,7 @@
               <% end %>
             </div>
           </div>
-        </div>
+        <% end %>
       <% end %>
     </div>
   </div>
@@ -226,7 +226,7 @@
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <% @licence_packs.each do |pack| %>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+        <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden flex flex-col") do %>
           <%# Header épuré %>
           <div class="p-4 border-b border-gray-100">
             <div class="flex items-start justify-between mb-3">
@@ -273,7 +273,7 @@
               Acheter
             <% end %>
           </div>
-        </div>
+        <% end %>
       <% end %>
     </div>
   </div>
@@ -288,7 +288,7 @@
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <% @inscription_tournoi_packs.each do |pack| %>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+        <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden flex flex-col") do %>
           <div class="p-4 border-b border-gray-100">
             <div class="flex items-start justify-between mb-3">
               <div>
@@ -326,7 +326,7 @@
               Acheter
             <% end %>
           </div>
-        </div>
+        <% end %>
       <% end %>
     </div>
   </div>
@@ -341,7 +341,7 @@
     </h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <% @equipements_packs.each do |pack| %>
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+        <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden flex flex-col") do %>
           <div class="p-4 border-b border-gray-100">
             <div class="flex items-start justify-between mb-3">
               <div>
@@ -379,7 +379,7 @@
               Acheter
             <% end %>
           </div>
-        </div>
+        <% end %>
       <% end %>
     </div>
   </div>
@@ -387,7 +387,7 @@
 
 <%# Message si aucun pack ni stage %>
 <% if @credits_packs.empty? && @licence_packs.empty? && @stage_packs.empty? && @inscription_tournoi_packs.to_a.empty? && @equipements_packs.to_a.empty? %>
-  <div class="text-center py-16 bg-white rounded-lg border border-gray-200 shadow-sm">
+  <%= render CardComponent.new(padding: :none, class_name: "text-center py-16") do %>
     <div class="flex flex-col items-center gap-4">
       <%= lucide_icon("package", size: 64, class: "text-gray-300") %>
       <div>
@@ -395,6 +395,6 @@
         <p class="text-gray-500">Les packs et stages seront bientôt disponibles.</p>
       </div>
     </div>
-  </div>
+  <% end %>
 <% end %>
 </div>

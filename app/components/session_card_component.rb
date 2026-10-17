@@ -33,7 +33,7 @@ class SessionCardComponent < ApplicationComponent
            to: :state
 
   def card_classes
-    "flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm " \
+    "flex flex-col bg-white border border-gray-200 rounded-none shadow-sm " \
       "transition-shadow duration-150 hover:shadow-md"
   end
 

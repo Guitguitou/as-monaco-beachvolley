@@ -114,7 +114,7 @@
   <section>
     <%= render SectionHeaderComponent.new(title: "Mon compte") %>
 
-    <div class="mt-4 border border-gray-200 bg-white rounded-xl divide-y divide-gray-100">
+    <%= render CardComponent.new(padding: :none, class_name: "mt-4 divide-y divide-gray-100") do %>
       <%# L'ancienne page proposait deux icônes distinctes pointant toutes
           les deux vers cette même page Devise. %>
       <%= link_to edit_user_registration_path, data: { turbo_frame: "_top" },
@@ -153,6 +153,6 @@
         </div>
         <%= lucide_icon("chevron-right", class: "w-4 h-4 shrink-0 text-gray-400", aria: { hidden: true }) %>
       <% end %>
-    </div>
+    <% end %>
   </section>
 </div>

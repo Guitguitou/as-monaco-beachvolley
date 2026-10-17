@@ -1,4 +1,4 @@
-<%= form_with model: level, url: url, method: method, class: "space-y-6 max-w-md bg-white p-6 rounded-lg shadow-md" do |f| %>
+<%= form_with model: level, url: url, method: method, class: "space-y-6 max-w-md bg-white p-6 rounded-none shadow-md" do |f| %>
   <%= render "shared/form_errors", object: level %>
 
   <!-- Nom du groupe -->
@@ -27,16 +27,13 @@
       type: :color_field,
       label: "Couleur",
       required: false,
-      input_class: "h-10 w-20 p-0 border border-gray-300 rounded focus:outline-none focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red"
+      input_class: "h-10 w-20 p-0 border border-gray-300 rounded-none focus:outline-none focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red"
     ) %>
   </div>
 
   <!-- Bouton -->
   <div>
-    <%= f.submit class: "w-full inline-flex justify-center items-center gap-x-1.5 rounded-md 
-                        bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm 
-                        hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 
-                        focus-visible:outline-offset-2 focus-visible:outline-asmbv-red transition-colors" do %>
+    <%= render ButtonComponent.new(type: :submit, class: "w-full") do %>
       <%= lucide_icon("save", size: 16) %> Enregistrer
     <% end %>
   </div>

@@ -33,7 +33,7 @@
       <% end %>
 
       <div class="pt-2" data-controller="collapse" data-open="false">
-        <button type="button" data-action="click->collapse#toggle" class="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium text-sm sidebar-link">
+        <button type="button" data-action="click->collapse#toggle" class="w-full flex items-center gap-2 px-3 py-2 rounded-none hover:bg-gray-100 text-gray-800 font-medium text-sm sidebar-link">
           <span>Règles & informations</span>
           <span class="ml-auto text-gray-500 transition-transform" data-collapse-target="chevron">
             <%= lucide_icon 'chevron-down', class: '' %>
@@ -60,7 +60,7 @@
         <button type="button" 
                 data-action="click->push-notifications#requestPermission"
                 data-push-notifications-target="enableButton"
-                class="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium text-sm"
+                class="w-full flex items-center gap-2 px-3 py-2 rounded-none hover:bg-gray-100 text-gray-800 font-medium text-sm"
                 style="display: none;">
           <%= lucide_icon('bell', class: 'w-5 h-5 text-asmbv-red') %>
           <span>Activer les notifications</span>
@@ -68,7 +68,7 @@
       <% end %>
       <%= link_to destroy_user_session_path,
             data: { turbo_method: :delete },
-            class: "flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-800 font-medium" do %>
+            class: "flex items-center gap-2 px-3 py-2 rounded-none hover:bg-gray-100 text-gray-800 font-medium" do %>
         <%= lucide_icon('log-out', class: 'w-5 h-5 text-asmbv-red') %>
         <span>Déconnexion</span>
       <% end %>

@@ -1,6 +1,6 @@
 <div class="space-y-6">
   <!-- Filtres -->
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+  <div class="bg-white rounded-none shadow-sm border border-gray-200 p-4">
     <%= form_with url: admin_dashboard_path, method: :get, local: true, class: "grid grid-cols-1 md:grid-cols-4 gap-4" do |form| %>
       <div>
         <%= form.label :date_range, "Période", class: "block text-sm font-medium text-gray-700 mb-1" %>
@@ -12,7 +12,7 @@
               ['Toutes', 'all']
             ], 
             { selected: filters[:date_range] || 'week' },
-            { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
+            { class: "w-full rounded-none border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
       </div>
       
       <div>
@@ -20,7 +20,7 @@
         <%= form.select :session_type, 
             session_types.map { |type| [type[:label], type[:value]] },
             { selected: filters[:session_type] || '' },
-            { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
+            { class: "w-full rounded-none border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
       </div>
       
       <div>
@@ -28,17 +28,17 @@
         <%= form.select :coach_id, 
             [['Tous les coachs', '']] + coaches.map { |coach| [coach[:label], coach[:value]] },
             { selected: filters[:coach_id] || '' },
-            { class: "w-full rounded-md border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
+            { class: "w-full rounded-none border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
       </div>
       
       <div class="flex items-end">
-        <%= form.submit "Filtrer", class: "w-full bg-asmbv-red text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:ring-offset-2" %>
+        <%= form.submit "Filtrer", class: "w-full bg-asmbv-red text-white px-4 py-2 rounded-none hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:ring-offset-2" %>
       </div>
     <% end %>
   </div>
 
   <!-- Sessions -->
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+  <div class="bg-white rounded-none shadow-sm border border-gray-200 overflow-hidden">
     <div class="px-4 py-3 border-b border-gray-200">
       <h3 class="text-lg font-semibold text-gray-900">Sessions</h3>
     </div>

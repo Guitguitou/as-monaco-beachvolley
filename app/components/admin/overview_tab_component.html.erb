@@ -2,10 +2,10 @@
   <!-- KPIs Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <% kpi_cards.each do |card| %>
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="bg-white rounded-none shadow-sm border border-gray-200 p-4">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-lg p-2">
+            <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-none p-2">
               <%= lucide_icon(card[:icon], class: 'w-6 h-6') %>
             </div>
           </div>
@@ -21,7 +21,7 @@
   <!-- Sessions à venir -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Entraînements -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200">
       <div class="px-4 py-3 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center">
           <%= lucide_icon('dumbbell', class: 'w-5 h-5 mr-2 text-blue-600') %>
@@ -55,7 +55,7 @@
     </div>
 
     <!-- Jeux libres -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200">
       <div class="px-4 py-3 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center">
           <%= lucide_icon('gamepad-2', class: 'w-5 h-5 mr-2 text-green-600') %>
@@ -89,7 +89,7 @@
     </div>
 
     <!-- Coachings privés -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200">
       <div class="px-4 py-3 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center">
           <%= lucide_icon('user-check', class: 'w-5 h-5 mr-2 text-purple-600') %>

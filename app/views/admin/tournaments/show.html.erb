@@ -78,7 +78,7 @@
         <% images.each do |image| %>
           <% list.with_item(id: image.id, class_name: "group/item space-y-2 bg-white") do %>
             <div class="relative">
-              <%= image_tag image, class: "w-full aspect-[4/5] object-cover rounded-lg pointer-events-none select-none", draggable: false %>
+              <%= image_tag image, class: "w-full aspect-[4/5] object-cover rounded-none pointer-events-none select-none", draggable: false %>
               <%# Badge sur la première image, recalculé par le CSS après un déplacement %>
               <span class="absolute top-2 left-2 hidden group-first/item:block"><%= render BadgeComponent.new(label: "Couverture", variant: :success, size: :xs) %></span>
             </div>

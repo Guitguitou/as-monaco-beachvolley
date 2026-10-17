@@ -10,10 +10,10 @@
   <!-- Revenue Summary Cards -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <!-- Weekly Revenue -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+    <%= render CardComponent.new(padding: :lg) do %>
       <div class="flex items-center">
         <div class="flex-shrink-0">
-          <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+          <div class="w-8 h-8 bg-blue-100 rounded-none flex items-center justify-center">
             <%= lucide_icon("calendar", class: "w-5 h-5 text-blue-600") %>
           </div>
         </div>
@@ -23,13 +23,13 @@
           <p class="text-xs text-gray-500"><%= pluralize(report.week_count, 'entraînement') %></p>
         </div>
       </div>
-    </div>
+    <% end %>
 
     <!-- Monthly Revenue -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+    <%= render CardComponent.new(padding: :lg) do %>
       <div class="flex items-center">
         <div class="flex-shrink-0">
-          <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+          <div class="w-8 h-8 bg-green-100 rounded-none flex items-center justify-center">
             <%= lucide_icon("calendar-days", class: "w-5 h-5 text-green-600") %>
           </div>
         </div>
@@ -39,13 +39,13 @@
           <p class="text-xs text-gray-500"><%= pluralize(report.month_count, 'entraînement') %></p>
         </div>
       </div>
-    </div>
+    <% end %>
 
     <!-- Yearly Revenue -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+    <%= render CardComponent.new(padding: :lg) do %>
       <div class="flex items-center">
         <div class="flex-shrink-0">
-          <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+          <div class="w-8 h-8 bg-purple-100 rounded-none flex items-center justify-center">
             <%= lucide_icon("calendar-range", class: "w-5 h-5 text-purple-600") %>
           </div>
         </div>
@@ -55,11 +55,11 @@
           <p class="text-xs text-gray-500"><%= pluralize(report.year_count, 'entraînement') %></p>
         </div>
       </div>
-    </div>
+    <% end %>
   </div>
 
   <!-- Monthly Salary Table -->
-  <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
         <%= lucide_icon("euro", class: "w-5 h-5 text-green-500") %>
@@ -106,12 +106,12 @@
         </tbody>
       </table>
     </div>
-  </div>
+  <% end %>
 
   <!-- Training Tables -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- Past Trainings Table -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+    <%= render CardComponent.new(padding: :none) do %>
       <div class="px-6 py-4 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
           <%= lucide_icon("history", class: "w-5 h-5 text-gray-500") %>
@@ -181,10 +181,10 @@
           </tbody>
         </table>
       </div>
-    </div>
+    <% end %>
 
     <!-- Upcoming Trainings Table -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+    <%= render CardComponent.new(padding: :none) do %>
       <div class="px-6 py-4 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
           <%= lucide_icon("calendar-clock", class: "w-5 h-5 text-green-500") %>
@@ -254,6 +254,6 @@
           </tbody>
         </table>
       </div>
-    </div>
+    <% end %>
   </div>
 </div>

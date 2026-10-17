@@ -1,7 +1,7 @@
 <!-- Admin Profile Tab Content -->
 <div class="space-y-8">
   <!-- Infos personnelles -->
-  <div class="bg-white shadow rounded-lg p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Informations personnelles</h2>
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-6">
       <div>
@@ -59,10 +59,10 @@
         </dd>
       </div>
     </dl>
-  </div>
+  <% end %>
 
   <!-- Solde de crédits -->
-  <div class="bg-white shadow rounded-lg p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <div class="flex items-center justify-between gap-4 flex-col sm:flex-row">
       <div>
         <h2 class="text-lg font-semibold text-gray-800 mb-1">Solde de crédits</h2>
@@ -80,20 +80,20 @@
               type: :number_field,
               label: "Montant (+/-)",
               required: true,
-              input_class: "mt-1 block w-40 rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+              input_class: "mt-1 block w-40 rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
               html_options: { value: 0, step: 1 }
             ) %>
           </div>
           <div class="flex gap-2 w-full sm:w-auto">
-            <%= submit_tag "Ajuster", class: "w-full sm:w-auto inline-flex justify-center items-center gap-x-1.5 rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red" %>
+            <%= render ButtonComponent.new(type: :submit, class: "w-full sm:w-auto") do %>Ajuster<% end %>
           </div>
         <% end %>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Historique des crédits -->
-  <div class="bg-white shadow rounded-lg p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Historique des crédits</h2>
     <% if @transactions.any? %>
       <div class="overflow-x-auto">
@@ -123,5 +123,5 @@
     <% else %>
       <p class="text-sm text-gray-500">Aucune transaction enregistrée.</p>
     <% end %>
-  </div>
+  <% end %>
 </div>

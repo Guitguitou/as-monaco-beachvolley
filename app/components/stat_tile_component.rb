@@ -51,7 +51,7 @@ class StatTileComponent < ApplicationComponent
 
   def classes
     [
-      "block border rounded-xl p-5",
+      "block border rounded-none p-5",
       tone_classes,
       linked? ? "transition-colors hover:border-asmbv-red" : nil
     ].compact.join(" ")

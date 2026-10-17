@@ -1,6 +1,6 @@
 <%# Inline errors under fields + global block for :base and summary %>
 
-<div class="max-w-4xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-md">
+<%= render CardComponent.new(padding: :none, class_name: "max-w-4xl mx-auto mt-10 p-8") do %>
   <%= form_with model: session, 
                 url: session.persisted? ? session_path(session) : sessions_path, 
                 method: session.persisted? ? :put : :post, 
@@ -147,7 +147,7 @@
             attribute: :price,
             type: :number_field,
             label: "Prix (crédits)",
-            input_class: "block w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+            input_class: "block w-full rounded-none border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
             html_options: { min: 0, step: 1, readonly: true, data: { session_form_target: "price" } }
           ) %>
         </div>
@@ -161,7 +161,7 @@
             <%= f.collection_check_boxes :level_ids, Level.all, :id, :name do |b| %>
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center">
-                  <%= b.check_box(class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red") %>
+                  <%= b.check_box(class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red") %>
                   <%= b.label(class: "ml-2 text-sm text-gray-700") do %>
                     <%= "#{b.object.name} - #{b.object.gender.humanize}" %>
                   <% end %>
@@ -171,7 +171,7 @@
                         [ [ "Priorité 1", 1 ], [ "Priorité 2", 2 ], [ "Priorité 3", 3 ] ],
                         level_priorities[b.object.id]&.priority.to_i.clamp(1, 3)
                       ),
-                      class: "text-xs border-gray-300 rounded focus:ring-asmbv-red" %>
+                      class: "text-xs border-gray-300 rounded-none focus:ring-asmbv-red" %>
               </div>
             <% end %>
           </div>
@@ -197,7 +197,7 @@
             session.participants.pluck(:id)
           ),
           multiple: true,
-          class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+          class: "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
           data: { controller: "select", select_placeholder_value: "Rechercher des participants..." }
       %>
       <% unless session.coaching_prive? %>
@@ -210,9 +210,7 @@
     <!-- Bouton -->
     <div class="flex items-center justify-end gap-x-4">
       <%= link_to "Annuler", sessions_path(sessions_index_return_params), class: "text-sm font-medium text-gray-500 hover:text-gray-700" %>
-      <%= f.submit "Enregistrer", 
-            class: "inline-flex items-center rounded-md bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm 
-                    hover:bg-asmbv-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-asmbv-red" %>
+      <%= render ButtonComponent.new(type: :submit) do %>Enregistrer<% end %>
     </div>
   <% end %>
-</div>
+<% end %>

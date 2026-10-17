@@ -23,6 +23,6 @@ class LeaderboardCardComponent < ApplicationComponent
   attr_reader :category, :icon, :accent
 
   def icon_classes
-    "grid h-9 w-9 shrink-0 place-items-center rounded-lg #{ICON_TONES.fetch(accent)}"
+    "grid h-9 w-9 shrink-0 place-items-center rounded-none #{ICON_TONES.fetch(accent)}"
   end
 end

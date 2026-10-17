@@ -1,6 +1,6 @@
 <!-- Statistiques Mensuelles (Année en cours) -->
 <div class="mb-8">
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-xl font-semibold text-gray-900 flex items-center">
         <span class="mr-2">📅</span>
@@ -106,12 +106,12 @@
         </tbody>
       </table>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <!-- Statistiques Annuelles -->
 <div class="mb-8">
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-xl font-semibold text-gray-900 flex items-center">
         <span class="mr-2">📊</span>
@@ -220,16 +220,16 @@
         </tbody>
       </table>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <!-- Graphique de l'évolution (optionnel, pour plus tard) -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
   <!-- KPI : Total année en cours -->
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-12 h-12 bg-green-600 rounded-md flex items-center justify-center">
+        <div class="w-12 h-12 bg-green-600 rounded-none flex items-center justify-center">
           <span class="text-white text-lg font-bold">€</span>
         </div>
       </div>
@@ -243,13 +243,13 @@
         </p>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- KPI : Total tous temps -->
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-12 h-12 bg-blue-600 rounded-md flex items-center justify-center">
+        <div class="w-12 h-12 bg-blue-600 rounded-none flex items-center justify-center">
           <span class="text-white text-lg font-bold">📦</span>
         </div>
       </div>
@@ -263,7 +263,7 @@
         </p>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- KPI : Pack le plus populaire -->
   <% 
@@ -272,10 +272,10 @@
     end
     most_popular_count = @yearly_stats.sum { |s| s[:by_type][most_popular_type]&.dig(:count) || 0 }
   %>
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-12 h-12 bg-purple-600 rounded-md flex items-center justify-center">
+        <div class="w-12 h-12 bg-purple-600 rounded-none flex items-center justify-center">
           <span class="text-white text-lg font-bold">⭐</span>
         </div>
       </div>
@@ -297,6 +297,6 @@
         </p>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
