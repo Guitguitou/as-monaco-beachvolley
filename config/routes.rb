@@ -42,6 +42,7 @@ Rails.application.routes.draw do
     get :calendar, on: :member
     get :preview, on: :member
     resources :registrations, only: [ :create, :destroy ]
+    resources :invitations, only: [ :create ], controller: "session_invitations"
   end
 
   # Annonces de jeu libre (« matcher » de joueurs)
