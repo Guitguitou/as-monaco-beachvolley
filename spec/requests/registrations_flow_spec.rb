@@ -240,4 +240,48 @@ RSpec.describe "Registrations flow", type: :request do
       expect(LateCancellation.where(user: player, session: past)).to be_empty
     end
   end
+
+  context "quand le Staff retire un joueur après la date limite d'annulation" do
+    let(:admin) { create(:user, admin: true, activated_at: Time.current) }
+    let(:late_session) do
+      create(:session, session_type: "entrainement", terrain: "Terrain 1", user: coach, levels: [ level ],
+             start_at: 1.day.from_now.change(hour: 18), end_at: 1.day.from_now.change(hour: 20))
+    end
+
+    before do
+      create(:credit_transaction, user: player, amount: 1000)
+      create(:registration, user: player, session: late_session, status: :confirmed)
+      late_session.update_columns(cancellation_deadline_at: 1.hour.ago)
+    end
+
+    it "rembourse sans compter de désinscription tardive quand il l'excuse" do
+      sign_in admin, scope: :user
+
+      expect {
+        delete session_registration_path(late_session, id: "current", user_id: player.id, excused: "1")
+      }.to change { player.reload.credit_balance }.by(late_session.price)
+
+      expect(LateCancellation.where(user: player)).to be_empty
+    end
+
+    it "applique la désinscription tardive par défaut" do
+      sign_in admin, scope: :user
+
+      expect {
+        delete session_registration_path(late_session, id: "current", user_id: player.id)
+      }.not_to change { player.reload.credit_balance }
+
+      expect(LateCancellation.where(user: player, session: late_session)).to exist
+    end
+
+    it "ne laisse pas l'Encadrant excuser" do
+      sign_in coach, scope: :user
+
+      expect {
+        delete session_registration_path(late_session, id: "current", user_id: player.id, excused: "1")
+      }.not_to change { player.reload.credit_balance }
+
+      expect(LateCancellation.where(user: player, session: late_session)).to exist
+    end
+  end
 end

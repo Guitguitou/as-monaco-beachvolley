@@ -5,7 +5,8 @@
                 url: session.persisted? ? session_path(session) : sessions_path, 
                 method: session.persisted? ? :put : :post, 
                 data: {
-                  controller: "session-form",
+                  controller: "session-form late-removal",
+                  action: "submit->late-removal#confirm",
                   session_form_prices_value: Session::PRICE_BY_TYPE,
                   session_form_terrain_closures_value: terrain_closures_json_for_forms
                 },
@@ -198,8 +199,11 @@
           ),
           multiple: true,
           class: "block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
-          data: { controller: "select", select_placeholder_value: "Rechercher des participants..." }
+          data: { controller: "select", select_placeholder_value: "Rechercher des participants...", late_removal_target: "participants" }
       %>
+      <% if session.persisted? && current_user.staff? %>
+        <%= render "sessions/late_removals_dialog", session: session %>
+      <% end %>
       <% unless session.coaching_prive? %>
         <p class="mt-1 text-xs text-gray-500">Seuls les membres avec suffisamment de crédits pour cette session sont affichés.</p>
       <% else %>
