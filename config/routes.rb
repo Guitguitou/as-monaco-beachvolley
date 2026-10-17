@@ -38,6 +38,7 @@ Rails.application.routes.draw do
     post :cancel, on: :member
     get :calendar, on: :member
     resources :registrations, only: [ :create, :destroy ]
+    resources :invitations, only: [ :create ], controller: "session_invitations"
   end
 
   # Jeu libre : parties lancées par les joueurs (modèle Annonce, « matcher » de

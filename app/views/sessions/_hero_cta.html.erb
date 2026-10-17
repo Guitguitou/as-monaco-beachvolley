@@ -29,6 +29,12 @@
         <%= lucide_icon("check-circle", class: "size-5", aria: { hidden: true }) %>
         <span>Je m'inscris</span>
       <% end %>
+      <%# Le coût se lit avant le clic, pas sur la page de confirmation. %>
+      <% if session.price.to_i.positive? %>
+        <p class="mt-2 text-center text-xs text-gray-600">
+          <%= credits_label(session.price) %> · il t'en restera <%= current_user.balance&.amount.to_i - session.price.to_i %>
+        </p>
+      <% end %>
     <% elsif session.full? %>
       <%= button_to session_registrations_path(session),
                     method: :post,

@@ -31,6 +31,16 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
     <div class="lg:col-span-2 min-w-0 space-y-6">
+      <% if @invitation && !@session.registrations.exists?(user_id: current_user.id) %>
+        <div class="flex items-center gap-3 border-l-4 border-asmbv-red bg-asmbv-red/5 px-4 py-3">
+          <%= render AvatarComponent.new(user: @invitation.inviter, size: :sm) %>
+          <p class="text-sm text-gray-900">
+            <span class="font-semibold"><%= @invitation.inviter.full_name %></span> t'invite à jouer.
+            Inscris-toi avant que la session soit complète.
+          </p>
+        </div>
+      <% end %>
+
       <% if @session.description.present? %>
         <%= render CardComponent.new(padding: :lg) do |card| %>
           <% card.with_header do %>
@@ -129,6 +139,10 @@
           <h3 class="font-bebas-neue text-sm tracking-wider uppercase text-gray-600">Informations</h3>
         <% end %>
         <%= render "informations" %>
+      <% end %>
+
+      <% if @invitations.allowed? %>
+        <%= render "invitations", session: @session, invitations: @invitations %>
       <% end %>
 
       <% if is_admin_or_owner %>
