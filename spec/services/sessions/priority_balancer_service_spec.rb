@@ -29,7 +29,13 @@ RSpec.describe Sessions::PriorityBalancerService, type: :service do
     user.balance.reload.amount
   end
 
+  # Avant 17 h : passé l'heure limite du jour J, les sessions de la factory
+  # (qui démarrent dans l'heure) n'accepteraient plus de promotion.
+  let(:before_deadline) { Time.zone.local(2026, 10, 14, 10) }
+
   describe "déplacement d'un secondaire par un prioritaire" do
+    around { |example| travel_to(before_deadline) { example.run } }
+
     it "confirme le G1 et repousse le G3 le plus récent en liste d'attente, remboursé et notifié" do
       g3a = player(g3)
       g3b = player(g3)
@@ -73,6 +79,8 @@ RSpec.describe Sessions::PriorityBalancerService, type: :service do
   end
 
   describe "re-promotion quand une place se libère" do
+    around { |example| travel_to(before_deadline) { example.run } }
+
     it "promeut le waitlisté le plus prioritaire" do
       g1_user = player(g1)
       g2_user = player(g2)

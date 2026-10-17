@@ -10,6 +10,9 @@ RSpec.describe "Sessions participants sync (public flow)", type: :request do
     login_as coach, scope: :user
   end
 
+  # Avant 17 h, l'heure limite d'inscription du jour J.
+  around { |example| travel_to(Time.zone.local(2026, 10, 14, 10)) { example.run } }
+
   it 'creates a payment transaction for selected participants on create' do
     params = {
       session: {
@@ -29,7 +32,7 @@ RSpec.describe "Sessions participants sync (public flow)", type: :request do
       post sessions_path, params: params
     }.to change { player.reload.credit_transactions.count }.by(1)
 
-    last = player.credit_transactions.order(:created_at).last
+    last = player.credit_transactions.order(:id).last
     expect(last.amount).to eq(-Session::TRAINING_PRICE)
   end
 

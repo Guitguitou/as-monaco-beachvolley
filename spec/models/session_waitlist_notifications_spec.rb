@@ -8,6 +8,9 @@ RSpec.describe "Session waitlist notifications", type: :model do
   let(:user2) { create(:user) }
   let(:user3) { create(:user) }
 
+  # Avant 17 h, l'heure limite d'inscription du jour J.
+  around { |example| travel_to(Time.zone.local(2026, 10, 14, 10)) { example.run } }
+
   before do
     # Mock VAPID keys
     allow(ENV).to receive(:[]).and_call_original
