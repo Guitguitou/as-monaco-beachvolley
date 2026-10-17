@@ -92,7 +92,8 @@ RSpec.describe "Serveur MCP", type: :request do
 
       tools = response.parsed_body.dig("result", "tools")
       expect(tools.map { |tool| tool["name"] }).to contain_exactly(
-        "list_sessions", "list_players", "get_player", "list_level_groups", "list_tournaments", "list_stages", "club_stats"
+        "list_sessions", "list_players", "get_player", "list_level_groups", "list_tournaments", "list_stages", "club_stats",
+        "list_purchases", "list_credit_transactions"
       )
       expect(tools.map { |tool| tool.dig("annotations", "readOnlyHint") }).to all(be(true))
     end
@@ -192,6 +193,74 @@ RSpec.describe "Serveur MCP", type: :request do
 
         expect(result["isError"]).to be(true)
         expect(result.dig("content", 0, "text")).to include("Accès refusé")
+      end
+
+      it "accède aux achats, comme l'Historique achats" do
+        expect(call_tool("list_purchases", {}, token: token_for(financial_manager))["isError"]).to be(false)
+      end
+
+      it "n'accède pas aux mouvements de crédits des joueurs" do
+        expect(call_tool("list_credit_transactions", {}, token: token_for(financial_manager))["isError"]).to be(true)
+      end
+    end
+
+    describe "list_purchases" do
+      let(:player) { create(:user, first_name: "Paul", last_name: "Payeur") }
+      let(:credits_pack) { create(:pack, name: "Carnet 10") }
+      let(:licence_pack) { create(:pack, :licence, name: "Licence") }
+
+      before do
+        create(:credit_purchase, :paid, user: player, pack: credits_pack, amount_cents: 4000)
+        create(:credit_purchase, :paid, user: player, pack: licence_pack, amount_cents: 15_000, credits: 0)
+        create(:credit_purchase, :failed, user: player, pack: credits_pack, amount_cents: 4000)
+        create(:credit_purchase, :paid, pack: credits_pack, amount_cents: 4000, created_at: 2.months.ago)
+      end
+
+      it "liste les achats du mois avec les totaux encaissés" do
+        result = call_tool("list_purchases")["structuredContent"]
+
+        expect(result["purchases"].size).to eq(3)
+        expect(result["purchases"]).to include(a_hash_including("player" => "Paul Payeur", "pack" => "Licence", "amount_eur" => 150.0))
+        expect(result["totals"]).to include("paid_eur" => 190.0,
+                                            "paid_by_pack_type_eur" => { "credits" => 40.0, "licence" => 150.0 },
+                                            "count_by_status" => { "paid" => 2, "failed" => 1 })
+      end
+
+      it "filtre par statut et type de pack" do
+        result = call_tool("list_purchases", { status: "paid", pack_type: "licence" })["structuredContent"]
+
+        expect(result["purchases"].map { |purchase| purchase["pack"] }).to eq([ "Licence" ])
+      end
+    end
+
+    describe "list_credit_transactions" do
+      let(:player) { create(:user, first_name: "Céline", last_name: "Crédit") }
+      let(:session) { create(:session, title: "Entraînement G2") }
+
+      before do
+        create(:credit_transaction, user: player, transaction_type: :purchase, amount: 1000)
+        create(:credit_transaction, user: player, session:, transaction_type: :training_payment, amount: -400)
+        create(:credit_transaction, user: player, session:, transaction_type: :refund, amount: 400)
+        create(:credit_transaction, user: player, transaction_type: :manual_adjustment, amount: 50, created_at: 2.months.ago)
+      end
+
+      it "liste les mouvements du mois avec les totaux par type" do
+        result = call_tool("list_credit_transactions")["structuredContent"]
+
+        expect(result["transactions"].size).to eq(3)
+        expect(result["totals_by_type"]).to eq(
+          "purchase" => { "count" => 1, "amount_credits" => 1000 },
+          "training_payment" => { "count" => 1, "amount_credits" => -400 },
+          "refund" => { "count" => 1, "amount_credits" => 400 }
+        )
+      end
+
+      it "filtre par session et rattache la session au mouvement" do
+        result = call_tool("list_credit_transactions", { session_id: session.id, transaction_type: "refund" })["structuredContent"]
+
+        expect(result["transactions"].size).to eq(1)
+        expect(result["transactions"].first).to include("player" => "Céline Crédit", "amount_credits" => 400)
+        expect(result["transactions"].first["session"]).to include("title" => "Entraînement G2")
       end
     end
   end

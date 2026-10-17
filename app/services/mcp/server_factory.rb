@@ -10,7 +10,9 @@ module Mcp
       Tools::ListLevelGroups,
       Tools::ListTournaments,
       Tools::ListStages,
-      Tools::ClubStats
+      Tools::ClubStats,
+      Tools::ListPurchases,
+      Tools::ListCreditTransactions
     ].freeze
 
     INSTRUCTIONS = <<~TEXT
