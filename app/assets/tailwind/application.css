@@ -82,29 +82,109 @@
   font-weight: 600 !important;
 }
 
-/* Couleurs des terrains — même code couleur que les cartes de session. */
-.fc-event.terrain-1 {
-  background-color: var(--color-asmbv-ocean) !important;
-  border-color: #003d7a !important;
+/* Statut du joueur sur la session — la forme porte l'information autant que
+   la couleur : plein (inscrit), hachuré (attente), contour (ouvert), estompé. */
+.fc-event.status-registered:not(.fc-list-event),
+.status-swatch-registered {
+  background: var(--color-asmbv-red) !important;
+  border: 1px solid var(--color-asmbv-red-dark) !important;
   color: #ffffff !important;
 }
 
-.fc-event.terrain-2 {
-  background-color: var(--color-asmbv-ink) !important;
-  border-color: #000000 !important;
-  color: #ffffff !important;
+.fc-event.status-waitlisted:not(.fc-list-event),
+.status-swatch-waitlisted {
+  background: repeating-linear-gradient(135deg, #fff1e2 0 6px, #ffffff 6px 12px) !important;
+  border: 1.5px dashed #ea7a12 !important;
+  color: #9a4a06 !important;
 }
 
-.fc-event.terrain-3 {
-  background-color: var(--color-asmbv-gold) !important;
-  border-color: #b08e2d !important;
+.fc-event.status-open:not(.fc-list-event),
+.status-swatch-open {
+  background: #ffffff !important;
+  border: 1.5px solid var(--color-asmbv-ink) !important;
   color: var(--color-asmbv-ink) !important;
 }
 
-/* Indicateur « session pour moi » : liseré gauche rouge. */
-.fc-event.for-me {
-  border-left: 4px solid var(--color-asmbv-red) !important;
+.fc-event.status-unavailable:not(.fc-list-event),
+.status-swatch-unavailable {
+  background: #f4f4f5 !important;
+  border: 1px solid #e4e4e7 !important;
+  color: #71717a !important;
 }
+
+.fc-timegrid-event.status-unavailable { opacity: 0.7; }
+
+/* FullCalendar impose sa propre couleur de texte au contenu de l'événement. */
+.fc-v-event .fc-event-main,
+.fc-h-event .fc-event-main { color: inherit !important; }
+
+/* Fermeture de terrain : hachures sur la journée, libellé en haut. */
+.fc .fc-bg-event.terrain-closure {
+  background: repeating-linear-gradient(135deg, rgba(26, 26, 26, 0.08) 0 6px, transparent 6px 12px) !important;
+  opacity: 1 !important;
+}
+
+.fc .fc-bg-event.terrain-closure .fc-event-title {
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+  color: #52525b;
+  margin: 4px;
+}
+
+.fc-asmbv-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.fc-asmbv-terrain {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.1em;
+  letter-spacing: 0.08em;
+}
+
+/* Jauge de remplissage, dans la couleur du texte de l'événement. */
+.fc-asmbv-fill {
+  height: 4px;
+  border-radius: 2px;
+  margin-top: auto;
+  background: color-mix(in srgb, currentColor 18%, transparent);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.fc-asmbv-fill > span {
+  display: block;
+  height: 100%;
+  background: currentColor;
+}
+
+.fc-asmbv-fill.is-hot > span { background: #ea7a12; }
+
+/* Vue liste (mobile) : pastille de statut à droite du titre. */
+.fc-asmbv-pill {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.fc-asmbv-pill.registered { background: var(--color-asmbv-red); color: #fff; }
+.fc-asmbv-pill.waitlisted,
+.fc-asmbv-pill.hot { background: #fff1e2; color: #9a4a06; }
+.fc-asmbv-pill.ok { background: #e6f4ea; color: #15803d; }
+.fc-asmbv-pill.full { background: #f4f4f5; color: #71717a; }
+
+.fc .fc-list-event.status-unavailable { opacity: 0.55; }
+.fc .fc-list-event.status-registered .fc-list-event-dot { border-color: var(--color-asmbv-red) !important; }
+.fc .fc-list-event.status-waitlisted .fc-list-event-dot { border-color: #ea7a12 !important; }
+.fc .fc-list-event.status-open .fc-list-event-dot { border-color: var(--color-asmbv-ink) !important; }
+.fc .fc-list-event.status-unavailable .fc-list-event-dot { border-color: #a1a1aa !important; }
 
 .fc .fc-timegrid-now-indicator-line {
   border-color: var(--color-asmbv-red) !important;

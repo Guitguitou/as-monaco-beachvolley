@@ -1,15 +1,30 @@
-<%# locals: session: %>
-<div class="flex flex-wrap gap-2">
-  <span class="inline-flex items-center gap-2 rounded-none border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
-    <%= lucide_icon("calendar", class: "w-4 h-4 shrink-0 text-gray-400") %>
-    <span class="first-letter:uppercase"><%= l(session.start_at.to_date, format: :long) %></span>
-  </span>
-  <span class="inline-flex items-center gap-2 rounded-none border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
-    <%= lucide_icon("clock", class: "w-4 h-4 shrink-0 text-gray-400") %>
-    <%= l(session.start_at, format: :time) %> – <%= l(session.end_at, format: :time) %>
-  </span>
-  <span class="inline-flex items-center gap-2 rounded-none border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
-    <%= lucide_icon("map-pin", class: "w-4 h-4 shrink-0 text-gray-400") %>
-    <%= session.terrain.to_s.split("_").last %>
-  </span>
-</div>
+<%# locals: session:
+    Quatre tuiles qui répondent avant tout scroll aux questions qui décident
+    d'une inscription : quand, où, avec qui, combien. %>
+<% balance = current_user&.balance&.amount %>
+<% tiles = [
+     { label: "Quand", icon: "calendar",
+       main: l(session.start_at.to_date, format: :long).upcase_first,
+       sub: "#{l(session.start_at, format: :time)} – #{l(session.end_at, format: :time)}" },
+     { label: "Où", icon: "map-pin", main: session.terrain.to_s, sub: session_duration(session.start_at, session.end_at) },
+     { label: "Avec qui", icon: "user",
+       main: session.user&.full_name || "—",
+       sub: session.levels.any? ? session_levels_label(session.levels) : "Tous niveaux" },
+     { label: "Combien", icon: "banknote-arrow-down",
+       main: credits_label(session.price),
+       sub: (balance.nil? || session.price.to_i.zero?) ? nil : "Il t'en reste #{balance.to_i}" }
+   ] %>
+<dl class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+  <% tiles.each do |tile| %>
+    <div class="min-w-0 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
+      <dt class="flex items-center gap-1.5 font-bebas-neue text-sm tracking-wider uppercase text-gray-500">
+        <%= lucide_icon(tile[:icon], class: "w-3.5 h-3.5 shrink-0", aria: { hidden: true }) %>
+        <%= tile[:label] %>
+      </dt>
+      <dd class="mt-0.5 text-sm font-semibold text-gray-900 truncate"><%= tile[:main] %></dd>
+      <% if tile[:sub].present? %>
+        <dd class="text-xs text-gray-600 truncate"><%= tile[:sub] %></dd>
+      <% end %>
+    </div>
+  <% end %>
+</dl>
