@@ -31,6 +31,9 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
     <div class="lg:col-span-2 min-w-0 space-y-6">
+      <% if flash[:reregister].to_i == @session.id && Sessions::CtaState.new(session: @session, user: current_user).kind.in?(%i[open waitlist]) %>
+        <%= render "reregister", session: @session %>
+      <% end %>
       <% if @session.description.present? %>
         <%= render CardComponent.new(padding: :lg) do |card| %>
           <% card.with_header do %>

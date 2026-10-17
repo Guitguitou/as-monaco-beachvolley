@@ -151,12 +151,6 @@
   margin: 4px;
 }
 
-.fc-asmbv-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 4px;
-  font-variant-numeric: tabular-nums;
-}
 
 .fc-asmbv-terrain {
   white-space: nowrap;

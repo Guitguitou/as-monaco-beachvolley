@@ -42,4 +42,20 @@
   data-closures="<%= json_escape(@calendar.closures.to_json) %>"
   class="mt-4 bg-white p-2 sm:p-4 rounded-xl">
 </div>
+
+<%# Aperçu d'une session ouvert par un clic dans le calendrier (cf. calendar_controller). %>
+<div data-controller="dialog" id="session-preview">
+  <dialog data-dialog-target="dialog" data-action="click->dialog#backdropClose"
+          class="m-auto w-[min(94vw,30rem)] max-h-[90vh] rounded-xl p-0 backdrop:bg-black/40">
+    <div class="relative p-5">
+      <button type="button" data-action="dialog#close" aria-label="Fermer"
+              class="absolute right-3 top-3 z-10 p-1 text-gray-500 hover:text-gray-900">
+        <%= lucide_icon("x", class: "size-5", aria: { hidden: true }) %>
+      </button>
+      <turbo-frame id="session_preview" target="_top">
+        <p class="py-8 text-center text-sm text-gray-500">Chargement…</p>
+      </turbo-frame>
+    </div>
+  </dialog>
+</div>
 <% end %>
