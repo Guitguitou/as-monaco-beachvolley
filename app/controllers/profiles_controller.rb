@@ -17,7 +17,11 @@ class ProfilesController < ApplicationController
   def update
     authorize! :update, current_user
 
-    current_user.assign_attributes(profile_params)
+    attributes = profile_params.to_h
+    remove_avatar = ActiveModel::Type::Boolean.new.cast(attributes.delete(:remove_avatar))
+    attributes[:avatar] = Avatars::Normalize.new(attributes[:avatar]).call if attributes[:avatar].present?
+    current_user.assign_attributes(attributes)
+    current_user.avatar = nil if remove_avatar && attributes[:avatar].blank?
 
     # Contexte :profile_update — exige un nom, sans imposer cette contrainte
     # aux comptes historiques sauvegardés depuis l'administration.
@@ -55,6 +59,6 @@ class ProfilesController < ApplicationController
   # L'email et le mot de passe restent gérés par Devise
   # (edit_user_registration_path), qui exige le mot de passe courant.
   def profile_params
-    params.expect(user: [ :first_name, :last_name ])
+    params.expect(user: [ :first_name, :last_name, :avatar, :avatar_crop_x, :avatar_crop_y, :avatar_zoom, :remove_avatar ])
   end
 end
