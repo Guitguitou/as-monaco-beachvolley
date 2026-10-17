@@ -41,7 +41,7 @@
   <% end %>
 
   <% if @annonce.confirmed? && @annonce.session %>
-    <div class="mt-6 border border-blue-200 bg-blue-50 p-4 rounded-xl">
+    <div class="mt-6 border border-blue-200 bg-blue-50 p-4 rounded-none">
       <p class="font-semibold text-blue-900 mb-3">Session créée 🎉</p>
       <div class="flex flex-col sm:flex-row gap-3">
         <%= link_to "Voir la session", session_path(@annonce.session), class: "inline-flex items-center justify-center px-4 py-2 font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark" %>
@@ -57,7 +57,7 @@
       <% reached = slot.quota_reached? %>
       <% i_am_in = @available_slot_ids.include?(slot.id) %>
       <% upcoming = slot.upcoming? %>
-      <div class="border border-gray-200 p-4 rounded-xl <%= 'opacity-60' unless upcoming %>">
+      <div class="border border-gray-200 p-4 rounded-none <%= 'opacity-60' unless upcoming %>">
         <div class="flex items-center justify-between gap-3 flex-wrap">
           <div class="flex items-center gap-2 font-medium text-gray-900">
             <%= lucide_icon("calendar-clock", class: "size-5 text-gray-400") %>
