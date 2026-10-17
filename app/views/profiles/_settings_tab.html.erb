@@ -23,6 +23,8 @@
           </div>
         <% end %>
 
+        <%= render "avatar_field", form: f, user: @user %>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <%= render FormFieldComponent.new(form: f, attribute: :first_name, label: "Prénom", required: true) %>
           <%= render FormFieldComponent.new(form: f, attribute: :last_name, label: "Nom", required: true) %>
