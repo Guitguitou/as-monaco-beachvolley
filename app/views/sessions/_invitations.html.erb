@@ -1,0 +1,40 @@
+<%# locals: session:, invitations: (Sessions::Invitations)
+    Inviter des membres du club à un jeu libre. L'invitation ne réserve pas de
+    place : l'invité reçoit une notification et s'inscrit lui-même. %>
+<%= render CardComponent.new(padding: :lg) do |card| %>
+  <% card.with_header do %>
+    <h3 class="font-bebas-neue text-xl tracking-wider uppercase text-gray-900">Inviter des joueurs</h3>
+  <% end %>
+
+  <% if invitations.remaining.positive? %>
+    <%= form_with url: session_invitations_path(session), method: :post, local: true, class: "space-y-3" do %>
+      <% sessions_index_return_params.each do |key, value| %>
+        <%= hidden_field_tag key, value %>
+      <% end %>
+      <%= label_tag :invitee_ids, "Membres à inviter", class: "sr-only" %>
+      <%= select_tag "invitee_ids[]",
+            options_from_collection_for_select(invitations.invitable_users, :id, :full_name),
+            id: "invitee_ids", multiple: true, required: true,
+            class: "w-full border border-gray-300 rounded-none",
+            data: { controller: "select", "select-placeholder-value": "Rechercher un membre..." } %>
+      <p class="text-xs text-gray-500">
+        Ils reçoivent une notification et s'inscrivent avec leurs crédits. La place n'est pas réservée.
+        Encore <%= invitations.remaining %> invitation<%= "s" if invitations.remaining > 1 %> possible<%= "s" if invitations.remaining > 1 %>.
+      </p>
+      <%= submit_tag "Envoyer les invitations",
+            class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-900" %>
+    <% end %>
+  <% else %>
+    <p class="text-sm text-gray-600">Tu as utilisé toutes tes invitations pour cette session.</p>
+  <% end %>
+
+  <div class="mt-4 border-t border-gray-100 pt-4" data-controller="share"
+       data-share-url-value="<%= session_url(session) %>"
+       data-share-title-value="<%= session.title %> · <%= l(session.start_at, format: :short) %>">
+    <button type="button" data-action="share#share"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-none border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-900">
+      <%= lucide_icon("share-2", class: "w-4 h-4", aria: { hidden: true }) %>
+      <span data-share-target="label">Partager le lien</span>
+    </button>
+  </div>
+<% end %>
