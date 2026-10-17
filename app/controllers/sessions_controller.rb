@@ -25,6 +25,8 @@ class SessionsController < ApplicationController
     return redirect_to(tournament_path(@session.tournament_id)) if @session.tournament_id.present?
 
     @candidate_users = Sessions::CandidateUsersQuery.call(session: @session) if can?(:manage, Registration)
+    @invitations = Sessions::Invitations.new(session: @session, inviter: current_user)
+    @invitation = SessionInvitation.includes(:inviter).find_by(session: @session, invitee: current_user)
   end
 
   def calendar

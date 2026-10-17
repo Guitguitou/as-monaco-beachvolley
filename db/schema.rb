@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_16_151338) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_17_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -248,6 +248,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_16_151338) do
     t.index ["status", "created_at"], name: "index_registrations_on_status_and_created_at"
     t.index ["user_id", "session_id"], name: "index_registrations_on_user_id_and_session_id", unique: true
     t.index ["user_id"], name: "index_registrations_on_user_id"
+  end
+
+  create_table "session_invitations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "invitee_id", null: false
+    t.bigint "inviter_id", null: false
+    t.bigint "session_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invitee_id"], name: "index_session_invitations_on_invitee_id"
+    t.index ["inviter_id"], name: "index_session_invitations_on_inviter_id"
+    t.index ["session_id", "invitee_id"], name: "index_session_invitations_on_session_id_and_invitee_id", unique: true
+    t.index ["session_id"], name: "index_session_invitations_on_session_id"
   end
 
   create_table "session_levels", force: :cascade do |t|
@@ -538,6 +550,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_16_151338) do
   add_foreign_key "push_subscriptions", "users"
   add_foreign_key "registrations", "sessions"
   add_foreign_key "registrations", "users"
+  add_foreign_key "session_invitations", "sessions", on_delete: :cascade
+  add_foreign_key "session_invitations", "users", column: "invitee_id", on_delete: :cascade
+  add_foreign_key "session_invitations", "users", column: "inviter_id", on_delete: :cascade
   add_foreign_key "session_levels", "levels"
   add_foreign_key "session_levels", "sessions"
   add_foreign_key "sessions", "tournaments"
