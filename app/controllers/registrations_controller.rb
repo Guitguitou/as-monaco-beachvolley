@@ -33,7 +33,11 @@ class RegistrationsController < ApplicationController
       return respond_after_change("La session est passée. Seul un administrateur peut retirer des joueurs.", kind: :alert)
     end
 
-    respond_after_change(Registrations::Cancellation.new(registration).call)
+    message = Registrations::Cancellation.new(registration).call
+    # Sur la fiche, le joueur qui vient de se désinscrire peut revenir sur sa
+    # décision d'un clic (cf. sessions/_reregister).
+    flash[:reregister] = @session.id unless acting_for_someone? || card_request?
+    respond_after_change(message)
   rescue StandardError => e
     respond_after_change("Erreur lors de la désinscription: #{e.message}", kind: :alert)
   end

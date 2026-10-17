@@ -5,16 +5,16 @@
   <div>
     <% images = @tournament.ordered_images %>
     <% if images.any? %>
-      <div class="flex overflow-x-auto snap-x snap-mandatory gap-3 rounded-xl">
+      <div class="flex overflow-x-auto snap-x snap-mandatory gap-3 rounded-none">
         <% images.each do |image| %>
-          <%= image_tag image, alt: @tournament.title, class: "snap-center shrink-0 w-full object-contain bg-gray-900 rounded-xl" %>
+          <%= image_tag image, alt: @tournament.title, class: "snap-center shrink-0 w-full object-contain bg-gray-900 rounded-none" %>
         <% end %>
       </div>
       <% if images.size > 1 %>
         <p class="mt-2 text-xs text-gray-500 text-center"><%= images.size %> images · fais défiler</p>
       <% end %>
     <% else %>
-      <div class="aspect-[4/5] bg-gray-900 rounded-xl flex items-center justify-center">
+      <div class="aspect-[4/5] bg-gray-900 rounded-none flex items-center justify-center">
         <%= lucide_icon("trophy", class: "w-16 h-16 text-gray-600") %>
       </div>
     <% end %>

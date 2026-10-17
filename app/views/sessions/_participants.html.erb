@@ -8,7 +8,7 @@
   <% confirmed.each do |registration| %>
     <% user = registration.user %>
     <% me = user == current_user %>
-    <div class="flex items-center gap-3 p-3 rounded-lg border <%= me ? 'border-asmbv-red bg-asmbv-red/5' : 'border-gray-200 bg-gray-50' %>">
+    <div class="flex items-center gap-3 p-3 rounded-none border <%= me ? 'border-asmbv-red bg-asmbv-red/5' : 'border-gray-200 bg-gray-50' %>">
       <%= render AvatarComponent.new(user: user, size: :sm, variant: me ? :solid : :light) %>
       <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
         <div class="min-w-0">
@@ -40,7 +40,7 @@
 
   <% [ free, max_empty_slots ].min.times do |i| %>
     <% last_summary = i == max_empty_slots - 1 && free > max_empty_slots %>
-    <div class="flex items-center gap-3 p-3 rounded-lg border-2 border-dashed border-gray-200 text-gray-400">
+    <div class="flex items-center gap-3 p-3 rounded-none border-2 border-dashed border-gray-200 text-gray-400">
       <span class="h-9 w-9 shrink-0 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center" aria-hidden="true">+</span>
       <span class="text-sm"><%= last_summary ? "+ #{free - max_empty_slots + 1} places libres" : "Place libre" %></span>
     </div>
@@ -54,10 +54,11 @@
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
     <% waitlisted.each_with_index do |registration, index| %>
-      <div class="flex items-center justify-between gap-3 p-3 bg-orange-50 text-orange-900 rounded-lg border border-orange-200">
+      <% me = registration.user_id == current_user&.id %>
+      <div class="flex items-center justify-between gap-3 p-3 rounded-none border <%= me ? "bg-orange-100 border-orange-500 text-orange-950" : "bg-orange-50 border-orange-200 text-orange-900" %>">
         <div class="flex items-center gap-2 min-w-0">
-          <span class="inline-flex items-center justify-center w-6 h-6 text-xs font-bold bg-orange-200 text-orange-900 rounded-lg shrink-0"><%= index + 1 %></span>
-          <span class="font-medium text-sm truncate"><%= registration.user.full_name %></span>
+          <span class="inline-flex items-center justify-center w-6 h-6 text-xs font-bold bg-orange-200 text-orange-900 rounded-none shrink-0"><%= index + 1 %></span>
+          <span class="font-medium text-sm truncate"><%= registration.user.full_name %><% if me %> <span class="font-semibold">· toi</span><% end %></span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <span class="text-xs">En attente</span>

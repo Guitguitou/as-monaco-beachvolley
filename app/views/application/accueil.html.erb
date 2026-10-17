@@ -1,4 +1,4 @@
-<% card_dark = "rounded-xl border border-white/10 bg-white/5 p-6" %>
+<% card_dark = "rounded-none border border-white/10 bg-white/5 p-6" %>
 <% btn_primary = "inline-flex items-center gap-2 bg-asmbv-red px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition hover:bg-asmbv-red-dark" %>
 <% btn_outline_light = "inline-flex items-center gap-2 border border-white/50 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white transition hover:bg-white hover:text-black" %>
 <% btn_outline_dark = "inline-flex items-center gap-2 border border-gray-900 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-gray-900 transition hover:bg-gray-900 hover:text-white" %>
@@ -116,7 +116,7 @@
         ["G1", "Élite", "Par genre · tournois de plus haut niveau national"]
       ].each do |code, name, detail| %>
         <article class="<%= card_dark %>">
-          <span class="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-asmbv-red font-anton text-xl text-white"><%= code %></span>
+          <span class="inline-flex h-12 w-12 items-center justify-center rounded-none bg-asmbv-red font-anton text-xl text-white"><%= code %></span>
           <h3 class="mt-5 font-anton text-2xl uppercase leading-none"><%= name %></h3>
           <p class="mt-2 text-sm text-white/70"><%= detail %></p>
         </article>
@@ -136,7 +136,7 @@
       </article>
     </div>
 
-    <div class="mt-4 flex items-start gap-3 rounded-xl bg-asmbv-red p-5 text-sm text-white">
+    <div class="mt-4 flex items-start gap-3 rounded-none bg-asmbv-red p-5 text-sm text-white">
       <%= lucide_icon("construction", class: "mt-0.5 h-5 w-5 shrink-0") %>
       <p><span class="font-semibold">Terrains fermés pour travaux de janvier à mars 2027</span> (dates prévisionnelles) en vue des JPEE. À l'issue : vestiaires et 4 terrains.
         <%= link_to "Planning détaillé", infos_planning_trainings_path, class: "font-semibold underline" %></p>
@@ -179,7 +179,7 @@
         ["Cotisation", "Une fois connecté, règle ta cotisation pour activer ton compte.", nil, nil],
         ["WhatsApp", "Rejoins la communauté qui regroupe les différents groupes.", "https://chat.whatsapp.com/J05V2o3sPhdAwoPto5DiVo", "Rejoindre la communauté"]
       ].each_with_index do |(title, text, url, label), index| %>
-        <li class="rounded-xl border border-gray-200 border-t-4 border-t-asmbv-red bg-white p-5">
+        <li class="rounded-none border border-gray-200 border-t-4 border-t-asmbv-red bg-white p-5">
           <p class="font-anton text-4xl leading-none text-asmbv-red"><%= index + 1 %></p>
           <h3 class="mt-3 font-anton text-xl uppercase text-gray-900"><%= title %></h3>
           <p class="mt-2 text-sm text-gray-600"><%= text %></p>

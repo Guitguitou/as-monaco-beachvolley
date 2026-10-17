@@ -62,9 +62,9 @@
 
 <%# Stats Cards %>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <div class="flex items-center gap-3">
-      <div class="p-3 bg-green-100 rounded-lg">
+      <div class="p-3 bg-green-100 rounded-none">
         <%= lucide_icon("euro", size: 24, class: "text-green-600") %>
       </div>
       <div>
@@ -72,11 +72,11 @@
         <p class="text-2xl font-bold text-gray-900"><%= number_to_currency(@total_revenue, unit: "€", precision: 2) %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <div class="flex items-center gap-3">
-      <div class="p-3 bg-blue-100 rounded-lg">
+      <div class="p-3 bg-blue-100 rounded-none">
         <%= lucide_icon("shopping-bag", size: 24, class: "text-blue-600") %>
       </div>
       <div>
@@ -84,11 +84,11 @@
         <p class="text-2xl font-bold text-gray-900"><%= @total_purchases %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 
-  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <div class="flex items-center gap-3">
-      <div class="p-3 bg-orange-100 rounded-lg">
+      <div class="p-3 bg-orange-100 rounded-none">
         <%= lucide_icon("clock", size: 24, class: "text-orange-600") %>
       </div>
       <div>
@@ -96,11 +96,11 @@
         <p class="text-2xl font-bold text-gray-900"><%= @pending_purchases %></p>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <%# Table %>
-<div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
   <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
     <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
       <tr>
@@ -177,10 +177,10 @@
 </div>
 
 <% if @credit_purchases.empty? %>
-  <div class="text-center py-12 bg-white rounded-lg border border-gray-200 mt-6">
+  <%= render CardComponent.new(padding: :none, class_name: "text-center py-12 mt-6") do %>
     <div class="flex flex-col items-center gap-3">
       <%= lucide_icon("shopping-cart", size: 48, class: "text-gray-300") %>
       <p class="text-gray-500 text-lg">Aucun achat pour le moment</p>
     </div>
-  </div>
+  <% end %>
 <% end %>

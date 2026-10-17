@@ -1,4 +1,4 @@
-<%= form_with model: [ :admin, tournament ], class: "space-y-6 bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto" do |f| %>
+<%= form_with model: [ :admin, tournament ], class: "space-y-6 bg-white p-6 rounded-none shadow-md max-w-3xl mx-auto" do |f| %>
   <%= render "shared/form_errors", object: tournament %>
 
   <%= render FormFieldComponent.new(form: f, attribute: :title, label: "Titre", required: true, html_options: { placeholder: "Tournoi mixte" }) %>

@@ -7,7 +7,7 @@
   </p>
 </div>
 
-<div class="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+<%= render CardComponent.new(padding: :none, class_name: "overflow-hidden") do %>
   <table class="min-w-full text-sm">
     <thead class="bg-gray-50 text-left text-gray-600">
       <tr>
@@ -40,4 +40,4 @@
       <% end %>
     </tbody>
   </table>
-</div>
+<% end %>

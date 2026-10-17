@@ -21,32 +21,32 @@
   <!-- Rôles -->
   <fieldset class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="flex items-center">
-      <%= f.check_box :admin, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+      <%= f.check_box :admin, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red" %>
       <%= f.label :admin, "Administrateur", class: "ml-2 text-sm text-gray-700" %>
     </div>
 
     <div class="flex items-center">
-      <%= f.check_box :coach, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+      <%= f.check_box :coach, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red" %>
       <%= f.label :coach, "Coach", class: "ml-2 text-sm text-gray-700" %>
     </div>
 
     <div class="flex items-center">
-      <%= f.check_box :responsable, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+      <%= f.check_box :responsable, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red" %>
       <%= f.label :responsable, "Responsable", class: "ml-2 text-sm text-gray-700" %>
     </div>
 
     <div class="flex items-center">
-      <%= f.check_box :financial_manager, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+      <%= f.check_box :financial_manager, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red" %>
       <%= f.label :financial_manager, "Responsable financier", class: "ml-2 text-sm text-gray-700" %>
     </div>
   </fieldset>
 
   <!-- Activation du compte -->
-  <div class="border-l-4 border-asmbv-red bg-asmbv-red/5 p-4 rounded">
+  <div class="border-l-4 border-asmbv-red bg-asmbv-red/5 p-4 rounded-none">
     <div class="flex items-start">
       <div class="flex items-center h-5">
         <%= f.check_box :activate_immediately,
-              { checked: @user.persisted? ? @user.activated? : false, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" },
+              { checked: @user.persisted? ? @user.activated? : false, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red" },
               "1", "0" %>
       </div>
       <div class="ml-3">
@@ -68,7 +68,7 @@
   <!-- Renouvellement de la prochaine saison -->
   <div class="flex items-start">
     <div class="flex items-center h-5">
-      <%= f.check_box :next_season_renewed, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red" %>
+      <%= f.check_box :next_season_renewed, class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red" %>
     </div>
     <div class="ml-3">
       <%= f.label :next_season_renewed, "A réglé la licence de la prochaine saison", class: "text-sm font-medium text-gray-900" %>
@@ -85,7 +85,7 @@
     <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
       <%= f.collection_check_boxes :level_ids, Level.all, :id, :name do |b| %>
         <label class="flex items-center gap-2">
-          <%= b.check_box(class: "h-4 w-4 text-asmbv-red border-gray-300 rounded focus:ring-asmbv-red") %>
+          <%= b.check_box(class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red") %>
           <span class="text-sm text-gray-700"><%= b.text %></span>
         </label>
       <% end %>
@@ -149,9 +149,7 @@
 
   <!-- Bouton -->
   <div>
-<%= f.submit class: "w-full inline-flex justify-center items-center gap-2 rounded-none bg-asmbv-red px-4 py-2
-                        text-sm font-semibold text-white hover:bg-asmbv-red-dark
-                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-asmbv-red transition-colors" do %>
+<%= render ButtonComponent.new(type: :submit, class: "w-full") do %>
       <%= lucide_icon("save", size: 16) %> Enregistrer
     <% end %>
   </div>

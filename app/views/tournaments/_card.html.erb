@@ -1,6 +1,6 @@
 <%# Carte d'un tournoi : couverture, date, niveau, et accès au détail. %>
 <% featured = local_assigns.fetch(:featured, false) %>
-<%= link_to tournament_path(tournament), class: "group block bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-asmbv-red #{'opacity-75' unless tournament.upcoming?}" do %>
+<%= link_to tournament_path(tournament), class: "group block bg-white rounded-none border border-gray-200 overflow-hidden hover:border-asmbv-red #{'opacity-75' unless tournament.upcoming?}" do %>
   <div class="relative <%= featured ? 'aspect-[4/5] sm:aspect-[16/9]' : 'aspect-[4/5]' %> bg-gray-900">
     <% if (cover = tournament.cover_image) %>
       <%= image_tag cover, alt: tournament.title, class: "w-full h-full object-cover #{'grayscale' unless tournament.upcoming?}" %>

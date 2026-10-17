@@ -31,6 +31,10 @@
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
     <div class="lg:col-span-2 min-w-0 space-y-6">
+      <% if flash[:reregister].to_i == @session.id && Sessions::CtaState.new(session: @session, user: current_user).kind.in?(%i[open waitlist]) %>
+        <%= render "reregister", session: @session %>
+      <% end %>
+
       <% if @invitation && !@session.registrations.exists?(user_id: current_user.id) %>
         <div class="flex items-center gap-3 border-l-4 border-asmbv-red bg-asmbv-red/5 px-4 py-3">
           <%= render AvatarComponent.new(user: @invitation.inviter, size: :sm) %>

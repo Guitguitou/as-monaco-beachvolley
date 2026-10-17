@@ -1,4 +1,4 @@
-<%# locals: session:
+<%# locals: session:, compact: false
     Quatre tuiles qui répondent avant tout scroll aux questions qui décident
     d'une inscription : quand, où, avec qui, combien. %>
 <% balance = current_user&.balance&.amount %>
@@ -14,9 +14,9 @@
        main: credits_label(session.price),
        sub: (balance.nil? || session.price.to_i.zero?) ? nil : "Il t'en reste #{balance.to_i}" }
    ] %>
-<dl class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+<dl class="grid grid-cols-2 <%= "lg:grid-cols-4" unless local_assigns[:compact] %> gap-2 sm:gap-3">
   <% tiles.each do |tile| %>
-    <div class="min-w-0 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
+    <div class="min-w-0 rounded-none border border-gray-200 bg-gray-50 px-3 py-2.5">
       <dt class="flex items-center gap-1.5 font-bebas-neue text-sm tracking-wider uppercase text-gray-500">
         <%= lucide_icon(tile[:icon], class: "w-3.5 h-3.5 shrink-0", aria: { hidden: true }) %>
         <%= tile[:label] %>

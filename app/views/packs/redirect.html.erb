@@ -2,7 +2,7 @@
     Le formulaire est posté automatiquement ; le bouton reste la porte de
     sortie si le script ne s'exécute pas. %>
 <div class="max-w-md mx-auto">
-  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center">
+  <%= render CardComponent.new(padding: :none, class_name: "p-8 text-center") do %>
     <p class="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-3">Boutique</p>
 
     <div class="flex justify-center mb-5">
@@ -32,7 +32,7 @@
     <p class="text-xs text-gray-500 mt-4">
       Ne ferme pas cette page. Si rien ne se passe, utilise le bouton ci-dessus.
     </p>
-  </div>
+  <% end %>
 </div>
 
 <% content_for :scripts do %>

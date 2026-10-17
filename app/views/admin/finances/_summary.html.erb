@@ -1,10 +1,10 @@
 <!-- KPIs Financiers -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
   <!-- CA Semaine -->
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-green-600 rounded-md flex items-center justify-center">
+        <div class="w-8 h-8 bg-green-600 rounded-none flex items-center justify-center">
           <span class="text-white text-sm font-medium">€</span>
         </div>
       </div>
@@ -16,13 +16,13 @@
         <p class="text-xs text-gray-500">Achats de crédits</p>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- CA Mois -->
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center">
+        <div class="w-8 h-8 bg-blue-600 rounded-none flex items-center justify-center">
           <span class="text-white text-sm font-medium">📅</span>
         </div>
       </div>
@@ -34,13 +34,13 @@
         <p class="text-xs text-gray-500">Achats de crédits</p>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Salaires Coachs Mois -->
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-orange-500 rounded-md flex items-center justify-center">
+        <div class="w-8 h-8 bg-orange-500 rounded-none flex items-center justify-center">
           <span class="text-white text-sm font-medium">👥</span>
         </div>
       </div>
@@ -52,13 +52,13 @@
         <p class="text-xs text-gray-500">Charges</p>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Bénéfice Mois -->
-  <div class="bg-white rounded-lg shadow p-6">
+  <%= render CardComponent.new(padding: :lg) do %>
     <div class="flex items-center">
       <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+        <div class="w-8 h-8 bg-purple-500 rounded-none flex items-center justify-center">
           <span class="text-white text-sm font-medium">📊</span>
         </div>
       </div>
@@ -70,7 +70,7 @@
         <p class="text-xs text-gray-500">CA - Salaires</p>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <!-- Évolution mensuelle du CA par type de pack -->
@@ -81,7 +81,7 @@
 <!-- Tableaux de Différences CA - Salaires -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
   <!-- Différence Semaine -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">📈</span>
@@ -111,10 +111,10 @@
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Différence Mois -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">📊</span>
@@ -144,10 +144,10 @@
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 
   <!-- Différence Année -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">📈</span>
@@ -177,13 +177,13 @@
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>
 
 <!-- Détail des Revenus par Type -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <!-- Revenus par Type de Session (Information visuelle) -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">🏐</span>
@@ -195,7 +195,7 @@
       <% if @breakdowns[:sessions].any? %>
         <div class="space-y-3">
           <% @breakdowns[:sessions].each do |session_type, amount| %>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-none">
               <span class="text-sm font-medium text-gray-700">
                 <%= case session_type
                     when 'entrainement' then 'Entraînements'
@@ -214,10 +214,10 @@
         <p class="text-gray-500 text-center py-4">Aucun revenu de session ce mois</p>
       <% end %>
     </div>
-  </div>
+  <% end %>
 
   <!-- CA par Type d'Achat -->
-  <div class="bg-white rounded-lg shadow">
+  <%= render CardComponent.new(padding: :none) do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
         <span class="mr-2">📦</span>
@@ -228,7 +228,7 @@
       <% if @breakdowns[:packs].any? %>
         <div class="space-y-3">
           <% @breakdowns[:packs].each do |pack_type, amount| %>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-none">
               <span class="text-sm font-medium text-gray-700">
                 <%= case pack_type
                     when 'credits' then 'Packs de Crédits'
@@ -250,5 +250,5 @@
         <p class="text-gray-500 text-center py-4">Aucun CA ce mois</p>
       <% end %>
     </div>
-  </div>
+  <% end %>
 </div>

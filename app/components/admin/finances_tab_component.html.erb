@@ -2,7 +2,7 @@
   <!-- KPIs Cards -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <!-- Revenus -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200 p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
         <%= lucide_icon('euro', class: 'w-5 h-5 mr-2 text-green-600') %>
         Chiffre d'Affaires
@@ -11,7 +11,7 @@
         <% revenue_cards.each do |card| %>
           <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-lg p-2 mr-3">
+              <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-none p-2 mr-3">
                 <%= lucide_icon(card[:icon], class: 'w-4 h-4') %>
               </div>
               <span class="text-sm font-medium text-gray-600"><%= card[:title] %></span>
@@ -23,7 +23,7 @@
     </div>
 
     <!-- Salaires -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200 p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
         <%= lucide_icon('users', class: 'w-5 h-5 mr-2 text-orange-600') %>
         Salaires Coachs
@@ -32,7 +32,7 @@
         <% salary_cards.each do |card| %>
           <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-lg p-2 mr-3">
+              <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-none p-2 mr-3">
                 <%= lucide_icon(card[:icon], class: 'w-4 h-4') %>
               </div>
               <span class="text-sm font-medium text-gray-600"><%= card[:title] %></span>
@@ -44,7 +44,7 @@
     </div>
 
     <!-- Bénéfices -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200 p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
         <%= lucide_icon('trending-up', class: 'w-5 h-5 mr-2 text-blue-600') %>
         Bénéfices
@@ -53,7 +53,7 @@
         <% profit_cards.each do |card| %>
           <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-lg p-2 mr-3">
+              <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-none p-2 mr-3">
                 <%= lucide_icon(card[:icon], class: 'w-4 h-4') %>
               </div>
               <span class="text-sm font-medium text-gray-600"><%= card[:title] %></span>
@@ -70,7 +70,7 @@
   <!-- Breakdown par type d'achat -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- Sessions -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200">
       <div class="px-4 py-3 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900">Revenus par type de session</h3>
       </div>
@@ -91,7 +91,7 @@
     </div>
 
     <!-- Packs -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200">
       <div class="px-4 py-3 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900">Revenus par type de pack</h3>
       </div>
@@ -113,7 +113,7 @@
   </div>
 
   <!-- Tableau récapitulatif -->
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+  <div class="bg-white rounded-none shadow-sm border border-gray-200">
     <div class="px-4 py-3 border-b border-gray-200">
       <h3 class="text-lg font-semibold text-gray-900">Récapitulatif financier</h3>
     </div>

@@ -10,7 +10,7 @@
       <!-- Colonne gauche : Informations -->
       <div class="flex flex-col space-y-6 overflow-y-auto">
         <!-- Header du stage -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
+        <%= render CardComponent.new(padding: :lg) do %>
           <div class="flex items-center gap-2 mb-4">
             <%= lucide_icon("flag", class: "w-6 h-6 text-asmbv-red") %>
             <h1 class="text-2xl font-bold text-gray-900"><%= @stage.title %></h1>
@@ -51,26 +51,26 @@
               </dd>
             </div>
           </dl>
-        </div>
+        <% end %>
 
         <!-- Description -->
         <% if @stage.description.present? %>
-          <div class="bg-white rounded-lg shadow-sm p-6">
+          <%= render CardComponent.new(padding: :lg) do %>
             <h2 class="text-lg font-semibold text-gray-800 mb-3">Description</h2>
             <p class="text-gray-700 whitespace-pre-line"><%= @stage.description %></p>
-          </div>
+          <% end %>
         <% end %>
 
         <!-- Packs disponibles -->
         <% if @stage_packs.any? %>
-          <div class="bg-white rounded-lg shadow-sm p-6">
+          <%= render CardComponent.new(padding: :lg) do %>
             <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <%= lucide_icon("package", size: 20, class: "text-asmbv-red") %>
               Packs d'inscription disponibles
             </h2>
             <div class="space-y-4">
               <% @stage_packs.each do |pack| %>
-                <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                <div class="bg-gray-50 rounded-none border border-gray-200 p-4 hover:shadow-md transition-shadow">
                   <div class="flex items-start justify-between mb-3">
                     <div class="flex-1">
                       <h3 class="text-lg font-semibold text-gray-900"><%= pack.name %></h3>
@@ -106,7 +106,7 @@
                 </div>
               <% end %>
             </div>
-          </div>
+          <% end %>
         <% end %>
       </div>
 
@@ -115,11 +115,11 @@
         <% if @stage.image.attached? %>
           <div class="sticky top-6">
             <%= image_tag @stage.image, 
-                  class: "w-full h-full object-cover rounded-lg shadow-lg",
+                  class: "w-full h-full object-cover rounded-none shadow-lg",
                   alt: @stage.title %>
           </div>
         <% else %>
-          <div class="sticky top-6 h-[calc(100vh-6rem)] bg-gray-200 rounded-lg shadow-lg flex items-center justify-center">
+          <div class="sticky top-6 h-[calc(100vh-6rem)] bg-gray-200 rounded-none shadow-lg flex items-center justify-center">
             <div class="text-center text-gray-500">
               <%= lucide_icon("image", size: 64, class: "mx-auto mb-4 text-gray-400") %>
               <p class="text-lg font-medium">Aucune image</p>

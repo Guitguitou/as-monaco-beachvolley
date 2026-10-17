@@ -7,7 +7,7 @@
       <%= render NextSessionComponent.new(registration: @dashboard.next_registration) %>
 
       <% if @dashboard.other_registrations.any? %>
-        <div class="mt-4 border border-gray-200 bg-white rounded-xl divide-y divide-gray-100">
+        <%= render CardComponent.new(padding: :none, class_name: "mt-4 divide-y divide-gray-100") do %>
           <% @dashboard.other_registrations.each do |registration| %>
             <% session = registration.session %>
             <%= link_to session_path(session), class: "flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-50" do %>
@@ -29,7 +29,7 @@
               </div>
             <% end %>
           <% end %>
-        </div>
+        <% end %>
       <% end %>
     <% else %>
       <%= render CardComponent.new(padding: :lg, class_name: "text-center") do %>
@@ -55,7 +55,7 @@
                     class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
       </div>
 
-      <div class="mt-4 border border-gray-200 bg-white rounded-xl divide-y divide-gray-100">
+      <%= render CardComponent.new(padding: :none, class_name: "mt-4 divide-y divide-gray-100") do %>
         <% @dashboard.supervised_sessions.each do |session| %>
           <%= link_to session_path(session), class: "flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-50" do %>
             <div class="min-w-0">
@@ -81,7 +81,7 @@
             </div>
           <% end %>
         <% end %>
-      </div>
+      <% end %>
     </section>
   <% end %>
 
@@ -121,14 +121,16 @@
   </section>
 
   <%# 3. Mon solde %>
-  <section class="border border-gray-200 bg-white rounded-xl p-5 flex items-center justify-between gap-4">
-    <div class="min-w-0">
-      <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Tes crédits</p>
-      <p class="mt-1 font-anton text-3xl leading-none tabular-nums text-gray-900">
-        <%= number_with_delimiter(@dashboard.balance, delimiter: " ") %>
-      </p>
-    </div>
-    <%= button("Recharger", variant: :secondary, size: :small, href: packs_path) %>
+  <section>
+    <%= render CardComponent.new(padding: :md, class_name: "flex items-center justify-between gap-4") do %>
+      <div class="min-w-0">
+        <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Tes crédits</p>
+        <p class="mt-1 font-anton text-3xl leading-none tabular-nums text-gray-900">
+          <%= number_with_delimiter(@dashboard.balance, delimiter: " ") %>
+        </p>
+      </div>
+      <%= button("Recharger", variant: :secondary, size: :small, href: packs_path) %>
+    <% end %>
   </section>
 
   <%# 4. Où je peux m'inscrire %>

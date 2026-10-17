@@ -61,7 +61,7 @@
     <% end %>
 
     <% if @coaching.upcoming_supervised.any? %>
-      <div class="mt-4 border border-gray-200 bg-white rounded-xl divide-y divide-gray-100">
+      <%= render CardComponent.new(padding: :none, class_name: "mt-4 divide-y divide-gray-100") do %>
         <% @coaching.upcoming_supervised.each do |session| %>
           <%= link_to session_path(session), data: { turbo_frame: "_top" },
                       class: "flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-50" do %>
@@ -88,7 +88,7 @@
             </div>
           <% end %>
         <% end %>
-      </div>
+      <% end %>
     <% else %>
       <div class="mt-4">
         <%= render EmptyStateComponent.new(
@@ -109,7 +109,7 @@
 
       <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <%= link_to coach_trainings_path, data: { turbo_frame: "_top" },
-                    class: "group border border-gray-200 bg-white rounded-xl p-5 flex items-start gap-4 hover:border-asmbv-red transition-colors" do %>
+                    class: "group border border-gray-200 bg-white rounded-none p-5 flex items-start gap-4 hover:border-asmbv-red transition-colors" do %>
           <span class="shrink-0 flex h-10 w-10 items-center justify-center bg-asmbv-red-light text-asmbv-red">
             <%= lucide_icon("book-open", class: "w-5 h-5", aria: { hidden: true }) %>
           </span>
@@ -122,7 +122,7 @@
         <% end %>
 
         <%= link_to coach_trainings_path(tab: "my_trainings"), data: { turbo_frame: "_top" },
-                    class: "group border border-gray-200 bg-white rounded-xl p-5 flex items-start gap-4 hover:border-asmbv-red transition-colors" do %>
+                    class: "group border border-gray-200 bg-white rounded-none p-5 flex items-start gap-4 hover:border-asmbv-red transition-colors" do %>
           <span class="shrink-0 flex h-10 w-10 items-center justify-center bg-asmbv-red-light text-asmbv-red">
             <%= lucide_icon("clipboard-list", class: "w-5 h-5", aria: { hidden: true }) %>
           </span>
@@ -152,7 +152,7 @@
     <% end %>
 
     <% if @coaching.my_annonces.any? %>
-      <div class="mt-4 border border-gray-200 bg-white rounded-xl divide-y divide-gray-100">
+      <%= render CardComponent.new(padding: :none, class_name: "mt-4 divide-y divide-gray-100") do %>
         <% @coaching.my_annonces.each do |annonce| %>
           <%= link_to annonce_path(annonce), data: { turbo_frame: "_top" },
                       class: "flex items-center justify-between gap-4 px-4 py-3 hover:bg-gray-50" do %>
@@ -173,7 +173,7 @@
             </div>
           <% end %>
         <% end %>
-      </div>
+      <% end %>
     <% else %>
       <div class="mt-4">
         <%= render EmptyStateComponent.new(
@@ -195,7 +195,7 @@
     <section>
       <%= render SectionHeaderComponent.new(title: "Mes stages") %>
 
-      <div class="mt-4 border border-gray-200 bg-white rounded-xl divide-y divide-gray-100">
+      <%= render CardComponent.new(padding: :none, class_name: "mt-4 divide-y divide-gray-100") do %>
         <% @coaching.supervised_stages.each do |stage| %>
           <div class="flex items-center justify-between gap-4 px-4 py-3">
             <div class="min-w-0">
@@ -212,7 +212,7 @@
                 ) %>
           </div>
         <% end %>
-      </div>
+      <% end %>
     </section>
   <% end %>
 </div>
