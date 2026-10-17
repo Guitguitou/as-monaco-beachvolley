@@ -38,6 +38,35 @@ RSpec.describe Registrations::Cancellation do
     expect(LateCancellation.where(user: player, session: session)).to exist
   end
 
+  it "refunds without recording a late cancellation when the staff excuses it" do
+    start_at = 1.day.from_now.change(hour: 18)
+    session = create(:session, user: coach, start_at: start_at, end_at: start_at + 2.hours, cancellation_deadline_at: 1.hour.ago)
+    registration = register(session)
+
+    message = nil
+    expect { message = described_class.new(registration, excused: true).call }.to change { player.reload.credit_balance }.by(session.price)
+
+    expect(message).to eq("Désinscription excusée — joueur remboursé.")
+    expect(LateCancellation.count).to eq(0)
+  end
+
+  it "refunds an excused player even once the session has started" do
+    session = create(:session, user: coach, start_at: 2.days.from_now, end_at: 2.days.from_now + 2.hours)
+    registration = register(session)
+    session.update_columns(start_at: 1.hour.ago, end_at: 1.hour.from_now)
+
+    expect { described_class.new(registration.reload, excused: true).call }.to change { player.reload.credit_balance }.by(session.price)
+  end
+
+  it "tells whether the unregistration would be late" do
+    start_at = 1.day.from_now.change(hour: 18)
+    late = create(:session, user: coach, start_at: start_at, end_at: start_at + 2.hours, cancellation_deadline_at: 1.hour.ago)
+    on_time = create(:session, user: coach, start_at: 5.days.from_now.change(hour: 18), end_at: 5.days.from_now.change(hour: 20))
+
+    expect(described_class.new(register(late))).to be_late
+    expect(described_class.new(register(on_time))).not_to be_late
+  end
+
   it "never refunds a session that has started" do
     session = create(:session, :jeu_libre, user: coach, start_at: 2.days.from_now, end_at: 2.days.from_now + 90.minutes)
     registration = register(session)

@@ -23,3 +23,13 @@ _Avoid_: Supervisor, animateur
 **Joueur** :
 Membre du club sans rôle particulier.
 _Avoid_: Adhérent, user
+
+## Inscriptions
+
+**Désinscription tardive** :
+Désinscription d'un entraînement payant après sa date limite d'annulation (ou une fois la session commencée) : non remboursée et comptée dans les alertes du joueur.
+_Avoid_: Annulation tardive, late cancel
+
+**Désinscription excusée** :
+Désinscription tardive dont le Staff lève la pénalité au moment de retirer le joueur : remboursée et non comptée.
+_Avoid_: Annulation justifiée, dérogation

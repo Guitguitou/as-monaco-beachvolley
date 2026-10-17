@@ -3,19 +3,22 @@
 module Registrations
   # Désinscrit un joueur : rembourse s'il est encore temps, trace une
   # désinscription tardive sinon, puis rend la place à la liste d'attente.
-  # Renvoie le message à afficher au joueur.
+  # Le Staff peut excuser une désinscription tardive : le joueur est alors
+  # remboursé et rien n'est tracé (cf. GLOSSARY.md).
+  # Renvoie le message à afficher.
   class Cancellation
-    def initialize(registration)
+    def initialize(registration, excused: false)
       @registration = registration
       @session = registration.session
       @amount = registration.required_credits_for(registration.user)
+      @excused = excused
     end
 
     def call
       ActiveRecord::Base.transaction do
         @registration.destroy!
         TransactionService.new(@registration.user, @session, @amount).refund_transaction if refundable?
-        LateCancellation.create!(user: @registration.user, session: @session) if paid? && past_deadline?
+        LateCancellation.create!(user: @registration.user, session: @session) if paid? && past_deadline? && !@excused
         @session.promote_from_waitlist!
       end
       # Le joueur a libéré un entraînement : ses autres inscriptions de la même
@@ -25,6 +28,11 @@ module Registrations
       message
     end
 
+    # Désinscription tardive : le joueur perdrait ses crédits.
+    def late?
+      paid? && (started? || past_deadline?)
+    end
+
     private
 
     def paid?
@@ -32,7 +40,7 @@ module Registrations
     end
 
     def refundable?
-      paid? && !started? && !past_deadline?
+      paid? && (@excused || !late?)
     end
 
     # Une session déjà commencée n'est jamais remboursée, quel que soit son type.
@@ -47,7 +55,9 @@ module Registrations
     end
 
     def message
-      if paid? && started?
+      if late? && @excused
+        "Désinscription excusée — joueur remboursé."
+      elsif paid? && started?
         "Désinscription réussie, mais la session a déjà eu lieu — pas de remboursement."
       elsif paid? && past_deadline?
         "Désinscription réussie, mais délai dépassé — pas de remboursement."

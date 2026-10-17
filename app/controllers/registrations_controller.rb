@@ -33,7 +33,7 @@ class RegistrationsController < ApplicationController
       return respond_after_change("La session est passée. Seul un administrateur peut retirer des joueurs.", kind: :alert)
     end
 
-    message = Registrations::Cancellation.new(registration).call
+    message = Registrations::Cancellation.new(registration, excused: excused?).call
     # Sur la fiche, le joueur qui vient de se désinscrire peut revenir sur sa
     # décision d'un clic (cf. sessions/_reregister).
     flash[:reregister] = @session.id unless acting_for_someone? || card_request?
@@ -80,6 +80,11 @@ class RegistrationsController < ApplicationController
   # Seuls un admin ou le coach de la session agissent pour un autre joueur.
   def acting_for_someone?
     params[:user_id].present? && can_bypass_deadline?
+  end
+
+  # Seul le Staff peut excuser une désinscription tardive (cf. GLOSSARY.md).
+  def excused?
+    acting_for_someone? && current_user.staff? && params[:excused] == "1"
   end
 
   # Admins and the session coach can bypass the registration deadline
