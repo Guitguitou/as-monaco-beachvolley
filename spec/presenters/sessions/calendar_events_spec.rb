@@ -23,7 +23,7 @@ RSpec.describe Sessions::CalendarEvents do
     create(:registration, user: player, session: registered, status: :confirmed)
     create(:registration, user: player, session: waitlisted, status: :waitlisted)
 
-    expect(event_for(registered)).to include(status: "registered", classNames: [ "status-registered" ])
+    expect(event_for(registered)).to include(status: "registered", classNames: [ "status-registered", "terrain-2" ])
     expect(event_for(waitlisted)[:status]).to eq("waitlisted")
     expect(event_for(open)[:status]).to eq("open")
   end

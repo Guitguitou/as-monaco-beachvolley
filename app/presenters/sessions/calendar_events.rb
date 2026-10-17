@@ -51,11 +51,12 @@ module Sessions
         start: session.start_at.iso8601,
         end: session.end_at.iso8601,
         url: @url_for.call(session),
-        classNames: [ "status-#{status}" ],
+        classNames: [ "status-#{status}", "terrain-#{session.terrain.to_s.delete_prefix("Terrain ")}" ],
         status: status,
         terrain: session.terrain,
         terrainShort: session.terrain.to_s.delete_prefix("Terrain ").then { |n| n.present? ? "T#{n}" : "" },
         forMe: for_me,
+        coachName: session.user&.full_name,
         confirmedCount: count,
         maxPlayers: session.max_players
       }
