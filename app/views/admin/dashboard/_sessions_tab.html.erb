@@ -19,7 +19,7 @@
 
 <% if @sessions_tab.upcoming? %>
   <!-- Sessions prévues (à partir d'aujourd'hui) -->
-  <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+  <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden mb-8") do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900">Sessions prévues</h3>
     </div>
@@ -71,15 +71,15 @@
         <p class="px-6 py-8 text-center text-gray-500">Aucune session prévue.</p>
       <% end %>
     </div>
-  </div>
+  <% end %>
 <% else %>
   <!-- Vue par type : période + tableau -->
   <div class="mb-6 flex flex-wrap items-center gap-4">
     <div class="flex items-center gap-2">
       <span class="text-sm font-medium text-gray-700">Période :</span>
-      <%= link_to "Semaine", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "week"), class: "px-3 py-1.5 rounded text-sm #{@sessions_tab.period.name == 'week' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
-      <%= link_to "Mois", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "month"), class: "px-3 py-1.5 rounded text-sm #{@sessions_tab.period.name == 'month' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
-      <%= link_to "Année", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "year"), class: "px-3 py-1.5 rounded text-sm #{@sessions_tab.period.name == 'year' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+      <%= link_to "Semaine", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "week"), class: "px-3 py-1.5 rounded-none text-sm #{@sessions_tab.period.name == 'week' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+      <%= link_to "Mois", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "month"), class: "px-3 py-1.5 rounded-none text-sm #{@sessions_tab.period.name == 'month' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+      <%= link_to "Année", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "year"), class: "px-3 py-1.5 rounded-none text-sm #{@sessions_tab.period.name == 'year' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
     </div>
     <span class="text-sm text-gray-600"><%= @sessions_tab.period.label %></span>
     <nav class="flex items-center gap-2" aria-label="Navigation par période">
@@ -88,7 +88,7 @@
     </nav>
   </div>
 
-  <div class="bg-white rounded-lg shadow overflow-hidden mb-8">
+  <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden mb-8") do %>
     <div class="px-6 py-4 border-b border-gray-200">
       <h3 class="text-lg font-medium text-gray-900">
         <%= case @sessions_tab.sub_tab
@@ -129,5 +129,5 @@
         <p class="px-6 py-8 text-center text-gray-500">Aucune session sur cette période.</p>
       <% end %>
     </div>
-  </div>
+  <% end %>
 <% end %>

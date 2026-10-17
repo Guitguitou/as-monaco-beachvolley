@@ -37,9 +37,9 @@ class CardComponent < ApplicationComponent
 
   def classes
     [
-      "block",
+      ("block" if href.present?),
       "border border-gray-200",
-      "rounded-xl",
+      "rounded-none",
       "bg-white",
       "shadow-sm",
       "transition-shadow duration-150",

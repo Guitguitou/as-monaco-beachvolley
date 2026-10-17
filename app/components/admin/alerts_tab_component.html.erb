@@ -2,10 +2,10 @@
   <!-- Cartes d'alertes -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <% alert_cards.each do |card| %>
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div class="bg-white rounded-none shadow-sm border border-gray-200 p-4">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-lg p-2">
+            <div class="<%= Admin::CardColor.classes(card[:color]) %> rounded-none p-2">
               <%= lucide_icon(card[:icon], class: 'w-6 h-6') %>
             </div>
           </div>
@@ -21,7 +21,7 @@
   <!-- Détail des alertes -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- Désinscriptions hors délai -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200">
       <div class="px-4 py-3 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center">
           <%= lucide_icon('user-x', class: 'w-5 h-5 mr-2 text-red-600') %>
@@ -54,7 +54,7 @@
     </div>
 
     <!-- Alertes de capacité -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200">
       <div class="px-4 py-3 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center">
           <%= lucide_icon('users', class: 'w-5 h-5 mr-2 text-yellow-600') %>
@@ -93,7 +93,7 @@
     </div>
 
     <!-- Faible participation -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200">
       <div class="px-4 py-3 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center">
           <%= lucide_icon('alert-triangle', class: 'w-5 h-5 mr-2 text-orange-600') %>
@@ -131,7 +131,7 @@
     </div>
 
     <!-- Sessions à venir -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-none shadow-sm border border-gray-200">
       <div class="px-4 py-3 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center">
           <%= lucide_icon('calendar', class: 'w-5 h-5 mr-2 text-blue-600') %>

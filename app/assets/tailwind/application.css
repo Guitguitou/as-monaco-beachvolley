@@ -125,7 +125,7 @@
 .terrain-2 .fc-asmbv-terrain,
 .terrain-3 .fc-asmbv-terrain {
   padding: 0 4px;
-  border-radius: 3px;
+  border-radius: 0;
   color: #ffffff;
 }
 .terrain-1 .fc-asmbv-terrain { background: var(--color-asmbv-ocean); }
@@ -164,7 +164,7 @@
 /* Jauge de remplissage, dans la couleur du texte de l'événement. */
 .fc-asmbv-fill {
   height: 4px;
-  border-radius: 2px;
+  border-radius: 0;
   margin-top: auto;
   background: color-mix(in srgb, currentColor 18%, transparent);
   overflow: hidden;
@@ -221,7 +221,7 @@
   background-color: var(--color-asmbv-red) !important;
   color: white !important;
   border: none !important;
-  border-radius: 0.375rem !important;
+  border-radius: 0 !important;
   font-weight: 600 !important;
 }
 
@@ -268,4 +268,9 @@
   .fc-event-main,
   .fc-event-title-container { overflow: hidden !important; }
   .fc-event-main { width: 100% !important; }
+}
+
+/* Angles droits partout (ADR 0001) : seules les pastilles restent arrondies. */
+.fc .fc-event {
+  border-radius: 0 !important;
 }

@@ -37,7 +37,7 @@ module ApplicationHelper
     active = current_page?(path)
 
     base_classes = [
-      "flex items-center gap-3 px-3 py-2 rounded-md",
+      "flex items-center gap-3 px-3 py-2 rounded-none",
       "hover:bg-gray-100 font-medium",
       "text-[14px] leading-5",            # 👈 taille uniforme
       (active ? "border-l-4 border-asmbv-red bg-asmbv-red-light text-asmbv-red font-semibold" : "text-gray-900")

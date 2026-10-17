@@ -49,7 +49,7 @@ class RankingComponent < ApplicationComponent
   end
 
   def row_classes(player)
-    "flex items-center gap-3 px-2 py-2 rounded-lg transition-colors " \
+    "flex items-center gap-3 px-2 py-2 rounded-none transition-colors " \
       "#{me?(player) ? 'bg-asmbv-red/5 ring-1 ring-asmbv-red/30' : 'hover:bg-gray-50'}"
   end
 

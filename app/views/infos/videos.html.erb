@@ -8,7 +8,7 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <!-- Vidéo 1 -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
+    <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden") do %>
       <div class="aspect-video">
         <iframe class="w-full h-full" src="https://drive.google.com/file/d/1LxG3uMb8bBt_y2VR3IDjOIFDIedY4vHt/preview" allow="autoplay" allowfullscreen></iframe>
       </div>
@@ -22,10 +22,10 @@
           Ouvrir dans Google Drive
         </a>
       </div>
-    </div>
+    <% end %>
 
     <!-- Vidéo 2 -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow duration-200">
+    <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden") do %>
       <div class="aspect-video">
         <iframe class="w-full h-full" src="https://drive.google.com/file/d/1EmUsQCJFT6Ch0mfvgjoEaeuq9YQ7YJOl/preview" allow="autoplay" allowfullscreen></iframe>
       </div>
@@ -39,10 +39,10 @@
           Ouvrir dans Google Drive
         </a>
       </div>
-    </div>
+    <% end %>
 
     <!-- Placeholder pour futures vidéos -->
-    <div class="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center min-h-[300px]">
+    <div class="bg-gray-50 rounded-none border-2 border-dashed border-gray-300 flex items-center justify-center min-h-[300px]">
       <div class="text-center">
         <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>

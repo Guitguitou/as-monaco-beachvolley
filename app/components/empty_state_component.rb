@@ -25,7 +25,7 @@ class EmptyStateComponent < ApplicationComponent
   attr_reader :icon, :title, :description, :compact
 
   def wrapper_classes
-    "text-center #{compact ? 'px-5 py-8' : 'border border-gray-200 bg-white rounded-xl p-6'}"
+    "text-center #{compact ? 'px-5 py-8' : 'border border-gray-200 bg-white rounded-none p-6'}"
   end
 
   def icon_classes
