@@ -30,6 +30,8 @@ module Mcp
             balance_credits: user.balance&.amount.to_i,
             roles: user.role_labels,
             activated_at: paris_time(user.activated_at),
+            licence_payee: user.activated?,
+            dossier_complet: user.dossier_complet?,
             disabled: user.disabled?,
             registrations: registrations(user),
             credit_transactions: credit_transactions(user),

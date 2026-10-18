@@ -17,4 +17,11 @@ RSpec.describe "Admin::Users update", type: :request do
     expect(response).to redirect_to(admin_user_path(user))
     expect(user.reload.balance.amount).to eq(500)
   end
+
+  it 'coche le dossier complet depuis la fiche joueur' do
+    user.update!(dossier_complet: false)
+    login_as admin, scope: :user
+    patch admin_user_path(user), params: { user: { dossier_complet: '1' } }
+    expect(user.reload.dossier_complet).to be(true)
+  end
 end

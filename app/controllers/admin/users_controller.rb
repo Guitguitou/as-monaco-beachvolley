@@ -88,6 +88,7 @@ module Admin
         :admin, :coach, :responsable, :financial_manager,
         :license_type,
         :next_season_renewed,
+        :dossier_complet,
         :salary_per_training,
         :password, :password_confirmation,
         level_ids: []

@@ -8,6 +8,7 @@ FactoryBot.define do
     # redirigée vers /packs. Les specs du parcours non activé passent
     # explicitement `activated_at: nil`.
     activated_at { Time.current }
+    dossier_complet { true }
     coach { false }
     responsable { false }
     admin { false }

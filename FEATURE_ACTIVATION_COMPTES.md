@@ -523,3 +523,17 @@ User.activated.order(activated_at: :desc).limit(10)
 
 **🚀 Feature prête pour la production !**
 
+
+---
+
+## 🔀 Octobre 2026 : Licence payée ≠ Dossier complet
+
+« Compte activé » mélangeait deux choses. Désormais (cf. GLOSSARY.md, section Licences) :
+
+- **Licence payée** = `users.activated_at` (inchangé : accès à l'espace membre).
+- **Dossier complet** = `users.dossier_complet`, coché à la main par le Staff dans la fiche joueur. Les pièces restent sur le Drive.
+- **Peut réserver** = licence payée ET dossier complet (`User#peut_reserver?`, scope `User.peut_reserver`). Seule condition pour `can :create, Registration` et pour être invité à un jeu libre.
+
+Un joueur licence payée / dossier incomplet voit sur « Mon terrain » : « Licence payée, en attente de ton dossier », avec le lien du formulaire d'adhésion réglé par le Staff dans Admin › Saison (`ClubSetting#membership_form_url`).
+
+À la migration, les joueurs déjà activés ont `dossier_complet = true` pour ne bloquer personne en cours de saison.

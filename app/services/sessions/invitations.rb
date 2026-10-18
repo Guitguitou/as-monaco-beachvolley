@@ -25,9 +25,9 @@ module Sessions
       Registration.exists?(session_id: @session.id, user_id: @inviter.id)
     end
 
-    # Membres activés, ni inscrits, ni déjà invités, ni soi-même.
+    # Membres qui peuvent réserver, ni inscrits, ni déjà invités, ni soi-même.
     def invitable_users
-      User.activated
+      User.peut_reserver
         .where.not(id: @inviter.id)
         .where.not(id: Registration.where(session_id: @session.id).select(:user_id))
         .where.not(id: SessionInvitation.where(session_id: @session.id).select(:invitee_id))
