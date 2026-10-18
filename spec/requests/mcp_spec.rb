@@ -174,6 +174,23 @@ RSpec.describe "Serveur MCP", type: :request do
       expect(players.first.keys).not_to include("email")
     end
 
+    it "list_players pagine par curseur et filtre sur updated_since" do
+      stub_const("Mcp::Tools::ListPlayers::MAX_RESULTS", 2)
+      players = Array.new(3) { |i| create(:user, last_name: "Page#{i}") }
+      players.each_with_index { |player, i| player.update_columns(updated_at: (10 - i).days.ago) }
+      admin.update_columns(updated_at: 20.days.ago)
+
+      first = call_tool("list_players")["structuredContent"]
+      second = call_tool("list_players", { cursor: first["next_cursor"] })["structuredContent"]
+
+      expect(first["players"].size).to eq(2)
+      expect((first["players"] + second["players"]).map { |player| player["id"] }).to eq([ admin.id ] + players.map(&:id))
+      expect(second["next_cursor"]).to be_nil
+
+      recent = call_tool("list_players", { updated_since: 9.days.ago.iso8601 })["structuredContent"]
+      expect(recent["players"].map { |player| player["id"] }).to eq(players.last(2).map(&:id))
+    end
+
     it "get_player renvoie le parcours du joueur" do
       player = create(:user)
       session = create(:session)
@@ -263,6 +280,28 @@ RSpec.describe "Serveur MCP", type: :request do
 
         expect(result["purchases"].map { |purchase| purchase["pack"] }).to eq([ "Licence" ])
       end
+
+      it "pagine par curseur sans changer les totaux de la période" do
+        stub_const("Mcp::Tools::ListPurchases::MAX_RESULTS", 2)
+
+        first = call_tool("list_purchases")["structuredContent"]
+        second = call_tool("list_purchases", { cursor: first["next_cursor"] })["structuredContent"]
+
+        expect((first["purchases"] + second["purchases"]).map { |purchase| purchase["id"] }.uniq.size).to eq(3)
+        expect(second["next_cursor"]).to be_nil
+        expect(second["totals"]["paid_eur"]).to eq(190.0)
+      end
+
+      it "avec updated_since, liste les achats modifiés depuis, quelle que soit leur date de création" do
+        old = CreditPurchase.find_by(created_at: ...1.month.ago)
+        CreditPurchase.update_all(updated_at: 3.days.ago)
+        old.update_columns(updated_at: 1.hour.ago)
+
+        result = call_tool("list_purchases", { updated_since: 1.day.ago.iso8601 })["structuredContent"]
+
+        expect(result["purchases"].map { |purchase| purchase["id"] }).to eq([ old.id ])
+        expect(result).to include("from" => nil, "to" => nil)
+      end
     end
 
     describe "list_credit_transactions" do
@@ -293,6 +332,33 @@ RSpec.describe "Serveur MCP", type: :request do
         expect(result["transactions"].size).to eq(1)
         expect(result["transactions"].first).to include("player" => "Céline Crédit", "amount_credits" => 400)
         expect(result["transactions"].first["session"]).to include("title" => "Entraînement G2")
+      end
+
+      it "pagine par curseur" do
+        stub_const("Mcp::Tools::ListCreditTransactions::MAX_RESULTS", 2)
+
+        first = call_tool("list_credit_transactions")["structuredContent"]
+        second = call_tool("list_credit_transactions", { cursor: first["next_cursor"] })["structuredContent"]
+
+        expect((first["transactions"] + second["transactions"]).map { |transaction| transaction["id"] }.uniq.size).to eq(3)
+        expect(second["next_cursor"]).to be_nil
+      end
+
+      it "avec updated_since, liste les mouvements modifiés depuis" do
+        CreditTransaction.update_all(updated_at: 3.days.ago)
+        recent = CreditTransaction.find_by(transaction_type: :refund)
+        recent.update_columns(updated_at: 1.hour.ago)
+
+        result = call_tool("list_credit_transactions", { updated_since: 1.day.ago.iso8601 })["structuredContent"]
+
+        expect(result["transactions"].map { |transaction| transaction["id"] }).to eq([ recent.id ])
+      end
+
+      it "signale un curseur invalide" do
+        result = call_tool("list_credit_transactions", { cursor: "abc" })
+
+        expect(result["isError"]).to be(true)
+        expect(result.dig("content", 0, "text")).to include("Curseur invalide")
       end
     end
   end
