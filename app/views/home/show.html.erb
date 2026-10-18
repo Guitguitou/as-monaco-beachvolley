@@ -1,6 +1,8 @@
 <% content_for :page_title, "Mon terrain" %>
 
 <div class="max-w-6xl mx-auto space-y-10">
+  <%= render DossierPendingComponent.new(user: current_user) %>
+
   <%# 1. Quand est-ce que je joue %>
   <section>
     <% if @dashboard.next_registration %>

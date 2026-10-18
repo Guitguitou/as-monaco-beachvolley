@@ -52,6 +52,8 @@ module Mcp
             balance_credits: user.balance&.amount.to_i,
             roles: user.role_labels,
             activated: user.activated_at.present?,
+            licence_payee: user.activated?,
+            dossier_complet: user.dossier_complet?,
             disabled: user.disabled?
           }
         end

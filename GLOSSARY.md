@@ -32,6 +32,19 @@ _Avoid_: Coach (pour un jeu libre), responsable de terrain
 Membre du club sans rôle particulier.
 _Avoid_: Adhérent, user
 
+## Licences
+
+**Licence payée** :
+Le joueur a réglé la licence de la saison (achat en ligne ou validation par le Staff).
+_Avoid_: Compte activé
+
+**Dossier complet** :
+Le Staff a vérifié toutes les pièces d'adhésion, qui restent sur le Drive ; il le coche dans la fiche joueur.
+
+**Peut réserver** :
+Licence payée et Dossier complet : seule condition pour s'inscrire à une session.
+_Avoid_: Compte activé
+
 ## Inscriptions
 
 **Désinscription tardive** :

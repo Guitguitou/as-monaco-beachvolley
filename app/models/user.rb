@@ -33,6 +33,8 @@ class User < ApplicationRecord
   scope :financial_managers, -> { where(financial_manager: true) }
   scope :activated, -> { where.not(activated_at: nil) }
   scope :not_activated, -> { where(activated_at: nil) }
+  scope :peut_reserver, -> { activated.where(dossier_complet: true) }
+  scope :peut_reserver, -> { activated.where(dossier_complet: true) }
   scope :renewed_for_next_season, -> { where(next_season_renewed: true) }
   scope :gender, ->(g) { joins(:levels).where(levels: { gender: g }) }
   scope :with_license, ->(lic) { where(license_type: lic) }
@@ -69,6 +71,16 @@ class User < ApplicationRecord
   # Check if account is activated (licence paid)
   def activated?
     activated_at.present?
+  end
+
+  # Peut réserver : licence payée ET dossier complet (cf. GLOSSARY.md).
+  def peut_reserver?
+    activated? && dossier_complet?
+  end
+
+  # Licence payée, mais le Staff n'a pas encore coché le dossier complet.
+  def dossier_en_attente?
+    activated? && !dossier_complet?
   end
 
   # Activate the account (called when licence is paid)

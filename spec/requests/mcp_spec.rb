@@ -202,6 +202,16 @@ RSpec.describe "Serveur MCP", type: :request do
       expect(result).not_to have_key("email")
     end
 
+it "list_players et get_player distinguent licence payée et dossier complet" do
+      player = create(:user, first_name: "Dora", last_name: "Dossier", dossier_complet: false)
+
+      listed = call_tool("list_players").dig("structuredContent", "players").find { |p| p["id"] == player.id }
+      detail = call_tool("get_player", { id: player.id })["structuredContent"]
+
+      expect(listed).to include("licence_payee" => true, "dossier_complet" => false)
+      expect(detail).to include("licence_payee" => true, "dossier_complet" => false)
+    end
+
     it "get_player signale un joueur introuvable" do
       expect(call_tool("get_player", { id: 0 })["isError"]).to be(true)
     end

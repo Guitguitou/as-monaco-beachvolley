@@ -26,6 +26,9 @@
         <% unless @user.activated? %>
           <%= render BadgeComponent.new(label: "Licence à régler", variant: :warning, size: :xs) %>
         <% end %>
+        <% if @user.dossier_en_attente? %>
+          <%= render BadgeComponent.new(label: "Dossier en attente", variant: :warning, size: :xs) %>
+        <% end %>
       </div>
     <% end %>
 
