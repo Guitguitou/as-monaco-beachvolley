@@ -47,7 +47,7 @@ gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "2.2.0"
-gem "ruby-vips", "2.3.0"
+gem "mini_magick", "5.4.0"
 
 gem "view_component", "~> 4.15"
 gem "view_component-contrib"
