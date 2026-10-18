@@ -59,7 +59,8 @@ module Mcp
         def late_cancellations(user)
           LateCancellation.where(user_id: user.id).includes(:session).order(created_at: :desc).map do |cancellation|
             { at: paris_time(cancellation.created_at), session_id: cancellation.session_id,
-              title: cancellation.session.title, start_at: paris_time(cancellation.session.start_at) }
+              title: cancellation.session.title, start_at: paris_time(cancellation.session.start_at),
+              excused: cancellation.excused }
           end
         end
       end

@@ -34,7 +34,12 @@ class SessionCardComponent < ApplicationComponent
 
   def card_classes
     "flex flex-col bg-white border border-gray-200 rounded-none shadow-sm " \
-      "transition-shadow duration-150 hover:shadow-md"
+      "transition-shadow duration-150 hover:shadow-md" +
+      (session.cancelled? ? " opacity-60" : "")
+  end
+
+  def cancelled_label
+    "Annulée — #{Session::CANCELLATION_REASON_LABELS.fetch(session.cancellation_reason, "Autre")}"
   end
 
   # Une seule barre de couleur, celle du terrain : le type de session est déjà

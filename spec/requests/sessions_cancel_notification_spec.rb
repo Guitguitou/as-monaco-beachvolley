@@ -36,9 +36,10 @@ RSpec.describe "Session cancellation notifications", type: :request do
 
   describe "Règle 4: Session annulée" do
     it "sends notification to all registered users when session is cancelled" do
-      post "/sessions/#{session_record.id}/cancel"
+      post "/sessions/#{session_record.id}/cancel", params: { cancellation_reason: "meteo" }
 
       expect(response).to redirect_to(sessions_path(date: session_record.start_at.strftime("%Y-%m-%d")))
+      expect(session_record.reload).to be_cancelled_for_meteo
       expect(SendPushNotificationJob).to have_received(:perform_later).with(
         user1.id,
         hash_including(
@@ -55,12 +56,19 @@ RSpec.describe "Session cancellation notifications", type: :request do
       )
     end
 
+    it "refuses a cancellation without reason" do
+      post "/sessions/#{session_record.id}/cancel"
+
+      expect(session_record.reload).not_to be_cancelled
+      expect(SendPushNotificationJob).not_to have_received(:perform_later)
+    end
+
     it "does not send notification to waitlisted users" do
       waitlisted_user = create(:user, activated_at: Time.current)
       create(:credit_transaction, user: waitlisted_user, amount: 1000)
       create(:registration, user: waitlisted_user, session: session_record, status: :waitlisted)
 
-      post "/sessions/#{session_record.id}/cancel"
+      post "/sessions/#{session_record.id}/cancel", params: { cancellation_reason: "meteo" }
 
       expect(SendPushNotificationJob).not_to have_received(:perform_later).with(
         waitlisted_user.id,

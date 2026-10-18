@@ -27,14 +27,14 @@ module Mcp
           {
             from: start_on.iso8601,
             to: end_on.iso8601,
-            sessions_by_type: Session.where(start_at: range).group(:session_type).count,
+            sessions_by_type: Session.held.where(start_at: range).group(:session_type).count,
             confirmed_participants_by_type: Registration.confirmed.joins(:session)
                                                         .where(sessions: { start_at: range })
                                                         .group("sessions.session_type").count,
             packs_revenue_eur: CreditPurchase.where(status: :paid, paid_at: range).sum(:amount_cents) / 100.0,
             packs_revenue_by_type_eur: Reporting::Revenue.new.pack_breakdown_by_type(range),
             credits_consumed_by_session_type: credits_consumed(range),
-            late_cancellations_count: LateCancellation.joins(:session).where(sessions: { start_at: range }).count
+            late_cancellations_count: LateCancellation.counted.joins(:session).where(sessions: { start_at: range }).count
           }
         end
 

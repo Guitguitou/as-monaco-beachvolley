@@ -13,14 +13,14 @@ module Reporting
     def week_kpis
       Reporting::CacheService.fetch("kpis", "week_kpis", @current_time.to_date) do
         range = @current_time.beginning_of_week(:monday)..@current_time.end_of_week(:monday)
-        counts = Session.where(start_at: range).group(:session_type).count
+        counts = Session.held.where(start_at: range).group(:session_type).count
         revenue = revenue_for_period(range)
         salaries = Reporting::CoachSalaries.new.total_for_period(range)
         {
           trainings_count: counts["entrainement"].to_i,
           free_plays_count: counts["jeu_libre"].to_i,
           private_coachings_count: counts["coaching_prive"].to_i,
-          late_cancellations_count: LateCancellation.joins(:session).count,
+          late_cancellations_count: LateCancellation.counted.joins(:session).count,
           revenue: revenue,
           coach_salaries: salaries,
           net_profit: revenue - salaries

@@ -4,7 +4,7 @@ module Registrations
   # Désinscrit un joueur : rembourse s'il est encore temps, trace une
   # désinscription tardive sinon, puis rend la place à la liste d'attente.
   # Le Staff peut excuser une désinscription tardive : le joueur est alors
-  # remboursé et rien n'est tracé (cf. GLOSSARY.md).
+  # remboursé et la désinscription tracée comme excusée (cf. GLOSSARY.md).
   # Renvoie le message à afficher.
   class Cancellation
     def initialize(registration, excused: false)
@@ -18,7 +18,7 @@ module Registrations
       ActiveRecord::Base.transaction do
         @registration.destroy!
         TransactionService.new(@registration.user, @session, @amount).refund_transaction if refundable?
-        LateCancellation.create!(user: @registration.user, session: @session) if paid? && past_deadline? && !@excused
+        LateCancellation.create!(user: @registration.user, session: @session, excused: @excused) if paid? && past_deadline?
         @session.promote_from_waitlist!
       end
       # Le joueur a libéré un entraînement : ses autres inscriptions de la même

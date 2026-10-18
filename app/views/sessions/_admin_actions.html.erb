@@ -42,13 +42,24 @@
       </div>
     <% end %>
 
-    <% if can?(:cancel, session) %>
+    <% if can?(:cancel, session) && !session.cancelled? %>
       <div class="border-t border-gray-200 pt-4">
-        <%= button_to cancel_session_path(session, calendar_ctx), method: :post,
-                      data: { turbo_confirm: "Annuler la session ? Tous les crédits seront remboursés et les inscrits prévenus." },
-                      class: "w-full inline-flex items-center justify-center gap-2 rounded-none border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50" do %>
-          <%= lucide_icon("ban", class: "w-4 h-4 shrink-0", aria: { hidden: true }) %>
-          <span>Annuler la session</span>
+        <%= form_with url: cancel_session_path(session, calendar_ctx), method: :post, local: true, class: "space-y-3",
+                      data: { turbo_confirm: "Annuler la session ? Tous les crédits seront remboursés et les inscrits prévenus." } do |f| %>
+          <%= render FormFieldComponent.new(
+            form: f,
+            attribute: :cancellation_reason,
+            type: :select,
+            label: "Motif d'annulation",
+            required: true,
+            options: options_for_select(Session::CANCELLATION_REASON_LABELS.invert),
+            select_options: { include_blank: "Choisir un motif..." }
+          ) %>
+          <%= button_tag type: :submit,
+                         class: "w-full inline-flex items-center justify-center gap-2 rounded-none border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50" do %>
+            <%= lucide_icon("ban", class: "w-4 h-4 shrink-0", aria: { hidden: true }) %>
+            <span>Annuler la session</span>
+          <% end %>
         <% end %>
       </div>
     <% end %>

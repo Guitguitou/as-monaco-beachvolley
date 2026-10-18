@@ -40,7 +40,7 @@ module Stats
         sessions_played: played_counts.values.sum,
         trainings_played: played_counts["entrainement"].to_i,
         free_plays_played: played_counts["jeu_libre"].to_i,
-        late_cancellations: LateCancellation.where(user_id: user.id).count,
+        late_cancellations: LateCancellation.counted.where(user_id: user.id).count,
         last_session_at: last_session_at,
         level: level,
         rank_in_group: ranking[:rank],

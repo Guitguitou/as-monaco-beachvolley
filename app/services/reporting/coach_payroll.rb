@@ -41,7 +41,7 @@ module Reporting
     private
 
     def trainings
-      Session.trainings.where(user_id: @coach.id)
+      Session.held.trainings.where(user_id: @coach.id)
     end
 
     def priced(count)

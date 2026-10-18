@@ -35,8 +35,8 @@ RSpec.describe SessionsController, type: :controller do
         initial_balance = player.reload.balance.amount
 
         expect {
-          post :cancel, params: { id: session_record.id }
-        }.to change { Session.exists?(session_record.id) }.from(true).to(false)
+          post :cancel, params: { id: session_record.id, cancellation_reason: "meteo" }
+        }.to change { session_record.reload.cancelled? }.from(false).to(true)
 
         expect(response).to redirect_to(sessions_path(date: session_record.start_at.strftime("%Y-%m-%d")))
         expect(flash[:notice]).to include('annulée')
@@ -51,8 +51,8 @@ RSpec.describe SessionsController, type: :controller do
         allow(controller).to receive(:authenticate_user!).and_return(true)
 
         expect {
-          post :cancel, params: { id: session_record.id }
-        }.to change { Session.exists?(session_record.id) }.from(true).to(false)
+          post :cancel, params: { id: session_record.id, cancellation_reason: "meteo" }
+        }.to change { session_record.reload.cancelled? }.from(false).to(true)
 
         expect(response).to redirect_to(sessions_path(date: session_record.start_at.strftime("%Y-%m-%d")))
         expect(flash[:notice]).to include('annulée')
@@ -68,7 +68,7 @@ RSpec.describe SessionsController, type: :controller do
         allow(controller).to receive(:authenticate_user!).and_return(true)
 
         expect {
-          post :cancel, params: { id: session_record.id }
+          post :cancel, params: { id: session_record.id, cancellation_reason: "meteo" }
         }.to raise_error(CanCan::AccessDenied)
 
         expect(Session.exists?(session_record.id)).to be true
@@ -84,7 +84,7 @@ RSpec.describe SessionsController, type: :controller do
         allow(controller).to receive(:authenticate_user!).and_return(true)
 
         expect {
-          post :cancel, params: { id: session_record.id }
+          post :cancel, params: { id: session_record.id, cancellation_reason: "meteo" }
         }.to raise_error(CanCan::AccessDenied)
       end
     end
