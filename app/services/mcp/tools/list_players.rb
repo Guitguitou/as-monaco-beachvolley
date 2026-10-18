@@ -8,13 +8,15 @@ module Mcp
 
       tool_name "list_players"
       description "Liste les membres du club : niveaux, type de licence, solde de crédits, rôles. " \
-                  "Filtrable par nom, niveau ou solde. Par défaut seuls les comptes activés et non désactivés."
+                  "Filtrable par nom, niveau ou solde. Par défaut seuls les comptes activés et non désactivés. " \
+                  "#{PAGINATION_NOTE}"
       input_schema(
         properties: {
           name: { type: "string", description: "Recherche sur le prénom ou le nom." },
           level_id: { type: "integer", description: "Niveau (cf. list_level_groups)." },
           balance_below: { type: "integer", description: "Solde de crédits strictement inférieur à cette valeur." },
-          include_inactive: { type: "boolean", description: "Inclure les comptes non activés ou désactivés." }
+          include_inactive: { type: "boolean", description: "Inclure les comptes non activés ou désactivés." },
+          **PAGINATION_PROPERTIES
         }
       )
       annotations(**READ_ONLY)
@@ -22,15 +24,15 @@ module Mcp
       class << self
         def permission = [ :read, :admin_users ]
 
-        def execute(_context, name: nil, level_id: nil, balance_below: nil, include_inactive: false)
-          users = scope(name, level_id, balance_below, include_inactive).to_a
-          { truncated: users.size == MAX_RESULTS, players: users.map { |user| serialize(user) } }
+        def execute(_context, name: nil, level_id: nil, balance_below: nil, include_inactive: false, cursor: nil, updated_since: nil)
+          page = paginate(scope(name, level_id, balance_below, include_inactive), cursor, updated_since)
+          { next_cursor: page[:next_cursor], players: page[:records].map { |user| serialize(user) } }
         end
 
         private
 
         def scope(name, level_id, balance_below, include_inactive)
-          users = User.includes(:balance, :levels).order(:last_name, :first_name).limit(MAX_RESULTS)
+          users = User.includes(:balance, :levels)
           users = users.activated.enabled unless include_inactive
           if name.present?
             pattern = "%#{User.sanitize_sql_like(name)}%"
