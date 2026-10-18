@@ -3,7 +3,7 @@
 module Avatars
   # Réduit la photo de profil envoyée avant de la stocker : 1024 px au plus
   # grand côté, en WebP. Une photo de téléphone (3 à 5 Mo) tombe autour de
-  # 80 Ko, ce qui ménage le quota Cloudinary et la bande passante des listes.
+  # 100 Ko, ce qui ménage le quota Cloudinary et la bande passante des listes.
   #
   # 1024 px suffisent : l'avatar le plus grand fait 128 px, zoom ×3 et écran
   # retina compris. Le cadrage étant stocké en pourcentages, il reste valable.
@@ -15,7 +15,7 @@ module Avatars
     QUALITY = 80
     MAX_UPLOAD_SIZE = 15.megabytes
 
-    def initialize(upload, processor: ImageProcessing::Vips)
+    def initialize(upload, processor: ImageProcessing::MiniMagick)
       @upload = upload
       @processor = processor
     end
@@ -25,14 +25,16 @@ module Avatars
 
       {
         io: processor.source(upload.path)
+                     .auto_orient
+                     .strip
                      .resize_to_limit(MAX_DIMENSION, MAX_DIMENSION)
                      .convert("webp")
-                     .saver(quality: QUALITY, strip: true)
+                     .saver(quality: QUALITY)
                      .call,
         filename: "#{File.basename(upload.original_filename.to_s, '.*').presence || 'avatar'}.webp",
         content_type: "image/webp"
       }
-    rescue Vips::Error
+    rescue MiniMagick::Error, ImageProcessing::Error
       upload
     end
 
