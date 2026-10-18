@@ -93,7 +93,7 @@ RSpec.describe "Serveur MCP", type: :request do
       tools = response.parsed_body.dig("result", "tools")
       expect(tools.map { |tool| tool["name"] }).to contain_exactly(
         "list_sessions", "list_players", "get_player", "list_level_groups", "list_tournaments", "list_stages", "club_stats",
-        "list_purchases", "list_credit_transactions"
+        "list_purchases", "list_credit_transactions", "list_late_cancellations"
       )
       expect(tools.map { |tool| tool.dig("annotations", "readOnlyHint") }).to all(be(true))
     end
@@ -121,6 +121,38 @@ RSpec.describe "Serveur MCP", type: :request do
       expect(sessions.size).to eq(1)
       expect(sessions.first).to include("id" => session.id, "confirmed_count" => 1, "waitlisted_count" => 1, "places_left" => 3,
                                         "levels" => [ "G2 M" ])
+    end
+
+    it "list_sessions distingue coach et responsable de réservation, et montre les séances annulées" do
+      lead = create(:user, :responsable, first_name: "Rita", last_name: "Resp")
+      free_play = create(:session, :jeu_libre, user: lead, start_at: 1.day.from_now.change(hour: 18), end_at: 1.day.from_now.change(hour: 20))
+      training = create(:session, start_at: 2.days.from_now.change(hour: 18))
+      training.update!(cancelled_at: Time.current, cancellation_reason: "meteo")
+
+      sessions = call_tool("list_sessions").dig("structuredContent", "sessions").index_by { |s| s["id"] }
+
+      expect(sessions[free_play.id]).to include("responsable" => "Rita Resp", "cancelled" => false)
+      expect(sessions[free_play.id]).not_to have_key("coach")
+      expect(sessions[training.id]).to include("cancelled" => true, "cancellation_reason" => "meteo")
+      expect(sessions[training.id]).to have_key("coach")
+    end
+
+    it "list_late_cancellations liste les désinscriptions tardives de la période, excusées comprises" do
+      player = create(:user, first_name: "Paul", last_name: "Retard")
+      training = create(:session, title: "Entraînement G2", start_at: 1.day.ago.change(hour: 18), end_at: 1.day.ago.change(hour: 20))
+      counted = LateCancellation.create!(user: player, session: training)
+      excused = LateCancellation.create!(user: create(:user), session: training, excused: true)
+      LateCancellation.create!(user: player, session: create(:session, start_at: 10.days.ago, end_at: 10.days.ago + 2.hours))
+
+      result = call_tool("list_late_cancellations", { from: 2.days.ago.to_date.iso8601, to: Date.current.iso8601 })
+
+      rows = result.dig("structuredContent", "late_cancellations")
+      expect(rows.map { |row| row["id"] }).to contain_exactly(counted.id, excused.id)
+      expect(rows.find { |row| row["id"] == counted.id }).to include(
+        "player" => "Paul Retard", "player_id" => player.id, "session_id" => training.id,
+        "session_title" => "Entraînement G2", "excused" => false
+      )
+      expect(rows.find { |row| row["id"] == excused.id }["excused"]).to be(true)
     end
 
     it "list_sessions signale une date invalide" do

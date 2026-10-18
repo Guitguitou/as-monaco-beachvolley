@@ -1,6 +1,6 @@
 module Sessions
   # Supprime une session ou une session et les suivantes de sa série, en
-  # remboursant les participants confirmés (via CancelSessionService).
+  # remboursant les participants confirmés (via DestroySessionService).
   #
   # scope:
   #   "this"      => uniquement la session passée en argument
@@ -23,7 +23,7 @@ module Sessions
 
       target_sessions.each do |session|
         label = session_label(session)
-        Sessions::CancelSessionService.call(session: session)
+        Sessions::DestroySessionService.call(session: session)
         destroyed_count += 1
       rescue StandardError => e
         failures << "#{label} : #{e.message}"

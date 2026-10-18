@@ -261,7 +261,7 @@ RSpec.describe "Registrations flow", type: :request do
         delete session_registration_path(late_session, id: "current", user_id: player.id, excused: "1")
       }.to change { player.reload.credit_balance }.by(late_session.price)
 
-      expect(LateCancellation.where(user: player)).to be_empty
+      expect(LateCancellation.counted.where(user: player)).to be_empty
     end
 
     it "applique la désinscription tardive par défaut" do

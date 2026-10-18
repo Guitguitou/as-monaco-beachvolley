@@ -58,7 +58,7 @@ RSpec.describe "Sessions participants sync (public flow)", type: :request do
       login_as admin, scope: :user
 
       expect { remove_player(excused_ids: [ player.id ]) }.to change { player.reload.credit_balance }.by(training.price)
-      expect(LateCancellation.where(user: player)).to be_empty
+      expect(LateCancellation.counted.where(user: player)).to be_empty
     end
 
     it "ignores excuses sent by a supervisor" do

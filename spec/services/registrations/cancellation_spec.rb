@@ -38,7 +38,7 @@ RSpec.describe Registrations::Cancellation do
     expect(LateCancellation.where(user: player, session: session)).to exist
   end
 
-  it "refunds without recording a late cancellation when the staff excuses it" do
+  it "refunds and records an excused late cancellation when the staff excuses it" do
     start_at = 1.day.from_now.change(hour: 18)
     session = create(:session, user: coach, start_at: start_at, end_at: start_at + 2.hours, cancellation_deadline_at: 1.hour.ago)
     registration = register(session)
@@ -47,7 +47,8 @@ RSpec.describe Registrations::Cancellation do
     expect { message = described_class.new(registration, excused: true).call }.to change { player.reload.credit_balance }.by(session.price)
 
     expect(message).to eq("Désinscription excusée — joueur remboursé.")
-    expect(LateCancellation.count).to eq(0)
+    expect(LateCancellation.sole).to have_attributes(user: player, session: session, excused: true)
+    expect(LateCancellation.counted).to be_empty
   end
 
   it "refunds an excused player even once the session has started" do

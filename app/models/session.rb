@@ -28,6 +28,20 @@ class Session < ApplicationRecord
     stage: "stage"
   }
 
+  # Motifs d'annulation (cf. GLOSSARY.md). `cancelled_at` marque la séance annulée.
+  enum :cancellation_reason, {
+    meteo: "meteo",
+    moins_de_2_inscrits: "moins_de_2_inscrits",
+    absence_encadrant: "absence_encadrant",
+    autre: "autre"
+  }, prefix: :cancelled_for
+  CANCELLATION_REASON_LABELS = {
+    "meteo" => "Météo",
+    "moins_de_2_inscrits" => "Moins de 2 inscrits",
+    "absence_encadrant" => "Absence d'encadrant",
+    "autre" => "Autre"
+  }.freeze
+
   enum :terrain, {
     "Terrain 1": 1,
     "Terrain 2": 2,
@@ -42,6 +56,8 @@ class Session < ApplicationRecord
   after_create :charge_coach_for_private_coaching, if: :coaching_prive?
 
   scope :terrain, ->(terrain) { where(terrain: terrain) }
+  scope :cancelled, -> { where.not(cancelled_at: nil) }
+  scope :held, -> { where(cancelled_at: nil) }
   scope :upcoming, -> { where("start_at >= ?", Time.current) }
   scope :in_week, ->(week_start) { where(start_at: week_start..(week_start + 7.days)) }
   scope :in_month, ->(month_start) { where(start_at: month_start..month_start.end_of_month) }
@@ -77,6 +93,10 @@ class Session < ApplicationRecord
   # Check if current time is past 17h on the day of the session
   def past_registration_deadline?
     Sessions::RegistrationPolicy.new(session: self, user: nil).past_deadline?
+  end
+
+  def cancelled?
+    cancelled_at.present?
   end
 
   def display_name

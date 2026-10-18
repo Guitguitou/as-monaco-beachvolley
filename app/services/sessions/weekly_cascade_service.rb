@@ -29,7 +29,7 @@ module Sessions
     attr_reader :user, :session
 
     def peer_sessions
-      Session.trainings
+      Session.held.trainings
              .where(start_at: Registrations::WeeklyPriorityRule.week_range(session.start_at))
              .where.not(id: session.id)
              .where(id: Registration.where(user_id: user.id).select(:session_id))

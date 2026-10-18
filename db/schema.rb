@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_17_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -133,6 +133,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_140000) do
     t.bigint "session_id", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.boolean "excused", default: false, null: false
     t.index ["created_at"], name: "index_late_cancellations_on_created_at"
     t.index ["session_id", "created_at"], name: "index_late_cancellations_on_session_and_created_at"
     t.index ["session_id"], name: "index_late_cancellations_on_session_id"
@@ -289,6 +290,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_140000) do
     t.bigint "tournament_id"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.datetime "cancelled_at"
+    t.string "cancellation_reason"
+    t.index ["cancelled_at"], name: "index_sessions_on_cancelled_at"
     t.index ["registration_opens_at"], name: "index_sessions_on_registration_opens_at"
     t.index ["series_id"], name: "index_sessions_on_series_id"
     t.index ["session_type", "start_at"], name: "index_sessions_on_type_and_start_at"

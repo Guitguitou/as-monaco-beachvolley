@@ -44,7 +44,7 @@ RSpec.describe Sessions::ParticipantsSync do
 
     it "refunds the participants the staff excused" do
       expect { training_sync.call([], excused_ids: [ player.id.to_s ]) }.to change { player.reload.credit_balance }.by(training.price)
-      expect(LateCancellation.count).to eq(0)
+      expect(LateCancellation.counted).to be_empty
     end
   end
 

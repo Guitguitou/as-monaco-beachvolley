@@ -90,7 +90,7 @@ class SessionsController < ApplicationController
   def cancel
     authorize! :cancel, @session
 
-    Sessions::CancelSessionService.call(session: @session)
+    Sessions::CancelSessionService.call(session: @session, reason: params[:cancellation_reason])
 
     redirect_to sessions_path(sessions_index_redirect_params), notice: "Session annulée et remboursée ✅"
   rescue StandardError => e

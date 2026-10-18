@@ -14,26 +14,44 @@ RSpec.describe Sessions::CancelSessionService do
     create(:registration, user: waitlisted, session: session_record, status: :waitlisted)
   end
 
-  it "destroys the session" do
+  it "keeps the session, marked as cancelled with its reason" do
     expect {
-      described_class.call(session: session_record)
-    }.to change(Session, :count).by(-1)
+      described_class.call(session: session_record, reason: "meteo")
+    }.not_to change(Session, :count)
+
+    expect(session_record.reload).to be_cancelled
+    expect(session_record.cancellation_reason).to eq("meteo")
+  end
+
+  it "rejects an unknown reason" do
+    expect {
+      described_class.call(session: session_record, reason: "flemme")
+    }.to raise_error(ArgumentError)
+    expect(session_record.reload).not_to be_cancelled
   end
 
   it "refunds confirmed participants" do
     expect {
-      described_class.call(session: session_record)
+      described_class.call(session: session_record, reason: "meteo")
     }.to change { player.reload.credit_balance }.by(session_record.price)
   end
 
   it "does not refund waitlisted participants" do
     expect {
-      described_class.call(session: session_record)
+      described_class.call(session: session_record, reason: "meteo")
     }.not_to change { waitlisted.reload.credit_balance }
   end
 
+  it "excuses the late cancellations of the session" do
+    late = LateCancellation.create!(user: waitlisted, session: session_record)
+
+    described_class.call(session: session_record, reason: "meteo")
+
+    expect(late.reload).to be_excused
+  end
+
   it "notifies confirmed participants" do
-    described_class.call(session: session_record)
+    described_class.call(session: session_record, reason: "meteo")
 
     expect(SendPushNotificationJob).to have_received(:perform_later).with(
       player.id, hash_including(title: "Session annulée")
@@ -47,7 +65,7 @@ RSpec.describe Sessions::CancelSessionService do
     coaching = create(:session, :coaching_prive, user: coach, start_at: 4.days.from_now, end_at: 4.days.from_now + 1.hour)
 
     expect {
-      described_class.call(session: coaching)
+      described_class.call(session: coaching, reason: "absence_encadrant")
     }.to change { coach.reload.credit_balance }.by(Session::PRIVATE_COACHING_PRICE)
   end
 end
