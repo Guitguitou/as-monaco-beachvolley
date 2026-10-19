@@ -32,7 +32,8 @@ RSpec.describe Sessions::CalendarEvents do
     full = free_play(max_players: 1)
     create(:registration, user: create(:user), session: full, status: :confirmed)
 
-    expect(event_for(full)).to include(status: "unavailable", confirmedCount: 1, maxPlayers: 1, terrainShort: "T2")
+    expect(event_for(full)).to include(status: "unavailable", confirmedCount: 1, maxPlayers: 1, terrainShort: "T2",
+                                       statusText: "Complet", statusTone: "full")
   end
 
   it "marks trainings outside the player's levels as unavailable" do
