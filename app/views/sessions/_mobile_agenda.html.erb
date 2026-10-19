@@ -1,0 +1,102 @@
+<%# locals: agenda: (Sessions::MobileAgenda)
+    Agenda mobile : bandeau des jours (un point par session, rouge si j'y suis),
+    mes prochaines sessions en carrousel, puis les sessions du jour choisi.
+    Un tap ouvre l'aperçu en feuille (dialog + Turbo Frame). %>
+<% ctx = sessions_index_return_params %>
+<% pill_tones = {
+     "registered" => "bg-asmbv-red text-white",
+     "waitlisted" => "bg-orange-100 text-orange-800",
+     "hot" => "bg-orange-100 text-orange-800",
+     "ok" => "bg-green-100 text-green-800",
+     "full" => "bg-gray-100 text-gray-500"
+   } %>
+<% terrain_tones = { "T1" => "bg-asmbv-ocean text-white", "T2" => "bg-asmbv-ink text-white", "T3" => "bg-asmbv-gold text-asmbv-ink" } %>
+
+<section class="sm:hidden mt-2" aria-label="Agenda de la semaine">
+  <%# Bandeau des jours %>
+  <div class="bg-white border-y border-gray-200 px-2 pt-2 pb-3">
+    <div class="flex items-center justify-between px-2 pb-2">
+      <%= link_to sessions_path(ctx.merge(date: agenda.previous_week.iso8601)), class: "p-2 text-gray-600", aria: { label: "Semaine précédente" } do %>
+        <%= lucide_icon("chevron-left", class: "size-5") %>
+      <% end %>
+      <span class="text-sm font-semibold text-gray-900 first-letter:uppercase">
+        <%= l(agenda.day, format: "%B %Y") %>
+      </span>
+      <%= link_to sessions_path(ctx.merge(date: agenda.next_week.iso8601)), class: "p-2 text-gray-600", aria: { label: "Semaine suivante" } do %>
+        <%= lucide_icon("chevron-right", class: "size-5") %>
+      <% end %>
+    </div>
+    <nav class="grid grid-cols-7 gap-1">
+      <% agenda.week.each do |d| %>
+        <% selected = d.date == agenda.day %>
+        <%= link_to sessions_path(ctx.merge(date: d.date.iso8601)),
+              aria: { current: (selected ? "date" : nil), label: l(d.date, format: :long) },
+              class: "flex flex-col items-center rounded-none py-1.5 #{selected ? 'bg-gray-900 text-white' : 'text-gray-900'}" do %>
+          <span class="text-[11px] uppercase <%= selected ? 'text-gray-300' : 'text-gray-500' %>"><%= l(d.date, format: "%a").first %></span>
+          <span class="text-lg font-bold tabular-nums <%= 'text-asmbv-red' if d.today? && !selected %>"><%= d.date.day %></span>
+          <span class="flex h-1.5 gap-0.5" aria-hidden="true">
+            <% d.statuses.first(3).each do |status| %>
+              <span class="size-1.5 rounded-full <%= status.in?(%w[registered waitlisted]) ? 'bg-asmbv-red' : (selected ? 'bg-gray-400' : 'bg-gray-300') %>"></span>
+            <% end %>
+          </span>
+        <% end %>
+      <% end %>
+    </nav>
+  </div>
+
+  <%# Mes prochaines sessions %>
+  <% if agenda.upcoming.any? %>
+    <div class="pt-4">
+      <h2 class="px-4 font-bebas-neue text-base tracking-widest text-gray-500">Mes prochaines</h2>
+      <div class="mt-2 flex gap-3 overflow-x-auto px-4 pb-1 snap-x snap-mandatory">
+        <% agenda.upcoming.each do |registration| %>
+          <% s = registration.session %>
+          <%= link_to preview_session_path(s, ctx),
+                data: { turbo_frame: "session_preview", action: "dialog#open" },
+                class: "snap-start shrink-0 w-[78%] rounded-none px-4 py-3 #{registration.waitlisted? ? 'border-2 border-dashed border-orange-400 bg-orange-50 text-orange-900' : 'bg-asmbv-red text-white'}" do %>
+            <span class="block text-[11px] font-bold uppercase tracking-wide opacity-90">
+              <%= l(s.start_at, format: "%a %d · %Hh%M") %> · <%= s.terrain.to_s.sub("Terrain ", "T") %>
+            </span>
+            <span class="mt-1 block font-semibold truncate"><%= registration.waitlisted? ? s.title : "✓ #{s.title}" %></span>
+            <span class="block text-xs opacity-90"><%= registration.waitlisted? ? "Liste d'attente" : "Inscrit" %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Sessions du jour %>
+  <div class="px-4 pt-5 pb-4">
+    <h2 class="font-bebas-neue text-base tracking-widest text-gray-500"><%= l(agenda.day, format: "%A %-d %B") %></h2>
+    <% if agenda.events_of_day.empty? %>
+      <p class="mt-3 text-sm text-gray-500">Aucune session ce jour-là.</p>
+    <% else %>
+      <ul class="mt-2 space-y-2">
+        <% agenda.events_of_day.each do |event| %>
+          <% starts = Time.zone.parse(event[:start]) %>
+          <% ends = Time.zone.parse(event[:end]) %>
+          <li>
+            <%= link_to preview_session_path(event[:id], ctx),
+                  data: { turbo_frame: "session_preview", action: "dialog#open" },
+                  class: "grid grid-cols-[3.25rem_1fr_auto] items-center gap-3 rounded-none border bg-white p-3 #{event[:status] == 'unavailable' ? 'border-gray-200 opacity-60' : 'border-gray-200'} #{'border-l-4 border-l-asmbv-red' if event[:status] == 'registered'}" do %>
+              <span class="tabular-nums">
+                <span class="block font-bold text-gray-900"><%= l(starts, format: "%H:%M") %></span>
+                <span class="block text-xs text-gray-500"><%= l(ends, format: "%H:%M") %></span>
+              </span>
+              <span class="min-w-0">
+                <span class="block font-semibold text-gray-900 truncate"><%= event[:title] %></span>
+                <span class="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
+                  <% if event[:terrainShort].present? %>
+                    <span class="font-bebas-neue px-1 text-[13px] leading-tight tracking-wider <%= terrain_tones[event[:terrainShort]] %>"><%= event[:terrainShort] %></span>
+                  <% end %>
+                  <span class="truncate"><%= event[:coachName] %></span>
+                </span>
+              </span>
+              <span class="rounded-full px-2 py-0.5 text-[11px] font-bold whitespace-nowrap <%= pill_tones[event[:statusTone]] %>"><%= event[:statusText] %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+</section>

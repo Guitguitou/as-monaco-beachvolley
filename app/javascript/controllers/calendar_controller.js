@@ -107,7 +107,7 @@ export default class extends Controller {
         if (arg.event.display === 'background') return true
 
         const props = arg.event.extendedProps
-        const status = this.statusLabel(props)
+        const status = { text: props.statusText, tone: props.statusTone }
 
         // Vue liste (mobile) : le titre, le terrain et une pastille de statut.
         // Un vrai lien : le contenu personnalisé remplace celui de FullCalendar,
@@ -255,25 +255,14 @@ export default class extends Controller {
     dialog.showModal()
   }
 
-  // Ce que le joueur doit savoir avant de cliquer : son statut, sinon les
-  // places restantes. `tone` règle la pastille (vue liste) et la jauge.
-  statusLabel({ status, confirmedCount, maxPlayers }) {
-    if (status === 'registered') return { text: '✓ Inscrit', tone: 'registered' }
-    if (status === 'waitlisted') return { text: "Liste d'attente", tone: 'waitlisted' }
-    if (!maxPlayers) return { text: `${confirmedCount} inscrits`, tone: status === 'open' ? 'ok' : 'full' }
-
-    const left = maxPlayers - confirmedCount
-    if (left <= 0) return { text: 'Complet', tone: 'full' }
-    if (status !== 'open') return { text: `${confirmedCount}/${maxPlayers}`, tone: 'full' }
-    if (left <= 2) return { text: left === 1 ? 'Plus qu’1 place' : `Plus que ${left} places`, tone: 'hot' }
-    return { text: `${confirmedCount}/${maxPlayers} · ${left} places`, tone: 'ok' }
-  }
-
   styleHeaderButtons(_calendarEl) {
     // Styling is handled by CSS (application.css .fc .fc-button rules).
   }
 
   updateDateQueryParamAndLinks(dateObj) {
+    // Masqué (mobile), le calendrier ne pilote pas l'URL : c'est l'agenda
+    // mobile qui choisit le jour, et le ramener au lundi le perdrait.
+    if (!this.element.offsetParent) return
     try {
       const ymd = this.formatDateToYMD(dateObj)
       const url = new URL(window.location.href)

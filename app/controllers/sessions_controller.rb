@@ -12,7 +12,10 @@ class SessionsController < ApplicationController
 
     if @view == "calendar"
       sessions = filter.apply(Session.held.includes(:levels, :user).order(start_at: :desc))
-      @calendar = Sessions::CalendarEvents.new(user: current_user, sessions: sessions, url_for: ->(s) { helpers.sessions_calendar_event_path(s) })
+      calendar = Sessions::CalendarEvents.new(user: current_user, sessions: sessions, url_for: ->(s) { helpers.sessions_calendar_event_path(s) })
+      @events = calendar.sessions
+      @closures = calendar.closures
+      @agenda = Sessions::MobileAgenda.new(events: @events, user: current_user, date_param: params[:date])
       return
     end
 

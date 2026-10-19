@@ -43,6 +43,7 @@ module Sessions
       count = confirmed_counts[session.id].to_i
       for_me = level_allowed?(session)
       status = status_for(session, count, for_me)
+      label = status_label(status, count, session.max_players)
 
       {
         id: session.id,
@@ -58,7 +59,9 @@ module Sessions
         forMe: for_me,
         coachName: session.user&.full_name,
         confirmedCount: count,
-        maxPlayers: session.max_players
+        maxPlayers: session.max_players,
+        statusText: label.first,
+        statusTone: label.last
       }
     end
 
@@ -71,6 +74,21 @@ module Sessions
       return "unavailable" if session.max_players.present? && count >= session.max_players
 
       "open"
+    end
+
+    # Ce que le joueur doit savoir avant de cliquer : son statut, sinon les
+    # places restantes. Le ton règle la pastille et la jauge.
+    def status_label(status, count, max)
+      return [ "✓ Inscrit", "registered" ] if status == "registered"
+      return [ "Liste d'attente", "waitlisted" ] if status == "waitlisted"
+      return [ "#{count} inscrits", status == "open" ? "ok" : "full" ] if max.blank?
+
+      left = max - count
+      return [ "Complet", "full" ] if left <= 0
+      return [ "#{count}/#{max}", "full" ] unless status == "open"
+      return [ left == 1 ? "Plus qu’1 place" : "Plus que #{left} places", "hot" ] if left <= 2
+
+      [ "#{count}/#{max} · #{left} places", "ok" ]
     end
 
     def level_allowed?(session)
