@@ -58,7 +58,7 @@ _Avoid_: Annulation justifiée, dérogation
 ## Séances
 
 **Séance annulée** :
-Séance prévue qui n'aura pas lieu ; elle reste visible avec son motif d'annulation, fermée aux inscriptions, et les inscrits sont remboursés et prévenus. Ses désinscriptions tardives deviennent des désinscriptions excusées.
+Séance prévue qui n'aura pas lieu ; elle disparaît du calendrier mais reste connue du club avec son motif d'annulation. Les inscrits sont remboursés et prévenus. Ses désinscriptions tardives deviennent des désinscriptions excusées.
 _Avoid_: Séance supprimée
 
 **Motif d'annulation** :

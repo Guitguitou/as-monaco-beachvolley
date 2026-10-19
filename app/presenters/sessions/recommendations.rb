@@ -30,7 +30,7 @@ module Sessions
 
     def candidates
       EligibleForUserLevelsQuery.call(
-        relation: Session.upcoming.ordered_by_start.where.not(session_type: "coaching_prive"),
+        relation: Session.held.upcoming.ordered_by_start.where.not(session_type: "coaching_prive"),
         level_ids: @level_ids
       ).includes(:levels, :user, registrations: :user).limit(CANDIDATES).to_a
     end
