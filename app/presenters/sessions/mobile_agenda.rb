@@ -33,7 +33,7 @@ module Sessions
     # Sessions à venir où le joueur est inscrit ou en attente.
     def upcoming
       @upcoming ||= Registration.where(user: @user)
-        .joins(:session).where(sessions: { start_at: Time.current.. })
+        .joins(:session).merge(Session.held).where(sessions: { start_at: Time.current.. })
         .includes(:session).order("sessions.start_at").limit(6).to_a
     end
 
