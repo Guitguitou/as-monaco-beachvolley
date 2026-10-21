@@ -41,6 +41,13 @@ RSpec.describe Sessions::Invitations do
     expect(invitations.invite([ friend.id, player.id ], url: "/").sent).to eq(0)
   end
 
+it "n'invite pas un joueur dont le dossier est incomplet" do
+    sans_dossier = create(:user, dossier_complet: false)
+
+    expect(invitations.invitable_users).to include(friend)
+    expect(invitations.invitable_users).not_to include(sans_dossier)
+  end
+
   it "caps the invitations per player" do
     stub_const("#{described_class}::MAX_PER_INVITER", 1)
     others = create_list(:user, 2)

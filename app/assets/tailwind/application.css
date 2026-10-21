@@ -270,7 +270,7 @@
   .fc-event-main { width: 100% !important; }
 }
 
-/* Angles droits partout (ADR 0001) : seules les pastilles restent arrondies. */
+/* Angles droits partout (ADR 0002) : seules les pastilles restent arrondies. */
 .fc .fc-event {
   border-radius: 0 !important;
 }

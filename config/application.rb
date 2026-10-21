@@ -17,6 +17,11 @@ module AsMonacoBeachVolleyApp
     config.autoload_lib(ignore: %w[assets tasks])
     config.autoload_paths += %W[#{config.root}/app/presenters]
 
+    # ImageMagick plutôt que libvips : la stack Scalingo 22.04 n'a que libvips
+    # 8.12, que Rails refuse (8.13 minimum pour désactiver les opérations non
+    # fuzzées). Voir Avatars::Normalize.
+    config.active_storage.variant_processor = :mini_magick
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

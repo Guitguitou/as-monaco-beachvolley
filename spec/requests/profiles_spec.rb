@@ -274,4 +274,35 @@ RSpec.describe "Profiles", type: :request do
       expect(other.reload.first_name).to eq("Intouchable")
     end
   end
+
+  describe "PATCH /profile avec une photo" do
+    let(:photo) { fixture_file_upload("avatar.png", "image/png") }
+
+    it "enregistre la photo et son cadrage" do
+      patch profile_path, params: { user: { first_name: "Zoé", last_name: "Martin", avatar: photo,
+                                            avatar_crop_x: "20", avatar_crop_y: "80", avatar_zoom: "2" } }
+
+      user.reload
+      expect(user.avatar).to be_attached
+      expect(user.avatar.content_type).to eq("image/webp")
+      expect([ user.avatar_crop_x, user.avatar_crop_y, user.avatar_zoom ]).to eq([ 20.0, 80.0, 2.0 ])
+    end
+
+    it "refuse un fichier qui n'est pas une image" do
+      text = fixture_file_upload(Rails.root.join("Gemfile"), "text/plain")
+
+      patch profile_path, params: { user: { first_name: "Zoé", last_name: "Martin", avatar: text } }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(user.reload.avatar).not_to be_attached
+    end
+
+    it "retire la photo à la demande" do
+      user.avatar.attach(photo)
+
+      patch profile_path, params: { user: { first_name: "Zoé", last_name: "Martin", remove_avatar: "1" } }
+
+      expect(user.reload.avatar).not_to be_attached
+    end
+  end
 end

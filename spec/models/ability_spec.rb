@@ -57,6 +57,15 @@ RSpec.describe Ability do
     end
   end
 
+describe 'licence payée mais dossier incomplet' do
+    subject(:ability) { Ability.new(create(:user, activated_at: Time.current, dossier_complet: false)) }
+
+    it 'peut consulter les sessions mais pas réserver' do
+      expect(ability).to be_able_to(:read, create(:session))
+      expect(ability).not_to be_able_to(:create, Registration)
+    end
+  end
+
   describe 'activated user' do
     subject(:ability) { Ability.new(activated_user) }
 

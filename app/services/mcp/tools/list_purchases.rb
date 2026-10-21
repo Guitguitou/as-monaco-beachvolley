@@ -10,14 +10,16 @@ module Mcp
       description "Liste les achats en euros (packs de crédits, licences, stages, inscriptions tournoi, équipements) " \
                   "sur une période, avec le pack, le montant, les crédits obtenus et le statut du paiement. " \
                   "Donne aussi les totaux de la période (encaissé par type de pack, nombre par statut). " \
-                  "Par défaut : le mois en cours, tous statuts."
+                  "Par défaut : le mois en cours, tous statuts ; avec updated_since sans from/to, toutes périodes. " \
+                  "#{PAGINATION_NOTE}"
       input_schema(
         properties: {
           from: { type: "string", format: "date", description: "Début inclus (AAAA-MM-JJ), sur la date de création de l'achat. Défaut : 1er du mois." },
           to: { type: "string", format: "date", description: "Fin incluse (AAAA-MM-JJ). Défaut : fin du mois." },
           status: { type: "string", enum: CreditPurchase.statuses.keys },
           pack_type: { type: "string", enum: CreditPurchase::REPORTING_PACK_TYPES },
-          player_id: { type: "integer", description: "Ne garder que les achats de ce joueur (cf. list_players)." }
+          player_id: { type: "integer", description: "Ne garder que les achats de ce joueur (cf. list_players)." },
+          **PAGINATION_PROPERTIES
         }
       )
       annotations(**READ_ONLY)
@@ -25,23 +27,25 @@ module Mcp
       class << self
         def permission = [ :read, CreditPurchase ]
 
-        def execute(_context, from: nil, to: nil, **filters)
-          period = month_period(from, to)
-          purchases = scope(period, **filters)
-          listed, truncated = capped(purchases.includes(:user, :pack).order(created_at: :desc), MAX_RESULTS)
+        def execute(_context, from: nil, to: nil, status: nil, pack_type: nil, player_id: nil, cursor: nil, updated_since: nil)
+          period = period(from, to, updated_since)
+          purchases = scope(period, status, pack_type, player_id)
+          page = paginate(purchases.includes(:user, :pack), cursor, updated_since)
 
           {
-            **period_payload(period),
+            from: period&.first&.iso8601,
+            to: period&.last&.iso8601,
             totals: totals(purchases),
-            truncated:,
-            purchases: listed.map { |purchase| serialize(purchase) }
+            next_cursor: page[:next_cursor],
+            purchases: page[:records].map { |purchase| serialize(purchase) }
           }
         end
 
         private
 
-        def scope(period, status: nil, pack_type: nil, player_id: nil)
-          purchases = CreditPurchase.left_joins(:pack).where(created_at: day_bounds(period))
+        def scope(period, status, pack_type, player_id)
+          purchases = CreditPurchase.left_joins(:pack)
+          purchases = purchases.where(created_at: period.first.in_time_zone.beginning_of_day..period.last.in_time_zone.end_of_day) if period
           purchases = purchases.where(status:) if status.present?
           purchases = purchases.where(CreditPurchase::PACK_TYPE_SQL.eq(pack_type)) if pack_type.present?
           purchases = purchases.where(user_id: player_id) if player_id.present?
@@ -59,15 +63,14 @@ module Mcp
         end
 
         def serialize(purchase)
-          pack = purchase.pack
           {
             id: purchase.id,
             created_at: paris_time(purchase.created_at),
             paid_at: paris_time(purchase.paid_at),
             player_id: purchase.user_id,
             player: purchase.user.full_name,
-            pack: pack&.name,
-            pack_type: pack&.pack_type || CreditPurchase::OTHER_PACK_TYPE,
+            pack: purchase.pack&.name,
+            pack_type: purchase.pack&.pack_type || CreditPurchase::OTHER_PACK_TYPE,
             amount_eur: purchase.amount_eur,
             credits: purchase.credits,
             status: purchase.status,

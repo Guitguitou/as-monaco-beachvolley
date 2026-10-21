@@ -30,6 +30,8 @@ module Mcp
             balance_credits: user.balance&.amount.to_i,
             roles: user.role_labels,
             activated_at: paris_time(user.activated_at),
+            licence_payee: user.activated?,
+            dossier_complet: user.dossier_complet?,
             disabled: user.disabled?,
             registrations: registrations(user),
             credit_transactions: credit_transactions(user),
@@ -59,7 +61,8 @@ module Mcp
         def late_cancellations(user)
           LateCancellation.where(user_id: user.id).includes(:session).order(created_at: :desc).map do |cancellation|
             { at: paris_time(cancellation.created_at), session_id: cancellation.session_id,
-              title: cancellation.session.title, start_at: paris_time(cancellation.session.start_at) }
+              title: cancellation.session.title, start_at: paris_time(cancellation.session.start_at),
+              excused: cancellation.excused }
           end
         end
       end

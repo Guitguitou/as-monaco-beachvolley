@@ -45,8 +45,8 @@ class Ability
         can :read, Pack  # Tous les packs
         can :buy, Pack   # Peut acheter tous les packs
 
-        # Registrations (sign-up to sessions) - seulement si activé
-        can :create, Registration
+        # Registrations (sign-up to sessions) - seulement si Peut réserver
+        can :create, Registration if user.peut_reserver?
         can [ :destroy ], Registration, user_id: user.id
 
         # Annonces de jeu libre : lecture/création pour tous les activés,

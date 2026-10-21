@@ -11,12 +11,15 @@ class SessionsController < ApplicationController
     filter = Sessions::ListingFilter.new(terrain: params[:terrain], for_me: @for_me, level_ids: current_user.levels.pluck(:id))
 
     if @view == "calendar"
-      sessions = filter.apply(Session.includes(:levels, :user).order(start_at: :desc))
-      @calendar = Sessions::CalendarEvents.new(user: current_user, sessions: sessions, url_for: ->(s) { helpers.sessions_calendar_event_path(s) })
+      sessions = filter.apply(Session.held.includes(:levels, :user).order(start_at: :desc))
+      calendar = Sessions::CalendarEvents.new(user: current_user, sessions: sessions, url_for: ->(s) { helpers.sessions_calendar_event_path(s) })
+      @events = calendar.sessions
+      @closures = calendar.closures
+      @agenda = Sessions::MobileAgenda.new(events: @events, user: current_user, date_param: params[:date])
       return
     end
 
-    @grid = Sessions::UpcomingGrid.new(user: current_user, sessions: filter.apply(Session.upcoming.ordered_by_start))
+    @grid = Sessions::UpcomingGrid.new(user: current_user, sessions: filter.apply(Session.held.upcoming.ordered_by_start))
   end
 
   def show
@@ -90,7 +93,7 @@ class SessionsController < ApplicationController
   def cancel
     authorize! :cancel, @session
 
-    Sessions::CancelSessionService.call(session: @session)
+    Sessions::CancelSessionService.call(session: @session, reason: params[:cancellation_reason])
 
     redirect_to sessions_path(sessions_index_redirect_params), notice: "Session annulée et remboursée ✅"
   rescue StandardError => e
@@ -129,6 +132,11 @@ class SessionsController < ApplicationController
 
   def sync_participants(session_record)
     sync = Sessions::ParticipantsSync.new(session: session_record, allow_private_coaching: can?(:manage, Registration))
-    append_flash_alert(sync.call(params.dig(:session, :participant_ids)))
+    append_flash_alert(sync.call(params.dig(:session, :participant_ids), excused_ids: excused_ids))
+  end
+
+  # Seul le Staff peut excuser une désinscription tardive (cf. GLOSSARY.md).
+  def excused_ids
+    current_user.staff? ? params.dig(:session, :excused_ids) : []
   end
 end

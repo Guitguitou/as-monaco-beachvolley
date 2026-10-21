@@ -20,19 +20,21 @@ module Mcp
         def permission = [ :read, :admin_dashboard ]
 
         def execute(_context, from: nil, to: nil)
-          period = month_period(from, to)
-          range = day_bounds(period)
+          start_on = parse_date(from, Date.current.beginning_of_month)
+          end_on = parse_date(to, start_on.end_of_month)
+          range = start_on.in_time_zone.beginning_of_day..end_on.in_time_zone.end_of_day
 
           {
-            **period_payload(period),
-            sessions_by_type: Session.where(start_at: range).group(:session_type).count,
+            from: start_on.iso8601,
+            to: end_on.iso8601,
+            sessions_by_type: Session.held.where(start_at: range).group(:session_type).count,
             confirmed_participants_by_type: Registration.confirmed.joins(:session)
                                                         .where(sessions: { start_at: range })
                                                         .group("sessions.session_type").count,
             packs_revenue_eur: CreditPurchase.where(status: :paid, paid_at: range).sum(:amount_cents) / 100.0,
             packs_revenue_by_type_eur: Reporting::Revenue.new.pack_breakdown_by_type(range),
             credits_consumed_by_session_type: credits_consumed(range),
-            late_cancellations_count: LateCancellation.joins(:session).where(sessions: { start_at: range }).count
+            late_cancellations_count: LateCancellation.counted.joins(:session).where(sessions: { start_at: range }).count
           }
         end
 

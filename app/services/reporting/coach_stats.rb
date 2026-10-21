@@ -32,7 +32,7 @@ module Reporting
 
     # Liste des coachs actifs (qui ont fait au moins une session)
     def active_coaches
-      coach_ids = Session.trainings
+      coach_ids = Session.held.trainings
                         .select(:user_id)
                         .distinct
                         .pluck(:user_id)
@@ -45,7 +45,7 @@ module Reporting
 
     # Entraînements et salaire de chaque coach sur la période, et leurs totaux.
     def period_stats(range, coaches)
-      counts = Session.trainings.where(start_at: range).group(:user_id).count
+      counts = Session.held.trainings.where(start_at: range).group(:user_id).count
       by_coach = coaches.to_h do |coach|
         count = counts[coach.id] || 0
         [ coach.id, { coach: coach, count: count, amount: count * (coach.salary_per_training_cents || 0) / 100.0 } ]

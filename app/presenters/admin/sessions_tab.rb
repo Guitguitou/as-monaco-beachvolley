@@ -18,7 +18,7 @@ module Admin
     end
 
     def upcoming_sessions
-      Session.upcoming.includes(:registrations, :user).ordered_by_start.limit(UPCOMING_LIMIT)
+      Session.held.upcoming.includes(:registrations, :user).ordered_by_start.limit(UPCOMING_LIMIT)
     end
 
     def period

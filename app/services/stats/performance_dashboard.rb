@@ -36,8 +36,8 @@ module Stats
           full_ranking: SessionCountRanking.new(user_ids: user_ids).full
         },
         **current_periods.transform_values { |sessions| { players: top(user_ids, sessions) } },
-        free_play_total: { full_ranking: SessionCountRanking.new(user_ids: user_ids, sessions: Session.free_plays).full },
-        training_total: { full_ranking: SessionCountRanking.new(user_ids: user_ids, sessions: Session.trainings).full },
+        free_play_total: { full_ranking: SessionCountRanking.new(user_ids: user_ids, sessions: Session.held.free_plays).full },
+        training_total: { full_ranking: SessionCountRanking.new(user_ids: user_ids, sessions: Session.held.trainings).full },
         inactivity: { players: InactivityRanking.new(user_ids: user_ids, timezone: timezone, include_never_played: true).top }
       }
     end
@@ -61,10 +61,10 @@ module Stats
       week_start = timezone.now.beginning_of_week(:monday)
       month_start = timezone.now.beginning_of_month
       {
-        free_play_week: Session.free_plays.in_current_week(week_start),
-        free_play_month: Session.free_plays.in_current_month(month_start),
-        training_week: Session.trainings.in_current_week(week_start),
-        training_month: Session.trainings.in_current_month(month_start)
+        free_play_week: Session.held.free_plays.in_current_week(week_start),
+        free_play_month: Session.held.free_plays.in_current_month(month_start),
+        training_week: Session.held.trainings.in_current_week(week_start),
+        training_month: Session.held.trainings.in_current_month(month_start)
       }
     end
   end

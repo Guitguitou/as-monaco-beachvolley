@@ -20,6 +20,7 @@ class User < ApplicationRecord
   has_many :confirmed_registrations, -> { where(status: Registration.statuses[:confirmed]) }, class_name: "Registration"
   has_many :sessions_registered, through: :confirmed_registrations, source: :session
   has_many :push_subscriptions, dependent: :destroy
+  has_one_attached :avatar
 
   # Callbacks
   after_create :init_balance
@@ -32,6 +33,8 @@ class User < ApplicationRecord
   scope :financial_managers, -> { where(financial_manager: true) }
   scope :activated, -> { where.not(activated_at: nil) }
   scope :not_activated, -> { where(activated_at: nil) }
+  scope :peut_reserver, -> { activated.where(dossier_complet: true) }
+  scope :peut_reserver, -> { activated.where(dossier_complet: true) }
   scope :renewed_for_next_season, -> { where(next_season_renewed: true) }
   scope :gender, ->(g) { joins(:levels).where(levels: { gender: g }) }
   scope :with_license, ->(lic) { where(license_type: lic) }
@@ -49,6 +52,9 @@ class User < ApplicationRecord
   # admin qui bascule un rôle, par exemple). Le contexte n'est déclenché que
   # par ProfilesController#update.
   validates :first_name, :last_name, presence: true, on: :profile_update
+  validates :avatar, avatar: true
+  validates :avatar_crop_x, :avatar_crop_y, numericality: { in: 0..100 }
+  validates :avatar_zoom, numericality: { in: 1..3 }
 
   # Devise: Prevent login when account is disabled
   # Non-activated users can login but have limited access
@@ -65,6 +71,16 @@ class User < ApplicationRecord
   # Check if account is activated (licence paid)
   def activated?
     activated_at.present?
+  end
+
+  # Peut réserver : licence payée ET dossier complet (cf. GLOSSARY.md).
+  def peut_reserver?
+    activated? && dossier_complet?
+  end
+
+  # Licence payée, mais le Staff n'a pas encore coché le dossier complet.
+  def dossier_en_attente?
+    activated? && !dossier_complet?
   end
 
   # Activate the account (called when licence is paid)

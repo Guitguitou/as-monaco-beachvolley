@@ -2,7 +2,7 @@
 
 module Sessions
   # Aligne les inscrits d'une session sur la liste choisie dans le formulaire :
-  # inscrit et débite les nouveaux, désinscrit et rembourse les retirés.
+  # inscrit et débite les nouveaux, désinscrit les retirés (cf. Registrations::Cancellation).
   # Renvoie les erreurs d'inscription, une par participant refusé.
   class ParticipantsSync
     def initialize(session:, allow_private_coaching:, bypass_deadline: false)
@@ -11,12 +11,14 @@ module Sessions
       @bypass_deadline = bypass_deadline
     end
 
-    def call(participant_ids)
-      wanted_ids = Array(participant_ids).reject(&:blank?).map(&:to_i)
+    # excused_ids : retirés dont le Staff excuse la désinscription tardive.
+    def call(participant_ids, excused_ids: [])
+      wanted_ids = ids(participant_ids)
+      excused = ids(excused_ids)
       current_ids = @session.participants.pluck(:id)
 
       errors = (wanted_ids - current_ids).filter_map { |user_id| add(user_id) }
-      (current_ids - wanted_ids).each { |user_id| remove(user_id) }
+      (current_ids - wanted_ids).each { |user_id| remove(user_id, excused: excused.include?(user_id)) }
       errors
     end
 
@@ -37,17 +39,13 @@ module Sessions
       "#{User.find(user_id).full_name}: #{registration.errors.full_messages.presence || e.message}"
     end
 
-    def remove(user_id)
+    def remove(user_id, excused:)
       registration = @session.registrations.find_by(user_id: user_id)
-      return unless registration
+      Registrations::Cancellation.new(registration, excused: excused).call if registration
+    end
 
-      amount = registration.required_credits_for(registration.user)
-      ActiveRecord::Base.transaction do
-        registration.destroy!
-        TransactionService.new(registration.user, @session, amount).refund_transaction if amount.positive?
-        # La place libérée revient au premier de la liste d'attente.
-        @session.promote_from_waitlist!
-      end
+    def ids(values)
+      Array(values).reject(&:blank?).map(&:to_i)
     end
   end
 end

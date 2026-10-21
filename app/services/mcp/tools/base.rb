@@ -15,6 +15,13 @@ module Mcp
     # `execute(context, **arguments)` qui renvoie un Hash.
     class Base < MCP::Tool
       READ_ONLY = { read_only_hint: true, destructive_hint: false, idempotent_hint: true, open_world_hint: false }.freeze
+      PAGINATION_PROPERTIES = {
+        cursor: { type: "string", description: "Curseur opaque : le next_cursor de la page précédente pour obtenir la suivante." },
+        updated_since: { type: "string", format: "date-time",
+                         description: "Ne garder que ce qui a été créé ou modifié depuis cet instant (ISO8601, inclus)." }
+      }.freeze
+      PAGINATION_NOTE = "Résultats triés par date de modification puis id, par pages de 300 au plus : " \
+                        "tant que next_cursor n'est pas null, rappelle le tool avec ce cursor pour la suite."
 
       class << self
         def call(server_context:, **arguments)
@@ -35,6 +42,15 @@ module Mcp
           MCP::Tool::Response.new([ { type: "text", text: message } ], error: true)
         end
 
+        # Période [début, fin] sur la date de création ; le mois en cours par
+        # défaut, sauf avec updated_since sans bornes : aucune période.
+        def period(from, to, updated_since)
+          return if updated_since.present? && from.blank? && to.blank?
+
+          start_on = parse_date(from, Date.current.beginning_of_month)
+          [ start_on, parse_date(to, start_on.end_of_month) ]
+        end
+
         def parse_date(value, default)
           return default if value.blank?
 
@@ -43,29 +59,12 @@ module Mcp
           raise ArgumentError, "Date invalide : #{value} (format attendu AAAA-MM-JJ)"
         end
 
+        def paginate(relation, cursor, updated_since)
+          CursorPage.new(relation, per_page: self::MAX_RESULTS, cursor:, updated_since:).call
+        end
+
         def paris_time(time)
           time&.in_time_zone("Europe/Paris")&.iso8601
-        end
-
-        # Période demandée en dates, le mois en cours par défaut.
-        def month_period(from, to)
-          start_on = parse_date(from, Date.current.beginning_of_month)
-          start_on..parse_date(to, start_on.end_of_month)
-        end
-
-        # Bornes horaires couvrant tous les jours de la période.
-        def day_bounds(period)
-          period.begin.in_time_zone.beginning_of_day..period.end.in_time_zone.end_of_day
-        end
-
-        def period_payload(period)
-          { from: period.begin.iso8601, to: period.end.iso8601 }
-        end
-
-        # Liste plafonnée à `limit` lignes, et si elle a été tronquée.
-        def capped(relation, limit)
-          rows = relation.limit(limit).to_a
-          [ rows, rows.size == limit ]
         end
       end
     end

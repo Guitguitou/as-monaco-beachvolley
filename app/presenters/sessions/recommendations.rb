@@ -32,7 +32,7 @@ module Sessions
     private
 
     def candidate_relation
-      relation = Session.upcoming.ordered_by_start.where.not(session_type: "coaching_prive")
+      relation = Session.held.upcoming.ordered_by_start.where.not(session_type: "coaching_prive")
       @types ? relation.where(session_type: @types) : relation
     end
 

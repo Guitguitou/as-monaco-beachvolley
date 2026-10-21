@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Pastille d'initiales pour un joueur.
+# Pastille d'un joueur : sa photo cadrée s'il en a une, ses initiales sinon.
 #
 # Le calcul des initiales était recopié dans sessions/show, sessions/_participants
 # et users/_profile_tab, avec trois replis différents quand le nom manque.
@@ -34,13 +34,24 @@ class AvatarComponent < ApplicationComponent
     (words.size >= 2 ? words[0][0] + words[1][0] : words[0][0, 2]).upcase
   end
 
+  def photo?
+    user&.avatar&.attached? && user.avatar.blob.persisted?
+  end
+
+  # Même formule que l'éditeur de cadrage (avatar_crop_controller.js) : le point
+  # focal reste fixe pendant le zoom, l'aperçu est donc fidèle à toutes tailles.
+  def photo_style
+    focus = "#{user.avatar_crop_x}% #{user.avatar_crop_y}%"
+    "object-position: #{focus}; transform-origin: #{focus}; transform: scale(#{user.avatar_zoom});"
+  end
+
   private
 
   attr_reader :user, :size, :variant, :ring
 
   def classes
     [
-      "shrink-0 inline-flex items-center justify-center rounded-full font-bold select-none",
+      "relative shrink-0 inline-flex items-center justify-center overflow-hidden rounded-full font-bold select-none",
       SIZES.fetch(size.to_sym, SIZES[:md]),
       VARIANTS.fetch(variant.to_sym, VARIANTS[:solid]),
       ring ? "ring-2 ring-white" : nil

@@ -26,7 +26,7 @@ module Reporting
 
     # Alertes de désinscriptions hors délai
     def late_cancellation_alerts(limit: 20)
-      grouped = LateCancellation
+      grouped = LateCancellation.counted
         .for_trainings
         .select("late_cancellations.user_id AS user_id, COUNT(*) AS cancellations_count, MAX(late_cancellations.created_at) AS last_cancelled_at")
         .group("late_cancellations.user_id")
@@ -68,7 +68,7 @@ module Reporting
     private
 
     def sessions_filled_within(duration)
-      Session.upcoming.where(start_at: @current_time..(@current_time + duration)).where.not(max_players: nil)
+      Session.held.upcoming.where(start_at: @current_time..(@current_time + duration)).where.not(max_players: nil)
         .includes(:registrations, :user)
         .select { |session| yield(session.registrations.confirmed.count.to_f / session.max_players) }
     end

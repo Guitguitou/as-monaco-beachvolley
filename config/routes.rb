@@ -74,6 +74,7 @@ Rails.application.routes.draw do
 
     # Gestion de la saison (réinitialisation des licences)
     get "saison", to: "season#show", as: :season
+    patch "saison", to: "season#update"
     post "saison/reinitialiser", to: "season#reset", as: :reset_season
 
     resources :users do

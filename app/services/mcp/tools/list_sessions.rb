@@ -8,7 +8,8 @@ module Mcp
 
       tool_name "list_sessions"
       description "Liste les sessions (entraînements, jeu libre, coachings privés, stages, tournois) " \
-                  "sur une période, avec inscrits confirmés, liste d'attente et places restantes. " \
+                  "sur une période, avec encadrant (coach, ou responsable pour le jeu libre), inscrits confirmés, " \
+                  "liste d'attente, places restantes et séances annulées (motif). " \
                   "Par défaut : les 7 prochains jours."
       input_schema(
         properties: {
@@ -49,6 +50,11 @@ module Mcp
           sessions
         end
 
+        # Le jeu libre est tenu par un Responsable de réservation, pas un Coach (cf. GLOSSARY.md).
+        def encadrant(session)
+          session.jeu_libre? ? { responsable: session.user&.full_name } : { coach: session.user&.full_name }
+        end
+
         def serialize(session, counts)
           confirmed = counts.fetch([ session.id, "confirmed" ], 0)
           {
@@ -58,7 +64,9 @@ module Mcp
             start_at: paris_time(session.start_at),
             end_at: paris_time(session.end_at),
             terrain: session.terrain,
-            coach: session.user&.full_name,
+            **encadrant(session),
+            cancelled: session.cancelled?,
+            cancellation_reason: session.cancellation_reason,
             levels: session.levels.map(&:display_name),
             price_credits: session.price,
             max_players: session.max_players,

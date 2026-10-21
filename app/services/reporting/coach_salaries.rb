@@ -5,7 +5,7 @@ module Reporting
     # Total des salaires pour une période
     def total_for_period(range)
       Reporting::CacheService.fetch("coach_salaries", "total_for_period", range.first.to_date, range.last.to_date) do
-        sessions = Session.trainings.where(start_at: range)
+        sessions = Session.held.trainings.where(start_at: range)
         by_coach_counts = sessions.group(:user_id).count
 
         return 0 if by_coach_counts.empty?
@@ -22,7 +22,7 @@ module Reporting
     # Compteurs et montants de chaque coach sur les trois périodes, le mieux
     # payé du mois en premier.
     def breakdown(ranges)
-      counts = ranges.transform_values { |range| Session.trainings.where(start_at: range).group(:user_id).count }
+      counts = ranges.transform_values { |range| Session.held.trainings.where(start_at: range).group(:user_id).count }
       User.where(id: counts.values.flat_map(&:keys).uniq).map { |user| coach_breakdown(user, counts) }.sort_by { |row| -row[:month_amount] }
     end
 
