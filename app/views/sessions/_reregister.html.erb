@@ -6,7 +6,7 @@
   <span>Tu t'es désinscrit de cette session.</span>
   <%= button_to session_registrations_path(session), method: :post,
                 params: sessions_index_return_params.merge(waitlist: session.full?),
-                class: "inline-flex items-center gap-1.5 rounded-none px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white bg-asmbv-red hover:bg-asmbv-red-dark" do %>
+                class: "inline-flex items-center gap-1.5 rounded-none px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-white bg-brand hover:bg-brand-dark" do %>
     <%= lucide_icon("undo-2", class: "size-4", aria: { hidden: true }) %>
     <span><%= session.full? ? "Revenir en liste d'attente" : "Me réinscrire" %></span>
   <% end %>

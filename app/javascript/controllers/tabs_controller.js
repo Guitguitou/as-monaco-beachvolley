@@ -27,10 +27,10 @@ export default class extends Controller {
     this.tabTargets.forEach(tab => {
       const isActive = tab.dataset.tab === tabName
       if (isActive) {
-        tab.classList.add("border-asmbv-red", "text-asmbv-red")
+        tab.classList.add("border-brand", "text-brand")
         tab.classList.remove("border-transparent", "text-gray-500", "hover:text-gray-700", "hover:border-gray-300")
       } else {
-        tab.classList.remove("border-asmbv-red", "text-asmbv-red")
+        tab.classList.remove("border-brand", "text-brand")
         tab.classList.add("border-transparent", "text-gray-500", "hover:text-gray-700", "hover:border-gray-300")
       }
     })

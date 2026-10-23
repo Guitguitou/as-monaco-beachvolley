@@ -16,8 +16,8 @@
     <% end %>
 
     <%= link_to session_path(session, return_params),
-                class: "mt-3 block group focus:outline-none focus-visible:ring-2 focus-visible:ring-asmbv-red" do %>
-      <p class="font-anton text-lg uppercase leading-tight tracking-tight text-gray-900 group-hover:text-asmbv-red">
+                class: "mt-3 block group focus:outline-none focus-visible:ring-2 focus-visible:ring-brand" do %>
+      <p class="font-anton text-lg uppercase leading-tight tracking-tight text-gray-900 group-hover:text-brand">
         <%= title %>
       </p>
     <% end %>
@@ -50,7 +50,7 @@
     </div>
 
     <div class="mt-3 flex items-center justify-between gap-3 text-xs">
-      <span class="font-semibold <%= full? ? 'text-asmbv-red' : 'text-green-700' %>">
+      <span class="font-semibold <%= full? ? 'text-brand' : 'text-green-700' %>">
         <%= spots_label %>
       </span>
       <span class="text-gray-600"><%= price_label %></span>

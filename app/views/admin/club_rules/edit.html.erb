@@ -67,7 +67,7 @@
     <div class="space-y-4">
       <div class="space-y-2">
         <label class="flex items-center gap-2 text-sm font-medium text-gray-900">
-          <%= f.radio_button :cancellation_deadline_mode, "eve_at_hour", class: "h-4 w-4 text-asmbv-red border-gray-300 focus:ring-asmbv-red" %>
+          <%= f.radio_button :cancellation_deadline_mode, "eve_at_hour", class: "h-4 w-4 text-brand border-gray-300 focus:ring-brand" %>
           La veille, à heure fixe
         </label>
         <%= render FormFieldComponent.new(form: f, attribute: :cancellation_deadline_hour, type: :number_field,
@@ -76,7 +76,7 @@
 
       <div class="space-y-2">
         <label class="flex items-center gap-2 text-sm font-medium text-gray-900">
-          <%= f.radio_button :cancellation_deadline_mode, "hours_before", class: "h-4 w-4 text-asmbv-red border-gray-300 focus:ring-asmbv-red" %>
+          <%= f.radio_button :cancellation_deadline_mode, "hours_before", class: "h-4 w-4 text-brand border-gray-300 focus:ring-brand" %>
           Un nombre d'heures avant le début
         </label>
         <%= render FormFieldComponent.new(form: f, attribute: :cancellation_hours_before, type: :number_field,
@@ -90,5 +90,5 @@
   <% end %>
 
   <%= f.submit "Enregistrer les règles",
-        class: "w-full rounded-none bg-asmbv-red px-4 py-2 text-sm font-semibold text-white hover:bg-asmbv-red-dark cursor-pointer" %>
+        class: "w-full rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark cursor-pointer" %>
 <% end %>

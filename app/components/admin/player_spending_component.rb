@@ -32,7 +32,7 @@ module Admin
 
     def period_link_classes(name)
       base = "px-3 py-1.5 text-sm rounded-none"
-      name == period.name ? "#{base} bg-asmbv-red text-white" : "#{base} bg-gray-100 text-gray-700 hover:bg-gray-200"
+      name == period.name ? "#{base} bg-brand text-white" : "#{base} bg-gray-100 text-gray-700 hover:bg-gray-200"
     end
 
     def sessions_label(count) = "#{count} #{'session'.pluralize(count)}"

@@ -5,12 +5,12 @@
   data-sidebar-target="sidebar"
 >
   <div class="flex justify-end lg:hidden">
-    <button data-action="click->sidebar#toggle" class="p-2 text-asmbv-red">
+    <button data-action="click->sidebar#toggle" class="p-2 text-brand">
       <%= lucide_icon("x", class: "w-5 h-5") %>
     </button>
   </div>
   <div class="p-4 flex flex-col h-full space-y-6">
-    <div class="flex items-center gap-2 text-asmbv-red text-xl font-semibold justify-center">
+    <div class="flex items-center gap-2 text-brand text-xl font-semibold justify-center">
       <%= link_to (current_user.activated? ? root_path : packs_path) do %>
         <%= image_tag "logo.png", class: "w-16 h-16 md:w-20 md:h-20" %>
       <% end %>
@@ -62,14 +62,14 @@
                 data-push-notifications-target="enableButton"
                 class="w-full flex items-center gap-2 px-3 py-2 rounded-none hover:bg-gray-100 text-gray-800 font-medium text-sm"
                 style="display: none;">
-          <%= lucide_icon('bell', class: 'w-5 h-5 text-asmbv-red') %>
+          <%= lucide_icon('bell', class: 'w-5 h-5 text-brand') %>
           <span>Activer les notifications</span>
         </button>
       <% end %>
       <%= link_to destroy_user_session_path,
             data: { turbo_method: :delete },
             class: "flex items-center gap-2 px-3 py-2 rounded-none hover:bg-gray-100 text-gray-800 font-medium" do %>
-        <%= lucide_icon('log-out', class: 'w-5 h-5 text-asmbv-red') %>
+        <%= lucide_icon('log-out', class: 'w-5 h-5 text-brand') %>
         <span>Déconnexion</span>
       <% end %>
     </div>

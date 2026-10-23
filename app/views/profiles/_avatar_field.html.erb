@@ -1,7 +1,7 @@
 <%# Photo de profil, cadrée dans le cercle : glisser pour centrer, curseur
     pour zoomer. Le cadrage est rejoué par AvatarComponent partout dans l'app. %>
 <div class="flex flex-col sm:flex-row sm:items-center gap-5" data-controller="avatar-crop">
-  <div class="relative h-32 w-32 shrink-0 overflow-hidden rounded-full bg-asmbv-red text-white
+  <div class="relative h-32 w-32 shrink-0 overflow-hidden rounded-full bg-brand text-white
               touch-none cursor-grab active:cursor-grabbing select-none"
        data-action="pointerdown->avatar-crop#startDrag pointermove->avatar-crop#moveDrag
                     pointerup->avatar-crop#endDrag pointercancel->avatar-crop#endDrag">
@@ -31,7 +31,7 @@
         Zoom
         <%= form.range_field :avatar_zoom, min: 1, max: 3, step: 0.05,
                              data: { avatar_crop_target: "zoom", action: "input->avatar-crop#render" },
-                             class: "flex-1 accent-asmbv-red" %>
+                             class: "flex-1 accent-brand" %>
       </label>
       <%= form.hidden_field :avatar_crop_x, data: { avatar_crop_target: "x" } %>
       <%= form.hidden_field :avatar_crop_y, data: { avatar_crop_target: "y" } %>
@@ -39,7 +39,7 @@
       <% if user.avatar.attached? && user.avatar.blob.persisted? %>
         <label class="inline-flex items-center gap-2 text-xs text-gray-600">
           <%= form.check_box :remove_avatar, data: { avatar_crop_target: "remove" },
-                             class: "rounded-none border-gray-300 text-asmbv-red focus:ring-asmbv-red" %>
+                             class: "rounded-none border-gray-300 text-brand focus:ring-brand" %>
           Retirer ma photo
         </label>
       <% end %>

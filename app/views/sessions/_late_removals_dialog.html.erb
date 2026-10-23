@@ -13,7 +13,7 @@
         <li data-late-removal-target="row" data-user-id="<%= registration.user_id %>" hidden>
           <label class="flex items-center gap-3 border border-gray-200 px-3 py-2 text-sm text-gray-900">
             <input type="checkbox" name="session[excused_ids][]" value="<%= registration.user_id %>" disabled
-                   class="rounded-none border-gray-300 text-asmbv-red focus:ring-asmbv-red">
+                   class="rounded-none border-gray-300 text-brand focus:ring-brand">
             <span class="flex-1"><%= registration.user.full_name %></span>
             <span class="text-xs text-gray-500">Excuser et rembourser</span>
           </label>
@@ -21,7 +21,7 @@
       <% end %>
     </ul>
     <button type="button" data-action="late-removal#submit"
-            class="w-full rounded-none bg-asmbv-red px-4 py-3 text-sm font-semibold text-white hover:bg-asmbv-red-dark">
+            class="w-full rounded-none bg-brand px-4 py-3 text-sm font-semibold text-white hover:bg-brand-dark">
       Confirmer et enregistrer
     </button>
     <button type="button" data-action="late-removal#cancel" class="block w-full text-center text-sm text-gray-600 underline">

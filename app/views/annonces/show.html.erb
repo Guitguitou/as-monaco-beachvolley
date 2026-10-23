@@ -17,8 +17,8 @@
     </div>
     <% if is_owner && @annonce.open? %>
       <div class="flex items-center gap-2 shrink-0">
-        <%= link_to lucide_icon("pencil", class: "size-4"), edit_annonce_path(@annonce), class: "p-2 text-gray-500 hover:text-asmbv-red border border-gray-200", title: "Modifier" %>
-        <%= button_to lucide_icon("x", class: "size-4"), cancel_annonce_path(@annonce), method: :post, class: "p-2 text-gray-500 hover:text-asmbv-red border border-gray-200", form: { data: { turbo_confirm: "Annuler cette annonce ?" } }, title: "Annuler" %>
+        <%= link_to lucide_icon("pencil", class: "size-4"), edit_annonce_path(@annonce), class: "p-2 text-gray-500 hover:text-brand border border-gray-200", title: "Modifier" %>
+        <%= button_to lucide_icon("x", class: "size-4"), cancel_annonce_path(@annonce), method: :post, class: "p-2 text-gray-500 hover:text-brand border border-gray-200", form: { data: { turbo_confirm: "Annuler cette annonce ?" } }, title: "Annuler" %>
       </div>
     <% end %>
   </div>
@@ -39,7 +39,7 @@
     <div class="mt-6 border border-blue-200 bg-blue-50 p-4">
       <p class="font-semibold text-blue-900 mb-3">Session créée 🎉</p>
       <div class="flex flex-col sm:flex-row gap-3">
-        <%= link_to "Voir la session", session_path(@annonce.session), class: "inline-flex items-center justify-center px-4 py-2 font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark" %>
+        <%= link_to "Voir la session", session_path(@annonce.session), class: "inline-flex items-center justify-center px-4 py-2 font-semibold text-white bg-brand hover:bg-brand-dark" %>
         <%= render WhatsappShareComponent.new(text: annonce_whatsapp_text(@annonce, @annonce.session), full_width: false) %>
       </div>
     </div>
@@ -78,7 +78,7 @@
         <% if @annonce.open? %>
           <div class="mt-4 flex flex-wrap items-center gap-3">
             <%= button_to toggle_availability_annonce_path(@annonce, slot_id: slot.id), method: :post,
-                  class: (i_am_in ? "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100" : "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark") do %>
+                  class: (i_am_in ? "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100" : "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-brand hover:bg-brand-dark") do %>
               <%= lucide_icon(i_am_in ? "user-minus" : "user-plus", class: "size-4") %>
               <%= i_am_in ? "Retirer ma dispo" : "Je suis dispo" %>
             <% end %>

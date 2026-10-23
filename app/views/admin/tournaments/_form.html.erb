@@ -32,7 +32,7 @@
       <%= hidden_field_tag "tournament[terrain_ids][]", "" %>
       <% Terrain.active.or(Terrain.where(id: tournament.terrain_ids)).ordered.each do |terrain| %>
         <label class="inline-flex items-center gap-2 text-sm text-gray-800">
-          <%= check_box_tag "tournament[terrain_ids][]", terrain.id, tournament.terrain_ids.include?(terrain.id), class: "rounded-none border-gray-300 text-asmbv-red" %>
+          <%= check_box_tag "tournament[terrain_ids][]", terrain.id, tournament.terrain_ids.include?(terrain.id), class: "rounded-none border-gray-300 text-brand" %>
           <%= terrain.name %>
         </label>
       <% end %>
@@ -42,5 +42,5 @@
   <%= render FormFieldComponent.new(form: f, attribute: :images, type: :file_field, label: "Ajouter des images (affiches, photos)",
         html_options: { multiple: true, accept: "image/*" }, input_class: "block w-full text-sm text-gray-900") %>
 
-  <%= f.submit "Enregistrer", class: "w-full inline-flex justify-center items-center rounded-none bg-asmbv-red px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-asmbv-red-dark transition-colors" %>
+  <%= f.submit "Enregistrer", class: "w-full inline-flex justify-center items-center rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-dark transition-colors" %>
 <% end %>

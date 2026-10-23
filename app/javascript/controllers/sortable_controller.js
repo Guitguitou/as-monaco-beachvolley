@@ -11,7 +11,7 @@ export default class extends Controller {
     event.preventDefault()
     this.dragged = event.target.closest("[data-sortable-target='item']")
     this.initialOrder = this.order()
-    this.dragged.classList.add("opacity-50", "ring-2", "ring-asmbv-red")
+    this.dragged.classList.add("opacity-50", "ring-2", "ring-brand")
     this.onMove = this.move.bind(this)
     this.onEnd = this.end.bind(this)
     window.addEventListener("pointermove", this.onMove)
@@ -35,7 +35,7 @@ export default class extends Controller {
     window.removeEventListener("pointermove", this.onMove)
     window.removeEventListener("pointerup", this.onEnd)
     window.removeEventListener("pointercancel", this.onEnd)
-    this.dragged.classList.remove("opacity-50", "ring-2", "ring-asmbv-red")
+    this.dragged.classList.remove("opacity-50", "ring-2", "ring-brand")
     this.dragged = null
 
     const order = this.order()

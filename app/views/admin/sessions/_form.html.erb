@@ -59,7 +59,7 @@
 
   <!-- Option admin: créer sur tous les terrains -->
   <div class="flex items-start gap-2">
-    <%= check_box_tag 'session[create_on_all_terrains]', '1', false, id: 'session_create_on_all_terrains', class: "mt-1 h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red" %>
+    <%= check_box_tag 'session[create_on_all_terrains]', '1', false, id: 'session_create_on_all_terrains', class: "mt-1 h-4 w-4 text-brand border-gray-300 rounded-none focus:ring-brand" %>
     <div>
       <label for="session_create_on_all_terrains" class="text-sm font-medium text-gray-900">Créer la même session sur tous les terrains</label>
       <p class="text-xs text-gray-500">Crée une session identique par terrain actif.</p>
@@ -184,7 +184,7 @@
       attribute: :price,
       type: :number_field,
       label: "Prix (crédits)",
-      input_class: "block w-full rounded-none border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+      input_class: "block w-full rounded-none border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 focus:border-brand focus:ring-2 focus:ring-brand sm:text-sm",
       html_options: { min: 0, step: 1, readonly: true, data: { session_form_target: "price" } }
     ) %>
   </div>
@@ -198,7 +198,7 @@
       <%= f.collection_check_boxes :level_ids, (@levels || Level.all), :id, :name do |b| %>
         <div class="flex items-center justify-between gap-2">
           <label class="flex items-center gap-2">
-            <%= b.check_box(class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red") %>
+            <%= b.check_box(class: "h-4 w-4 text-brand border-gray-300 rounded-none focus:ring-brand") %>
             <span class="text-sm text-gray-700"><%= "#{b.object.name} - #{b.object.gender.humanize}" %></span>
           </label>
           <%= select_tag "session[level_priorities][#{b.object.id}]",
@@ -206,7 +206,7 @@
                   [ [ "Priorité 1", 1 ], [ "Priorité 2", 2 ], [ "Priorité 3", 3 ] ],
                   level_priorities[b.object.id]&.priority.to_i.clamp(1, 3)
                 ),
-                class: "text-xs border-gray-300 rounded-none focus:ring-asmbv-red" %>
+                class: "text-xs border-gray-300 rounded-none focus:ring-brand" %>
         </div>
       <% end %>
     </div>
@@ -221,11 +221,11 @@
       <p class="text-sm font-medium text-gray-900 mb-2">Cette session fait partie d'une série (duplication). Appliquer les modifications à :</p>
       <div class="flex flex-col gap-2">
         <label class="flex items-center gap-2">
-          <%= radio_button_tag "scope", "this", true, class: "h-4 w-4 text-asmbv-red border-gray-300 focus:ring-asmbv-red" %>
+          <%= radio_button_tag "scope", "this", true, class: "h-4 w-4 text-brand border-gray-300 focus:ring-brand" %>
           <span class="text-sm text-gray-700">Cette session uniquement</span>
         </label>
         <label class="flex items-center gap-2">
-          <%= radio_button_tag "scope", "following", false, class: "h-4 w-4 text-asmbv-red border-gray-300 focus:ring-asmbv-red" %>
+          <%= radio_button_tag "scope", "following", false, class: "h-4 w-4 text-brand border-gray-300 focus:ring-brand" %>
           <span class="text-sm text-gray-700">Cette session et les suivantes</span>
         </label>
       </div>

@@ -12,17 +12,17 @@
 
   <div>
     <label class="block text-sm font-semibold text-gray-700 mb-1">Titre</label>
-    <%= f.text_field :title, placeholder: "Ex. : Jeu libre détente", class: "w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-asmbv-red" %>
+    <%= f.text_field :title, placeholder: "Ex. : Jeu libre détente", class: "w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand" %>
   </div>
 
   <div>
     <label class="block text-sm font-semibold text-gray-700 mb-1">Description <span class="font-normal text-gray-400">(optionnel)</span></label>
-    <%= f.text_area :description, rows: 3, class: "w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-asmbv-red" %>
+    <%= f.text_area :description, rows: 3, class: "w-full border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand" %>
   </div>
 
   <div>
     <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre de joueurs visé</label>
-    <%= f.number_field :min_players, min: 1, class: "w-32 border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-asmbv-red" %>
+    <%= f.number_field :min_players, min: 1, class: "w-32 border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand" %>
     <p class="text-xs text-gray-500 mt-1">L'annonce devient confirmable dès qu'un créneau atteint ce nombre de joueurs dispos.</p>
   </div>
 
@@ -30,7 +30,7 @@
     <label class="block text-sm font-semibold text-gray-700 mb-2">Niveaux ciblés <span class="font-normal text-gray-400">(aucun = ouvert à tous)</span></label>
     <div class="flex flex-wrap gap-2">
       <% Level.all.each do |level| %>
-        <label class="inline-flex items-center gap-2 border border-gray-200 px-3 py-2 text-sm cursor-pointer hover:border-asmbv-red">
+        <label class="inline-flex items-center gap-2 border border-gray-200 px-3 py-2 text-sm cursor-pointer hover:border-brand">
           <%= check_box_tag "annonce[level_ids][]", level.id, annonce.level_ids.include?(level.id), id: "annonce_level_#{level.id}" %>
           <%= level.display_name %>
         </label>
@@ -42,7 +42,7 @@
     <div class="flex items-center justify-between mb-2">
       <label class="block text-sm font-semibold text-gray-700">Créneaux proposés</label>
       <button type="button" data-action="nested-slots#add"
-              class="inline-flex items-center gap-1 text-sm font-semibold text-asmbv-red hover:text-asmbv-red-dark">
+              class="inline-flex items-center gap-1 text-sm font-semibold text-brand hover:text-brand-dark">
         <%= lucide_icon("plus", class: "size-4") %> Ajouter un créneau
       </button>
     </div>
@@ -62,7 +62,7 @@
 
   <div class="flex items-center gap-3 pt-2">
     <%= f.submit annonce.persisted? ? "Mettre à jour" : "Publier l'annonce",
-        class: "inline-flex items-center justify-center px-5 py-2.5 font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark cursor-pointer" %>
+        class: "inline-flex items-center justify-center px-5 py-2.5 font-semibold text-white bg-brand hover:bg-brand-dark cursor-pointer" %>
     <%= link_to "Annuler", (annonce.persisted? ? annonce_path(annonce) : annonces_path), class: "text-sm text-gray-500 hover:text-gray-700" %>
   </div>
 <% end %>

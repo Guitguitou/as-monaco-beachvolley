@@ -25,8 +25,8 @@ RSpec.describe Admin::MonthlyRevenueChartComponent, type: :component do
 
   it "draws one stacked segment per type sold each month" do
     expect(page).to have_css("svg rect", count: 4)
-    expect(page).to have_css("rect.fill-asmbv-red", count: 3)
-    expect(page).to have_css("rect.fill-asmbv-ocean", count: 1)
+    expect(page).to have_css("rect.fill-brand", count: 3)
+    expect(page).to have_css("rect.fill-ocean", count: 1)
   end
 
   it "only lists the pack types sold over the period" do

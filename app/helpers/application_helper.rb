@@ -47,12 +47,12 @@ module ApplicationHelper
       "flex items-center gap-3 px-3 py-2 rounded-none",
       "hover:bg-gray-100 font-medium",
       "text-[14px] leading-5",            # 👈 taille uniforme
-      (active ? "border-l-4 border-asmbv-red bg-asmbv-red-light text-asmbv-red font-semibold" : "text-gray-900")
+      (active ? "border-l-4 border-brand bg-brand-light text-brand font-semibold" : "text-gray-900")
     ]
     base_classes << extra_classes if extra_classes.present?
 
     link_to path, class: base_classes.join(" ") do
-      concat lucide_icon(icon, class: "w-4 h-4 shrink-0 #{active ? 'text-asmbv-red' : 'text-gray-500'}") # 👈 icône uniforme
+      concat lucide_icon(icon, class: "w-4 h-4 shrink-0 #{active ? 'text-brand' : 'text-gray-500'}") # 👈 icône uniforme
       concat content_tag(:span, name) # pas de classe spéciale -> hérite de text-[15px]/leading-5
     end
   end
@@ -95,7 +95,7 @@ module ApplicationHelper
 
     url_params = preserve.merge(action: :index, sort: key, direction: next_direction, page: 1)
 
-    link_to url_params, class: "inline-flex items-center gap-1 hover:text-asmbv-red" do
+    link_to url_params, class: "inline-flex items-center gap-1 hover:text-brand" do
       concat content_tag(:span, title)
       if current_sort == key.to_s
         icon_name = current_direction == "asc" ? "chevron-up" : "chevron-down"

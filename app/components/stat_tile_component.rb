@@ -53,7 +53,7 @@ class StatTileComponent < ApplicationComponent
     [
       "block border rounded-none p-5",
       tone_classes,
-      linked? ? "transition-colors hover:border-asmbv-red" : nil
+      linked? ? "transition-colors hover:border-brand" : nil
     ].compact.join(" ")
   end
 
@@ -79,6 +79,6 @@ class StatTileComponent < ApplicationComponent
   end
 
   def icon_classes
-    "w-5 h-5 shrink-0 #{tone.to_sym == :accent ? 'text-asmbv-red' : 'text-gray-400'}"
+    "w-5 h-5 shrink-0 #{tone.to_sym == :accent ? 'text-brand' : 'text-gray-400'}"
   end
 end

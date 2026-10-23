@@ -17,7 +17,7 @@
       </div>
 
       <%= button_to session_registration_path(@session, calendar_ctx.merge(user_id: user.id)), method: :delete,
-                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-4 py-3 text-sm font-semibold text-white hover:bg-asmbv-red-dark" do %>
+                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-brand px-4 py-3 text-sm font-semibold text-white hover:bg-brand-dark" do %>
         Désinscription tardive
       <% end %>
       <%= button_to session_registration_path(@session, calendar_ctx.merge(user_id: user.id, excused: "1")), method: :delete,

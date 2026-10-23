@@ -8,12 +8,12 @@
   <% confirmed.each do |registration| %>
     <% user = registration.user %>
     <% me = user == current_user %>
-    <div class="flex items-center gap-3 p-3 rounded-none border <%= me ? 'border-asmbv-red bg-asmbv-red/5' : 'border-gray-200 bg-gray-50' %>">
+    <div class="flex items-center gap-3 p-3 rounded-none border <%= me ? 'border-brand bg-brand/5' : 'border-gray-200 bg-gray-50' %>">
       <%= render AvatarComponent.new(user: user, size: :sm, variant: me ? :solid : :light) %>
       <div class="flex-1 min-w-0 flex items-center justify-between gap-2">
         <div class="min-w-0">
           <div class="font-medium text-sm text-gray-900 truncate">
-            <%= user.full_name %><% if me %> <span class="text-asmbv-red font-semibold">· toi</span><% end %>
+            <%= user.full_name %><% if me %> <span class="text-brand font-semibold">· toi</span><% end %>
           </div>
           <% level_names = session_levels_label(user.levels) %>
           <% if level_names.present? %>

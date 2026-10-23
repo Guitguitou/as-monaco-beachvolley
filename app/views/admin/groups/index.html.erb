@@ -21,7 +21,7 @@
           <% group.members.each do |user| %>
             <tr class="hover:bg-gray-50">
               <td class="px-4 py-1.5">
-                <%= link_to admin_user_path(user), class: "flex items-center gap-2 text-gray-700 hover:text-asmbv-red" do %>
+                <%= link_to admin_user_path(user), class: "flex items-center gap-2 text-gray-700 hover:text-brand" do %>
                   <span><%= user.full_name %></span>
                   <% if @level_groups.multi_group?(user) %>
                     <span title="Dans plusieurs groupes" class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">+</span>

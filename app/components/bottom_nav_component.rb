@@ -49,7 +49,7 @@ class BottomNavComponent < ApplicationComponent
 
   def item_classes(item)
     base = "flex flex-col items-center justify-center gap-1 flex-1 min-w-0 py-2 " \
-           "focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-asmbv-red"
-    active?(item) ? "#{base} text-asmbv-red" : "#{base} text-gray-500 hover:text-gray-900"
+           "focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand"
+    active?(item) ? "#{base} text-brand" : "#{base} text-gray-500 hover:text-gray-900"
   end
 end

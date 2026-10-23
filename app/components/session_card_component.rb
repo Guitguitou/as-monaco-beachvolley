@@ -83,11 +83,11 @@ class SessionCardComponent < ApplicationComponent
     if !actionable?
       "#{base} bg-gray-100 text-gray-500 border border-gray-200 cursor-not-allowed"
     elsif destructive_action?
-      "#{base} bg-white text-asmbv-red border border-asmbv-red hover:bg-asmbv-red/5 focus-visible:ring-asmbv-red"
+      "#{base} bg-white text-brand border border-brand hover:bg-brand/5 focus-visible:ring-brand"
     elsif action == :waitlist
       "#{base} bg-gray-900 text-white hover:bg-gray-800 focus-visible:ring-gray-900"
     else
-      "#{base} bg-asmbv-red text-white hover:bg-asmbv-red-dark focus-visible:ring-asmbv-red"
+      "#{base} bg-brand text-white hover:bg-brand-dark focus-visible:ring-brand"
     end
   end
 
