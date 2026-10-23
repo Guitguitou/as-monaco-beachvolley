@@ -89,7 +89,13 @@ RSpec.describe Terrain, type: :model do
       terrain = build(:terrain, color: "gold", position: 3)
 
       expect(terrain.palette_color).to have_attributes(swatch_class: "bg-terrain-gold", text_class: "text-ink")
-      expect(terrain.short_name).to eq("T3")
+    end
+
+    it "tire le libellé court du nom, indépendamment de la position" do
+      expect(build(:terrain, name: "Terrain 3", position: 1).short_name).to eq("T3")
+      expect(build(:terrain, name: "Court central").short_name).to eq("CC")
+      expect(build(:terrain, name: "Central").short_name).to eq("CEN")
+      expect(build(:terrain, name: "Terrain 12").short_name).to eq("T12")
     end
   end
 
