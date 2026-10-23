@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between border-b pb-4">
     <div class="flex items-center gap-2">
-      <%= lucide_icon("flag", class: "w-6 h-6 text-asmbv-red") %>
+      <%= lucide_icon("flag", class: "w-6 h-6 text-brand") %>
       <h1 class="text-2xl font-bold text-gray-900"><%= @stage.title %></h1>
     </div>
     <div class="flex gap-2 items-center">
@@ -46,7 +46,7 @@
         <dt class="text-sm font-medium text-gray-500">Inscription</dt>
         <dd class="mt-1">
           <% if @stage.registration_link.present? %>
-            <%= link_to "Formulaire", @stage.registration_link, target: "_blank", rel: "noopener", class: "text-asmbv-red hover:text-asmbv-red-dark font-medium" %>
+            <%= link_to "Formulaire", @stage.registration_link, target: "_blank", rel: "noopener", class: "text-brand hover:text-brand-dark font-medium" %>
           <% else %>
             <span class="text-gray-600">—</span>
           <% end %>

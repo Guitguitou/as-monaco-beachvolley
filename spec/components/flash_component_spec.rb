@@ -21,7 +21,7 @@ RSpec.describe FlashComponent, type: :component do
 
     expect(page).to have_text("Les inscriptions sont closes.")
     expect(page).to have_css("[role='alert'][aria-live='assertive']")
-    expect(page).to have_css(".border-asmbv-red")
+    expect(page).to have_css(".border-brand")
   end
 
   it "affiche plusieurs messages simultanément" do

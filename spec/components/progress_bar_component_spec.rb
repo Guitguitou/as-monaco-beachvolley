@@ -12,7 +12,7 @@ RSpec.describe ProgressBarComponent, type: :component do
   it "caps the bar at full and falls back to the club color" do
     render_inline(described_class.new(value: 20, max: 10, variant: :other))
 
-    expect(page).to have_css("[role=progressbar].h-2 div.bg-asmbv-red[style*='width: 100']")
+    expect(page).to have_css("[role=progressbar].h-2 div.bg-brand[style*='width: 100']")
   end
 
   it "stays empty without a maximum" do

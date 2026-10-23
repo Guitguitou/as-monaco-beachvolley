@@ -12,7 +12,7 @@
       <% active = (param_value.blank? && @sessions_tab.upcoming?) || @sessions_tab.sub_tab == param_value %>
       <%= link_to label,
                   admin_root_path(tab: "sessions", session_type: param_value),
-                  class: "py-3 px-1 border-b-2 text-sm font-medium #{active ? 'border-asmbv-red text-asmbv-red' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
+                  class: "py-3 px-1 border-b-2 text-sm font-medium #{active ? 'border-brand text-brand' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
     <% end %>
   </nav>
 </div>
@@ -55,13 +55,13 @@
                 </td>
                 <td class="px-4 py-3 text-sm text-gray-900"><%= session.title %></td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm">
-                  <%= link_to session.user&.full_name, admin_session_path(session), class: "text-asmbv-red hover:underline" %>
+                  <%= link_to session.user&.full_name, admin_session_path(session), class: "text-brand hover:underline" %>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   <%= session.registrations.confirmed.count %>/<%= session.max_players || "∞" %>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm">
-                  <%= link_to "Voir", admin_session_path(session), class: "text-asmbv-red hover:underline" %>
+                  <%= link_to "Voir", admin_session_path(session), class: "text-brand hover:underline" %>
                 </td>
               </tr>
             <% end %>
@@ -77,14 +77,14 @@
   <div class="mb-6 flex flex-wrap items-center gap-4">
     <div class="flex items-center gap-2">
       <span class="text-sm font-medium text-gray-700">Période :</span>
-      <%= link_to "Semaine", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "week"), class: "px-3 py-1.5 rounded-none text-sm #{@sessions_tab.period.name == 'week' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
-      <%= link_to "Mois", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "month"), class: "px-3 py-1.5 rounded-none text-sm #{@sessions_tab.period.name == 'month' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
-      <%= link_to "Année", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "year"), class: "px-3 py-1.5 rounded-none text-sm #{@sessions_tab.period.name == 'year' ? 'bg-asmbv-red text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+      <%= link_to "Semaine", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "week"), class: "px-3 py-1.5 rounded-none text-sm #{@sessions_tab.period.name == 'week' ? 'bg-brand text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+      <%= link_to "Mois", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "month"), class: "px-3 py-1.5 rounded-none text-sm #{@sessions_tab.period.name == 'month' ? 'bg-brand text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+      <%= link_to "Année", admin_root_path(tab: "sessions", session_type: @sessions_tab.sub_tab, period: "year"), class: "px-3 py-1.5 rounded-none text-sm #{@sessions_tab.period.name == 'year' ? 'bg-brand text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
     </div>
     <span class="text-sm text-gray-600"><%= @sessions_tab.period.label %></span>
     <nav class="flex items-center gap-2" aria-label="Navigation par période">
-      <%= link_to "Période précédente", admin_root_path(@sessions_tab.previous_period_params), class: "text-sm text-asmbv-red hover:underline" %>
-      <%= link_to "Période suivante", admin_root_path(@sessions_tab.next_period_params), class: "text-sm text-asmbv-red hover:underline" %>
+      <%= link_to "Période précédente", admin_root_path(@sessions_tab.previous_period_params), class: "text-sm text-brand hover:underline" %>
+      <%= link_to "Période suivante", admin_root_path(@sessions_tab.next_period_params), class: "text-sm text-brand hover:underline" %>
     </nav>
   </div>
 
@@ -119,7 +119,7 @@
                   <%= session.registrations.confirmed.count %>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm">
-                  <%= link_to session.user&.full_name, admin_session_path(session), class: "text-asmbv-red hover:underline" %>
+                  <%= link_to session.user&.full_name, admin_session_path(session), class: "text-brand hover:underline" %>
                 </td>
               </tr>
             <% end %>

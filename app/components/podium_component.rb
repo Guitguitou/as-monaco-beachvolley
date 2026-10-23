@@ -6,7 +6,7 @@
 class PodiumComponent < ApplicationComponent
   MEDALS = { 1 => "🥇", 2 => "🥈", 3 => "🥉" }.freeze
   STEPS = {
-    1 => { order: "order-2", height: "h-24", tone: "bg-gradient-to-b from-amber-300 to-asmbv-gold text-white", delay: "[animation-delay:150ms]" },
+    1 => { order: "order-2", height: "h-24", tone: "bg-gradient-to-b from-amber-300 to-gold text-white", delay: "[animation-delay:150ms]" },
     2 => { order: "order-1", height: "h-16", tone: "bg-gradient-to-b from-gray-200 to-gray-300 text-gray-600", delay: "[animation-delay:0ms]" },
     3 => { order: "order-3", height: "h-11", tone: "bg-gradient-to-b from-orange-200 to-orange-300 text-orange-800", delay: "[animation-delay:300ms]" }
   }.freeze

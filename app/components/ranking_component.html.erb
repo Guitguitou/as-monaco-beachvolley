@@ -6,11 +6,11 @@
         <%= lucide_icon("search", class: "pointer-events-none absolute left-3 top-1/2 w-4 h-4 -translate-y-1/2 text-gray-400", aria: { hidden: true }) %>
         <input type="search" placeholder="Chercher un joueur…" autocomplete="off"
                data-ranking-target="query" data-action="input->ranking#filter"
-               class="w-full rounded-none border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-asmbv-red focus:outline-none focus:ring-1 focus:ring-asmbv-red">
+               class="w-full rounded-none border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand">
       </label>
       <% if includes_me? %>
         <button type="button" data-action="ranking#locate"
-                class="inline-flex items-center gap-1.5 rounded-none border border-gray-200 bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-gray-700 hover:border-asmbv-red hover:text-asmbv-red transition-colors">
+                class="inline-flex items-center gap-1.5 rounded-none border border-gray-200 bg-white px-3 py-2 text-xs font-bold uppercase tracking-wide text-gray-700 hover:border-brand hover:text-brand transition-colors">
           <%= lucide_icon("crosshair", class: "w-4 h-4", aria: { hidden: true }) %>
           Me trouver
         </button>
@@ -27,12 +27,12 @@
             <p class="flex items-center gap-1.5 text-sm font-medium text-gray-900">
               <span class="truncate" title="<%= player[:name] %>"><%= player[:name] %></span>
               <% if me?(player) %>
-                <span class="shrink-0 rounded-full bg-asmbv-red px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-white">Toi</span>
+                <span class="shrink-0 rounded-full bg-brand px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-white">Toi</span>
               <% end %>
             </p>
             <% if player[:count] %>
               <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                <div class="h-full rounded-full <%= player[:rank] <= 3 ? 'bg-asmbv-red' : 'bg-gray-400' %> origin-left animate-grow-x motion-reduce:animate-none"
+                <div class="h-full rounded-full <%= player[:rank] <= 3 ? 'bg-brand' : 'bg-gray-400' %> origin-left animate-grow-x motion-reduce:animate-none"
                      style="width: <%= bar_width(player) %>%"></div>
               </div>
             <% end %>

@@ -13,8 +13,8 @@ class AvatarComponent < ApplicationComponent
     xl: "h-16 w-16 sm:h-20 sm:w-20 text-2xl sm:text-3xl font-anton"
   }.freeze
   VARIANTS = {
-    solid: "bg-asmbv-red text-white",
-    light: "bg-asmbv-red/10 text-asmbv-red",
+    solid: "bg-brand text-white",
+    light: "bg-brand/10 text-brand",
     dark: "bg-gray-900 text-white"
   }.freeze
 

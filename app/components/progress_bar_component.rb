@@ -33,6 +33,6 @@ class ProgressBarComponent < ApplicationComponent
   end
 
   def bar_classes
-    "h-full rounded-full #{VARIANTS.fetch(variant.to_sym, 'bg-asmbv-red')}"
+    "h-full rounded-full #{VARIANTS.fetch(variant.to_sym, 'bg-brand')}"
   end
 end

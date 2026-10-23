@@ -54,7 +54,7 @@
           <p class="mt-1 text-sm text-gray-600">Sessions dont tu es coach ou responsable.</p>
         </div>
         <%= link_to "Tout voir", sessions_path(view: "grid"),
-                    class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
+                    class: "text-sm font-semibold text-brand hover:underline shrink-0" %>
       </div>
 
       <%= render CardComponent.new(padding: :none, class_name: "mt-4 divide-y divide-gray-100") do %>
@@ -92,7 +92,7 @@
     <section>
       <div class="flex items-end justify-between gap-4">
         <h2 class="font-anton text-xl uppercase tracking-tight text-gray-900">Prochain tournoi</h2>
-        <%= link_to "Tous les tournois", tournaments_path, class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
+        <%= link_to "Tous les tournois", tournaments_path, class: "text-sm font-semibold text-brand hover:underline shrink-0" %>
       </div>
       <div class="mt-4 max-w-xl">
         <%= render "tournaments/card", tournament: @dashboard.featured_tournament, featured: true %>
@@ -114,17 +114,17 @@
 
     <% if @dashboard.next_annonce %>
       <%= link_to annonce_path(@dashboard.next_annonce),
-                  class: "border border-gray-200 bg-white rounded-none p-5 flex items-center justify-between gap-4 hover:border-asmbv-red" do %>
+                  class: "border border-gray-200 bg-white rounded-none p-5 flex items-center justify-between gap-4 hover:border-brand" do %>
         <div class="min-w-0">
           <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Annonce pour toi</p>
           <p class="mt-1 font-semibold text-gray-900 truncate"><%= @dashboard.next_annonce.title %></p>
           <p class="text-xs text-gray-600">par <%= @dashboard.next_annonce.user.full_name %></p>
         </div>
-        <%= lucide_icon("megaphone", class: "w-5 h-5 text-asmbv-red shrink-0") %>
+        <%= lucide_icon("megaphone", class: "w-5 h-5 text-brand shrink-0") %>
       <% end %>
     <% else %>
       <%= link_to annonces_path,
-                  class: "border border-dashed border-gray-300 bg-white rounded-none p-5 flex items-center justify-between gap-4 hover:border-asmbv-red" do %>
+                  class: "border border-dashed border-gray-300 bg-white rounded-none p-5 flex items-center justify-between gap-4 hover:border-brand" do %>
         <div class="min-w-0">
           <p class="text-[11px] font-bold uppercase tracking-widest text-gray-500">Jeu libre</p>
           <p class="mt-1 text-sm text-gray-600">Monte une session avec d'autres joueurs.</p>
@@ -143,7 +143,7 @@
           <p class="mt-1 text-sm text-gray-600">Sessions ouvertes qui correspondent à tes groupes.</p>
         </div>
         <%= link_to "Tout voir", sessions_path(view: "grid"),
-                    class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
+                    class: "text-sm font-semibold text-brand hover:underline shrink-0" %>
       </div>
 
       <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

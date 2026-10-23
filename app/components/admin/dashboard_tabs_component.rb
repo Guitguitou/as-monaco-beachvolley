@@ -24,7 +24,7 @@ module Admin
       base_classes = "px-4 py-2 text-sm font-medium rounded-none transition-colors duration-200"
 
       if tab_id == active_tab
-        "#{base_classes} bg-asmbv-red text-white"
+        "#{base_classes} bg-brand text-white"
       else
         "#{base_classes} text-gray-500 hover:text-gray-700 hover:bg-gray-100"
       end

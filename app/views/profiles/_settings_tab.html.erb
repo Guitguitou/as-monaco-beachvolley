@@ -11,7 +11,7 @@
     <%= render CardComponent.new(padding: :lg, class_name: "mt-4") do %>
       <%= form_with model: @user, url: profile_path, method: :patch, class: "space-y-4" do |f| %>
         <% if @user.errors.any? %>
-          <div class="border-l-4 border-asmbv-red bg-asmbv-red-light p-4" role="alert">
+          <div class="border-l-4 border-brand bg-brand-light p-4" role="alert">
             <p class="text-sm font-semibold text-gray-900">
               <%= fr_pluralize(@user.errors.count, "erreur empêche", "erreurs empêchent") %> l'enregistrement :
             </p>
@@ -35,9 +35,9 @@
             Tes groupes et ta licence sont gérés par le club.
           </p>
           <%= f.submit "Enregistrer",
-                       class: "inline-flex items-center justify-center rounded-none bg-asmbv-red px-4 py-2 " \
-                              "text-sm font-semibold text-white transition-colors hover:bg-asmbv-red-dark " \
-                              "focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:ring-offset-2 cursor-pointer" %>
+                       class: "inline-flex items-center justify-center rounded-none bg-brand px-4 py-2 " \
+                              "text-sm font-semibold text-white transition-colors hover:bg-brand-dark " \
+                              "focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 cursor-pointer" %>
         </div>
       <% end %>
     <% end %>
@@ -57,7 +57,7 @@
           <div class="min-w-0">
             <div class="flex items-center gap-2">
               <%= lucide_icon(@settings.push_enabled? ? "bell-ring" : "bell-off",
-                              class: "w-5 h-5 shrink-0 #{@settings.push_enabled? ? 'text-asmbv-red' : 'text-gray-400'}",
+                              class: "w-5 h-5 shrink-0 #{@settings.push_enabled? ? 'text-brand' : 'text-gray-400'}",
                               aria: { hidden: true }) %>
               <p class="font-semibold text-gray-900">
                 <%= @settings.push_enabled? ? "Notifications activées" : "Notifications désactivées" %>
@@ -74,7 +74,7 @@
 
           <%# Le contrôleur n'affiche que le bouton correspondant à l'état de
               cet appareil (permission navigateur + abonnement). %>
-          <% button_class = "inline-flex items-center justify-center rounded-none border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:ring-offset-2" %>
+          <% button_class = "inline-flex items-center justify-center rounded-none border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2" %>
           <button type="button"
                   data-action="click->push-notifications#requestPermission"
                   data-push-notifications-target="enableButton"

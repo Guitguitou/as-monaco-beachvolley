@@ -23,7 +23,7 @@ class FlashComponent < ApplicationComponent
   # Apparence de chaque type : bordure du toast, icône et couleur de l'icône.
   STYLES = {
     success: { border: "border-green-600", icon: "check-circle", text: "text-green-600" },
-    error: { border: "border-asmbv-red", icon: "alert-circle", text: "text-asmbv-red" },
+    error: { border: "border-brand", icon: "alert-circle", text: "text-brand" },
     warning: { border: "border-orange-500", icon: "alert-triangle", text: "text-orange-500" },
     info: { border: "border-blue-700", icon: "info", text: "text-blue-700" }
   }.freeze

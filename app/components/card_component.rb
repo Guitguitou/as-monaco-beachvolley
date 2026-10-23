@@ -6,7 +6,7 @@ class CardComponent < ApplicationComponent
 
   PADDINGS = { none: "", sm: "p-4", md: "p-5", lg: "p-6" }.freeze
   ACCENTS = {
-    training: "border-t-4 border-t-asmbv-red",
+    training: "border-t-4 border-t-brand",
     free_play: "border-t-4 border-t-blue-700",
     private_coaching: "border-t-4 border-t-gray-900",
     tournament: "border-t-4 border-t-amber-500",

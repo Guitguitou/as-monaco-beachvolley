@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex items-center justify-between border-b pb-4 gap-3 flex-col sm:flex-row sm:gap-0">
     <div class="flex items-center gap-2">
-      <%= lucide_icon("user", class: "w-6 h-6 text-asmbv-red") %>
+      <%= lucide_icon("user", class: "w-6 h-6 text-brand") %>
       <h1 class="text-2xl font-bold text-gray-900">Fiche joueur</h1>
       <% if @user.disabled? %>
         <%= render BadgeComponent.new(label: "Désactivé", variant: :danger, size: :xs) %>
@@ -32,13 +32,13 @@
   <div class="border-b border-gray-200 mb-6">
     <nav class="-mb-px flex space-x-8">
       <%= link_to admin_user_path(@user, tab: 'profile'), 
-          class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-asmbv-red text-asmbv-red' if @active_tab == 'profile'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'profile'}" do %>
+          class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-brand text-brand' if @active_tab == 'profile'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'profile'}" do %>
         <%= lucide_icon("user", class: "w-4 h-4 inline mr-2") %>
         Profil
       <% end %>
       <% if @user.coach? %>
         <%= link_to admin_user_path(@user, tab: 'trainings'), 
-            class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-asmbv-red text-asmbv-red' if @active_tab == 'trainings'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'trainings'}" do %>
+            class: "py-2 px-1 border-b-2 font-medium text-sm #{'border-brand text-brand' if @active_tab == 'trainings'} #{'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' if @active_tab != 'trainings'}" do %>
           <%= lucide_icon("users", class: "w-4 h-4 inline mr-2") %>
           Entraînements
         <% end %>
@@ -57,6 +57,6 @@
   <div>
     <%= link_to "← Retour à la liste",
           admin_users_path,
-          class: "text-sm font-medium text-asmbv-red hover:text-asmbv-red-dark" %>
+          class: "text-sm font-medium text-brand hover:text-brand-dark" %>
   </div>
 </div>

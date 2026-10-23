@@ -37,7 +37,7 @@
     <% if devise_mapping.rememberable? %>
       <div class="flex items-center">
         <%= f.check_box :remember_me, 
-              class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red" %>
+              class: "h-4 w-4 text-brand border-gray-300 rounded-none focus:ring-brand" %>
         <%= f.label :remember_me, "Se souvenir de moi", 
               class: "ml-2 block text-sm text-gray-700" %>
       </div>
@@ -46,16 +46,16 @@
     <!-- Bouton connexion -->
     <div>
       <%= f.submit "Se connecter", 
-            class: "w-full inline-flex justify-center items-center gap-2 rounded-none bg-asmbv-red px-4 py-2 
-                    text-sm font-semibold text-white hover:bg-asmbv-red-dark 
-                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-asmbv-red transition-colors" %>
+            class: "w-full inline-flex justify-center items-center gap-2 rounded-none bg-brand px-4 py-2 
+                    text-sm font-semibold text-white hover:bg-brand-dark 
+                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-colors" %>
     </div>
   <% end %>
 
   <!-- Lien mot de passe oublié -->
   <div class="mt-4 text-center">
     <%= link_to "Mot de passe oublié ?", new_password_path(resource_name), 
-          class: "text-sm font-medium text-asmbv-red hover:text-asmbv-red-dark" %>
+          class: "text-sm font-medium text-brand hover:text-brand-dark" %>
   </div>
   <% end %>
 </div>

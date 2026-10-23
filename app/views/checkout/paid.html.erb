@@ -1,7 +1,7 @@
 <div class="max-w-2xl mx-auto">
   <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden") do %>
     <%# Success header with gradient %>
-    <div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark p-8 text-white text-center">
+    <div class="bg-gradient-to-r from-brand to-brand-dark p-8 text-white text-center">
       <p class="text-xs uppercase tracking-widest text-white font-semibold mb-3">Boutique</p>
       <div class="flex justify-center mb-4">
         <div class="p-4 bg-white/20 rounded-none">
@@ -18,10 +18,10 @@
         <%# Credits added %>
         <div class="text-center mb-6">
           <div class="inline-flex items-center gap-3 bg-white border border-gray-200 rounded-none px-6 py-4">
-            <%= lucide_icon("coins", size: 32, class: "text-asmbv-red") %>
+            <%= lucide_icon("coins", size: 32, class: "text-brand") %>
             <div class="text-left">
               <p class="text-sm text-gray-600">Crédits ajoutés</p>
-              <p class="text-3xl font-bold text-asmbv-red">+ <%= @credit_purchase.credits %></p>
+              <p class="text-3xl font-bold text-brand">+ <%= @credit_purchase.credits %></p>
             </div>
           </div>
         </div>
@@ -40,7 +40,7 @@
       </div>
 
       <%# New balance %>
-      <div class="bg-gradient-to-r from-asmbv-red to-asmbv-red-dark rounded-none p-6 text-white text-center mb-6">
+      <div class="bg-gradient-to-r from-brand to-brand-dark rounded-none p-6 text-white text-center mb-6">
         <p class="text-sm uppercase tracking-wide mb-2">Nouveau solde</p>
         <div class="flex items-baseline justify-center gap-2">
           <%= lucide_icon("wallet", size: 24, class: "opacity-75") %>
@@ -52,7 +52,7 @@
       <%# Actions %>
       <div class="flex flex-col sm:flex-row gap-3">
         <%= link_to packs_path,
-              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-asmbv-red-dark transition-all" do %>
+              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-brand px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-brand-dark transition-all" do %>
           <%= lucide_icon("package", size: 20) %>
           Voir les packs
         <% end %>

@@ -9,9 +9,9 @@
           <% if player %>
             <div class="relative">
               <% if position == 1 %>
-                <%= lucide_icon("crown", class: "absolute -top-5 left-1/2 w-5 h-5 -translate-x-1/2 text-asmbv-gold", aria: { hidden: true }) %>
+                <%= lucide_icon("crown", class: "absolute -top-5 left-1/2 w-5 h-5 -translate-x-1/2 text-gold", aria: { hidden: true }) %>
               <% end %>
-              <span class="inline-flex rounded-full <%= me?(player) ? 'ring-2 ring-asmbv-red ring-offset-2' : '' %>">
+              <span class="inline-flex rounded-full <%= me?(player) ? 'ring-2 ring-brand ring-offset-2' : '' %>">
                 <%= render AvatarComponent.new(user: player[:user], size: avatar_size(position), variant: position == 1 ? :solid : :dark) %>
               </span>
               <span class="absolute -bottom-1 -right-1 text-base leading-none" aria-label="<%= position %>e place"><%= medal_emoji(position) %></span>
@@ -21,7 +21,7 @@
               <%= player[:name] %>
             </p>
             <% if me?(player) %>
-              <span class="mt-0.5 rounded-full bg-asmbv-red px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-white">Toi</span>
+              <span class="mt-0.5 rounded-full bg-brand px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-white">Toi</span>
             <% end %>
             <p class="mt-1 leading-none">
               <span class="font-anton text-xl tabular-nums text-gray-900"><%= score(player).value %></span>

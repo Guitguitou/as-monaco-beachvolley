@@ -28,7 +28,7 @@
           <td class="px-4 py-2 text-right">
             <%= button_to admin_claude_connection_path(connection.user),
                   method: :delete,
-                  class: "inline-flex items-center gap-1 rounded-none border border-asmbv-red px-3 py-1 text-xs font-semibold text-asmbv-red hover:bg-asmbv-red hover:text-white transition-colors",
+                  class: "inline-flex items-center gap-1 rounded-none border border-brand px-3 py-1 text-xs font-semibold text-brand hover:bg-brand hover:text-white transition-colors",
                   data: { turbo_confirm: "Révoquer l'accès Claude de #{connection.user.full_name} ?" } do %>
               <%= lucide_icon("unplug", size: 14) %> Révoquer
             <% end %>

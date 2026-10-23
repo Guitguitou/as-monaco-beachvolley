@@ -12,7 +12,7 @@
               ['Toutes', 'all']
             ], 
             { selected: filters[:date_range] || 'week' },
-            { class: "w-full rounded-none border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
+            { class: "w-full rounded-none border-gray-300 shadow-sm focus:border-brand focus:ring-brand" } %>
       </div>
       
       <div>
@@ -20,7 +20,7 @@
         <%= form.select :session_type, 
             session_types.map { |type| [type[:label], type[:value]] },
             { selected: filters[:session_type] || '' },
-            { class: "w-full rounded-none border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
+            { class: "w-full rounded-none border-gray-300 shadow-sm focus:border-brand focus:ring-brand" } %>
       </div>
       
       <div>
@@ -28,11 +28,11 @@
         <%= form.select :coach_id, 
             [['Tous les coachs', '']] + coaches.map { |coach| [coach[:label], coach[:value]] },
             { selected: filters[:coach_id] || '' },
-            { class: "w-full rounded-none border-gray-300 shadow-sm focus:border-asmbv-red focus:ring-asmbv-red" } %>
+            { class: "w-full rounded-none border-gray-300 shadow-sm focus:border-brand focus:ring-brand" } %>
       </div>
       
       <div class="flex items-end">
-        <%= form.submit "Filtrer", class: "w-full bg-asmbv-red text-white px-4 py-2 rounded-none hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-asmbv-red focus:ring-offset-2" %>
+        <%= form.submit "Filtrer", class: "w-full bg-brand text-white px-4 py-2 rounded-none hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2" %>
       </div>
     <% end %>
   </div>
@@ -76,7 +76,7 @@
                   </span>
                 </td>
                 <td class="px-4 py-4 text-sm text-gray-900">
-                  <%= link_to session.title, admin_session_path(session), class: "text-asmbv-red hover:underline" %>
+                  <%= link_to session.title, admin_session_path(session), class: "text-brand hover:underline" %>
                 </td>
                 <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                   <%= session.user&.full_name %>
@@ -103,7 +103,7 @@
                   <%= number_with_precision(session.price, precision: 2) %> €
                 </td>
                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                  <%= link_to "Voir", admin_session_path(session), class: "text-asmbv-red hover:text-red-700 mr-3" %>
+                  <%= link_to "Voir", admin_session_path(session), class: "text-brand hover:text-brand-dark mr-3" %>
                   <%= link_to "Modifier", edit_admin_session_path(session), class: "text-gray-600 hover:text-gray-900" %>
                 </td>
               </tr>

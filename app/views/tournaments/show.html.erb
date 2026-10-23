@@ -28,7 +28,7 @@
 
     <dl class="space-y-3 text-gray-900">
       <div class="flex items-center gap-3">
-        <%= lucide_icon("calendar-days", class: "w-5 h-5 text-asmbv-red shrink-0") %>
+        <%= lucide_icon("calendar-days", class: "w-5 h-5 text-brand shrink-0") %>
         <dd class="first-letter:uppercase">
           <%= l @tournament.starts_on, format: :day_and_month %><%= " → #{l @tournament.ends_on, format: :day_and_month}" if @tournament.ends_on != @tournament.starts_on %>
           · <%= l @tournament.start_time, format: :time %> – <%= l @tournament.end_time, format: :time %>
@@ -36,12 +36,12 @@
       </div>
       <% if @tournament.location.present? %>
         <div class="flex items-center gap-3">
-          <%= lucide_icon("map-pin", class: "w-5 h-5 text-asmbv-red shrink-0") %>
+          <%= lucide_icon("map-pin", class: "w-5 h-5 text-brand shrink-0") %>
           <dd><%= @tournament.location %></dd>
         </div>
       <% end %>
       <div class="flex items-center gap-3">
-        <%= lucide_icon("users", class: "w-5 h-5 text-asmbv-red shrink-0") %>
+        <%= lucide_icon("users", class: "w-5 h-5 text-brand shrink-0") %>
         <dd>
           <%= number_to_currency(@tournament.price, unit: "€", format: "%n %u", strip_insignificant_zeros: true) %> par équipe
           <%= " · #{@tournament.teams_count} équipes" if @tournament.teams_count %>
@@ -57,7 +57,7 @@
       <div class="space-y-3">
         <% if @tournament.registration_link.present? %>
           <%= link_to @tournament.registration_link, target: "_blank", rel: "noopener",
-                class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-6 py-3 text-base font-semibold text-white hover:bg-asmbv-red-dark" do %>
+                class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-brand px-6 py-3 text-base font-semibold text-white hover:bg-brand-dark" do %>
             <%= lucide_icon("external-link", size: 18) %>
             S'inscrire sur BVS
           <% end %>

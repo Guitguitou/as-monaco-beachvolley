@@ -6,7 +6,7 @@
     Un état par situation (cf. Sessions::CtaState) : le joueur voit ce qui se
     passe au clic, ce que ça coûte et, quand c'est bloqué, ce qui débloque. %>
 <% calendar_ctx = sessions_index_return_params %>
-<% primary = "w-full inline-flex items-center justify-center gap-2 rounded-none px-4 py-3 text-sm font-semibold bg-asmbv-red text-white hover:bg-asmbv-red-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-asmbv-red" %>
+<% primary = "w-full inline-flex items-center justify-center gap-2 rounded-none px-4 py-3 text-sm font-semibold bg-brand text-white hover:bg-brand-dark focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand" %>
 <% dark = "w-full inline-flex items-center justify-center gap-2 rounded-none px-4 py-3 text-sm font-semibold bg-gray-900 text-white hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-900" %>
 <% ghost = "w-full inline-flex items-center justify-center gap-2 rounded-none px-4 py-3 text-sm font-semibold border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-900" %>
 <% locked = "w-full inline-flex items-center justify-center gap-2 rounded-none px-4 py-3 text-sm font-semibold bg-gray-100 text-gray-500 border border-gray-200" %>
@@ -98,7 +98,7 @@
             qu'il advient du crédit plutôt que de demander « es-tu sûr ? ». %>
         <div data-controller="dialog">
           <button type="button" data-action="dialog#open"
-                  class="text-sm text-gray-500 underline hover:text-asmbv-red focus:outline-none focus-visible:ring-2 focus-visible:ring-asmbv-red">
+                  class="text-sm text-gray-500 underline hover:text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">
             <%= cta.kind == :waitlisted ? "Quitter la liste" : "Se désinscrire" %>
           </button>
           <dialog data-dialog-target="dialog" data-action="click->dialog#backdropClose"
@@ -126,7 +126,7 @@
               <% end %>
 
               <%= button_to session_registration_path(session, calendar_ctx.merge(id: "current")), method: :delete,
-                            class: "w-full inline-flex items-center justify-center gap-2 rounded-none border border-asmbv-red bg-white px-4 py-3 text-sm font-semibold text-asmbv-red hover:bg-asmbv-red/5" do %>
+                            class: "w-full inline-flex items-center justify-center gap-2 rounded-none border border-brand bg-white px-4 py-3 text-sm font-semibold text-brand hover:bg-brand/5" do %>
                 <%= lucide_icon("x-circle", class: "size-5", aria: { hidden: true }) %>
                 <span>
                   <% if cta.kind == :waitlisted %>

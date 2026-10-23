@@ -11,7 +11,7 @@
     <% end %>
     <% if tournament.registration_link.present? %>
       <%= link_to "S'inscrire sur BVS", tournament.registration_link, target: "_blank", rel: "noopener",
-            class: "shrink-0 rounded-none bg-asmbv-red px-3 py-1 text-xs font-semibold uppercase tracking-wide hover:bg-asmbv-red-dark" %>
+            class: "shrink-0 rounded-none bg-brand px-3 py-1 text-xs font-semibold uppercase tracking-wide hover:bg-brand-dark" %>
     <% end %>
     <button type="button" data-action="dismissible#dismiss" class="shrink-0 p-1 text-gray-400 hover:text-white" aria-label="Fermer">
       <%= lucide_icon("x", class: "w-4 h-4") %>

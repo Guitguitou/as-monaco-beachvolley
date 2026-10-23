@@ -63,7 +63,7 @@ class LicenseCardComponent < ApplicationComponent
 
   def wrapper_classes
     base = "border rounded-none p-5 sm:p-6"
-    activated? ? "#{base} border-gray-200 bg-white" : "#{base} border-asmbv-red bg-asmbv-red-light"
+    activated? ? "#{base} border-gray-200 bg-white" : "#{base} border-brand bg-brand-light"
   end
 
   def icon_name
@@ -71,6 +71,6 @@ class LicenseCardComponent < ApplicationComponent
   end
 
   def icon_classes
-    "w-6 h-6 shrink-0 text-asmbv-red"
+    "w-6 h-6 shrink-0 text-brand"
   end
 end
