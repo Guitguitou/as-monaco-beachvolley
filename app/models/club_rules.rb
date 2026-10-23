@@ -5,7 +5,8 @@
 # règles par injection (`rules: ClubRules.current`).
 class ClubRules < Data.define(
   :price_by_type, :priority_window_hours, :registration_deadline_hour,
-  :registration_opening_days, :cancellation_deadline_hour, :time_zone
+  :registration_opening_days, :cancellation_deadline_mode, :cancellation_deadline_hour,
+  :cancellation_hours_before, :time_zone
 )
   DEFAULT_PRICE_BY_TYPE = {
     "entrainement" => 400,
@@ -20,13 +21,29 @@ class ClubRules < Data.define(
       priority_window_hours: 24,
       registration_deadline_hour: 17, # 17h le jour J
       registration_opening_days: 7,
+      cancellation_deadline_mode: "eve_at_hour",
       cancellation_deadline_hour: 22, # 22h la veille
+      cancellation_hours_before: 24,
       time_zone: Rails.application.config.time_zone
     )
   end
 
+  # Règles enregistrées par l'admin, lues une fois par requête ou job.
   def self.current
-    @current ||= default
+    CurrentClubRules.rules ||= from_setting(ClubSetting.current)
+  end
+
+  def self.from_setting(setting)
+    new(
+      price_by_type: setting.price_by_type,
+      priority_window_hours: setting.priority_window_hours,
+      registration_deadline_hour: setting.registration_deadline_hour,
+      registration_opening_days: setting.registration_opening_days,
+      cancellation_deadline_mode: setting.cancellation_deadline_mode,
+      cancellation_deadline_hour: setting.cancellation_deadline_hour,
+      cancellation_hours_before: setting.cancellation_hours_before,
+      time_zone: Rails.application.config.time_zone
+    )
   end
 
   def initialize(price_by_type:, **rules)
@@ -56,9 +73,14 @@ class ClubRules < Data.define(
     start_at - registration_opening_days.days
   end
 
-  # Limite de désinscription remboursée : la veille à l'heure fixée.
+  # Limite de désinscription remboursée : la veille à l'heure fixée, ou un
+  # nombre d'heures avant le début selon le mode choisi par le club.
   def cancellation_deadline_for(start_at)
-    (start_at - 1.day).change(hour: cancellation_deadline_hour, min: 0)
+    if cancellation_deadline_mode == "hours_before"
+      start_at - cancellation_hours_before.hours
+    else
+      (start_at - 1.day).change(hour: cancellation_deadline_hour, min: 0)
+    end
   end
 
   def zone

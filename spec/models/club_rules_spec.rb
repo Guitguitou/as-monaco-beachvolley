@@ -38,4 +38,25 @@ RSpec.describe ClubRules do
     expect(other.price_for("jeu_libre")).to eq(500)
     expect(other.zone.name).to eq("Europe/London")
   end
+
+  it "computes the cancellation deadline in both modes" do
+    start_at = Time.zone.local(2030, 3, 14, 19, 0)
+    hours_before = described_class.default.with(cancellation_deadline_mode: "hours_before", cancellation_hours_before: 10)
+
+    expect(described_class.default.cancellation_deadline_for(start_at)).to eq(Time.zone.local(2030, 3, 13, 22, 0))
+    expect(hours_before.cancellation_deadline_for(start_at)).to eq(Time.zone.local(2030, 3, 14, 9, 0))
+  end
+
+  it "matches the default rules with the club's initial settings" do
+    expect(rules).to eq(described_class.default)
+  end
+
+  it "reflects saved settings within the same request" do
+    expect(rules.registration_deadline_hour).to eq(17)
+
+    ClubSetting.current.update!(registration_deadline_hour: 15, jeu_libre_price_cents: 450)
+
+    expect(described_class.current.registration_deadline_hour).to eq(15)
+    expect(described_class.current.price_for("jeu_libre")).to eq(450)
+  end
 end

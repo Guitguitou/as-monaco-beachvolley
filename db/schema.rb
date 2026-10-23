@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -97,6 +97,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_090000) do
     t.string "membership_form_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "entrainement_price_cents", default: 400, null: false
+    t.integer "jeu_libre_price_cents", default: 300, null: false
+    t.integer "coaching_prive_price_cents", default: 1500, null: false
+    t.integer "stage_price_cents", default: 0, null: false
+    t.integer "priority_window_hours", default: 24, null: false
+    t.integer "registration_deadline_hour", default: 17, null: false
+    t.integer "registration_opening_days", default: 7, null: false
+    t.string "cancellation_deadline_mode", default: "eve_at_hour", null: false
+    t.integer "cancellation_deadline_hour", default: 22, null: false
+    t.integer "cancellation_hours_before", default: 24, null: false
   end
 
   create_table "credit_purchases", force: :cascade do |t|
