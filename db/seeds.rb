@@ -231,6 +231,12 @@ puts "✅ Crédits ajoutés aux coachs"
 # ===========================================
 puts "\n🏐 Création des sessions..."
 
+# Terrains : mêmes ids et noms que ceux créés par la migration en production.
+terrains = (1..3).to_h do |n|
+  terrain = Terrain.find_or_create_by!(name: "Terrain #{n}") { |t| t.position = n }
+  [ terrain.name, terrain ]
+end
+
 # Sessions d'entraînement pour les 4 prochaines semaines
 (0..3).each do |week|
   week_start = Date.current.beginning_of_week + week.weeks
@@ -239,7 +245,7 @@ puts "\n🏐 Création des sessions..."
   Session.find_or_create_by!(
     title: "Entraînement G1 Masculin",
     start_at: week_start + 1.day + 18.hours,
-    terrain: "Terrain 1"
+    terrain: terrains.fetch("Terrain 1")
   ) do |session|
     session.description = "Entraînement pour le niveau G1 masculin"
     session.end_at = session.start_at + 2.hours
@@ -254,7 +260,7 @@ puts "\n🏐 Création des sessions..."
   Session.find_or_create_by!(
     title: "Entraînement G1 Féminin",
     start_at: week_start + 3.days + 18.hours,
-    terrain: "Terrain 2"
+    terrain: terrains.fetch("Terrain 2")
   ) do |session|
     session.description = "Entraînement pour le niveau G1 féminin"
     session.end_at = session.start_at + 2.hours
@@ -269,7 +275,7 @@ puts "\n🏐 Création des sessions..."
   Session.find_or_create_by!(
     title: "Jeu libre",
     start_at: week_start + 5.days + 19.hours,
-    terrain: "Terrain 3"
+    terrain: terrains.fetch("Terrain 3")
   ) do |session|
     session.description = "Jeu libre ouvert à tous les niveaux"
     session.end_at = session.start_at + 2.hours
@@ -284,7 +290,7 @@ puts "\n🏐 Création des sessions..."
   Session.find_or_create_by!(
     title: "Tournoi du week-end",
     start_at: week_start + 6.days + 14.hours,
-    terrain: "Terrain 1"
+    terrain: terrains.fetch("Terrain 1")
   ) do |session|
     session.description = "Tournoi amical du week-end"
     session.end_at = session.start_at + 4.hours

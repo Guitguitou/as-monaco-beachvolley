@@ -356,12 +356,12 @@ export default class extends Controller {
 
     // Filter events
     const filteredEvents = this.sessions.filter((eventData) => {
-      const terrainMatches = selectedTerrain ? eventData.terrain === selectedTerrain : true
+      const terrainMatches = selectedTerrain ? String(eventData.terrain) === String(selectedTerrain) : true
       const forMeMatches = forMe ? Boolean(eventData.forMe) : true
       return terrainMatches && forMeMatches
     })
     this.filteredSessions = filteredEvents
-    const closures = (this.closures || []).filter((c) => !selectedTerrain || c.terrain === selectedTerrain)
+    const closures = (this.closures || []).filter((c) => !selectedTerrain || String(c.terrain) === String(selectedTerrain))
     this.calendar.removeAllEvents()
     this.calendar.addEventSource([...filteredEvents, ...closures])
 

@@ -82,7 +82,7 @@
                   <%= session.user&.full_name %>
                 </td>
                 <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <%= session.terrain %>
+                  <%= session.terrain&.name %>
                 </td>
                 <td class="px-4 py-4 whitespace-nowrap">
                   <% if session.max_players.present? %>

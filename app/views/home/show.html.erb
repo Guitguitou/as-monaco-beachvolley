@@ -20,7 +20,7 @@
                 <p class="text-xs text-gray-600 first-letter:uppercase">
                   <%= l(session.start_at.to_date, format: :day_and_month) %> ·
                   <%= l(session.start_at, format: :time) %> ·
-                  <%= session.terrain.to_s.split("_").last %>
+                  <%= session.terrain&.name %>
                 </p>
               </div>
               <div class="flex items-center gap-2 shrink-0">
@@ -67,7 +67,7 @@
               <p class="text-xs text-gray-600 first-letter:uppercase">
                 <%= l(session.start_at.to_date, format: :day_and_month) %> ·
                 <%= l(session.start_at, format: :time) %> ·
-                <%= session.terrain.to_s.split("_").last %>
+                <%= session.terrain&.name %>
               </p>
             </div>
             <div class="flex items-center gap-2 shrink-0">

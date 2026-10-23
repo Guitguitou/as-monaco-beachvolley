@@ -106,7 +106,7 @@ module Admin
 
     def session_params
       params.require(:session).permit(
-        :title, :description, :start_at, :end_at, :session_type, :max_players, :terrain, :user_id, :price,
+        :title, :description, :start_at, :end_at, :session_type, :max_players, :terrain_id, :user_id, :price,
         :cancellation_deadline_at, :registration_opens_at, :coach_notes,
         level_ids: [], participant_ids: []
       )
@@ -129,7 +129,7 @@ module Admin
       end
 
       if errors.empty?
-        redirect_to admin_sessions_path, notice: "3 sessions créées (terrains 1, 2, 3)."
+        redirect_to admin_sessions_path, notice: "Session créée sur chacun des terrains."
       else
         # Re-render with errors on the main @session instance for feedback
         @session.assign_attributes(session_params)

@@ -22,6 +22,13 @@ module ApplicationHelper
     TerrainClosure.as_json_for_forms
   end
 
+  # Terrains proposés dans un formulaire : les actifs, plus celui déjà choisi
+  # s'il a été archivé depuis (sinon le select le perdrait silencieusement).
+  def terrain_options_for_select(selected_id)
+    terrains = Terrain.active.or(Terrain.where(id: selected_id)).ordered
+    options_for_select(terrains.map { |terrain| [ terrain.name, terrain.id ] }, selected_id)
+  end
+
   # Whitelisted query params for linking back to sessions#index (grid or calendar, week, terrain).
   def sessions_index_return_params(source_params = nil)
     Sessions::ReturnParams.from(source_params || params)

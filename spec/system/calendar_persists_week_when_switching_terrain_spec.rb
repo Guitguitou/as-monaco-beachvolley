@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Calendar week persistence across terrain and audience switch', type: :system, js: true do
   let(:user) { create(:user) }
+  let!(:terrain) { FactoryHelpers.resolve_terrain('Terrain 2') }
 
   before do
     login_as user, scope: :user
@@ -28,12 +29,12 @@ RSpec.describe 'Calendar week persistence across terrain and audience switch', t
 
     # Date param should be preserved after switching terrain
     expect(page).to have_current_path(/\?(.+&)?date=#{expected_next_date}(&.+)?$/, url: true)
-    expect(page.current_url).to match(/terrain=Terrain\+2/)
+    expect(page.current_url).to match(/terrain=#{terrain.id}\b/)
 
     # Enable audience filter; the week and terrain should still be preserved
     click_link 'Sessions pour moi'
     expect(page).to have_current_path(/\?(.+&)?date=#{expected_next_date}(&.+)?$/, url: true)
-    expect(page.current_url).to match(/terrain=Terrain\+2/)
+    expect(page.current_url).to match(/terrain=#{terrain.id}\b/)
     expect(page.current_url).to match(/for_me=1/)
 
     # And the calendar should still be present

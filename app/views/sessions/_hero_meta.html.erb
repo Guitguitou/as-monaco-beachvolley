@@ -6,7 +6,7 @@
      { label: "Quand", icon: "calendar",
        main: l(session.start_at.to_date, format: :long).upcase_first,
        sub: "#{l(session.start_at, format: :time)} – #{l(session.end_at, format: :time)}" },
-     { label: "Où", icon: "map-pin", main: session.terrain.to_s, sub: session_duration(session.start_at, session.end_at) },
+     { label: "Où", icon: "map-pin", main: session.terrain&.name.to_s, sub: session_duration(session.start_at, session.end_at) },
      { label: "Avec qui", icon: "user",
        main: session.user&.full_name || "—",
        sub: session.levels.any? ? session_levels_label(session.levels) : "Tous niveaux" },

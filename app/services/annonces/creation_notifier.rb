@@ -32,7 +32,7 @@ module Annonces
       users.each do |user|
         enqueue(user,
                 title: "Jeu libre confirmé 🎉",
-                body: "#{session.display_name} — #{I18n.l(session.start_at, format: :short)}, #{session.terrain}",
+                body: "#{session.display_name} — #{I18n.l(session.start_at, format: :short)}, #{session.terrain&.name}",
                 url: session_path(session))
       end
     end

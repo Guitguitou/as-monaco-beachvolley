@@ -55,7 +55,7 @@
                 data: { turbo_frame: "session_preview", action: "dialog#open" },
                 class: "snap-start shrink-0 w-[78%] rounded-none px-4 py-3 #{registration.waitlisted? ? 'border-2 border-dashed border-orange-400 bg-orange-50 text-orange-900' : 'bg-asmbv-red text-white'}" do %>
             <span class="block text-[11px] font-bold uppercase tracking-wide opacity-90">
-              <%= l(s.start_at, format: "%a %d · %Hh%M") %> · <%= s.terrain.to_s.sub("Terrain ", "T") %>
+              <%= l(s.start_at, format: "%a %d · %Hh%M") %> · <%= "T#{s.terrain&.position}" %>
             </span>
             <span class="mt-1 block font-semibold truncate"><%= registration.waitlisted? ? s.title : "✓ #{s.title}" %></span>
             <span class="block text-xs opacity-90"><%= registration.waitlisted? ? "Liste d'attente" : "Inscrit" %></span>

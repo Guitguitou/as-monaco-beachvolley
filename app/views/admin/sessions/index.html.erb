@@ -81,7 +81,7 @@
 
           <!-- Terrain -->
           <td class="px-4 sm:px-6 py-4 text-gray-700 hidden lg:table-cell">
-            <%= render BadgeComponent.new(label: session.terrain.to_s.split('_').last, variant: :neutral, size: :xs) %>
+            <%= render BadgeComponent.new(label: session.terrain&.name, variant: :neutral, size: :xs) %>
           </td>
 
           <!-- Niveaux -->

@@ -23,13 +23,13 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
         start_at: session_record.start_at,
         end_at: session_record.end_at,
         session_type: session_record.session_type,
-        terrain: session_record.terrain,
+        terrain_id: session_record.terrain_id,
         user_id: session_record.user_id,
         max_players: session_record.max_players
       }
     }
 
-    expect(response).to redirect_to(sessions_path(date: "2030-01-15", terrain: "Terrain 2", view: "calendar"))
+    expect(response).to redirect_to(sessions_path(date: "2030-01-15", terrain: session_record.terrain_id, view: "calendar"))
   end
 
   it "keeps for_me in redirect after PATCH update" do
@@ -45,13 +45,13 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
         start_at: session_record.start_at,
         end_at: session_record.end_at,
         session_type: session_record.session_type,
-        terrain: session_record.terrain,
+        terrain_id: session_record.terrain_id,
         user_id: session_record.user_id,
         max_players: session_record.max_players
       }
     }
 
-    expect(response).to redirect_to(sessions_path(date: "2030-01-16", terrain: "Terrain 2", for_me: "1", view: "calendar"))
+    expect(response).to redirect_to(sessions_path(date: "2030-01-16", terrain: session_record.terrain_id, for_me: "1", view: "calendar"))
   end
 
   it "redirects to calendar with session date (no terrain) when terrain was not in request" do
@@ -67,7 +67,7 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
         start_at: session_record.start_at,
         end_at: session_record.end_at,
         session_type: session_record.session_type,
-        terrain: session_record.terrain,
+        terrain_id: session_record.terrain_id,
         user_id: session_record.user_id,
         max_players: session_record.max_players
       }
@@ -78,6 +78,7 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
 
   it "renders data-initial-date from params[:date] on the calendar container" do
     target_date = '2025-10-06'
+    terrain = FactoryHelpers.resolve_terrain("Terrain 2")
 
     get sessions_path(date: target_date, view: "calendar")
 
@@ -87,12 +88,13 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
 
   it 'preserves the date param in terrain tabs links and after navigation' do
     target_date = '2025-10-06'
+    terrain = FactoryHelpers.resolve_terrain("Terrain 2")
 
     get sessions_path(date: target_date, view: "calendar")
     expect(response).to have_http_status(:ok)
 
     # Ensure the Terrain 2 tab link includes the date param
-    expected_href = sessions_path(terrain: "Terrain 2", date: target_date, view: "calendar")
+    expected_href = sessions_path(terrain: terrain.id, date: target_date, view: "calendar")
     expected_href_escaped = ERB::Util.html_escape(expected_href)
     expect(response.body).to include(%(href="#{expected_href_escaped}"))
 
@@ -108,6 +110,7 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
     other_level = create(:level, name: "G2")
     create(:user_level, user: user, level: matching_level)
 
+    FactoryHelpers.resolve_terrain("Terrain 2")
     public_training = create(:session, user: coach, session_type: "entrainement")
     group_training_for_user = create(:session, user: coach, session_type: "entrainement")
     group_training_for_other = create(:session, user: coach, session_type: "entrainement")
@@ -127,8 +130,24 @@ RSpec.describe "Sessions calendar date persistence", type: :request do
     expect(event_ids).to include(public_training.id, group_training_for_user.id, non_training.id)
     expect(event_ids).not_to include(group_training_for_other.id)
 
-    expected_href = sessions_path(terrain: "Terrain 2", for_me: "1", view: "calendar")
+    expected_href = sessions_path(terrain: Terrain.find_by!(name: "Terrain 2").id, for_me: "1", view: "calendar")
     expected_href_escaped = ERB::Util.html_escape(expected_href)
     expect(response.body).to include(%(href="#{expected_href_escaped}"))
+  end
+
+  describe "anciens liens ?terrain=<nom>" do
+    it "redirige vers le même filtre exprimé par l'id du terrain" do
+      terrain = FactoryHelpers.resolve_terrain("Terrain 2")
+
+      get sessions_path(terrain: "Terrain 2", date: "2025-10-06", view: "calendar")
+
+      expect(response).to redirect_to(sessions_path(terrain: terrain.id, date: "2025-10-06", view: "calendar"))
+    end
+
+    it "abandonne un nom de terrain inconnu" do
+      get sessions_path(terrain: "Terrain 99", view: "calendar")
+
+      expect(response).to redirect_to(sessions_path(view: "calendar"))
+    end
   end
 end

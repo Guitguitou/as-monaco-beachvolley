@@ -10,8 +10,8 @@ RSpec.describe TerrainClosure, type: :model do
       expect(c.errors[:ends_on]).to be_present
     end
 
-    it "rejects unknown terrain strings" do
-      c = build(:terrain_closure, terrain: "Terrain 99")
+    it "requires a terrain" do
+      c = build(:terrain_closure, terrain: nil)
       expect(c).not_to be_valid
       expect(c.errors[:terrain]).to be_present
     end
@@ -41,9 +41,10 @@ RSpec.describe TerrainClosure, type: :model do
 
   describe ".covers?" do
     it "is true when terrain and date fall in the closure range" do
-      create(:terrain_closure, terrain: "Terrain 2", starts_on: Date.new(2030, 4, 1), ends_on: Date.new(2030, 4, 7))
-      expect(TerrainClosure.covers?(terrain: "Terrain 2", date: Date.new(2030, 4, 3))).to be true
-      expect(TerrainClosure.covers?(terrain: "Terrain 1", date: Date.new(2030, 4, 3))).to be false
+      closure = create(:terrain_closure, terrain: "Terrain 2", starts_on: Date.new(2030, 4, 1), ends_on: Date.new(2030, 4, 7))
+      other = FactoryHelpers.resolve_terrain("Terrain 1")
+      expect(TerrainClosure.covers?(terrain_id: closure.terrain_id, date: Date.new(2030, 4, 3))).to be true
+      expect(TerrainClosure.covers?(terrain_id: other.id, date: Date.new(2030, 4, 3))).to be false
     end
   end
 end

@@ -5,6 +5,8 @@ require "rails_helper"
 RSpec.describe Sessions::AllTerrainsCreation do
   let(:coach) { create(:user, :coach) }
   let(:start_at) { 3.days.from_now.change(hour: 18) }
+  before { %w[Terrain\ 1 Terrain\ 2 Terrain\ 3].each { |name| FactoryHelpers.resolve_terrain(name) } }
+
   let(:attributes) do
     { "title" => "Jeu libre", "session_type" => "jeu_libre", "user_id" => coach.id, "terrain" => "Terrain 2",
       "start_at" => start_at, "end_at" => start_at + 90.minutes }
@@ -16,8 +18,16 @@ RSpec.describe Sessions::AllTerrainsCreation do
     errors = described_class.new(attributes).call { |session| created << session }
 
     expect(errors).to be_empty
-    expect(Session.where(start_at: start_at).pluck(:terrain)).to contain_exactly("Terrain 1", "Terrain 2", "Terrain 3")
-    expect(created.map(&:terrain)).to eq([ "Terrain 1", "Terrain 2", "Terrain 3" ])
+    expect(Session.where(start_at: start_at).joins(:terrain).pluck("terrains.name")).to contain_exactly("Terrain 1", "Terrain 2", "Terrain 3")
+    expect(created.map { |session| session.terrain.name }).to eq([ "Terrain 1", "Terrain 2", "Terrain 3" ])
+  end
+
+  it "skips archived terrains" do
+    Terrain.find_by!(name: "Terrain 3").archive!
+
+    described_class.new(attributes).call { |_session| }
+
+    expect(Session.where(start_at: start_at).joins(:terrain).pluck("terrains.name")).to contain_exactly("Terrain 1", "Terrain 2")
   end
 
   it "creates nothing when one terrain is taken" do

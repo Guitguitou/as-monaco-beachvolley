@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 class TerrainClosure < ApplicationRecord
-  ALLOWED_TERRAINS = Session.terrains.keys.freeze
+  # La colonne historique `terrain` (nom) reste en base jusqu'à la migration
+  # « contract » : elle n'est plus lue, mais tenue à jour pour que l'ancien
+  # code reste redéployable (cf. Terrains::LegacyColumns).
+  belongs_to :terrain
+  before_save { Terrains::LegacyColumns.write_closure(self) }
 
-  validates :terrain, :starts_on, :ends_on, presence: true
-  validate :terrain_in_allowed_list
+  validates :starts_on, :ends_on, presence: true
   validate :ends_on_not_before_starts_on
 
   scope :for_date, ->(date) {
@@ -22,20 +25,21 @@ class TerrainClosure < ApplicationRecord
   scope :for_forms_upcoming, -> {
     today = Time.zone.today
     horizon = today + 6.months
-    intersecting_range(today, horizon).order(:starts_on, :terrain)
+    intersecting_range(today, horizon).order(:starts_on, :terrain_id)
   }
 
-  def self.covers?(terrain:, date:)
-    return false if terrain.blank? || date.blank?
+  def self.covers?(terrain_id:, date:)
+    return false if terrain_id.blank? || date.blank?
 
     d = date.respond_to?(:to_date) ? date.to_date : date
-    for_date(d).where(terrain: terrain).exists?
+    for_date(d).where(terrain_id: terrain_id).exists?
   end
 
   def self.as_json_for_forms
-    for_forms_upcoming.map do |c|
+    for_forms_upcoming.includes(:terrain).map do |c|
       {
-        terrain: c.terrain,
+        terrain_id: c.terrain_id,
+        terrain: c.terrain.name,
         starts_on: c.starts_on.iso8601,
         ends_on: c.ends_on.iso8601,
         reason: c.reason.presence
@@ -44,12 +48,6 @@ class TerrainClosure < ApplicationRecord
   end
 
   private
-
-  def terrain_in_allowed_list
-    return if terrain.blank?
-
-    errors.add(:terrain, "n'est pas un terrain valide") unless ALLOWED_TERRAINS.include?(terrain)
-  end
 
   def ends_on_not_before_starts_on
     return if starts_on.blank? || ends_on.blank?

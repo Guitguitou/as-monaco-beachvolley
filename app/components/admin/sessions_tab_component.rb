@@ -27,8 +27,8 @@ module Admin
     end
 
     def terrains
-      Session.terrain.values.map do |terrain|
-        { value: terrain, label: terrain }
+      Terrain.active.ordered.map do |terrain|
+        { value: terrain.id, label: terrain.name }
       end
     end
 

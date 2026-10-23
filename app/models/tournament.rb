@@ -9,6 +9,9 @@ class Tournament < ApplicationRecord
 
   has_many_attached :images
 
+  # Colonne `terrains` (ids), renommée en terrain_ids à la migration « contract ».
+  alias_attribute :terrain_ids, :terrains
+
   validates :title, :starts_on, :ends_on, :start_time, :end_time, presence: true
   validates :level, inclusion: { in: LEVELS }
   validates :price_cents, numericality: { greater_than: 0 }
@@ -16,7 +19,7 @@ class Tournament < ApplicationRecord
   validates :registration_link, format: { with: %r{\Ahttps?://}i, message: "doit commencer par http(s)://" }, allow_blank: true
   validate :ends_on_after_starts_on
   validate :end_time_after_start_time
-  validate :terrains_allowed
+  validate :terrains_known
 
   scope :upcoming, -> { where("ends_on >= ?", Date.current).order(:starts_on) }
   scope :past, -> { where("ends_on < ?", Date.current).order(starts_on: :desc) }
@@ -45,13 +48,17 @@ class Tournament < ApplicationRecord
     (starts_on..ends_on).to_a
   end
 
-  # Noms des terrains occupés, tels que Session les connaît ("Terrain 1"…).
-  def terrain_names
-    Session.terrains.invert.values_at(*terrains).compact
+  # Terrains occupés (terrain_ids est un tableau d'ids, sans clé étrangère).
+  def occupied_terrains
+    Terrain.where(id: terrain_ids).ordered
   end
 
-  def terrain_names=(names)
-    self.terrains = Array(names).compact_blank.map { |name| Session.terrains.fetch(name) }
+  def terrain_names
+    occupied_terrains.map(&:name)
+  end
+
+  def terrain_ids=(ids)
+    self.terrains = Array(ids).compact_blank.map(&:to_i).uniq
   end
 
   def pack
@@ -99,7 +106,7 @@ class Tournament < ApplicationRecord
     errors.add(:end_time, "doit être après l'heure de début") if end_time <= start_time
   end
 
-  def terrains_allowed
-    errors.add(:terrains, "contient un terrain inconnu") unless (terrains - Session.terrains.values).empty?
+  def terrains_known
+    errors.add(:terrain_ids, "contient un terrain inconnu") unless occupied_terrains.count == terrain_ids.size
   end
 end

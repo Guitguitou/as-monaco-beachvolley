@@ -72,7 +72,7 @@
       <div>
         <dt class="text-sm font-medium text-gray-500">Terrain</dt>
         <dd class="mt-1">
-          <%= render BadgeComponent.new(label: @session.terrain.to_s.split('_').last, variant: :neutral, size: :xs) %>
+          <%= render BadgeComponent.new(label: @session.terrain&.name, variant: :neutral, size: :xs) %>
         </dd>
       </div>
 
