@@ -77,6 +77,10 @@ Rails.application.routes.draw do
     patch "saison", to: "season#update"
     post "saison/reinitialiser", to: "season#reset", as: :reset_season
 
+    # Règles du club (prix, inscriptions, désinscription)
+    get "regles-du-club", to: "club_rules#edit", as: :club_rules
+    patch "regles-du-club", to: "club_rules#update"
+
     resources :users do
       post :adjust_credits, on: :member
       post :disable, on: :member

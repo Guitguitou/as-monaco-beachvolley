@@ -150,7 +150,7 @@
         required: false,
         html_options: { step: 900 }
       ) %>
-      <p class="text-xs text-gray-500 mt-1">Par défaut: 7 jours avant le début. Priorité compétition pendant 24h après l’ouverture.</p>
+      <p class="text-xs text-gray-500 mt-1">Par défaut: <%= ClubRules.current.registration_opening_days %> jours avant le début. Priorité compétition pendant <%= ClubRules.current.priority_window_hours %>h après l’ouverture.</p>
     </div>
   </div>
 
