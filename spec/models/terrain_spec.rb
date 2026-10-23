@@ -72,9 +72,32 @@ RSpec.describe Terrain, type: :model do
     end
   end
 
-  describe "#color_slot" do
-    it "répète les trois couleurs par position" do
-      expect([ 1, 2, 3, 4 ].map { |position| build(:terrain, position: position).color_slot }).to eq([ 1, 2, 3, 1 ])
+  describe "couleur" do
+    it "n'accepte qu'une couleur de la palette" do
+      expect(build(:terrain, color: "#ff0000")).not_to be_valid
+      expect(build(:terrain, color: "teal")).to be_valid
+    end
+
+    it "prend par défaut la première couleur de la palette encore libre" do
+      create(:terrain, color: "ocean")
+      create(:terrain, color: "gold")
+
+      expect(Terrain.new.color).to eq("ink")
+    end
+
+    it "expose la couleur de palette et le libellé court" do
+      terrain = build(:terrain, color: "gold", position: 3)
+
+      expect(terrain.palette_color).to have_attributes(swatch_class: "bg-terrain-gold", text_class: "text-ink")
+      expect(terrain.short_name).to eq("T3")
+    end
+  end
+
+  describe "position par défaut" do
+    it "place un nouveau terrain en dernier" do
+      create(:terrain, position: 7)
+
+      expect(Terrain.new.position).to eq(8)
     end
   end
 end

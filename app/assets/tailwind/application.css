@@ -38,6 +38,17 @@
 
   --color-sand: #f5e6d3;
 
+  /* Palette fermée des terrains (clés de Terrains::Palette). Les trois
+     premières reprennent les couleurs historiques des terrains 1 à 3. */
+  --color-terrain-ocean: var(--color-ocean);
+  --color-terrain-ink: var(--color-ink);
+  --color-terrain-gold: var(--color-gold);
+  --color-terrain-green: #15803d;
+  --color-terrain-purple: #6d28d9;
+  --color-terrain-orange: #c2410c;
+  --color-terrain-teal: #0f766e;
+  --color-terrain-pink: #be185d;
+
   /* Podiums et classements de la page Performances. Une animation CSS rejoue
      quand son élément repasse de `hidden` à visible : changer d'onglet refait
      monter les marches. */
@@ -122,22 +133,27 @@
 .fc-timegrid-event.status-unavailable { opacity: 0.7; }
 
 /* Le terrain garde sa couleur de club en bordure gauche épaisse, et sur son
-   libellé : le statut remplit l'événement, le terrain le signe. */
-.fc .fc-timegrid-event.terrain-1 { border-left: 5px solid var(--color-ocean) !important; }
-.fc .fc-timegrid-event.terrain-2 { border-left: 5px solid var(--color-ink) !important; }
-.fc .fc-timegrid-event.terrain-3 { border-left: 5px solid var(--color-gold) !important; }
-.fc .fc-timegrid-event.status-registered.terrain-2 { border-left-color: #000000 !important; }
+   libellé : le statut remplit l'événement, le terrain le signe.
+   Une classe `terrain-<clé>` par couleur de Terrains::Palette ne fait que
+   fixer deux variables ; les règles communes les lisent. */
+.terrain-ocean { --terrain-color: var(--color-terrain-ocean); --terrain-text: #ffffff; }
+.terrain-ink { --terrain-color: var(--color-terrain-ink); --terrain-text: #ffffff; }
+.terrain-gold { --terrain-color: var(--color-terrain-gold); --terrain-text: var(--color-ink); }
+.terrain-green { --terrain-color: var(--color-terrain-green); --terrain-text: #ffffff; }
+.terrain-purple { --terrain-color: var(--color-terrain-purple); --terrain-text: #ffffff; }
+.terrain-orange { --terrain-color: var(--color-terrain-orange); --terrain-text: #ffffff; }
+.terrain-teal { --terrain-color: var(--color-terrain-teal); --terrain-text: #ffffff; }
+.terrain-pink { --terrain-color: var(--color-terrain-pink); --terrain-text: #ffffff; }
 
-.terrain-1 .fc-brand-terrain,
-.terrain-2 .fc-brand-terrain,
-.terrain-3 .fc-brand-terrain {
+.fc .fc-timegrid-event.has-terrain { border-left: 5px solid var(--terrain-color) !important; }
+.fc .fc-timegrid-event.status-registered.terrain-ink { border-left-color: #000000 !important; }
+
+.has-terrain .fc-brand-terrain {
   padding: 0 4px;
   border-radius: 0;
-  color: #ffffff;
+  background: var(--terrain-color);
+  color: var(--terrain-text);
 }
-.terrain-1 .fc-brand-terrain { background: var(--color-ocean); }
-.terrain-2 .fc-brand-terrain { background: var(--color-ink); }
-.terrain-3 .fc-brand-terrain { background: var(--color-gold); color: var(--color-ink); }
 .fc-timegrid-event.status-unavailable .fc-brand-terrain { opacity: 0.6; }
 
 /* FullCalendar impose sa propre couleur de texte au contenu de l'événement. */

@@ -1,0 +1,36 @@
+<%# Couleur : palette fermée (Terrains::Palette), une pastille par radio. %>
+<%= form_with model: [:admin, terrain], class: "space-y-6 max-w-md bg-white p-6 rounded-none shadow-md" do |f| %>
+  <%= render "shared/form_errors", object: terrain %>
+
+  <div>
+    <%= render FormFieldComponent.new(
+      form: f,
+      attribute: :name,
+      type: :text_field,
+      label: "Nom",
+      required: true
+    ) %>
+    <% if terrain.persisted? %>
+      <p class="mt-1 text-xs text-gray-500">Le nouveau nom s'affiche partout, y compris sur les sessions passées.</p>
+    <% end %>
+  </div>
+
+  <fieldset>
+    <legend class="block text-sm font-medium text-gray-700 mb-2">Couleur</legend>
+    <div class="grid grid-cols-2 gap-2">
+      <% Terrains::Palette::COLORS.each do |color| %>
+        <label class="flex items-center gap-2 rounded-none border border-gray-200 px-3 py-2 text-sm text-gray-800 cursor-pointer has-[:checked]:border-brand has-[:checked]:bg-brand/5">
+          <%= f.radio_button :color, color.key, class: "accent-brand" %>
+          <span class="inline-block size-4 rounded-none <%= color.swatch_class %>" aria-hidden="true"></span>
+          <%= color.label %>
+        </label>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <div>
+    <%= render ButtonComponent.new(type: :submit, class: "w-full") do %>
+      <%= lucide_icon("save", size: 16) %> Enregistrer
+    <% end %>
+  </div>
+<% end %>

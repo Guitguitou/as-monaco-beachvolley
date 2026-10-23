@@ -92,6 +92,13 @@ Rails.application.routes.draw do
     resources :levels
     resources :groups, only: [ :index ]
     resources :claude_connections, only: [ :index, :destroy ], path: "connexions-claude"
+    resources :terrains, except: [ :show ] do
+      member do
+        patch :move
+        patch :archive
+        patch :unarchive
+      end
+    end
     resources :terrain_closures, except: [ :show ]
     resources :stages, only: [ :index, :show, :new, :create, :edit, :update ]
     resources :tournaments do

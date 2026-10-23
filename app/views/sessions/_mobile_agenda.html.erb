@@ -10,7 +10,6 @@
      "ok" => "bg-green-100 text-green-800",
      "full" => "bg-gray-100 text-gray-500"
    } %>
-<% terrain_tones = { "T1" => "bg-ocean text-white", "T2" => "bg-ink text-white", "T3" => "bg-gold text-ink" } %>
 
 <section class="sm:hidden mt-2" aria-label="Agenda de la semaine">
   <%# Bandeau des jours %>
@@ -55,7 +54,7 @@
                 data: { turbo_frame: "session_preview", action: "dialog#open" },
                 class: "snap-start shrink-0 w-[78%] rounded-none px-4 py-3 #{registration.waitlisted? ? 'border-2 border-dashed border-orange-400 bg-orange-50 text-orange-900' : 'bg-brand text-white'}" do %>
             <span class="block text-[11px] font-bold uppercase tracking-wide opacity-90">
-              <%= l(s.start_at, format: "%a %d · %Hh%M") %> · <%= "T#{s.terrain&.position}" %>
+              <%= l(s.start_at, format: "%a %d · %Hh%M") %> · <%= s.terrain&.short_name %>
             </span>
             <span class="mt-1 block font-semibold truncate"><%= registration.waitlisted? ? s.title : "✓ #{s.title}" %></span>
             <span class="block text-xs opacity-90"><%= registration.waitlisted? ? "Liste d'attente" : "Inscrit" %></span>
@@ -87,7 +86,8 @@
                 <span class="block font-semibold text-gray-900 truncate"><%= event[:title] %></span>
                 <span class="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
                   <% if event[:terrainShort].present? %>
-                    <span class="font-bebas-neue px-1 text-[13px] leading-tight tracking-wider <%= terrain_tones[event[:terrainShort]] %>"><%= event[:terrainShort] %></span>
+                    <% tone = Terrains::Palette.fetch(event[:terrainColor]) %>
+                    <span class="font-bebas-neue px-1 text-[13px] leading-tight tracking-wider <%= tone&.swatch_class %> <%= tone&.text_class %>"><%= event[:terrainShort] %></span>
                   <% end %>
                   <span class="truncate"><%= event[:coachName] %></span>
                 </span>

@@ -52,10 +52,11 @@ module Sessions
         start: session.start_at.iso8601,
         end: session.end_at.iso8601,
         url: @url_for.call(session),
-        classNames: [ "status-#{status}", terrain_class(session.terrain) ],
+        classNames: [ "status-#{status}", *terrain_classes(session.terrain) ],
         status: status,
         terrain: session.terrain_id,
-        terrainShort: session.terrain ? "T#{session.terrain.position}" : "",
+        terrainShort: session.terrain&.short_name.to_s,
+        terrainColor: session.terrain&.color,
         forMe: for_me,
         coachName: session.user&.full_name,
         confirmedCount: count,
@@ -65,8 +66,8 @@ module Sessions
       }
     end
 
-    def terrain_class(terrain)
-      terrain ? "terrain-#{terrain.color_slot}" : "terrain-unknown"
+    def terrain_classes(terrain)
+      terrain ? [ "has-terrain", "terrain-#{terrain.color}" ] : [ "terrain-unknown" ]
     end
 
     def status_for(session, count, for_me)

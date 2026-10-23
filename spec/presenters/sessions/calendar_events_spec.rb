@@ -23,7 +23,7 @@ RSpec.describe Sessions::CalendarEvents do
     create(:registration, user: player, session: registered, status: :confirmed)
     create(:registration, user: player, session: waitlisted, status: :waitlisted)
 
-    expect(event_for(registered)).to include(status: "registered", classNames: [ "status-registered", "terrain-2" ])
+    expect(event_for(registered)).to include(status: "registered", classNames: [ "status-registered", "has-terrain", "terrain-ink" ])
     expect(event_for(waitlisted)[:status]).to eq("waitlisted")
     expect(event_for(open)[:status]).to eq("open")
   end
@@ -32,7 +32,7 @@ RSpec.describe Sessions::CalendarEvents do
     full = free_play(max_players: 1)
     create(:registration, user: create(:user), session: full, status: :confirmed)
 
-    expect(event_for(full)).to include(status: "unavailable", confirmedCount: 1, maxPlayers: 1, terrainShort: "T2",
+    expect(event_for(full)).to include(status: "unavailable", confirmedCount: 1, maxPlayers: 1, terrainShort: "T2", terrainColor: "ink",
                                        statusText: "Complet", statusTone: "full")
   end
 

@@ -38,9 +38,9 @@
       <span class="inline-block w-4 h-3 rounded-none status-swatch-unavailable"></span> Complet ou hors niveau
     </span>
     <span class="flex items-center gap-1.5 sm:ml-2">
-      <span class="inline-block w-1.5 h-3 bg-ocean"></span>T1
-      <span class="inline-block w-1.5 h-3 bg-ink ml-1"></span>T2
-      <span class="inline-block w-1.5 h-3 bg-gold ml-1"></span>T3
+      <% Terrain.active.ordered.each_with_index do |terrain, index| %>
+        <span class="inline-block w-1.5 h-3 <%= terrain.palette_color.swatch_class %> <%= 'ml-1' if index.positive? %>"></span><%= terrain.short_name %>
+      <% end %>
     </span>
   </div>
 <% end %>

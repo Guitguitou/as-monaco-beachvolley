@@ -46,12 +46,7 @@ class SessionCardComponent < ApplicationComponent
   # nommé et coloré par sa pastille juste en dessous. Reprend les couleurs du
   # calendrier pour que le joueur reconnaisse son terrain avant de lire.
   def terrain_bar_classes
-    case session.terrain&.color_slot
-    when 1 then "bg-[#0052a3]"
-    when 2 then "bg-[#1a1a1a]"
-    when 3 then "bg-[#d4af37]"
-    else "bg-gray-300"
-    end
+    session.terrain&.palette_color&.swatch_class || "bg-gray-300"
   end
 
   delegate :title, :day_label, :time_range, :terrain_label, to: :schedule

@@ -6,11 +6,12 @@
 # reste affiché sur les anciennes sessions.
 # Navigation unidirectionnelle : Session et TerrainClosure portent terrain_id.
 class Terrain < ApplicationRecord
-  # Couleurs de terrain définies dans le CSS (.terrain-1 … .terrain-3) et les
-  # cartes ; attribuées par position, elles se répètent au-delà.
-  COLOR_COUNT = 3
   validates :name, presence: true, uniqueness: true
   validates :position, numericality: { only_integer: true }
+  validates :color, inclusion: { in: Terrains::Palette::KEYS }
+
+  # Nouveau terrain : en dernière position, avec une couleur encore libre.
+  after_initialize :assign_defaults, if: :new_record?
 
   before_destroy :prevent_destroy_with_history
 
@@ -39,8 +40,13 @@ class Terrain < ApplicationRecord
       Tournament.where("? = ANY(terrains)", id).exists?
   end
 
-  def color_slot
-    (position - 1) % COLOR_COUNT + 1
+  def palette_color
+    Terrains::Palette.fetch(color)
+  end
+
+  # Libellé court du calendrier et des légendes (« T1 »).
+  def short_name
+    "T#{position}"
   end
 
   def to_s
@@ -48,6 +54,11 @@ class Terrain < ApplicationRecord
   end
 
   private
+
+  def assign_defaults
+    self.position ||= (Terrain.maximum(:position) || 0) + 1
+    self.color ||= Terrains::Palette.first_unused(Terrain.distinct.pluck(:color))
+  end
 
   def prevent_destroy_with_history
     return unless history?
