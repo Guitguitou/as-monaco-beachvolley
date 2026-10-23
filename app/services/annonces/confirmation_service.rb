@@ -4,7 +4,7 @@ module Annonces
   # disponibles sur ce créneau. Les joueurs insolvables ou en conflit d'agenda
   # sont ignorés (retournés dans `skipped`), sans faire échouer l'ensemble.
   #
-  #   result = Annonces::ConfirmationService.new(annonce:, slot:, terrain:).call
+  #   result = Annonces::ConfirmationService.new(annonce:, slot:, terrain:).call  # terrain : un Terrain
   #   result.session   # la Session créée
   #   result.registered / result.skipped  # joueurs inscrits / ignorés
   class ConfirmationService

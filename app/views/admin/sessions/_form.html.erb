@@ -46,23 +46,23 @@
   <div>
     <%= render FormFieldComponent.new(
       form: f,
-      attribute: :terrain,
+      attribute: :terrain_id,
       type: :select,
       label: "Terrain",
       required: false,
       select_options: { include_blank: false },
-      options: options_for_select(Session.terrains.keys.map { |t| ["Terrain #{t.to_s.split('_').last}", t] }, session.terrain),
+      options: terrain_options_for_select(session.terrain_id),
       html_options: { data: { session_form_target: "terrain" } }
     ) %>
     <p class="mt-1 text-sm text-amber-700 hidden" data-session-form-target="terrainWarning">Terrain indisponible à cette date.</p>
   </div>
 
-  <!-- Option admin: créer sur les 3 terrains -->
+  <!-- Option admin: créer sur tous les terrains -->
   <div class="flex items-start gap-2">
     <%= check_box_tag 'session[create_on_all_terrains]', '1', false, id: 'session_create_on_all_terrains', class: "mt-1 h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red" %>
     <div>
-      <label for="session_create_on_all_terrains" class="text-sm font-medium text-gray-900">Créer la même session sur les 3 terrains</label>
-      <p class="text-xs text-gray-500">Cree 3 sessions identiques, une par terrain (1, 2 et 3).</p>
+      <label for="session_create_on_all_terrains" class="text-sm font-medium text-gray-900">Créer la même session sur tous les terrains</label>
+      <p class="text-xs text-gray-500">Crée une session identique par terrain actif.</p>
     </div>
   </div>
 

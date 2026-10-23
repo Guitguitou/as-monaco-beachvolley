@@ -6,7 +6,7 @@ RSpec.describe "Tournois", type: :request do
   let(:admin) { create(:user, :admin) }
   let(:user) { create(:user) }
   let(:tournament) do
-    build(:tournament, terrain_names: [ "Terrain 1" ]).tap do |t|
+    build(:tournament, terrain_ids: FactoryHelpers.terrain_ids("Terrain 1")).tap do |t|
       Tournaments::Save.new(tournament: t, owner: admin).call
     end
   end
@@ -61,13 +61,14 @@ RSpec.describe "Tournois", type: :request do
       post admin_tournaments_path, params: { tournament: {
         title: "Tournoi mixte", starts_on: Date.current + 3.weeks, ends_on: Date.current + 3.weeks,
         start_time: "10:00", end_time: "16:00", level: "S3", points: 150, price: 30,
-        registration_link: "https://bvs.example.com", terrain_names: [ "", "Terrain 2" ], images: [ image ]
+        registration_link: "https://bvs.example.com", terrain_ids: [ "", FactoryHelpers.resolve_terrain("Terrain 2").id ], images: [ image ]
       } }
 
       created = Tournament.last
       expect(response).to redirect_to(admin_tournament_path(created))
       expect(created.images.count).to eq(1)
-      expect(created.sessions.pluck(:terrain)).to eq([ "Terrain 2" ])
+      expect(created.terrain_ids).to eq([ FactoryHelpers.resolve_terrain("Terrain 2").id ])
+      expect(created.sessions.map { |session| session.terrain.name }).to eq([ "Terrain 2" ])
       expect(created.pack.active).to be(false)
     end
 

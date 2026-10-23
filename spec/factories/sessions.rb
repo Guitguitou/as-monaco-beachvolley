@@ -9,9 +9,17 @@ FactoryBot.define do
     sequence(:start_at) { |n| 1.hour.from_now.change(min: 0) + (n - 1) * 2.hours }
     end_at { start_at + 90.minutes }
     session_type { "entrainement" }
-    terrain { "Terrain 1" }
     user
     max_players { 12 }
+
+    # `terrain` : nom, Terrain ou nil (cf. FactoryHelpers.resolve_terrain).
+    transient do
+      terrain { "Terrain 1" }
+    end
+
+    after(:build) do |session, evaluator|
+      session.terrain = FactoryHelpers.resolve_terrain(evaluator.terrain)
+    end
 
     trait :jeu_libre do
       session_type { "jeu_libre" }

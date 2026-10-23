@@ -9,7 +9,7 @@
         <div class="min-w-0">
           <h1 class="text-2xl font-bold text-gray-900"><%= @session.title.presence || @session.display_name %></h1>
           <div class="mt-2 flex items-center gap-2 flex-wrap text-sm">
-            <%= render BadgeComponent.new(label: @session.terrain.to_s.split('_').last, variant: :neutral, size: :xs) %>
+            <%= render BadgeComponent.new(label: @session.terrain&.name, variant: :neutral, size: :xs) %>
             <% if @session.levels.any? %>
               <% @session.levels.each do |level| %>
                 <%= render BadgeComponent.new(label: level.name, variant: :neutral, size: :xs) %>

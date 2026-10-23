@@ -6,7 +6,7 @@ module Admin
     before_action :set_terrain_closure, only: [ :edit, :update, :destroy ]
 
     def index
-      @terrain_closures = TerrainClosure.order(starts_on: :desc, terrain: :asc)
+      @terrain_closures = TerrainClosure.includes(:terrain).order(starts_on: :desc, terrain_id: :asc)
     end
 
     def new
@@ -44,7 +44,7 @@ module Admin
     end
 
     def terrain_closure_params
-      params.require(:terrain_closure).permit(:terrain, :starts_on, :ends_on, :reason)
+      params.require(:terrain_closure).permit(:terrain_id, :starts_on, :ends_on, :reason)
     end
   end
 end

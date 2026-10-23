@@ -42,7 +42,7 @@ module Mcp
 
         def scope(start_on, end_on, session_type, level_id)
           sessions = Session.where(start_at: start_on.beginning_of_day..end_on.end_of_day)
-                            .includes(:user, :levels)
+                            .includes(:user, :levels, :terrain)
                             .ordered_by_start
                             .limit(MAX_RESULTS)
           sessions = sessions.where(session_type: session_type) if session_type.present?
@@ -63,7 +63,7 @@ module Mcp
             session_type: session.session_type,
             start_at: paris_time(session.start_at),
             end_at: paris_time(session.end_at),
-            terrain: session.terrain,
+            terrain: session.terrain&.name,
             **encadrant(session),
             cancelled: session.cancelled?,
             cancellation_reason: session.cancellation_reason,

@@ -6,12 +6,14 @@ class SessionsController < ApplicationController
   before_action :set_session, only: [ :show, :preview, :edit, :update, :destroy, :calendar, :cancel ]
 
   def index
+    return redirect_to(sessions_path(request.query_parameters.merge("terrain" => Terrain.resolve(params[:terrain])&.id))) if legacy_terrain_param?
+
     @view = params[:view].presence_in(%w[grid calendar]) || "calendar"
     @for_me = ActiveModel::Type::Boolean.new.cast(params[:for_me])
     filter = Sessions::ListingFilter.new(terrain: params[:terrain], for_me: @for_me, level_ids: current_user.levels.pluck(:id))
 
     if @view == "calendar"
-      sessions = filter.apply(Session.held.includes(:levels, :user).order(start_at: :desc))
+      sessions = filter.apply(Session.held.includes(:levels, :user, :terrain).order(start_at: :desc))
       calendar = Sessions::CalendarEvents.new(user: current_user, sessions: sessions, url_for: ->(s) { helpers.sessions_calendar_event_path(s) })
       @events = calendar.sessions
       @closures = calendar.closures
@@ -102,6 +104,12 @@ class SessionsController < ApplicationController
 
   private
 
+  # Ancien lien `?terrain=Terrain 1` : redirigé vers `?terrain=<id>`, seule
+  # forme que le calendrier sait filtrer côté client.
+  def legacy_terrain_param?
+    params[:terrain].present? && !params[:terrain].to_s.match?(/\A\d+\z/)
+  end
+
   def sessions_index_redirect_params
     Sessions::ReturnParams.from(params).merge(date: @session.start_at.strftime("%Y-%m-%d"))
   end
@@ -117,7 +125,7 @@ class SessionsController < ApplicationController
   def session_params
     params.require(:session).permit(
       :title, :description, :start_at, :end_at,
-      :session_type, :max_players, :terrain, :user_id, :price, :cancellation_deadline_at, :coach_notes,
+      :session_type, :max_players, :terrain_id, :user_id, :price, :cancellation_deadline_at, :coach_notes,
       participant_ids: [],
       registrations_attributes: [ :id, :user_id, :_destroy ],
       level_ids: []

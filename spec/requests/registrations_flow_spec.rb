@@ -24,8 +24,9 @@ RSpec.describe "Registrations flow", type: :request do
     d = other_session.start_at.to_date.iso8601
     post session_registrations_path(other_session), params: { view: "calendar", date: d, terrain: "Terrain 1" }
 
+    # L'ancien nom de terrain est ramené à son id dans les paramètres de retour.
     expect(response).to redirect_to(
-      session_path(other_session, view: "calendar", date: d, terrain: "Terrain 1")
+      session_path(other_session, view: "calendar", date: d, terrain: other_session.terrain_id)
     )
   end
 

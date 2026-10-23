@@ -17,12 +17,12 @@ RSpec.describe Annonces::ConfirmationService do
     available_player
     available_player
 
-    result = described_class.new(annonce: annonce, slot: slot, terrain: "Terrain 2").call
+    result = described_class.new(annonce: annonce, slot: slot, terrain: FactoryHelpers.resolve_terrain("Terrain 2")).call
 
     session = result.session
     expect(session).to be_persisted
     expect(session.session_type).to eq("jeu_libre")
-    expect(session.terrain).to eq("Terrain 2")
+    expect(session.terrain.name).to eq("Terrain 2")
     expect(session.start_at).to eq(start_at)
     expect(session.user).to eq(creator)
   end
@@ -31,7 +31,7 @@ RSpec.describe Annonces::ConfirmationService do
     p1 = available_player
     p2 = available_player
 
-    result = described_class.new(annonce: annonce, slot: slot, terrain: "Terrain 1").call
+    result = described_class.new(annonce: annonce, slot: slot, terrain: FactoryHelpers.resolve_terrain("Terrain 1")).call
 
     expect(result.registered).to match_array([ p1, p2 ])
     expect(result.session.participants).to match_array([ p1, p2 ])
@@ -42,7 +42,7 @@ RSpec.describe Annonces::ConfirmationService do
     solvent = available_player
     broke = available_player(credits: 0)
 
-    result = described_class.new(annonce: annonce, slot: slot, terrain: "Terrain 1").call
+    result = described_class.new(annonce: annonce, slot: slot, terrain: FactoryHelpers.resolve_terrain("Terrain 1")).call
 
     expect(result.registered).to eq([ solvent ])
     expect(result.skipped).to eq([ broke ])
@@ -53,7 +53,7 @@ RSpec.describe Annonces::ConfirmationService do
     available_player
     available_player
 
-    result = described_class.new(annonce: annonce, slot: slot, terrain: "Terrain 1").call
+    result = described_class.new(annonce: annonce, slot: slot, terrain: FactoryHelpers.resolve_terrain("Terrain 1")).call
 
     expect(annonce.reload).to be_confirmed
     expect(annonce.session).to eq(result.session)

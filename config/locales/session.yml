@@ -38,6 +38,7 @@ fr:
               blank: "L'organisateur est obligatoire"
             terrain:
               blank: "Le terrain est obligatoire"
+              required: "Le terrain est obligatoire"
             registrations:
               too_many_participants: "le nombre de participants ne peut pas dépasser %{max_players}"
               duplicate_participant: "ne peut participer qu'une seule fois à une session"
@@ -49,10 +50,6 @@ fr:
       jeu_libre: "Jeu libre"
       tournoi: "Tournoi"
       coaching_prive: "Coaching privé"
-    terrains:
-      "1": "Terrain 1"
-      "2": "Terrain 2"
-      "3": "Terrain 3"
     messages:
       created: "Session créée avec succès"
       updated: "Session mise à jour avec succès"

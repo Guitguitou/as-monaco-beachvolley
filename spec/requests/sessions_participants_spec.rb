@@ -19,7 +19,7 @@ RSpec.describe "Sessions participants sync (public flow)", type: :request do
         title: 'Entrainement du soir',
         description: 'Test',
         session_type: 'entrainement',
-        terrain: 'Terrain 1',
+        terrain_id: FactoryHelpers.resolve_terrain('Terrain 1').id,
         user_id: coach.id,
         start_at: 1.hour.from_now.change(sec: 0).strftime('%Y-%m-%dT%H:%M'),
         end_at: 2.hours.from_now.change(sec: 0).strftime('%Y-%m-%dT%H:%M'),

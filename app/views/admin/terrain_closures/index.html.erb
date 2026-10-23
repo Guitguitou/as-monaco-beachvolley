@@ -25,7 +25,7 @@
       <% @terrain_closures.each do |closure| %>
         <tr class="hover:bg-gray-50 transition-colors">
           <td class="px-4 sm:px-6 py-4 font-medium text-gray-800">
-            <%= closure.terrain %>
+            <%= closure.terrain.name %>
           </td>
           <td class="px-4 sm:px-6 py-4 text-gray-700">
             <%= l(closure.starts_on, format: :default) %>

@@ -35,7 +35,7 @@ class SessionMailerPreview < ActionMailer::Preview
         session_type: "jeu_libre",
         start_at: Time.zone.local(Date.current.year, 6, 15, 19, 30),
         end_at: Time.zone.local(Date.current.year, 6, 15, 21, 0),
-        terrain: "Terrain 1",
+        terrain: Terrain.find_or_initialize_by(name: "Terrain 1"),
         max_players: 12,
         user: preview_user
       )

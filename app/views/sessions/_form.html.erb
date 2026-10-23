@@ -50,11 +50,11 @@
         <div>
           <%= render FormFieldComponent.new(
             form: f,
-            attribute: :terrain,
+            attribute: :terrain_id,
             type: :select,
             label: "Terrain",
             required: true,
-            options: options_for_select(Session.terrains.keys, session.terrain),
+            options: terrain_options_for_select(session.terrain_id),
             html_options: { data: { session_form_target: "terrain" } }
           ) %>
           <p class="mt-1 text-sm text-amber-700 hidden" data-session-form-target="terrainWarning">Terrain indisponible à cette date.</p>

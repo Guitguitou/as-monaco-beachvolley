@@ -8,7 +8,7 @@ module Sessions
     def initialize(user:, sessions:)
       @user = user
       # `registrations: :user` alimente les avatars des inscrits sur les cartes.
-      @sessions = sessions.includes(:levels, :user, registrations: :user).to_a
+      @sessions = sessions.includes(:levels, :user, :terrain, registrations: :user).to_a
     end
 
     def registered

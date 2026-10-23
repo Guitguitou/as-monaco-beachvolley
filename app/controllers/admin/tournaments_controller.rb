@@ -11,7 +11,7 @@ module Admin
     end
 
     def new
-      @tournament.assign_attributes(start_time: "10:00", end_time: "16:00", level: "S3", terrains: Session.terrains.values)
+      @tournament.assign_attributes(start_time: "10:00", end_time: "16:00", level: "S3", terrain_ids: Terrain.active.ids)
     end
 
     def create
@@ -68,7 +68,7 @@ module Admin
     def tournament_params
       params.require(:tournament).permit(
         :title, :description, :starts_on, :ends_on, :start_time, :end_time, :level, :points,
-        :teams_count, :location, :registration_link, :price, terrain_names: []
+        :teams_count, :location, :registration_link, :price, terrain_ids: []
       )
     end
   end
