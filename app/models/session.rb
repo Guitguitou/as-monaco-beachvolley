@@ -1,14 +1,4 @@
 class Session < ApplicationRecord
-  TRAINING_PRICE = 400
-  FREE_PLAY_PRICE = 300
-  PRIVATE_COACHING_PRICE = 1500
-  STAGE_PRICE = 0
-  PRICE_BY_TYPE = {
-    "entrainement" => TRAINING_PRICE,
-    "jeu_libre" => FREE_PLAY_PRICE,
-    "coaching_prive" => PRIVATE_COACHING_PRICE,
-    "stage" => STAGE_PRICE
-  }.freeze
   belongs_to :user
   belongs_to :tournament, optional: true
   # La colonne historique `terrain` (entier de l'ancien enum) reste en base
@@ -76,9 +66,6 @@ class Session < ApplicationRecord
   end
   scope :ordered_by_start, -> { order(:start_at) }
 
-
-  PRIORITY_WINDOW_HOURS = 24
-  REGISTRATION_DEADLINE_HOUR = 17 # 17h le jour J
 
   # Returns [boolean, reason]
   # Enforces registration opening rules for trainings with a 24h priority

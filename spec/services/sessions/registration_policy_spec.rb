@@ -25,7 +25,24 @@ RSpec.describe Sessions::RegistrationPolicy do
 
       allowed, reason = policy.open_state
       expect(allowed).to be(false)
-      expect(reason).to include("Priorité licence compétition")
+      expect(reason).to include("Priorité licence compétition pendant 24h")
+    end
+
+    context "with other club rules" do
+      let(:rules) { ClubRules.default.with(priority_window_hours: 1, registration_deadline_hour: 10) }
+
+      it "uses the injected priority window" do
+        rules = ClubRules.default.with(priority_window_hours: 1)
+
+        expect(described_class.new(session: session_record, user: user, rules: rules).open_state).to eq([ true, nil ])
+      end
+
+      it "uses the injected registration deadline" do
+        allowed, reason = described_class.new(session: session_record, user: user, rules: rules).open_state
+
+        expect(allowed).to be(false)
+        expect(reason).to include("limite : 10h")
+      end
     end
   end
 end

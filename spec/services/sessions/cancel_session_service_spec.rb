@@ -66,6 +66,6 @@ RSpec.describe Sessions::CancelSessionService do
 
     expect {
       described_class.call(session: coaching, reason: "absence_encadrant")
-    }.to change { coach.reload.credit_balance }.by(Session::PRIVATE_COACHING_PRICE)
+    }.to change { coach.reload.credit_balance }.by(ClubRules.current.price_for("coaching_prive"))
   end
 end
