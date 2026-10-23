@@ -33,7 +33,7 @@ RSpec.describe "Sessions participants sync (public flow)", type: :request do
     }.to change { player.reload.credit_transactions.count }.by(1)
 
     last = player.credit_transactions.order(:id).last
-    expect(last.amount).to eq(-Session::TRAINING_PRICE)
+    expect(last.amount).to eq(-ClubRules.current.price_for("entrainement"))
   end
 
   context "when a participant is removed after the cancellation deadline" do

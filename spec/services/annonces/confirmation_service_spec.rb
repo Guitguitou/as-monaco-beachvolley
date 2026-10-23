@@ -35,7 +35,7 @@ RSpec.describe Annonces::ConfirmationService do
 
     expect(result.registered).to match_array([ p1, p2 ])
     expect(result.session.participants).to match_array([ p1, p2 ])
-    expect(p1.reload.balance.amount).to eq(10_000 - Session::FREE_PLAY_PRICE)
+    expect(p1.reload.balance.amount).to eq(10_000 - ClubRules.current.price_for("jeu_libre"))
   end
 
   it "ignore les joueurs insolvables sans faire échouer la session" do

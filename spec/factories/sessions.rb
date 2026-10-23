@@ -37,7 +37,7 @@ FactoryBot.define do
 
       # Un coaching privé n'est créable que si le coach peut le payer.
       before(:create) do |session|
-        needed = Session::PRICE_BY_TYPE["coaching_prive"].to_i
+        needed = ClubRules.current.price_for("coaching_prive")
         missing = needed - session.user.balance.amount
         if missing.positive?
           CreditTransaction.record!(

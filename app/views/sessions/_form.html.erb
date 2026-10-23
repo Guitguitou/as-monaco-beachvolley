@@ -7,7 +7,7 @@
                 data: {
                   controller: "session-form late-removal",
                   action: "submit->late-removal#confirm",
-                  session_form_prices_value: Session::PRICE_BY_TYPE,
+                  session_form_prices_value: ClubRules.current.price_by_type,
                   session_form_terrain_closures_value: terrain_closures_json_for_forms
                 },
                 class: "space-y-12" do |f| %>

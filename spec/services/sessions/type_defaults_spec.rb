@@ -10,7 +10,7 @@ RSpec.describe Sessions::TypeDefaults do
 
     described_class.apply(session)
 
-    expect(session.price).to eq(Session::TRAINING_PRICE)
+    expect(session.price).to eq(ClubRules.current.price_for("entrainement"))
     expect(described_class.apply(Session.new(session_type: "tournoi")).price).to eq(0)
   end
 
@@ -34,5 +34,15 @@ RSpec.describe Sessions::TypeDefaults do
     session = described_class.apply(Session.new(session_type: "jeu_libre", start_at: start_at, registration_opens_at: start_at - 1.day))
 
     expect([ session.registration_opens_at, session.cancellation_deadline_at ]).to eq([ nil, nil ])
+  end
+
+  it "follows injected club rules" do
+    rules = ClubRules.default.with(price_by_type: { "entrainement" => 900 }, registration_opening_days: 3,
+                                   cancellation_deadline_hour: 20)
+    session = described_class.apply(Session.new(session_type: "entrainement", start_at: start_at), rules: rules)
+
+    expect(session.price).to eq(900)
+    expect(session.registration_opens_at).to eq(start_at - 3.days)
+    expect(session.cancellation_deadline_at).to eq(Time.zone.local(2030, 3, 13, 20, 0))
   end
 end

@@ -5,8 +5,6 @@ module Admin
   # année), à partir de l'ancre passée dans l'URL, et ses voisines pour la
   # navigation précédent / suivant.
   class SessionsPeriod
-    TIMEZONE = "Europe/Paris"
-
     Unit = Data.define(:step, :anchor_format, :anchor_suffix, :bounds, :label)
 
     UNITS = {
@@ -30,15 +28,15 @@ module Admin
     attr_reader :name, :range
 
     # Semaine, mois et année en cours.
-    def self.current_ranges(now: Time.current)
-      UNITS.keys.to_h { |name| [ name.to_sym, new(name, nil, now:).range ] }
+    def self.current_ranges(now: Time.current, rules: ClubRules.current)
+      UNITS.keys.to_h { |name| [ name.to_sym, new(name, nil, now:, rules:).range ] }
     end
 
-    def initialize(name, anchor, now: Time.current)
+    def initialize(name, anchor, now: Time.current, rules: ClubRules.current)
       @name = UNITS.key?(name) ? name : "week"
       @unit = UNITS.fetch(@name)
       time = anchor.present? ? Time.zone.parse("#{anchor}#{@unit.anchor_suffix}") : now
-      @range = Range.new(*@unit.bounds.call(time.in_time_zone(TIMEZONE)))
+      @range = Range.new(*@unit.bounds.call(time.in_time_zone(rules.time_zone)))
     end
 
     def label

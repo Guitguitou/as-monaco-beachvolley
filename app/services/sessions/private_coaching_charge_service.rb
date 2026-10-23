@@ -1,7 +1,8 @@
 module Sessions
   class PrivateCoachingChargeService
-    def initialize(session:)
+    def initialize(session:, rules: ClubRules.current)
       @session = session
+      @rules = rules
     end
 
     def coach_can_pay?
@@ -14,10 +15,10 @@ module Sessions
 
     private
 
-    attr_reader :session
+    attr_reader :session, :rules
 
     def coaching_price
-      Session::PRICE_BY_TYPE.fetch("coaching_prive")
+      rules.price_for("coaching_prive")
     end
   end
 end
