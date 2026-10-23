@@ -45,8 +45,15 @@ class Terrain < ApplicationRecord
   end
 
   # Libellé court du calendrier et des légendes (« T1 »).
+  # Libellé court tiré du nom, stable quel que soit l'ordre :
+  # « Terrain 3 » → « T3 », « Court central » → « CC », « Central » → « CEN ».
   def short_name
-    "T#{position}"
+    words = name.to_s.split
+    number = name.to_s[/\d+\z/]
+    return "#{words.first[0].upcase}#{number}" if number && words.size > 1
+    return words.map { |word| word[0] }.join.upcase.first(3) if words.size > 1
+
+    name.to_s.first(3).upcase
   end
 
   def to_s
