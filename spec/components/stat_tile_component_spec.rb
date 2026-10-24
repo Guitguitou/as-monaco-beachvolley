@@ -20,7 +20,7 @@ RSpec.describe StatTileComponent, type: :component do
 
     link = page.find("a")
     expect(link[:href]).to eq("/packs")
-    expect(link[:class]).to include("hover:border-asmbv-red")
+    expect(link[:class]).to include("hover:border-brand")
   end
 
   # Les onglets du profil vivent dans un turbo_frame : un lien sortant doit

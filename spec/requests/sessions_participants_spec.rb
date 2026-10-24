@@ -19,7 +19,7 @@ RSpec.describe "Sessions participants sync (public flow)", type: :request do
         title: 'Entrainement du soir',
         description: 'Test',
         session_type: 'entrainement',
-        terrain: 'Terrain 1',
+        terrain_id: FactoryHelpers.resolve_terrain('Terrain 1').id,
         user_id: coach.id,
         # Demain : le jour même, les inscriptions ferment à 17h
         start_at: 1.day.from_now.change(hour: 18).strftime('%Y-%m-%dT%H:%M'),
@@ -34,7 +34,7 @@ RSpec.describe "Sessions participants sync (public flow)", type: :request do
     }.to change { player.reload.credit_transactions.count }.by(1)
 
     last = player.credit_transactions.order(:id).last
-    expect(last.amount).to eq(-Session::TRAINING_PRICE)
+    expect(last.amount).to eq(-ClubRules.current.price_for("entrainement"))
   end
 
   context "when a participant is removed after the cancellation deadline" do

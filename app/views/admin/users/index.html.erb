@@ -84,13 +84,13 @@
           <!-- Actions -->
           <td class="px-4 sm:px-6 py-4 text-right space-x-2">
             <%= link_to admin_user_path(user),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red transition-colors" do %>
+                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
               <%= lucide_icon("eye", size: 16) %>
               <span class="hidden sm:inline">Voir</span>
             <% end %>
 
             <%= link_to edit_admin_user_path(user),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red-dark transition-colors" do %>
+                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
               <%= lucide_icon("edit", size: 16) %>
               <span class="hidden sm:inline">Modifier</span>
             <% end %>
@@ -134,7 +134,7 @@
         <% end %>
         <% if page == @current_page %>
           <li>
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-none bg-asmbv-red text-white font-semibold"><%= page %></span>
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-none bg-brand text-white font-semibold"><%= page %></span>
           </li>
         <% else %>
           <li>

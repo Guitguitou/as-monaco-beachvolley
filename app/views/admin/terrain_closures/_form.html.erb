@@ -4,12 +4,12 @@
   <div>
     <%= render FormFieldComponent.new(
       form: f,
-      attribute: :terrain,
+      attribute: :terrain_id,
       type: :select,
       label: "Terrain",
       required: true,
       select_options: { include_blank: false },
-      options: options_for_select(TerrainClosure::ALLOWED_TERRAINS, terrain_closure.terrain)
+      options: terrain_options_for_select(terrain_closure.terrain_id)
     ) %>
   </div>
 

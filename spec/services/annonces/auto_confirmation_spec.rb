@@ -5,7 +5,10 @@ require "rails_helper"
 RSpec.describe Annonces::AutoConfirmation do
   let(:creator) { create(:user) }
 
-  before { allow(SendPushNotificationJob).to receive(:perform_later) }
+  before do
+    allow(SendPushNotificationJob).to receive(:perform_later)
+    FactoryHelpers.resolve_terrain("Terrain 1")
+  end
 
   def annonce_starting_in(delay, players:)
     start_at = Time.current + delay
@@ -45,7 +48,7 @@ RSpec.describe Annonces::AutoConfirmation do
   it "ne confirme pas quand aucun terrain n'est libre" do
     annonce = annonce_starting_in(10.hours, players: 2)
     slot = annonce.slots.first
-    Session.terrains.each_key do |terrain|
+    Terrain.active.each do |terrain|
       create(:session, :jeu_libre, terrain: terrain, start_at: slot.start_at, end_at: slot.end_at)
     end
 

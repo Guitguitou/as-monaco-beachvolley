@@ -8,7 +8,7 @@ class LeaderboardCardComponent < ApplicationComponent
   ICON_TONES = {
     tournament: "bg-amber-50 text-amber-600",
     free_play: "bg-blue-50 text-blue-700",
-    training: "bg-asmbv-red/10 text-asmbv-red",
+    training: "bg-brand/10 text-brand",
     cold: "bg-sky-50 text-sky-500"
   }.freeze
 

@@ -11,9 +11,10 @@ module Sessions
 
     attr_reader :session, :user, :registration
 
-    def initialize(session:, user:)
+    def initialize(session:, user:, rules: ClubRules.current)
       @session = session
       @user = user
+      @rules = rules
       @registration = Registration.find_by(session: session, user: user)
     end
 
@@ -46,7 +47,7 @@ module Sessions
       return unless session.entrainement? && session.registration_opens_at.present?
       return session.registration_opens_at if Time.current < session.registration_opens_at
 
-      session.registration_opens_at + Session::PRIORITY_WINDOW_HOURS.hours
+      rules.priority_ends_at(session.registration_opens_at)
     end
 
     # Position estimée si le joueur rejoint (ou a rejoint) la liste d'attente.
@@ -82,6 +83,8 @@ module Sessions
     end
 
     private
+
+    attr_reader :rules
 
     def compute_kind
       return registration.waitlisted? ? :waitlisted : :registered if registration

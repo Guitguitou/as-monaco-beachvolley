@@ -83,7 +83,7 @@ class AnnoncesController < ApplicationController
     return prepare_confirmation if request.get?
 
     slot = @annonce.slots.upcoming.find(params[:slot_id])
-    result = Annonces::ConfirmationService.new(annonce: @annonce, slot: slot, terrain: params[:terrain]).call
+    result = Annonces::ConfirmationService.new(annonce: @annonce, slot: slot, terrain: Terrain.resolve(params[:terrain])).call
     Annonces::Notifier.new(annonce: @annonce).notify_confirmed(session: result.session, users: result.registered)
     redirect_to result.session, notice: result.summary
   rescue ActiveRecord::RecordInvalid => e

@@ -87,6 +87,8 @@ RSpec.configure do |config|
   # Chaque exemple repart d'une base vide : les séquences aussi, pour que les
   # créneaux générés par la factory de session restent proches de maintenant.
   config.before { FactoryBot.rewind_sequences }
+  # Les règles du club sont mémorisées par requête : chaque exemple repart à zéro.
+  config.before { CurrentClubRules.reset }
   config.include ActiveSupport::Testing::TimeHelpers
 
   # ViewComponent test helpers

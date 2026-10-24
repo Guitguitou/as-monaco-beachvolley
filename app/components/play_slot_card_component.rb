@@ -56,7 +56,7 @@ class PlaySlotCardComponent < ApplicationComponent
   end
 
   def status_classes
-    missing_players.zero? ? "text-green-700" : "text-asmbv-red"
+    missing_players.zero? ? "text-green-700" : "text-brand"
   end
 
   def day_label
@@ -68,7 +68,7 @@ class PlaySlotCardComponent < ApplicationComponent
   end
 
   def price_hint
-    "#{credits_label(Session::FREE_PLAY_PRICE)} si la partie est confirmée"
+    "#{credits_label(ClubRules.current.price_for("jeu_libre"))} si la partie est confirmée"
   end
 
   def toggle_path
@@ -79,6 +79,6 @@ class PlaySlotCardComponent < ApplicationComponent
     base = "inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold w-full sm:w-auto"
     return "#{base} border border-gray-300 text-gray-700 hover:bg-gray-100" if joined?
 
-    "#{base} text-white bg-asmbv-red hover:bg-asmbv-red-dark"
+    "#{base} text-white bg-brand hover:bg-brand-dark"
   end
 end

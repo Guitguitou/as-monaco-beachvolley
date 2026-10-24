@@ -11,8 +11,8 @@ module Admin
   class MonthlyRevenueChartComponent < ApplicationComponent
     # Classes écrites en entier pour que Tailwind les détecte.
     COLORS = {
-      "credits" => { fill: "fill-asmbv-red", swatch: "bg-asmbv-red" },
-      "licence" => { fill: "fill-asmbv-ocean", swatch: "bg-asmbv-ocean" },
+      "credits" => { fill: "fill-brand", swatch: "bg-brand" },
+      "licence" => { fill: "fill-ocean", swatch: "bg-ocean" },
       "stage" => { fill: "fill-amber-500", swatch: "bg-amber-500" },
       "inscription_tournoi" => { fill: "fill-emerald-500", swatch: "bg-emerald-500" },
       "equipements" => { fill: "fill-violet-500", swatch: "bg-violet-500" }

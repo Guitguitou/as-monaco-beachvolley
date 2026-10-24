@@ -81,7 +81,7 @@
 
           <!-- Terrain -->
           <td class="px-4 sm:px-6 py-4 text-gray-700 hidden lg:table-cell">
-            <%= render BadgeComponent.new(label: session.terrain.to_s.split('_').last, variant: :neutral, size: :xs) %>
+            <%= render BadgeComponent.new(label: session.terrain&.name, variant: :neutral, size: :xs) %>
           </td>
 
           <!-- Niveaux -->
@@ -104,12 +104,12 @@
           <!-- Actions -->
           <td class="px-4 sm:px-6 py-4 text-right space-x-2">
             <%= link_to admin_session_path(session),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red transition-colors" do %>
+                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
               <%= lucide_icon("eye", size: 16) %>
             <% end %>
 
             <%= link_to edit_admin_session_path(session),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-asmbv-red-dark transition-colors" do %>
+                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
               <%= lucide_icon("edit", size: 16) %>
             <% end %>
 

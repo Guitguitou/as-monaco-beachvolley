@@ -4,13 +4,12 @@
     Un tap ouvre l'aperçu en feuille (dialog + Turbo Frame). %>
 <% ctx = sessions_index_return_params %>
 <% pill_tones = {
-     "registered" => "bg-asmbv-red text-white",
+     "registered" => "bg-brand text-white",
      "waitlisted" => "bg-orange-100 text-orange-800",
      "hot" => "bg-orange-100 text-orange-800",
      "ok" => "bg-green-100 text-green-800",
      "full" => "bg-gray-100 text-gray-500"
    } %>
-<% terrain_tones = { "T1" => "bg-asmbv-ocean text-white", "T2" => "bg-asmbv-ink text-white", "T3" => "bg-asmbv-gold text-asmbv-ink" } %>
 
 <section class="sm:hidden mt-2" aria-label="Agenda de la semaine">
   <%# Bandeau des jours %>
@@ -33,10 +32,10 @@
               aria: { current: (selected ? "date" : nil), label: l(d.date, format: :long) },
               class: "flex flex-col items-center rounded-none py-1.5 #{selected ? 'bg-gray-900 text-white' : 'text-gray-900'}" do %>
           <span class="text-[11px] uppercase <%= selected ? 'text-gray-300' : 'text-gray-500' %>"><%= l(d.date, format: "%a").first %></span>
-          <span class="text-lg font-bold tabular-nums <%= 'text-asmbv-red' if d.today? && !selected %>"><%= d.date.day %></span>
+          <span class="text-lg font-bold tabular-nums <%= 'text-brand' if d.today? && !selected %>"><%= d.date.day %></span>
           <span class="flex h-1.5 gap-0.5" aria-hidden="true">
             <% d.statuses.first(3).each do |status| %>
-              <span class="size-1.5 rounded-full <%= status.in?(%w[registered waitlisted]) ? 'bg-asmbv-red' : (selected ? 'bg-gray-400' : 'bg-gray-300') %>"></span>
+              <span class="size-1.5 rounded-full <%= status.in?(%w[registered waitlisted]) ? 'bg-brand' : (selected ? 'bg-gray-400' : 'bg-gray-300') %>"></span>
             <% end %>
           </span>
         <% end %>
@@ -53,9 +52,9 @@
           <% s = registration.session %>
           <%= link_to preview_session_path(s, ctx),
                 data: { turbo_frame: "session_preview", action: "dialog#open" },
-                class: "snap-start shrink-0 w-[78%] rounded-none px-4 py-3 #{registration.waitlisted? ? 'border-2 border-dashed border-orange-400 bg-orange-50 text-orange-900' : 'bg-asmbv-red text-white'}" do %>
+                class: "snap-start shrink-0 w-[78%] rounded-none px-4 py-3 #{registration.waitlisted? ? 'border-2 border-dashed border-orange-400 bg-orange-50 text-orange-900' : 'bg-brand text-white'}" do %>
             <span class="block text-[11px] font-bold uppercase tracking-wide opacity-90">
-              <%= l(s.start_at, format: "%a %d · %Hh%M") %> · <%= s.terrain.to_s.sub("Terrain ", "T") %>
+              <%= l(s.start_at, format: "%a %d · %Hh%M") %> · <%= s.terrain&.short_name %>
             </span>
             <span class="mt-1 block font-semibold truncate"><%= registration.waitlisted? ? s.title : "✓ #{s.title}" %></span>
             <span class="block text-xs opacity-90"><%= registration.waitlisted? ? "Liste d'attente" : "Inscrit" %></span>
@@ -78,7 +77,7 @@
           <li>
             <%= link_to preview_session_path(event[:id], ctx),
                   data: { turbo_frame: "session_preview", action: "dialog#open" },
-                  class: "grid grid-cols-[3.25rem_1fr_auto] items-center gap-3 rounded-none border bg-white p-3 #{event[:status] == 'unavailable' ? 'border-gray-200 opacity-60' : 'border-gray-200'} #{'border-l-4 border-l-asmbv-red' if event[:status] == 'registered'}" do %>
+                  class: "grid grid-cols-[3.25rem_1fr_auto] items-center gap-3 rounded-none border bg-white p-3 #{event[:status] == 'unavailable' ? 'border-gray-200 opacity-60' : 'border-gray-200'} #{'border-l-4 border-l-brand' if event[:status] == 'registered'}" do %>
               <span class="tabular-nums">
                 <span class="block font-bold text-gray-900"><%= l(starts, format: "%H:%M") %></span>
                 <span class="block text-xs text-gray-500"><%= l(ends, format: "%H:%M") %></span>
@@ -87,7 +86,8 @@
                 <span class="block font-semibold text-gray-900 truncate"><%= event[:title] %></span>
                 <span class="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
                   <% if event[:terrainShort].present? %>
-                    <span class="font-bebas-neue px-1 text-[13px] leading-tight tracking-wider <%= terrain_tones[event[:terrainShort]] %>"><%= event[:terrainShort] %></span>
+                    <% tone = Terrains::Palette.fetch(event[:terrainColor]) %>
+                    <span class="font-bebas-neue px-1 text-[13px] leading-tight tracking-wider <%= tone&.swatch_class %> <%= tone&.text_class %>"><%= event[:terrainShort] %></span>
                   <% end %>
                   <span class="truncate"><%= event[:coachName] %></span>
                 </span>

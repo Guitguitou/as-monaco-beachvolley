@@ -1,0 +1,94 @@
+<% new_sessions_hint = "S'applique aux nouvelles séances" %>
+<% immediate_hint = "Immédiat, toutes les séances" %>
+<% price_labels = { "entrainement" => "Entraînement", "jeu_libre" => "Jeu libre", "coaching_prive" => "Coaching privé", "stage" => "Stage" } %>
+
+<div class="flex items-center gap-2 mb-6">
+  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
+    <%= lucide_icon("sliders-horizontal") %>
+    Règles du club
+  </h1>
+</div>
+
+<%= form_with model: @form, scope: :club_rules, url: admin_club_rules_path, method: :patch, class: "max-w-xl mx-auto space-y-6" do |f| %>
+  <% if @form.errors.any? %>
+    <div class="border-l-4 border-red-600 bg-red-50 p-4 rounded-none text-sm text-red-700">
+      Les règles n'ont pas été enregistrées : vérifie les champs signalés.
+    </div>
+  <% end %>
+
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200 space-y-4") do %>
+    <div>
+      <h2 class="text-lg font-semibold text-gray-900">Prix des séances</h2>
+      <p class="text-sm text-gray-600 mt-1">En euros. <%= new_sessions_hint %>.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <% ClubSetting::SESSION_TYPES.each do |type| %>
+        <%= render FormFieldComponent.new(
+          form: f,
+          attribute: :"#{type}_price_euros",
+          type: :number_field,
+          label: price_labels.fetch(type),
+          required: true,
+          html_options: { step: "0.01", min: 0 }
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200 space-y-4") do %>
+    <h2 class="text-lg font-semibold text-gray-900">Inscriptions</h2>
+
+    <div>
+      <%= render FormFieldComponent.new(form: f, attribute: :registration_opening_days, type: :number_field,
+            label: "Ouverture des inscriptions (jours avant la séance)", required: true, html_options: { min: 1, max: 30 }) %>
+      <p class="text-xs text-gray-500 mt-1"><%= new_sessions_hint %></p>
+    </div>
+
+    <div>
+      <%= render FormFieldComponent.new(form: f, attribute: :priority_window_hours, type: :number_field,
+            label: "Priorité licence compétition (heures après l'ouverture)", required: true, html_options: { min: 0, max: 72 }) %>
+      <p class="text-xs text-gray-500 mt-1"><%= immediate_hint %></p>
+    </div>
+
+    <div>
+      <%= render FormFieldComponent.new(form: f, attribute: :registration_deadline_hour, type: :number_field,
+            label: "Heure limite d'inscription le jour de la séance", required: true, html_options: { min: 0, max: 23 }) %>
+      <p class="text-xs text-gray-500 mt-1"><%= immediate_hint %></p>
+    </div>
+  <% end %>
+
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200 space-y-4") do %>
+    <div>
+      <h2 class="text-lg font-semibold text-gray-900">Désinscription remboursée</h2>
+      <p class="text-sm text-gray-600 mt-1">Limite au-delà de laquelle un entraînement n'est plus remboursé. <%= new_sessions_hint %>.</p>
+    </div>
+
+    <div class="space-y-4">
+      <div class="space-y-2">
+        <label class="flex items-center gap-2 text-sm font-medium text-gray-900">
+          <%= f.radio_button :cancellation_deadline_mode, "eve_at_hour", class: "h-4 w-4 text-brand border-gray-300 focus:ring-brand" %>
+          La veille, à heure fixe
+        </label>
+        <%= render FormFieldComponent.new(form: f, attribute: :cancellation_deadline_hour, type: :number_field,
+              label: "Heure, la veille de la séance", required: true, html_options: { min: 0, max: 23 }) %>
+      </div>
+
+      <div class="space-y-2">
+        <label class="flex items-center gap-2 text-sm font-medium text-gray-900">
+          <%= f.radio_button :cancellation_deadline_mode, "hours_before", class: "h-4 w-4 text-brand border-gray-300 focus:ring-brand" %>
+          Un nombre d'heures avant le début
+        </label>
+        <%= render FormFieldComponent.new(form: f, attribute: :cancellation_hours_before, type: :number_field,
+              label: "Heures avant le début de la séance", required: true, html_options: { min: 0, max: 72 }) %>
+      </div>
+
+      <% if @form.errors[:cancellation_deadline_mode].any? %>
+        <p class="text-sm text-red-600"><%= @form.errors[:cancellation_deadline_mode].first %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= f.submit "Enregistrer les règles",
+        class: "w-full rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark cursor-pointer" %>
+<% end %>

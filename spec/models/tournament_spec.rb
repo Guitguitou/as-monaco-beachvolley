@@ -55,4 +55,22 @@ RSpec.describe Tournament do
       expect(tournament.reload.ordered_images).to eq([ first, third, second ])
     end
   end
+
+  describe "terrain_ids" do
+    let(:terrain_ids) { FactoryHelpers.terrain_ids("Terrain 1", "Terrain 2") }
+
+    it "garde les ids des terrains occupés, nettoyés des valeurs de formulaire" do
+      tournament = build(:tournament, terrain_ids: [ "", terrain_ids.last.to_s, terrain_ids.first.to_s, terrain_ids.first.to_s ])
+
+      expect(tournament.terrain_ids).to eq([ terrain_ids.last, terrain_ids.first ])
+      expect(tournament.terrain_names).to eq([ "Terrain 1", "Terrain 2" ])
+    end
+
+    it "refuse un terrain inconnu" do
+      tournament = build(:tournament, terrain_ids: [ terrain_ids.first, 0 ])
+
+      expect(tournament).not_to be_valid
+      expect(tournament.errors[:terrain_ids]).to be_present
+    end
+  end
 end

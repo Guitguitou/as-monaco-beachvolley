@@ -22,7 +22,7 @@ RSpec.describe LicenseCardComponent, type: :component do
     it "se distingue visuellement" do
       render_inline(described_class.new(user: user))
 
-      expect(page).to have_css("div.border-asmbv-red")
+      expect(page).to have_css("div.border-brand")
     end
 
     it "n'affiche pas de date d'activation" do

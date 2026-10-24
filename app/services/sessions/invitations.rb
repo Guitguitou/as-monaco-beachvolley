@@ -58,7 +58,7 @@ module Sessions
     end
 
     def notification_body
-      "#{@session.title} · #{I18n.l(@session.start_at, format: :short)} · #{@session.terrain}"
+      "#{@session.title} · #{I18n.l(@session.start_at, format: :short)} · #{@session.terrain&.name}"
     end
 
     def confirmation(invitees)

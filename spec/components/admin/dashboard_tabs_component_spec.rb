@@ -20,7 +20,7 @@ RSpec.describe Admin::DashboardTabsComponent, type: :component do
   it 'marks the active tab correctly' do
     render_inline(component)
 
-    expect(page).to have_css('a.bg-asmbv-red.text-white', text: 'Vue d\'ensemble')
+    expect(page).to have_css('a.bg-brand.text-white', text: 'Vue d\'ensemble')
     expect(page).to have_css('a.text-gray-500', text: 'Sessions')
   end
 
@@ -30,7 +30,7 @@ RSpec.describe Admin::DashboardTabsComponent, type: :component do
     it 'marks the correct tab as active' do
       render_inline(component)
 
-      expect(page).to have_css('a.bg-asmbv-red.text-white', text: 'Sessions')
+      expect(page).to have_css('a.bg-brand.text-white', text: 'Sessions')
       expect(page).to have_css('a.text-gray-500', text: 'Vue d\'ensemble')
     end
   end

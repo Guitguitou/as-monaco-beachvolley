@@ -4,7 +4,7 @@ module Stats
   class PerformanceDashboard
     GENDERS = %w[male female].freeze
 
-    def initialize(timezone: "Europe/Paris")
+    def initialize(timezone: ClubRules.current.time_zone)
       @timezone = ActiveSupport::TimeZone[timezone]
     end
 

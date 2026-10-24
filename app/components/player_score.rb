@@ -3,8 +3,9 @@
 # Score affiché pour une ligne de classement : nombre de sessions, ou durée
 # d'inactivité pour « Le frigo ». Partagé par le podium et le classement.
 class PlayerScore
-  def initialize(player)
+  def initialize(player, rules: ClubRules.current)
     @player = player
+    @rules = rules
   end
 
   def value
@@ -24,10 +25,10 @@ class PlayerScore
   def detail
     return unless player[:last_session_at]
 
-    "depuis le #{player[:last_session_at].in_time_zone('Europe/Paris').strftime('%d/%m/%Y')}"
+    "depuis le #{player[:last_session_at].in_time_zone(rules.time_zone).strftime('%d/%m/%Y')}"
   end
 
   private
 
-  attr_reader :player
+  attr_reader :player, :rules
 end

@@ -139,12 +139,12 @@
                     <div class="font-medium">
                       <% title = training.title.presence || training.display_name %>
                     <% if admin_links %>
-                      <%= link_to title, admin_session_path(training), class: "text-asmbv-red hover:text-asmbv-red-dark" %>
+                      <%= link_to title, admin_session_path(training), class: "text-brand hover:text-brand-dark" %>
                     <% else %>
                       <%= title %>
                     <% end %>
                     </div>
-                    <div class="text-gray-500 text-xs">Terrain <%= training.terrain %></div>
+                    <div class="text-gray-500 text-xs"><%= training.terrain&.name %></div>
                   </td>
                   <td class="px-6 py-4 text-sm text-gray-900">
                     <% if training.levels.any? %>
@@ -212,12 +212,12 @@
                     <div class="font-medium">
                       <% title = training.title.presence || training.display_name %>
                     <% if admin_links %>
-                      <%= link_to title, admin_session_path(training), class: "text-asmbv-red hover:text-asmbv-red-dark" %>
+                      <%= link_to title, admin_session_path(training), class: "text-brand hover:text-brand-dark" %>
                     <% else %>
                       <%= title %>
                     <% end %>
                     </div>
-                    <div class="text-gray-500 text-xs">Terrain <%= training.terrain %></div>
+                    <div class="text-gray-500 text-xs"><%= training.terrain&.name %></div>
                   </td>
                   <td class="px-6 py-4 text-sm text-gray-900">
                     <% if training.levels.any? %>

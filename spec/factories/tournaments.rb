@@ -9,6 +9,6 @@ FactoryBot.define do
     points { 150 }
     price_cents { 3000 }
     registration_link { "https://bvs.example.com/tournoi" }
-    terrains { [] }
+    terrain_ids { [] }
   end
 end

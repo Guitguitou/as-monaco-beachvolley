@@ -2,7 +2,7 @@
   <div class="px-6 py-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-4">
     <div>
       <h3 class="text-lg font-medium text-gray-900 flex items-center">
-        <%= lucide_icon('users', class: 'w-5 h-5 mr-2 text-asmbv-red') %>
+        <%= lucide_icon('users', class: 'w-5 h-5 mr-2 text-brand') %>
         Sessions par joueur
       </h3>
       <p class="text-sm text-gray-500 mt-1">Sessions faites et payées en crédits, remboursements déduits</p>
@@ -14,11 +14,11 @@
         <% end %>
       </div>
       <div class="flex items-center gap-2">
-        <%= link_to period_path(anchor: period.previous_anchor), class: "p-1.5 text-gray-500 hover:text-asmbv-red", aria: { label: "Période précédente" } do %>
+        <%= link_to period_path(anchor: period.previous_anchor), class: "p-1.5 text-gray-500 hover:text-brand", aria: { label: "Période précédente" } do %>
           <%= lucide_icon('chevron-left', class: 'w-4 h-4') %>
         <% end %>
         <span class="text-sm font-medium text-gray-900 min-w-28 text-center"><%= period.label %></span>
-        <%= link_to period_path(anchor: period.next_anchor), class: "p-1.5 text-gray-500 hover:text-asmbv-red", aria: { label: "Période suivante" } do %>
+        <%= link_to period_path(anchor: period.next_anchor), class: "p-1.5 text-gray-500 hover:text-brand", aria: { label: "Période suivante" } do %>
           <%= lucide_icon('chevron-right', class: 'w-4 h-4') %>
         <% end %>
       </div>
@@ -43,7 +43,7 @@
           <% rows.each do |row| %>
             <tr class="hover:bg-gray-50">
               <td class="px-4 py-3 whitespace-nowrap text-sm">
-                <%= link_to row.user.full_name, helpers.admin_user_path(row.user), class: "font-medium text-gray-900 hover:text-asmbv-red" %>
+                <%= link_to row.user.full_name, helpers.admin_user_path(row.user), class: "font-medium text-gray-900 hover:text-brand" %>
               </td>
               <td class="px-4 py-3 whitespace-nowrap text-right tabular-nums">
                 <span class="block text-sm font-bold text-gray-900"><%= format_currency(row.total.amount) %></span>

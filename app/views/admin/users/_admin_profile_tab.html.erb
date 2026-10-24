@@ -66,7 +66,7 @@
     <div class="flex items-center justify-between gap-4 flex-col sm:flex-row">
       <div>
         <h2 class="text-lg font-semibold text-gray-800 mb-1">Solde de crédits</h2>
-        <p class="text-3xl font-bold text-asmbv-red">
+        <p class="text-3xl font-bold text-brand">
           <%= @balance&.amount.to_i || 0 %> crédits
         </p>
       </div>
@@ -80,7 +80,7 @@
               type: :number_field,
               label: "Montant (+/-)",
               required: true,
-              input_class: "mt-1 block w-40 rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+              input_class: "mt-1 block w-40 rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-brand focus:ring-2 focus:ring-brand sm:text-sm",
               html_options: { value: 0, step: 1 }
             ) %>
           </div>

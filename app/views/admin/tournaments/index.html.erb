@@ -19,7 +19,7 @@
     <tbody class="divide-y divide-gray-100">
       <% @tournaments.each do |tournament| %>
         <tr class="hover:bg-gray-50">
-          <td class="px-4 py-3 font-medium text-gray-800"><%= link_to tournament.title, admin_tournament_path(tournament), class: "hover:text-asmbv-red" %></td>
+          <td class="px-4 py-3 font-medium text-gray-800"><%= link_to tournament.title, admin_tournament_path(tournament), class: "hover:text-brand" %></td>
           <td class="px-4 py-3 text-gray-700"><%= l tournament.starts_on %><%= " — #{l tournament.ends_on}" if tournament.ends_on != tournament.starts_on %></td>
           <td class="px-4 py-3"><%= render BadgeComponent.new(label: tournament.level_label, variant: :neutral, size: :xs) %></td>
           <td class="px-4 py-3">

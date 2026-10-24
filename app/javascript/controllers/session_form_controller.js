@@ -129,9 +129,9 @@ export default class extends Controller {
 
     if (slotDateStr) {
       for (const c of closures) {
-        if (!c || !c.starts_on || !c.ends_on || !c.terrain) continue
+        if (!c || !c.starts_on || !c.ends_on || c.terrain_id == null) continue
         if (slotDateStr >= c.starts_on && slotDateStr <= c.ends_on) {
-          unavailable.add(c.terrain)
+          unavailable.add(String(c.terrain_id))
         }
       }
     }

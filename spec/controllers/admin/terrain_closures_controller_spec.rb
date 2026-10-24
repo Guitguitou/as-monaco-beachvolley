@@ -45,7 +45,7 @@ RSpec.describe Admin::TerrainClosuresController, type: :controller do
       expect {
         post :create, params: {
           terrain_closure: {
-            terrain: "Terrain 1",
+            terrain_id: FactoryHelpers.resolve_terrain("Terrain 1").id,
             starts_on: Date.new(2031, 1, 1),
             ends_on: Date.new(2031, 1, 3),
             reason: "Test"

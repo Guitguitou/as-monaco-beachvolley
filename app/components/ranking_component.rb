@@ -5,7 +5,7 @@
 # `visible` premiers et le bouton « Me trouver ».
 class RankingComponent < ApplicationComponent
   RANK_TONES = {
-    1 => "bg-asmbv-gold text-white",
+    1 => "bg-gold text-white",
     2 => "bg-gray-300 text-gray-700",
     3 => "bg-orange-300 text-orange-900"
   }.freeze
@@ -50,7 +50,7 @@ class RankingComponent < ApplicationComponent
 
   def row_classes(player)
     "flex items-center gap-3 px-2 py-2 rounded-none transition-colors " \
-      "#{me?(player) ? 'bg-asmbv-red/5 ring-1 ring-asmbv-red/30' : 'hover:bg-gray-50'}"
+      "#{me?(player) ? 'bg-brand/5 ring-1 ring-brand/30' : 'hover:bg-gray-50'}"
   end
 
   def score(player)

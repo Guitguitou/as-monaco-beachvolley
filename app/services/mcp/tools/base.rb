@@ -64,7 +64,7 @@ module Mcp
         end
 
         def paris_time(time)
-          time&.in_time_zone("Europe/Paris")&.iso8601
+          time&.in_time_zone(ClubRules.current.time_zone)&.iso8601
         end
       end
     end

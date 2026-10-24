@@ -56,7 +56,7 @@
       <% header.with_action do %>
         <%= link_to "Le calendrier", sessions_path(view: "grid"),
                     data: { turbo_frame: "_top" },
-                    class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
+                    class: "text-sm font-semibold text-brand hover:underline shrink-0" %>
       <% end %>
     <% end %>
 
@@ -72,7 +72,7 @@
               <p class="text-xs text-gray-600 first-letter:uppercase">
                 <%= l(session.start_at.to_date, format: :day_and_month) %> ·
                 <%= l(session.start_at, format: :time) %> ·
-                <%= session.terrain.to_s.split("_").last %>
+                <%= session.terrain&.name %>
               </p>
             </div>
             <div class="flex items-center gap-2 shrink-0">
@@ -109,8 +109,8 @@
 
       <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <%= link_to coach_trainings_path, data: { turbo_frame: "_top" },
-                    class: "group border border-gray-200 bg-white rounded-none p-5 flex items-start gap-4 hover:border-asmbv-red transition-colors" do %>
-          <span class="shrink-0 flex h-10 w-10 items-center justify-center bg-asmbv-red-light text-asmbv-red">
+                    class: "group border border-gray-200 bg-white rounded-none p-5 flex items-start gap-4 hover:border-brand transition-colors" do %>
+          <span class="shrink-0 flex h-10 w-10 items-center justify-center bg-brand-light text-brand">
             <%= lucide_icon("book-open", class: "w-5 h-5", aria: { hidden: true }) %>
           </span>
           <span class="min-w-0">
@@ -122,8 +122,8 @@
         <% end %>
 
         <%= link_to coach_trainings_path(tab: "my_trainings"), data: { turbo_frame: "_top" },
-                    class: "group border border-gray-200 bg-white rounded-none p-5 flex items-start gap-4 hover:border-asmbv-red transition-colors" do %>
-          <span class="shrink-0 flex h-10 w-10 items-center justify-center bg-asmbv-red-light text-asmbv-red">
+                    class: "group border border-gray-200 bg-white rounded-none p-5 flex items-start gap-4 hover:border-brand transition-colors" do %>
+          <span class="shrink-0 flex h-10 w-10 items-center justify-center bg-brand-light text-brand">
             <%= lucide_icon("clipboard-list", class: "w-5 h-5", aria: { hidden: true }) %>
           </span>
           <span class="min-w-0">
@@ -147,7 +147,7 @@
       <% header.with_action do %>
         <%= link_to "Jeu libre", annonces_path,
                     data: { turbo_frame: "_top" },
-                    class: "text-sm font-semibold text-asmbv-red hover:underline shrink-0" %>
+                    class: "text-sm font-semibold text-brand hover:underline shrink-0" %>
       <% end %>
     <% end %>
 

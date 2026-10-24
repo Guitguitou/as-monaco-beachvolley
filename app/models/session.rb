@@ -1,22 +1,17 @@
 class Session < ApplicationRecord
-  TRAINING_PRICE = 400
-  FREE_PLAY_PRICE = 300
-  PRIVATE_COACHING_PRICE = 1500
-  STAGE_PRICE = 0
-  PRICE_BY_TYPE = {
-    "entrainement" => TRAINING_PRICE,
-    "jeu_libre" => FREE_PLAY_PRICE,
-    "coaching_prive" => PRIVATE_COACHING_PRICE,
-    "stage" => STAGE_PRICE
-  }.freeze
   belongs_to :user
   belongs_to :tournament, optional: true
+  # La colonne historique `terrain` (entier de l'ancien enum) reste en base
+  # jusqu'à la migration « contract » : elle n'est plus lue, mais tenue à jour
+  # pour que l'ancien code reste redéployable (cf. Terrains::LegacyColumns).
+  belongs_to :terrain
+  before_save { Terrains::LegacyColumns.write_session(self) }
   has_many :session_levels, dependent: :destroy
   has_many :levels, through: :session_levels
   has_many :registrations, dependent: :destroy
   has_many :participants, through: :registrations, source: :user
   has_many :late_cancellations, dependent: :destroy
-  validates :title, :start_at, :end_at, :session_type, :user_id, :terrain, presence: true
+  validates :title, :start_at, :end_at, :session_type, :user_id, presence: true
   validates :price, numericality: { greater_than_or_equal_to: 0 }
   accepts_nested_attributes_for :registrations, allow_destroy: true
 
@@ -42,12 +37,6 @@ class Session < ApplicationRecord
     "autre" => "Autre"
   }.freeze
 
-  enum :terrain, {
-    "Terrain 1": 1,
-    "Terrain 2": 2,
-    "Terrain 3": 3
-  }
-
   before_validation { Sessions::TypeDefaults.apply(self) }
 
   validates_with Sessions::ScheduleValidator, Sessions::RosterValidator
@@ -55,7 +44,7 @@ class Session < ApplicationRecord
 
   after_create :charge_coach_for_private_coaching, if: :coaching_prive?
 
-  scope :terrain, ->(terrain) { where(terrain: terrain) }
+  scope :on_terrain, ->(terrain_id) { where(terrain_id: terrain_id) }
   scope :cancelled, -> { where.not(cancelled_at: nil) }
   scope :held, -> { where(cancelled_at: nil) }
   scope :upcoming, -> { where("start_at >= ?", Time.current) }
@@ -77,9 +66,6 @@ class Session < ApplicationRecord
   end
   scope :ordered_by_start, -> { order(:start_at) }
 
-
-  PRIORITY_WINDOW_HOURS = 24
-  REGISTRATION_DEADLINE_HOUR = 17 # 17h le jour J
 
   # Returns [boolean, reason]
   # Enforces registration opening rules for trainings with a 24h priority

@@ -46,12 +46,7 @@ class SessionCardComponent < ApplicationComponent
   # nommé et coloré par sa pastille juste en dessous. Reprend les couleurs du
   # calendrier pour que le joueur reconnaisse son terrain avant de lire.
   def terrain_bar_classes
-    case session.terrain
-    when "Terrain 1" then "bg-[#0052a3]"
-    when "Terrain 2" then "bg-[#1a1a1a]"
-    when "Terrain 3" then "bg-[#d4af37]"
-    else "bg-gray-300"
-    end
+    session.terrain&.palette_color&.swatch_class || "bg-gray-300"
   end
 
   delegate :title, :day_label, :time_range, :terrain_label, to: :schedule
@@ -83,11 +78,11 @@ class SessionCardComponent < ApplicationComponent
     if !actionable?
       "#{base} bg-gray-100 text-gray-500 border border-gray-200 cursor-not-allowed"
     elsif destructive_action?
-      "#{base} bg-white text-asmbv-red border border-asmbv-red hover:bg-asmbv-red/5 focus-visible:ring-asmbv-red"
+      "#{base} bg-white text-brand border border-brand hover:bg-brand/5 focus-visible:ring-brand"
     elsif action == :waitlist
       "#{base} bg-gray-900 text-white hover:bg-gray-800 focus-visible:ring-gray-900"
     else
-      "#{base} bg-asmbv-red text-white hover:bg-asmbv-red-dark focus-visible:ring-asmbv-red"
+      "#{base} bg-brand text-white hover:bg-brand-dark focus-visible:ring-brand"
     end
   end
 

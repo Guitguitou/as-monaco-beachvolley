@@ -1,9 +1,10 @@
 module Sessions
   class RegistrationPolicy
-    def initialize(session:, user:, skip_deadline: false)
+    def initialize(session:, user:, skip_deadline: false, rules: ClubRules.current)
       @session = session
       @user = user
       @skip_deadline = skip_deadline
+      @rules = rules
     end
 
     def open_state
@@ -17,13 +18,13 @@ module Sessions
         return [ false, "Les inscriptions ouvrent le #{I18n.l(session.registration_opens_at, format: :long)}." ]
       end
 
-      within_priority_window = now < (session.registration_opens_at + Session::PRIORITY_WINDOW_HOURS.hours)
+      within_priority_window = now < rules.priority_ends_at(session.registration_opens_at)
       if within_priority_window && user&.license_type != "competition"
-        return [ false, "Priorité licence compétition pendant 24h après l'ouverture." ]
+        return [ false, "Priorité licence compétition pendant #{rules.priority_window_hours}h après l'ouverture." ]
       end
 
       if !skip_deadline && past_deadline?
-        return [ false, "Les inscriptions sont closes (limite : 17h le jour de la session)." ]
+        return [ false, "Les inscriptions sont closes (limite : #{rules.registration_deadline_hour}h le jour de la session)." ]
       end
 
       [ true, nil ]
@@ -32,12 +33,11 @@ module Sessions
     def past_deadline?
       return false if session.start_at.blank?
 
-      deadline = session.start_at.change(hour: Session::REGISTRATION_DEADLINE_HOUR, min: 0, sec: 0)
-      Time.current >= deadline
+      Time.current >= rules.registration_deadline_for(session.start_at)
     end
 
     private
 
-    attr_reader :session, :user, :skip_deadline
+    attr_reader :session, :user, :skip_deadline, :rules
   end
 end

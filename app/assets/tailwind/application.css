@@ -3,33 +3,51 @@
 /* ---------------------------------------------------------------------------
    Couleurs de marque
    ---------------------------------------------------------------------------
+   Une seule série de variables à surcharger par club : `--color-brand*` pour
+   la couleur principale, `--color-ocean`, `--color-ink`, `--color-gold` et
+   `--color-sand` pour les terrains et fonds. Les noms restent neutres (aucun
+   préfixe de club) ; les endroits qui ne lisent pas le CSS (manifeste PWA)
+   passent par `BrandColors`. Le `red-*` de Tailwind est réservé au sens
+   sémantique : erreurs, alertes, actions destructives.
+
    Déclarées dans `@theme`, donc traitées par Tailwind comme n'importe quelle
    autre couleur : toutes les variantes sont générées automatiquement.
 
    Auparavant, une couche `@layer components` redéfinissait à la main
-   `.bg-asmbv-red`, `.text-asmbv-red`… en `!important`. Deux conséquences :
+   `.bg-brand`, `.text-brand`… en `!important`. Deux conséquences :
 
    1. Le `!important` désarmait la cascade. C'est ce qui rendait le libellé du
-      filtre actif du calendrier rouge sur rouge : `text-asmbv-red` battait
+      filtre actif du calendrier rouge sur rouge : `text-brand` battait
       `text-white` quoi qu'il arrive.
    2. Seule une poignée de combinaisons était écrite. Toutes les autres ne
       produisaient aucun CSS et échouaient en silence, alors qu'elles étaient
-      utilisées dans les vues : `outline-asmbv-red` (15×),
-      `focus:border-asmbv-red` (15×), `from-asmbv-red` / `to-asmbv-red-dark`
-      (le dégradé du hero, 6×), `group-hover:text-asmbv-red` (2×) et les
-      variantes d'opacité `bg-asmbv-red/10`, `/5`, `/20`, `/90` (13×).
+      utilisées dans les vues : `outline-brand` (15×),
+      `focus:border-brand` (15×), `from-brand` / `to-brand-dark`
+      (le dégradé du hero, 6×), `group-hover:text-brand` (2×) et les
+      variantes d'opacité `bg-brand/10`, `/5`, `/20`, `/90` (13×).
 --------------------------------------------------------------------------- */
 @theme {
-  --color-asmbv-red: #e21e22;
-  --color-asmbv-red-dark: #b31217;
-  --color-asmbv-red-light: #fef2f2;
+  --color-brand: #e21e22;
+  --color-brand-dark: #b31217;
+  --color-brand-light: #fef2f2;
 
   /* Couleurs des terrains, reprises par le calendrier et les cartes. */
-  --color-asmbv-ocean: #0052a3;
-  --color-asmbv-ink: #1a1a1a;
-  --color-asmbv-gold: #d4af37;
+  --color-ocean: #0052a3;
+  --color-ink: #1a1a1a;
+  --color-gold: #d4af37;
 
-  --color-asmbv-sand: #f5e6d3;
+  --color-sand: #f5e6d3;
+
+  /* Palette fermée des terrains (clés de Terrains::Palette). Les trois
+     premières reprennent les couleurs historiques des terrains 1 à 3. */
+  --color-terrain-ocean: var(--color-ocean);
+  --color-terrain-ink: var(--color-ink);
+  --color-terrain-gold: var(--color-gold);
+  --color-terrain-green: #15803d;
+  --color-terrain-purple: #6d28d9;
+  --color-terrain-orange: #c2410c;
+  --color-terrain-teal: #0f766e;
+  --color-terrain-pink: #be185d;
 
   /* Podiums et classements de la page Performances. Une animation CSS rejoue
      quand son élément repasse de `hidden` à visible : changer d'onglet refait
@@ -74,11 +92,11 @@
 }
 
 .fc .fc-day-today {
-  background-color: var(--color-asmbv-red-light) !important;
+  background-color: var(--color-brand-light) !important;
 }
 
 .fc .fc-day-today .fc-col-header-cell-cushion {
-  color: var(--color-asmbv-red) !important;
+  color: var(--color-brand) !important;
   font-weight: 600 !important;
 }
 
@@ -86,8 +104,8 @@
    la couleur : plein (inscrit), hachuré (attente), contour (ouvert), estompé. */
 .fc-event.status-registered:not(.fc-list-event),
 .status-swatch-registered {
-  background: var(--color-asmbv-red) !important;
-  border: 1px solid var(--color-asmbv-red-dark) !important;
+  background: var(--color-brand) !important;
+  border: 1px solid var(--color-brand-dark) !important;
   color: #ffffff !important;
 }
 
@@ -101,8 +119,8 @@
 .fc-event.status-open:not(.fc-list-event),
 .status-swatch-open {
   background: #ffffff !important;
-  border: 1.5px solid var(--color-asmbv-ink) !important;
-  color: var(--color-asmbv-ink) !important;
+  border: 1.5px solid var(--color-ink) !important;
+  color: var(--color-ink) !important;
 }
 
 .fc-event.status-unavailable:not(.fc-list-event),
@@ -115,23 +133,28 @@
 .fc-timegrid-event.status-unavailable { opacity: 0.7; }
 
 /* Le terrain garde sa couleur de club en bordure gauche épaisse, et sur son
-   libellé : le statut remplit l'événement, le terrain le signe. */
-.fc .fc-timegrid-event.terrain-1 { border-left: 5px solid var(--color-asmbv-ocean) !important; }
-.fc .fc-timegrid-event.terrain-2 { border-left: 5px solid var(--color-asmbv-ink) !important; }
-.fc .fc-timegrid-event.terrain-3 { border-left: 5px solid var(--color-asmbv-gold) !important; }
-.fc .fc-timegrid-event.status-registered.terrain-2 { border-left-color: #000000 !important; }
+   libellé : le statut remplit l'événement, le terrain le signe.
+   Une classe `terrain-<clé>` par couleur de Terrains::Palette ne fait que
+   fixer deux variables ; les règles communes les lisent. */
+.terrain-ocean { --terrain-color: var(--color-terrain-ocean); --terrain-text: #ffffff; }
+.terrain-ink { --terrain-color: var(--color-terrain-ink); --terrain-text: #ffffff; }
+.terrain-gold { --terrain-color: var(--color-terrain-gold); --terrain-text: var(--color-ink); }
+.terrain-green { --terrain-color: var(--color-terrain-green); --terrain-text: #ffffff; }
+.terrain-purple { --terrain-color: var(--color-terrain-purple); --terrain-text: #ffffff; }
+.terrain-orange { --terrain-color: var(--color-terrain-orange); --terrain-text: #ffffff; }
+.terrain-teal { --terrain-color: var(--color-terrain-teal); --terrain-text: #ffffff; }
+.terrain-pink { --terrain-color: var(--color-terrain-pink); --terrain-text: #ffffff; }
 
-.terrain-1 .fc-asmbv-terrain,
-.terrain-2 .fc-asmbv-terrain,
-.terrain-3 .fc-asmbv-terrain {
+.fc .fc-timegrid-event.has-terrain { border-left: 5px solid var(--terrain-color) !important; }
+.fc .fc-timegrid-event.status-registered.terrain-ink { border-left-color: #000000 !important; }
+
+.has-terrain .fc-brand-terrain {
   padding: 0 4px;
   border-radius: 0;
-  color: #ffffff;
+  background: var(--terrain-color);
+  color: var(--terrain-text);
 }
-.terrain-1 .fc-asmbv-terrain { background: var(--color-asmbv-ocean); }
-.terrain-2 .fc-asmbv-terrain { background: var(--color-asmbv-ink); }
-.terrain-3 .fc-asmbv-terrain { background: var(--color-asmbv-gold); color: var(--color-asmbv-ink); }
-.fc-timegrid-event.status-unavailable .fc-asmbv-terrain { opacity: 0.6; }
+.fc-timegrid-event.status-unavailable .fc-brand-terrain { opacity: 0.6; }
 
 /* FullCalendar impose sa propre couleur de texte au contenu de l'événement. */
 .fc-v-event .fc-event-main,
@@ -152,7 +175,7 @@
 }
 
 
-.fc-asmbv-terrain {
+.fc-brand-terrain {
   white-space: nowrap;
   align-self: flex-start;
   line-height: 1.3;
@@ -162,7 +185,7 @@
 }
 
 /* Jauge de remplissage, dans la couleur du texte de l'événement. */
-.fc-asmbv-fill {
+.fc-brand-fill {
   height: 4px;
   border-radius: 0;
   margin-top: auto;
@@ -171,16 +194,16 @@
   flex-shrink: 0;
 }
 
-.fc-asmbv-fill > span {
+.fc-brand-fill > span {
   display: block;
   height: 100%;
   background: currentColor;
 }
 
-.fc-asmbv-fill.is-hot > span { background: #ea7a12; }
+.fc-brand-fill.is-hot > span { background: #ea7a12; }
 
 /* Vue liste (mobile) : pastille de statut à droite du titre. */
-.fc-asmbv-pill {
+.fc-brand-pill {
   display: inline-block;
   margin-left: 0.5rem;
   padding: 1px 8px;
@@ -190,26 +213,26 @@
   white-space: nowrap;
 }
 
-.fc-asmbv-pill.registered { background: var(--color-asmbv-red); color: #fff; }
-.fc-asmbv-pill.waitlisted,
-.fc-asmbv-pill.hot { background: #fff1e2; color: #9a4a06; }
-.fc-asmbv-pill.ok { background: #e6f4ea; color: #15803d; }
-.fc-asmbv-pill.full { background: #f4f4f5; color: #71717a; }
+.fc-brand-pill.registered { background: var(--color-brand); color: #fff; }
+.fc-brand-pill.waitlisted,
+.fc-brand-pill.hot { background: #fff1e2; color: #9a4a06; }
+.fc-brand-pill.ok { background: #e6f4ea; color: #15803d; }
+.fc-brand-pill.full { background: #f4f4f5; color: #71717a; }
 
 .fc .fc-list-event.status-unavailable { opacity: 0.55; }
-.fc .fc-list-event.status-registered .fc-list-event-dot { border-color: var(--color-asmbv-red) !important; }
+.fc .fc-list-event.status-registered .fc-list-event-dot { border-color: var(--color-brand) !important; }
 .fc .fc-list-event.status-waitlisted .fc-list-event-dot { border-color: #ea7a12 !important; }
-.fc .fc-list-event.status-open .fc-list-event-dot { border-color: var(--color-asmbv-ink) !important; }
+.fc .fc-list-event.status-open .fc-list-event-dot { border-color: var(--color-ink) !important; }
 .fc .fc-list-event.status-unavailable .fc-list-event-dot { border-color: #a1a1aa !important; }
 
 .fc .fc-timegrid-now-indicator-line {
-  border-color: var(--color-asmbv-red) !important;
+  border-color: var(--color-brand) !important;
   border-width: 2px !important;
 }
 
 .fc .fc-timegrid-now-indicator-arrow {
-  border-top-color: var(--color-asmbv-red) !important;
-  border-bottom-color: var(--color-asmbv-red) !important;
+  border-top-color: var(--color-brand) !important;
+  border-bottom-color: var(--color-brand) !important;
 }
 
 /* Lisibilité des créneaux et des cartes d'événement. */
@@ -218,7 +241,7 @@
 }
 
 .fc .fc-button {
-  background-color: var(--color-asmbv-red) !important;
+  background-color: var(--color-brand) !important;
   color: white !important;
   border: none !important;
   border-radius: 0 !important;
@@ -226,7 +249,7 @@
 }
 
 .fc .fc-button:hover {
-  background-color: var(--color-asmbv-red-dark) !important;
+  background-color: var(--color-brand-dark) !important;
 }
 
 .fc .fc-button:disabled {
@@ -234,7 +257,7 @@
 }
 
 .fc .fc-button-active {
-  background-color: var(--color-asmbv-red-dark) !important;
+  background-color: var(--color-brand-dark) !important;
 }
 
 .fc .fc-timegrid-slot-label-cushion,
@@ -242,11 +265,11 @@
   font-size: 13px !important;
 }
 
-.fc-asmbv-event {
+.fc-brand-event {
   line-height: 1.1 !important;
 }
 
-.fc-asmbv-event div {
+.fc-brand-event div {
   overflow: visible !important;
   white-space: normal !important;
 }

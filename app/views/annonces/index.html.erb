@@ -39,7 +39,7 @@
   <section>
     <%= render SectionHeaderComponent.new(title: "Mes parties") do |header| %>
       <% header.with_action do %>
-        <%= link_to new_annonce_path, class: "inline-flex items-center gap-1 text-sm font-semibold text-asmbv-red hover:underline" do %>
+        <%= link_to new_annonce_path, class: "inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline" do %>
           <%= lucide_icon("plus", class: "size-4") %> Lancer une partie
         <% end %>
       <% end %>

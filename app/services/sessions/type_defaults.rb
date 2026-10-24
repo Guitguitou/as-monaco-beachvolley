@@ -2,20 +2,20 @@
 
 module Sessions
   # Valeurs qu'une session tient de son type : le prix, et pour un
-  # entraînement, l'ouverture des inscriptions (7 jours avant) et la limite de
-  # désinscription remboursée (22h la veille), sauf si elles ont été saisies.
+  # entraînement, l'ouverture des inscriptions et la limite de désinscription
+  # remboursée (règles du club), sauf si elles ont été saisies.
   module TypeDefaults
-    def self.apply(session)
-      session.price = Session::PRICE_BY_TYPE[session.session_type] || 0
-      session.entrainement? ? training_dates(session) : (session.registration_opens_at = nil)
+    def self.apply(session, rules: ClubRules.current)
+      session.price = rules.price_for(session.session_type)
+      session.entrainement? ? training_dates(session, rules) : (session.registration_opens_at = nil)
       session
     end
 
-    def self.training_dates(session)
+    def self.training_dates(session, rules)
       return if session.start_at.blank?
 
-      session.registration_opens_at ||= session.start_at - 7.days
-      session.cancellation_deadline_at ||= (session.start_at - 1.day).change(hour: 22, min: 0)
+      session.registration_opens_at ||= rules.registration_opens_at_for(session.start_at)
+      session.cancellation_deadline_at ||= rules.cancellation_deadline_for(session.start_at)
     end
     private_class_method :training_dates
   end

@@ -14,7 +14,7 @@ class ApplicationController < ActionController::Base
 
     @next_stage = Stage.ordered_for_players.find { |stage| stage.current_or_upcoming? }
     @members_count = User.count
-    @terrains_count = Session.terrains.size
+    @terrains_count = Terrain.active.count
     @sessions_per_month = Session.held.in_current_month.count
 
     render layout: "home"

@@ -1,0 +1,49 @@
+<%# locals: terrain:, first: false, last: false %>
+<tr class="hover:bg-gray-50 transition-colors">
+  <td class="px-4 sm:px-6 py-4">
+    <span class="inline-flex items-center gap-2 font-medium text-gray-800">
+      <span class="inline-block w-1.5 h-4 <%= terrain.palette_color&.swatch_class %>" aria-hidden="true"></span>
+      <%= terrain.name %>
+    </span>
+  </td>
+  <td class="px-4 sm:px-6 py-4 text-gray-600 hidden sm:table-cell"><%= terrain.palette_color&.label %></td>
+  <td class="px-4 sm:px-6 py-4">
+    <div class="flex items-center justify-end gap-2">
+      <% unless terrain.archived? %>
+        <% { "up" => [ "arrow-up", "Monter", first ], "down" => [ "arrow-down", "Descendre", last ] }.each do |direction, (icon, label, edge)| %>
+          <% unless edge %>
+            <%= button_to move_admin_terrain_path(terrain, direction: direction), method: :patch,
+                  aria: { label: "#{label} #{terrain.name}" },
+                  class: "inline-flex items-center text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
+              <%= lucide_icon(icon, size: 16) %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+      <%= link_to edit_admin_terrain_path(terrain), aria: { label: "Modifier #{terrain.name}" },
+            class: "inline-flex items-center text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
+        <%= lucide_icon("edit", size: 16) %>
+      <% end %>
+      <% if terrain.archived? %>
+        <%= button_to "Réactiver", unarchive_admin_terrain_path(terrain), method: :patch,
+              class: "text-sm text-gray-600 hover:text-brand-dark transition-colors" %>
+      <% else %>
+        <%= button_to "Archiver", archive_admin_terrain_path(terrain), method: :patch,
+              form: { data: { turbo_confirm: "Archiver #{terrain.name} ? Il ne sera plus proposé pour les nouvelles sessions." } },
+              class: "text-sm text-gray-600 hover:text-brand-dark transition-colors" %>
+      <% end %>
+      <% if terrain.history? %>
+        <span class="text-xs text-gray-400" title="Ce terrain a un historique : archivez-le plutôt que de le supprimer">
+          a un historique : archivez-le
+        </span>
+      <% else %>
+        <%= button_to admin_terrain_path(terrain), method: :delete,
+              aria: { label: "Supprimer #{terrain.name}" },
+              form: { data: { turbo_confirm: "Supprimer #{terrain.name} ?" } },
+              class: "inline-flex items-center text-sm text-gray-600 hover:text-red-600 transition-colors" do %>
+          <%= lucide_icon("trash-2", size: 16) %>
+        <% end %>
+      <% end %>
+    </div>
+  </td>
+</tr>

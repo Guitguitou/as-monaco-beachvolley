@@ -123,6 +123,31 @@ RSpec.describe Session, type: :model do
     end
   end
 
+  describe "terrain overlap validation" do
+    let(:coach) { create(:user, coach: true) }
+    let(:day) { Date.new(2030, 7, 12) }
+    let!(:existing) do
+      create(:session, user: coach, terrain: "Terrain 2",
+                       start_at: day.in_time_zone.change(hour: 10), end_at: day.in_time_zone.change(hour: 12))
+    end
+    let(:session) do
+      build(:session, user: coach, terrain: "Terrain 2",
+                      start_at: day.in_time_zone.change(hour: 11), end_at: day.in_time_zone.change(hour: 13))
+    end
+
+    before { coach.balance.update!(amount: 2000) }
+
+    it "rejects a session overlapping a held session on the same terrain" do
+      expect(session).not_to be_valid
+      expect(session.errors[:terrain]).to include("est déjà pris sur ce créneau")
+    end
+
+    it "allows a session overlapping a cancelled session" do
+      existing.update_columns(cancelled_at: Time.current)
+      expect(session).to be_valid
+    end
+  end
+
   describe "#display_name" do
     it "adds the levels to a training title" do
       level = create(:level, name: "G1", gender: "male")

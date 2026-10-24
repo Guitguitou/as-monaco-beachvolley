@@ -81,7 +81,7 @@ RSpec.describe "Annonces", type: :request do
     it "confirme et crée une session (créateur uniquement)" do
       login_as(creator, scope: :user)
       expect {
-        patch confirm_annonce_path(annonce), params: { slot_id: slot.id, terrain: "Terrain 1" }
+        patch confirm_annonce_path(annonce), params: { slot_id: slot.id, terrain: FactoryHelpers.resolve_terrain("Terrain 1").id }
       }.to change(Session, :count).by(1)
       expect(annonce.reload).to be_confirmed
       expect(response).to redirect_to(annonce.reload.session)
@@ -90,7 +90,7 @@ RSpec.describe "Annonces", type: :request do
     it "interdit la confirmation par un autre utilisateur" do
       login_as(activated, scope: :user)
       expect {
-        patch confirm_annonce_path(annonce), params: { slot_id: slot.id, terrain: "Terrain 1" }
+        patch confirm_annonce_path(annonce), params: { slot_id: slot.id, terrain: FactoryHelpers.resolve_terrain("Terrain 1").id }
       }.to raise_error(CanCan::AccessDenied)
       expect(Session.count).to eq(0)
     end

@@ -16,10 +16,22 @@ RSpec.describe Sessions::ListingFilter do
     expect(filter.apply(Session.all)).to contain_exactly(free_play_t1, free_play_t2, other_level_training)
   end
 
-  it "keeps one terrain" do
+  it "keeps one terrain, given by id" do
+    filter = described_class.new(terrain: free_play_t2.terrain_id.to_s, for_me: false, level_ids: [])
+
+    expect(filter.apply(Session.all)).to eq([ free_play_t2 ])
+  end
+
+  it "keeps one terrain, given by its legacy name" do
     filter = described_class.new(terrain: "Terrain 2", for_me: false, level_ids: [])
 
     expect(filter.apply(Session.all)).to eq([ free_play_t2 ])
+  end
+
+  it "keeps nothing for an unknown terrain" do
+    filter = described_class.new(terrain: "Terrain 99", for_me: false, level_ids: [])
+
+    expect(filter.apply(Session.all)).to be_empty
   end
 
   it "keeps the sessions open to the player's levels" do

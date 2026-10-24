@@ -21,7 +21,7 @@ module Sessions
     end
 
     def terrain_label
-      @session.terrain.to_s.split("_").last
+      @session.terrain&.name
     end
   end
 end

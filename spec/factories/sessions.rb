@@ -10,9 +10,17 @@ FactoryBot.define do
     sequence(:start_at) { |n| 1.day.from_now.change(hour: 9) + (n - 1) * 2.hours }
     end_at { start_at + 90.minutes }
     session_type { "entrainement" }
-    terrain { "Terrain 1" }
     user
     max_players { 12 }
+
+    # `terrain` : nom, Terrain ou nil (cf. FactoryHelpers.resolve_terrain).
+    transient do
+      terrain { "Terrain 1" }
+    end
+
+    after(:build) do |session, evaluator|
+      session.terrain = FactoryHelpers.resolve_terrain(evaluator.terrain)
+    end
 
     trait :jeu_libre do
       session_type { "jeu_libre" }
@@ -30,7 +38,7 @@ FactoryBot.define do
 
       # Un coaching privé n'est créable que si le coach peut le payer.
       before(:create) do |session|
-        needed = Session::PRICE_BY_TYPE["coaching_prive"].to_i
+        needed = ClubRules.current.price_for("coaching_prive")
         missing = needed - session.user.balance.amount
         if missing.positive?
           CreditTransaction.record!(

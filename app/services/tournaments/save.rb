@@ -33,7 +33,7 @@ module Tournaments
 
     def sync_sessions
       tournament.sessions.destroy_all
-      tournament.days.product(tournament.terrain_names).all? do |day, terrain|
+      tournament.days.product(tournament.occupied_terrains.to_a).all? do |day, terrain|
         session = Session.new(session_attributes(day, terrain))
         next true if session.save
 

@@ -16,7 +16,7 @@
 
     <% if @session.tournament_id.present? %>
       <%= link_to "Voir le tournoi", tournament_path(@session.tournament_id),
-            class: "w-full inline-flex items-center justify-center rounded-none px-4 py-3 text-sm font-semibold bg-asmbv-red text-white hover:bg-asmbv-red-dark" %>
+            class: "w-full inline-flex items-center justify-center rounded-none px-4 py-3 text-sm font-semibold bg-brand text-white hover:bg-brand-dark" %>
     <% else %>
       <% confirmed = @session.registrations.confirmed.includes(:user).to_a %>
       <% if confirmed.any? || @session.max_players.present? %>

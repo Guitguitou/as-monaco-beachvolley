@@ -15,8 +15,8 @@
     </div>
     <% if is_owner && @annonce.open? %>
       <div class="flex items-center gap-2 shrink-0">
-        <%= link_to lucide_icon("pencil", class: "size-4"), edit_annonce_path(@annonce), class: "p-2 text-gray-500 hover:text-asmbv-red border border-gray-200", title: "Modifier" %>
-        <%= button_to lucide_icon("x", class: "size-4"), cancel_annonce_path(@annonce), method: :post, class: "p-2 text-gray-500 hover:text-asmbv-red border border-gray-200", form: { data: { turbo_confirm: "Annuler cette partie ?" } }, title: "Annuler" %>
+        <%= link_to lucide_icon("pencil", class: "size-4"), edit_annonce_path(@annonce), class: "p-2 text-gray-500 hover:text-brand border border-gray-200", title: "Modifier" %>
+        <%= button_to lucide_icon("x", class: "size-4"), cancel_annonce_path(@annonce), method: :post, class: "p-2 text-gray-500 hover:text-brand border border-gray-200", form: { data: { turbo_confirm: "Annuler cette partie ?" } }, title: "Annuler" %>
       </div>
     <% end %>
   </div>
@@ -36,7 +36,7 @@
   <% if @annonce.open? %>
     <p class="mt-4 text-xs text-gray-500">
       La partie est confirmée dès qu'un créneau réunit <%= @annonce.min_players %> joueurs — par <%= is_owner ? "toi" : @annonce.user.first_name.presence || @annonce.user.full_name %>, ou automatiquement la veille.
-      Chaque joueur inscrit est alors débité de <%= credits_label(Session::FREE_PLAY_PRICE) %>.
+      Chaque joueur inscrit est alors débité de <%= credits_label(ClubRules.current.price_for("jeu_libre")) %>.
     </p>
   <% end %>
 
@@ -44,7 +44,7 @@
     <div class="mt-6 border border-blue-200 bg-blue-50 p-4 rounded-none">
       <p class="font-semibold text-blue-900 mb-3">Session créée 🎉</p>
       <div class="flex flex-col sm:flex-row gap-3">
-        <%= link_to "Voir la session", session_path(@annonce.session), class: "inline-flex items-center justify-center px-4 py-2 font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark" %>
+        <%= link_to "Voir la session", session_path(@annonce.session), class: "inline-flex items-center justify-center px-4 py-2 font-semibold text-white bg-brand hover:bg-brand-dark" %>
         <%= render WhatsappShareComponent.new(text: annonce_whatsapp_text(@annonce, @annonce.session), full_width: false) %>
       </div>
     </div>
@@ -77,7 +77,7 @@
         </div>
 
         <% if upcoming && @annonce.open? %>
-          <p class="mt-1 text-sm font-semibold <%= reached ? 'text-green-700' : 'text-asmbv-red' %>">
+          <p class="mt-1 text-sm font-semibold <%= reached ? 'text-green-700' : 'text-brand' %>">
             <%= reached ? "Ça joue ! Confirmation en cours" : "Il manque #{slot.missing_players} #{slot.missing_players == 1 ? 'joueur' : 'joueurs'}" %>
           </p>
           <% if @terrain_free_by_slot[slot] == false %>
@@ -98,7 +98,7 @@
         <% if upcoming && @annonce.open? %>
           <div class="mt-4 flex flex-wrap items-center gap-3">
             <%= button_to toggle_availability_annonce_path(@annonce, slot_id: slot.id), method: :post,
-                  class: (i_am_in ? "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100" : "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-asmbv-red hover:bg-asmbv-red-dark") do %>
+                  class: (i_am_in ? "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100" : "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-brand hover:bg-brand-dark") do %>
               <%= lucide_icon(i_am_in ? "user-minus" : "user-plus", class: "size-4") %>
               <%= i_am_in ? "Je n'y suis plus" : "J'en suis" %>
             <% end %>

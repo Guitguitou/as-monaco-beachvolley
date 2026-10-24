@@ -14,13 +14,13 @@ class BadgeComponent < ApplicationComponent
     destructive: "bg-red-600 border-red-700 text-white",
     info: "bg-blue-700 border-blue-800 text-white",
     purple: "bg-gray-900 border-gray-900 text-white",
-    type_training: "bg-asmbv-red border-asmbv-red-dark text-white",
+    type_training: "bg-brand border-brand-dark text-white",
     type_free_play: "bg-blue-700 border-blue-800 text-white",
     type_private: "bg-gray-900 border-gray-900 text-white",
     type_tournament: "bg-amber-500 border-amber-600 text-gray-900",
     type_stage: "bg-orange-600 border-orange-700 text-white",
     hero: "bg-white/10 border-white text-white",
-    hero_inverse: "bg-white border-white text-asmbv-red"
+    hero_inverse: "bg-white border-white text-brand"
   }.freeze
 
   def initialize(label:, variant: :neutral, size: :sm, icon: nil)

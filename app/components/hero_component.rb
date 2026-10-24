@@ -7,7 +7,7 @@ class HeroComponent < ApplicationComponent
   renders_one :actions
 
   WRAPPERS = {
-    red: "bg-asmbv-red bg-gradient-to-r from-asmbv-red to-asmbv-red-dark",
+    red: "bg-brand bg-gradient-to-r from-brand to-brand-dark",
     white: "bg-white border-b border-gray-200"
   }.freeze
 

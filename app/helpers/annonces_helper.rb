@@ -12,7 +12,7 @@ module AnnoncesHelper
     <<~MSG.strip
       🏐 Jeu libre : #{session.title}
       📅 #{l(session.start_at, format: :long)} → #{session.end_at.strftime('%H:%M')}
-      📍 #{session.terrain}
+      📍 #{session.terrain&.name}
       👥 #{players.presence || 'À confirmer'}
 
       Rendez-vous : #{annonce_url(annonce)}

@@ -13,10 +13,10 @@ module Sessions
     }.freeze
 
     def validate(session)
-      return if session.start_at.blank? || session.end_at.blank? || session.terrain.blank?
+      return if session.start_at.blank? || session.end_at.blank? || session.terrain_id.blank?
 
       session.errors.add(:end_at, "doit être après la date de début") if session.end_at <= session.start_at
-      if TerrainClosure.covers?(terrain: session.terrain, date: session.start_at.to_date)
+      if TerrainClosure.covers?(terrain_id: session.terrain_id, date: session.start_at.to_date)
         session.errors.add(:terrain, "est indisponible à cette date (fermeture ou maintenance)")
       end
       OVERLAP_ERRORS.each { |attribute, message| session.errors.add(attribute, message) } if overlapping?(session)

@@ -7,7 +7,7 @@
                 data: {
                   controller: "session-form late-removal",
                   action: "submit->late-removal#confirm",
-                  session_form_prices_value: Session::PRICE_BY_TYPE,
+                  session_form_prices_value: ClubRules.current.price_by_type,
                   session_form_terrain_closures_value: terrain_closures_json_for_forms
                 },
                 class: "space-y-12" do |f| %>
@@ -50,11 +50,11 @@
         <div>
           <%= render FormFieldComponent.new(
             form: f,
-            attribute: :terrain,
+            attribute: :terrain_id,
             type: :select,
             label: "Terrain",
             required: true,
-            options: options_for_select(Session.terrains.keys, session.terrain),
+            options: terrain_options_for_select(session.terrain_id),
             html_options: { data: { session_form_target: "terrain" } }
           ) %>
           <p class="mt-1 text-sm text-amber-700 hidden" data-session-form-target="terrainWarning">Terrain indisponible à cette date.</p>
@@ -148,7 +148,7 @@
             attribute: :price,
             type: :number_field,
             label: "Prix (crédits)",
-            input_class: "block w-full rounded-none border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+            input_class: "block w-full rounded-none border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 focus:border-brand focus:ring-2 focus:ring-brand sm:text-sm",
             html_options: { min: 0, step: 1, readonly: true, data: { session_form_target: "price" } }
           ) %>
         </div>
@@ -162,7 +162,7 @@
             <%= f.collection_check_boxes :level_ids, Level.all, :id, :name do |b| %>
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center">
-                  <%= b.check_box(class: "h-4 w-4 text-asmbv-red border-gray-300 rounded-none focus:ring-asmbv-red") %>
+                  <%= b.check_box(class: "h-4 w-4 text-brand border-gray-300 rounded-none focus:ring-brand") %>
                   <%= b.label(class: "ml-2 text-sm text-gray-700") do %>
                     <%= "#{b.object.name} - #{b.object.gender.humanize}" %>
                   <% end %>
@@ -172,7 +172,7 @@
                         [ [ "Priorité 1", 1 ], [ "Priorité 2", 2 ], [ "Priorité 3", 3 ] ],
                         level_priorities[b.object.id]&.priority.to_i.clamp(1, 3)
                       ),
-                      class: "text-xs border-gray-300 rounded-none focus:ring-asmbv-red" %>
+                      class: "text-xs border-gray-300 rounded-none focus:ring-brand" %>
               </div>
             <% end %>
           </div>
@@ -198,7 +198,7 @@
             session.participants.pluck(:id)
           ),
           multiple: true,
-          class: "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-asmbv-red focus:ring-2 focus:ring-asmbv-red sm:text-sm",
+          class: "block w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-brand focus:ring-2 focus:ring-brand sm:text-sm",
           data: { controller: "select", select_placeholder_value: "Rechercher des participants...", late_removal_target: "participants" }
       %>
       <% if session.persisted? && current_user.staff? %>

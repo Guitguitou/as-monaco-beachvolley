@@ -176,7 +176,7 @@
                   <div>
                     <p class="font-medium text-gray-900"><%= session.title %></p>
                     <p class="text-sm text-gray-500">
-                      <%= session.start_at.strftime("%d/%m - %H:%M") %> - <%= session.terrain %>
+                      <%= session.start_at.strftime("%d/%m - %H:%M") %> - <%= session.terrain&.name %>
                     </p>
                   </div>
                   <div class="text-right">

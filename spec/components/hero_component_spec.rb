@@ -6,7 +6,7 @@ RSpec.describe HeroComponent, type: :component do
   it "renders a red banner with white text by default" do
     render_inline(described_class.new(title: "Planning", subtitle: "Cette semaine"))
 
-    expect(page).to have_css("section.bg-asmbv-red h1.text-white.font-bebas-neue.mt-3", text: "Planning")
+    expect(page).to have_css("section.bg-brand h1.text-white.font-bebas-neue.mt-3", text: "Planning")
     expect(page).to have_css("p.text-white", text: "Cette semaine")
   end
 

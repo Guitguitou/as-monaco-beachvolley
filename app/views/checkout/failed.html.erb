@@ -39,7 +39,7 @@
         <% if @credit_purchase.pack %>
           <%= button_to buy_pack_path(@credit_purchase.pack),
                 method: :post,
-                class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-asmbv-red px-6 py-3 text-base font-semibold text-white hover:bg-asmbv-red-dark transition-all",
+                class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-brand px-6 py-3 text-base font-semibold text-white hover:bg-brand-dark transition-all",
                 data: { turbo: false } do %>
             <%= lucide_icon("refresh-cw", size: 20) %>
             Réessayer

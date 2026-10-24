@@ -5,7 +5,7 @@
         <p class="font-anton text-lg uppercase tracking-tight text-gray-900 leading-tight first-letter:uppercase">
           <%= day_label %> · <%= time_label %>
         </p>
-        <p class="text-xs text-gray-600 truncate group-hover:text-asmbv-red"><%= subtitle %></p>
+        <p class="text-xs text-gray-600 truncate group-hover:text-brand"><%= subtitle %></p>
       </div>
       <% if own? %>
         <%= render BadgeComponent.new(label: "Ta partie", variant: :info, size: :xs) %>
@@ -16,7 +16,7 @@
   <div>
     <div class="flex items-center gap-1" aria-hidden="true">
       <% dots.each do |filled| %>
-        <span class="h-2.5 w-2.5 rounded-full <%= filled ? 'bg-asmbv-red' : 'bg-gray-200' %>"></span>
+        <span class="h-2.5 w-2.5 rounded-full <%= filled ? 'bg-brand' : 'bg-gray-200' %>"></span>
       <% end %>
     </div>
     <p class="mt-1.5 text-sm font-semibold <%= status_classes %>"><%= status_label %></p>

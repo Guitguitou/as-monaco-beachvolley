@@ -17,11 +17,11 @@ RSpec.describe Tournaments::Save do
   end
 
   it "occupe chaque terrain coché, chaque jour, aux horaires du tournoi" do
-    tournament = build(:tournament, ends_on: Date.current + 3.weeks + 1.day, terrain_names: [ "Terrain 1", "Terrain 2" ])
+    tournament = build(:tournament, ends_on: Date.current + 3.weeks + 1.day, terrain_ids: FactoryHelpers.terrain_ids("Terrain 1", "Terrain 2"))
 
     save(tournament)
 
-    sessions = tournament.sessions.order(:start_at, :terrain)
+    sessions = tournament.sessions.order(:start_at, :terrain_id)
     expect(sessions.size).to eq(4)
     expect(sessions.map(&:session_type).uniq).to eq([ "tournoi" ])
     expect(sessions.first.start_at.strftime("%H:%M")).to eq("10:00")
@@ -29,13 +29,13 @@ RSpec.describe Tournaments::Save do
   end
 
   it "fait suivre les sessions quand le tournoi change" do
-    tournament = build(:tournament, terrain_names: [ "Terrain 1", "Terrain 2", "Terrain 3" ])
+    tournament = build(:tournament, terrain_ids: FactoryHelpers.terrain_ids("Terrain 1", "Terrain 2", "Terrain 3"))
     save(tournament)
 
-    tournament.assign_attributes(terrain_names: [ "Terrain 1" ], start_time: "09:00")
+    tournament.assign_attributes(terrain_ids: FactoryHelpers.terrain_ids("Terrain 1"), start_time: "09:00")
     save(tournament)
 
-    expect(tournament.sessions.pluck(:terrain)).to eq([ "Terrain 1" ])
+    expect(tournament.sessions.map { |session| session.terrain.name }).to eq([ "Terrain 1" ])
     expect(tournament.sessions.first.start_at.strftime("%H:%M")).to eq("09:00")
   end
 
@@ -53,7 +53,7 @@ RSpec.describe Tournaments::Save do
   it "n'enregistre rien si un terrain est déjà pris" do
     day = Date.current + 3.weeks
     create(:session, terrain: "Terrain 1", start_at: day.in_time_zone.change(hour: 12), end_at: day.in_time_zone.change(hour: 13), user: admin)
-    tournament = build(:tournament, terrain_names: [ "Terrain 1" ])
+    tournament = build(:tournament, terrain_ids: FactoryHelpers.terrain_ids("Terrain 1"))
 
     expect(save(tournament)).to be(false)
     expect(tournament.errors[:base].join).to include("Terrain 1")

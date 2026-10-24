@@ -25,14 +25,14 @@ module Sessions
     # Toutes les fermetures récentes sont envoyées : le calendrier change de
     # semaine côté client, sans recharger la page.
     def closures
-      TerrainClosure.where(ends_on: (Time.zone.today - CLOSURES_LOOKBACK)..).order(:starts_on).map do |closure|
+      TerrainClosure.includes(:terrain).where(ends_on: (Time.zone.today - CLOSURES_LOOKBACK)..).order(:starts_on).map do |closure|
         {
           start: closure.starts_on.iso8601,
           end: (closure.ends_on + 1.day).iso8601,
           display: "background",
           classNames: [ "terrain-closure" ],
-          title: [ "#{closure.terrain} fermé", closure.reason.presence ].compact.join(" · "),
-          terrain: closure.terrain
+          title: [ "#{closure.terrain.name} fermé", closure.reason.presence ].compact.join(" · "),
+          terrain: closure.terrain_id
         }
       end
     end
@@ -52,10 +52,11 @@ module Sessions
         start: session.start_at.iso8601,
         end: session.end_at.iso8601,
         url: @url_for.call(session),
-        classNames: [ "status-#{status}", "terrain-#{session.terrain.to_s.delete_prefix("Terrain ")}" ],
+        classNames: [ "status-#{status}", *terrain_classes(session.terrain) ],
         status: status,
-        terrain: session.terrain,
-        terrainShort: session.terrain.to_s.delete_prefix("Terrain ").then { |n| n.present? ? "T#{n}" : "" },
+        terrain: session.terrain_id,
+        terrainShort: session.terrain&.short_name.to_s,
+        terrainColor: session.terrain&.color,
         forMe: for_me,
         coachName: session.user&.full_name,
         confirmedCount: count,
@@ -63,6 +64,10 @@ module Sessions
         statusText: label.first,
         statusTone: label.last
       }
+    end
+
+    def terrain_classes(terrain)
+      terrain ? [ "has-terrain", "terrain-#{terrain.color}" ] : [ "terrain-unknown" ]
     end
 
     def status_for(session, count, for_me)

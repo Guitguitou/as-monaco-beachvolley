@@ -47,7 +47,7 @@ class WhatsappShareComponent < ApplicationComponent
   def variant_classes
     case variant.to_sym
     when :secondary
-      "bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200 focus:ring-asmbv-red"
+      "bg-gray-100 border border-gray-200 text-gray-900 hover:bg-gray-200 focus:ring-brand"
     when :ghost
       "bg-transparent border border-transparent text-gray-900 hover:bg-gray-100 focus:ring-gray-400"
     else # :primary — vert WhatsApp

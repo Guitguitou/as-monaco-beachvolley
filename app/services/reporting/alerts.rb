@@ -9,7 +9,7 @@ module Reporting
       keyword_init: true
     )
 
-    def initialize(time_zone: "Europe/Paris")
+    def initialize(time_zone: ClubRules.current.time_zone)
       @time_zone = time_zone
       @current_time = Time.current.in_time_zone(@time_zone)
     end

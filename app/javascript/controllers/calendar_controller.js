@@ -120,10 +120,10 @@ export default class extends Controller {
           root.className = 'block'
           root.append(`${arg.event.title} `)
           const terrain = document.createElement('span')
-          terrain.className = 'fc-asmbv-terrain text-[11px]'
+          terrain.className = 'fc-brand-terrain text-[11px]'
           terrain.textContent = props.terrainShort || ''
           const pill = document.createElement('span')
-          pill.className = `fc-asmbv-pill ${status.tone}`
+          pill.className = `fc-brand-pill ${status.tone}`
           pill.textContent = status.text
           root.append(terrain, pill)
           if (props.coachName) {
@@ -141,14 +141,14 @@ export default class extends Controller {
         const title = (isNarrowColumn ? (props.shortTitle || arg.event.title) : arg.event.title) || ''
 
         const root = document.createElement('div')
-        root.className = 'fc-asmbv-card flex flex-col h-full overflow-hidden gap-0.5'
+        root.className = 'fc-brand-card flex flex-col h-full overflow-hidden gap-0.5'
 
         const terrain = document.createElement('span')
-        terrain.className = 'fc-asmbv-terrain mr-1'
+        terrain.className = 'fc-brand-terrain mr-1'
         terrain.textContent = props.terrainShort || ''
 
         const titleEl = document.createElement('div')
-        titleEl.className = 'fc-asmbv-title text-xs sm:text-[13px] font-semibold leading-tight line-clamp-2'
+        titleEl.className = 'fc-brand-title text-xs sm:text-[13px] font-semibold leading-tight line-clamp-2'
         titleEl.append(terrain, title)
 
         const statusEl = document.createElement('div')
@@ -176,7 +176,7 @@ export default class extends Controller {
         // Jauge de remplissage : visible sans ouvrir la session.
         if (props.maxPlayers) {
           const fill = document.createElement('div')
-          fill.className = `fc-asmbv-fill${status.tone === 'hot' ? ' is-hot' : ''}`
+          fill.className = `fc-brand-fill${status.tone === 'hot' ? ' is-hot' : ''}`
           const bar = document.createElement('span')
           bar.style.width = `${Math.min(100, Math.round((props.confirmedCount / props.maxPlayers) * 100))}%`
           fill.appendChild(bar)
@@ -352,12 +352,12 @@ export default class extends Controller {
 
     // Filter events
     const filteredEvents = this.sessions.filter((eventData) => {
-      const terrainMatches = selectedTerrain ? eventData.terrain === selectedTerrain : true
+      const terrainMatches = selectedTerrain ? String(eventData.terrain) === String(selectedTerrain) : true
       const forMeMatches = forMe ? Boolean(eventData.forMe) : true
       return terrainMatches && forMeMatches
     })
     this.filteredSessions = filteredEvents
-    const closures = (this.closures || []).filter((c) => !selectedTerrain || c.terrain === selectedTerrain)
+    const closures = (this.closures || []).filter((c) => !selectedTerrain || String(c.terrain) === String(selectedTerrain))
     this.calendar.removeAllEvents()
     this.calendar.addEventSource([...filteredEvents, ...closures])
 

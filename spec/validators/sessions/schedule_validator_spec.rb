@@ -34,7 +34,7 @@ RSpec.describe Sessions::ScheduleValidator do
   end
 
   it "rejects a closed terrain" do
-    allow(TerrainClosure).to receive(:covers?).with(terrain: "Terrain 1", date: start_at.to_date).and_return(true)
+    allow(TerrainClosure).to receive(:covers?).with(terrain_id: FactoryHelpers.resolve_terrain("Terrain 1").id, date: start_at.to_date).and_return(true)
 
     expect(validate(session_at(start_at, start_at + 1.hour))[:terrain]).to include("est indisponible à cette date (fermeture ou maintenance)")
   end

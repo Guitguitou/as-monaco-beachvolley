@@ -19,7 +19,7 @@ RSpec.describe TabsComponent, type: :component do
     render_inline(described_class.new(tabs: tabs))
 
     active = page.find_link("Toutes")
-    expect(active[:class]).to include("border-asmbv-red", "text-asmbv-red")
+    expect(active[:class]).to include("border-brand", "text-brand")
 
     inactive = page.find_link("Tournois")
     expect(inactive[:class]).to include("border-transparent", "text-gray-500")

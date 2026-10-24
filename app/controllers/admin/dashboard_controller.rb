@@ -22,7 +22,7 @@ module Admin
       # Inscrits par mois (jeu libre + entrainement) avec navigation
       @stats_year = (params[:stats_year].presence || Time.current.year).to_i
       @stats_month = (params[:stats_month].presence || Time.current.month).to_i.clamp(1, 12)
-      participants = kpis_service.monthly_participants(Time.find_zone("Europe/Paris").local(@stats_year, @stats_month))
+      participants = kpis_service.monthly_participants(ClubRules.current.zone.local(@stats_year, @stats_month))
       @participants_jeu_libre = participants[:jeu_libre]
       @participants_entrainement = participants[:entrainement]
     end
