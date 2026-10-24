@@ -62,7 +62,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
           create(:credit_purchase, :paid,
                  user: regular_user,
                  pack: pack,
-                 created_at: 1.month.ago + 5.days,
+                 created_at: start_date + 5.days,
                  amount_cents: 2000,
                  credits: 2000)
         end
@@ -70,7 +70,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
           create(:credit_purchase, :paid,
                  user: regular_user,
                  pack: pack,
-                 created_at: 2.months.ago,
+                 created_at: start_date - 1.day,
                  amount_cents: 1000,
                  credits: 1000)
         end
@@ -140,7 +140,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
           purchase_with_user = create(:credit_purchase, :paid,
                                      user: regular_user,
                                      pack: pack,
-                                     created_at: 1.month.ago + 5.days,
+                                     created_at: start_date + 5.days,
                                      amount_cents: 1500,
                                      credits: 1500)
 
@@ -160,7 +160,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
           purchase_no_pack = create(:credit_purchase, :paid,
                                     user: regular_user,
                                     pack: nil,
-                                    created_at: 1.month.ago + 5.days,
+                                    created_at: start_date + 5.days,
                                     amount_cents: 1000,
                                     credits: 1000)
 

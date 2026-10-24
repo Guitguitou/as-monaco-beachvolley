@@ -58,3 +58,21 @@ RSpec.describe Annonces::EligibleAnnoncesQuery do
     expect(described_class.call(user: player)).to be_empty
   end
 end
+
+RSpec.describe Annonces::EligibleAnnoncesQuery, "créneaux à venir" do
+  let(:player) { create(:user) }
+
+  it "exclut une annonce dont tous les créneaux sont passés" do
+    annonce = create(:annonce, :with_slot, user: create(:user))
+    annonce.slots.first.update_columns(start_at: 1.day.ago, end_at: 1.day.ago + 2.hours)
+
+    expect(described_class.call(user: player)).not_to include(annonce)
+  end
+
+  it "trie les annonces par créneau le plus proche" do
+    later = create(:annonce, user: create(:user), slots: [ build(:annonce_slot, start_at: 5.days.from_now, end_at: 5.days.from_now + 2.hours) ])
+    sooner = create(:annonce, user: create(:user), slots: [ build(:annonce_slot, start_at: 2.days.from_now, end_at: 2.days.from_now + 2.hours) ])
+
+    expect(described_class.call(user: player)).to eq([ sooner, later ])
+  end
+end

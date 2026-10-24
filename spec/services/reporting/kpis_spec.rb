@@ -9,7 +9,7 @@ RSpec.describe Reporting::Kpis do
 
   before do
     travel_to(current_time)
-    Reporting::CacheService.clear_all
+    Rails.cache.clear
   end
 
   after do
@@ -90,7 +90,7 @@ RSpec.describe Reporting::Kpis do
       end
 
       it "counts late cancellations for all periods" do
-        Reporting::CacheService.clear_all
+        Rails.cache.clear
         kpis = service.week_kpis
 
         expect(kpis[:late_cancellations_count]).to eq(2)
@@ -162,7 +162,7 @@ RSpec.describe Reporting::Kpis do
       purchase.update_columns(status: :paid, paid_at: week_start + 1.day)
 
       # Clear cache to ensure fresh calculation
-      Reporting::CacheService.clear_all
+      Rails.cache.clear
       kpis = isolated_service.week_kpis
 
       expect(kpis[:revenue]).to eq(100.0)

@@ -115,7 +115,7 @@ module ApplicationHelper
     "packs#index" => "Boutique",
     "stages#index" => "Stages",
     "performances#index" => "Performances & stats",
-    "annonces#index" => "Annonces de jeu libre",
+    "annonces#index" => "Jeu libre",
     "profiles#show" => "Mon profil",
     "me/sessions#index" => "Mes sessions"
   }.freeze
