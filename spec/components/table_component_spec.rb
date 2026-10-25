@@ -46,4 +46,14 @@ RSpec.describe TableComponent, type: :component do
     render_table
     expect(page).not_to have_css("div.shadow-sm")
   end
+
+  it "reporte les classes de colonne et de cellule, et fige les largeurs si demandé" do
+    render_inline(described_class.new(fixed: true)) do |table|
+      table.with_column("Genre", class_name: "hidden sm:table-cell")
+      table.with_row { |row| row.with_cell(class_name: "hidden sm:table-cell") { "F" } }
+    end
+
+    expect(page).to have_css("table.table-fixed th.hidden", text: "Genre")
+    expect(page).to have_css("td.hidden", text: "F")
+  end
 end

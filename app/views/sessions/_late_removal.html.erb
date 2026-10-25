@@ -7,26 +7,23 @@
     <%= lucide_icon("x", class: "w-3.5 h-3.5", aria: { hidden: true }) %>
     Retirer
   </button>
-  <dialog data-dialog-target="dialog" data-action="click->dialog#backdropClose"
-          class="m-auto w-[min(92vw,26rem)] rounded-none p-0 backdrop:bg-black/40">
-    <div class="p-5 space-y-4 text-left">
-      <h3 class="font-anton text-xl uppercase text-gray-900">Retirer <%= user.full_name %> ?</h3>
-      <div class="rounded-none bg-orange-50 px-3 py-2.5 text-sm text-orange-900">
-        <p class="font-semibold">Désinscription tardive</p>
-        <p>Le délai d'annulation est dépassé : sans excuse, le joueur n'est pas remboursé et la désinscription est comptée.</p>
-      </div>
-
-      <%= button_to session_registration_path(@session, calendar_ctx.merge(user_id: user.id)), method: :delete,
-                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-brand px-4 py-3 text-sm font-semibold text-white hover:bg-brand-dark" do %>
+  <%= render ModalComponent.new(title: "Retirer #{user.full_name} ?",
+                                data: { dialog_target: "dialog", action: "click->dialog#backdropClose" }) do |modal| %>
+    <%= render AlertComponent.new(tone: :warning, title: "Désinscription tardive") do %>
+      Le délai d'annulation est dépassé : sans excuse, le joueur n'est pas remboursé et la désinscription est comptée.
+    <% end %>
+    <% modal.with_actions do %>
+      <%= render ButtonComponent.new(href: session_registration_path(@session, calendar_ctx.merge(user_id: user.id)), method: :delete,
+                                     size: :large, full_width: true) do %>
         Désinscription tardive
       <% end %>
-      <%= button_to session_registration_path(@session, calendar_ctx.merge(user_id: user.id, excused: "1")), method: :delete,
-                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50" do %>
+      <%= render ButtonComponent.new(href: session_registration_path(@session, calendar_ctx.merge(user_id: user.id, excused: "1")), method: :delete,
+                                     variant: :secondary, size: :large, full_width: true) do %>
         Excuser et rembourser
       <% end %>
       <button type="button" data-action="dialog#close" class="block w-full text-center text-sm text-gray-600 underline">
         Annuler
       </button>
-    </div>
-  </dialog>
+    <% end %>
+  <% end %>
 </div>

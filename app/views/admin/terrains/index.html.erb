@@ -1,10 +1,8 @@
-<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("map-pin") %> Terrains
-  </h1>
-
-  <%= button("Nouveau terrain", variant: :primary, size: :medium, href: new_admin_terrain_path) %>
-</div>
+<%= render PageHeaderComponent.new(title: "Terrains", icon: "map-pin", variant: :admin) do |header| %>
+  <% header.with_actions do %>
+    <%= button("Nouveau terrain", variant: :primary, size: :medium, href: new_admin_terrain_path) %>
+  <% end %>
+<% end %>
 
 <p class="text-sm text-gray-600 mb-4">
   L'ordre et la couleur s'appliquent au calendrier, aux filtres et aux cartes de session. Un terrain archivé n'est plus proposé mais reste affiché sur les anciennes sessions.
@@ -13,23 +11,13 @@
 <% { "Terrains actifs" => @active_terrains, "Terrains archivés" => @archived_terrains }.each do |title, terrains| %>
   <% next if terrains.empty? && title == "Terrains archivés" %>
   <h2 class="font-bebas-neue text-lg tracking-widest text-gray-500 mt-6 mb-2"><%= title %></h2>
-  <div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
-    <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
-      <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
-        <tr>
-          <th class="px-4 sm:px-6 py-3 text-left">Terrain</th>
-          <th class="px-4 sm:px-6 py-3 text-left hidden sm:table-cell">Couleur</th>
-          <th class="px-4 sm:px-6 py-3 text-right">Actions</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-100">
-        <% terrains.each_with_index do |terrain, index| %>
-          <%= render "row", terrain: terrain, first: index.zero?, last: index == terrains.size - 1 %>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-  <% if terrains.empty? %>
-    <p class="text-center text-gray-500 py-8">Aucun terrain actif.</p>
+  <%= render TableComponent.new(framed: true) do |table| %>
+    <% table.with_column("Terrain") %>
+    <% table.with_column("Couleur", class_name: "hidden sm:table-cell") %>
+    <% table.with_column("Actions", align: :right) %>
+    <% table.with_empty(icon: "map-pin", message: "Aucun terrain actif.") %>
+    <% terrains.each_with_index do |terrain, index| %>
+      <%= render "row", terrain: terrain, first: index.zero?, last: index == terrains.size - 1 %>
+    <% end %>
   <% end %>
 <% end %>

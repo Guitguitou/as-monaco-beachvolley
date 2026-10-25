@@ -55,8 +55,6 @@
 
   <!-- Retour -->
   <div>
-    <%= link_to "← Retour à la liste",
-          admin_users_path,
-          class: "text-sm font-medium text-brand hover:text-brand-dark" %>
+    <%= render BackLinkComponent.new(href: admin_users_path, label: "Retour à la liste") %>
   </div>
 </div>

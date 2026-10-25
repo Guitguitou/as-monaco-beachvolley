@@ -1,12 +1,11 @@
-<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("users-round") %> Groupes
-  </h1>
-  <p class="text-xs text-gray-500 flex items-center gap-1">
-    <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">+</span>
-    Joueur présent dans plusieurs groupes
-  </p>
-</div>
+<%= render PageHeaderComponent.new(title: "Groupes", icon: "users-round", variant: :admin) do |header| %>
+  <% header.with_actions do %>
+    <p class="text-xs text-gray-500 flex items-center gap-1">
+      <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold">+</span>
+      Joueur présent dans plusieurs groupes
+    </p>
+  <% end %>
+<% end %>
 
 <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
   <% @level_groups.groups.each do |group| %>

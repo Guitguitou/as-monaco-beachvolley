@@ -89,6 +89,5 @@
     </div>
   <% end %>
 
-  <%= f.submit "Enregistrer les règles",
-        class: "w-full rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark cursor-pointer" %>
+  <%= render ButtonComponent.new(type: "submit", full_width: true) do %>Enregistrer les règles<% end %>
 <% end %>
