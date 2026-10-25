@@ -1,0 +1,26 @@
+<%= form_with model: [:admin, public_page], class: "space-y-6 max-w-xl bg-white p-6 rounded-none shadow-md" do |f| %>
+  <%= render "shared/form_errors", object: public_page %>
+
+  <%= render FormFieldComponent.new(form: f, attribute: :title, type: :text_field, label: "Titre", required: true) %>
+
+  <div>
+    <%= render FormFieldComponent.new(form: f, attribute: :slug, type: :text_field, label: "Adresse de la page") %>
+    <p class="mt-1 text-xs text-gray-500">
+      La page sera accessible sur <%= request.base_url %>/<strong>nom-de-la-page</strong>. Laisser vide pour la déduire du titre.
+    </p>
+  </div>
+
+  <div>
+    <%= render FormFieldComponent.new(form: f, attribute: :script_url, type: :url_field, label: "URL du script Google", required: true) %>
+    <p class="mt-1 text-xs text-gray-500">
+      URL de déploiement de la web app, terminée par <code>/exec</code>. Le script doit autoriser l'intégration
+      (<code>setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)</code>).
+    </p>
+  </div>
+
+  <div>
+    <%= render ButtonComponent.new(type: :submit, class: "w-full") do %>
+      <%= lucide_icon("save", size: 16) %> Enregistrer
+    <% end %>
+  </div>
+<% end %>
