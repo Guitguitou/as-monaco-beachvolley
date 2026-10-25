@@ -56,8 +56,7 @@
     <% if @tournament.upcoming? %>
       <div class="space-y-3">
         <% if @tournament.registration_link.present? %>
-          <%= link_to @tournament.registration_link, target: "_blank", rel: "noopener",
-                class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-brand px-6 py-3 text-base font-semibold text-white hover:bg-brand-dark" do %>
+          <%= render ButtonComponent.new(href: @tournament.registration_link, target: "_blank", rel: "noopener", size: :large, full_width: true) do %>
             <%= lucide_icon("external-link", size: 18) %>
             S'inscrire sur BVS
           <% end %>

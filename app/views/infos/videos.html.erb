@@ -1,7 +1,7 @@
 <div class="max-w-6xl mx-auto">
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold text-gray-900">Vidéos tutos</h1>
-    <%= link_to "Retour", infos_root_path, class: "text-sm text-brand hover:underline flex items-center gap-1" %>
+    <%= render BackLinkComponent.new(href: infos_root_path) %>
   </div>
 
   <p class="text-gray-600 mb-6">Nos vidéos de formation et tutoriels pour améliorer ton jeu de beach-volley.</p>

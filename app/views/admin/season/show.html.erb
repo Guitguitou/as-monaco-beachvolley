@@ -16,8 +16,7 @@
   <%= form_with model: @club_setting, url: admin_season_path, method: :patch, class: "space-y-3" do |f| %>
     <%= f.url_field :membership_form_url, placeholder: "https://…",
           class: "w-full rounded-none border-gray-300 text-sm focus:border-brand focus:ring-brand" %>
-    <%= f.submit "Enregistrer le lien",
-          class: "w-full rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark cursor-pointer" %>
+    <%= render ButtonComponent.new(type: "submit", full_width: true) do %>Enregistrer le lien<% end %>
   <% end %>
 <% end %>
 
@@ -51,12 +50,8 @@
     racheter une licence. L'historique, les crédits et les niveaux sont conservés.
   </div>
 
-  <%= button_to admin_reset_season_path,
-        method: :post,
-        class: "w-full inline-flex justify-center items-center gap-2 rounded-none bg-brand px-4 py-2
-                text-sm font-semibold text-white hover:bg-brand-dark
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-colors",
-        data: { turbo_confirm: "Confirmer la réinitialisation de la saison ? #{@to_deactivate_count} licence(s) seront désactivée(s)." } do %>
+  <%= render ButtonComponent.new(href: admin_reset_season_path, method: :post, full_width: true,
+                                 data: { turbo_confirm: "Confirmer la réinitialisation de la saison ? #{@to_deactivate_count} licence(s) seront désactivée(s)." }) do %>
     <%= lucide_icon("refresh-cw", size: 16) %> Réinitialiser la saison
   <% end %>
 <% end %>

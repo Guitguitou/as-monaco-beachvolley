@@ -1,59 +1,36 @@
-<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("ban") %> Indisponibilité terrains
-  </h1>
-
-  <%= button("Nouvelle période", variant: :primary, size: :medium, href: new_admin_terrain_closure_path) %>
-</div>
+<%= render PageHeaderComponent.new(title: "Indisponibilité terrains", icon: "ban", variant: :admin) do |header| %>
+  <% header.with_actions do %>
+    <%= button("Nouvelle période", variant: :primary, size: :medium, href: new_admin_terrain_closure_path) %>
+  <% end %>
+<% end %>
 
 <p class="text-sm text-gray-600 mb-4">
   Les terrains concernés ne pourront pas être choisis pour une session dont la date de début tombe dans ces plages (formulaire et validation serveur).
 </p>
 
-<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
-  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
-    <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
-      <tr>
-        <th class="px-4 sm:px-6 py-3 text-left">Terrain</th>
-        <th class="px-4 sm:px-6 py-3 text-left">Du</th>
-        <th class="px-4 sm:px-6 py-3 text-left">Au</th>
-        <th class="px-4 sm:px-6 py-3 text-left hidden md:table-cell">Motif</th>
-        <th class="px-4 sm:px-6 py-3 text-right w-24">Actions</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-100">
-      <% @terrain_closures.each do |closure| %>
-        <tr class="hover:bg-gray-50 transition-colors">
-          <td class="px-4 sm:px-6 py-4 font-medium text-gray-800">
-            <%= closure.terrain.name %>
-          </td>
-          <td class="px-4 sm:px-6 py-4 text-gray-700">
-            <%= l(closure.starts_on, format: :default) %>
-          </td>
-          <td class="px-4 sm:px-6 py-4 text-gray-700">
-            <%= l(closure.ends_on, format: :default) %>
-          </td>
-          <td class="px-4 sm:px-6 py-4 text-gray-600 hidden md:table-cell">
-            <%= closure.reason.presence || "—" %>
-          </td>
-          <td class="px-4 sm:px-6 py-4 text-right space-x-2">
-            <%= link_to edit_admin_terrain_closure_path(closure),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
-              <%= lucide_icon("edit", size: 16) %>
-            <% end %>
-            <%= button_to admin_terrain_closure_path(closure),
-                  method: :delete,
-                  form: { data: { turbo_confirm: "Supprimer cette indisponibilité ?" } },
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors" do %>
-              <%= lucide_icon("trash-2", size: 16) %>
-            <% end %>
-          </td>
-        </tr>
+<%= render TableComponent.new(framed: true, fixed: true) do |table| %>
+  <% table.with_column("Terrain") %>
+  <% table.with_column("Du") %>
+  <% table.with_column("Au") %>
+  <% table.with_column("Motif", class_name: "hidden md:table-cell") %>
+  <% table.with_column("Actions", align: :right, class_name: "w-24") %>
+  <% @terrain_closures.each do |closure| %>
+    <% table.with_row do |row| %>
+      <% row.with_cell(weight: :medium) { closure.terrain.name } %>
+      <% row.with_cell { l(closure.starts_on, format: :default) } %>
+      <% row.with_cell { l(closure.ends_on, format: :default) } %>
+      <% row.with_cell(wrap: true, class_name: "hidden md:table-cell") { closure.reason.presence || "—" } %>
+      <% row.with_cell(align: :right, class_name: "space-x-2") do %>
+        <%= link_to edit_admin_terrain_closure_path(closure), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
+          <%= lucide_icon("edit", size: 16) %>
+        <% end %>
+        <%= button_to admin_terrain_closure_path(closure), method: :delete,
+              form: { data: { turbo_confirm: "Supprimer cette indisponibilité ?" } },
+              class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors" do %>
+          <%= lucide_icon("trash-2", size: 16) %>
+        <% end %>
       <% end %>
-    </tbody>
-  </table>
-</div>
-
-<% if @terrain_closures.empty? %>
-  <p class="text-center text-gray-500 py-8">Aucune période définie.</p>
+    <% end %>
+  <% end %>
+  <% table.with_empty(icon: "ban", message: "Aucune période définie.") %>
 <% end %>

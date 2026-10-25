@@ -1,124 +1,59 @@
-<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("package") %> Gestion des Packs
-  </h1>
+<%= render PageHeaderComponent.new(title: "Gestion des Packs", icon: "package", variant: :admin) do |header| %>
+  <% header.with_actions do %>
+    <%= button("Nouveau pack", variant: :primary, size: :medium, href: new_admin_pack_path) %>
+  <% end %>
+<% end %>
 
-  <%= button("Nouveau pack", variant: :primary, size: :medium, href: new_admin_pack_path) %>
-</div>
-
-<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
-  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
-    <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
-      <tr>
-        <th class="px-4 sm:px-6 py-3 text-left">Nom</th>
-        <th class="px-4 sm:px-6 py-3 text-left hidden sm:table-cell">Type</th>
-        <th class="px-4 sm:px-6 py-3 text-left">Montant</th>
-        <th class="px-4 sm:px-6 py-3 text-left hidden md:table-cell">Crédits</th>
-        <th class="px-4 sm:px-6 py-3 text-left hidden lg:table-cell">Stage</th>
-        <th class="px-4 sm:px-6 py-3 text-left hidden xl:table-cell">Position</th>
-        <th class="px-4 sm:px-6 py-3 text-left hidden lg:table-cell">Hors connexion</th>
-        <th class="px-4 sm:px-6 py-3 text-left">Statut</th>
-        <th class="px-4 sm:px-6 py-3 text-right w-16 sm:w-24">Actions</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-100">
-      <% @packs.each do |pack| %>
-        <tr class="hover:bg-gray-50 transition-colors">
-          <!-- Nom -->
-          <td class="px-4 sm:px-6 py-4 font-medium text-gray-800">
-            <%= pack.name %>
-          </td>
-
-          <!-- Type -->
-          <td class="px-4 sm:px-6 py-4 hidden sm:table-cell">
-            <% if pack.pack_type_credits? %>
-              <%= render BadgeComponent.new(label: "Crédits", variant: :neutral, size: :xs) %>
-            <% elsif pack.pack_type_licence? %>
-              <%= render BadgeComponent.new(label: "Licence", variant: :neutral, size: :xs) %>
-            <% elsif pack.pack_type_stage? %>
-              <%= render BadgeComponent.new(label: "Stage", variant: :warning, size: :xs) %>
-            <% elsif pack.pack_type_inscription_tournoi? %>
-              <%= render BadgeComponent.new(label: "Inscription tournoi", variant: :danger, size: :xs) %>
-            <% elsif pack.pack_type_equipements? %>
-              <%= render BadgeComponent.new(label: "Équipements", variant: :neutral, size: :xs) %>
-            <% else %>
-              <%= render BadgeComponent.new(label: pack.pack_type.humanize, variant: :neutral, size: :xs) %>
-            <% end %>
-          </td>
-
-          <!-- Montant -->
-          <td class="px-4 sm:px-6 py-4 font-semibold text-gray-900">
-            <%= number_to_currency(pack.amount_eur, unit: "€", precision: 2) %>
-          </td>
-
-          <!-- Crédits -->
-          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden md:table-cell">
-            <% if pack.credits.present? %>
-              <%= pack.credits %>
-            <% else %>
-              <span class="text-gray-400">–</span>
-            <% end %>
-          </td>
-
-          <!-- Stage -->
-          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden lg:table-cell">
-            <% if pack.stage.present? %>
-              <span class="text-sm"><%= pack.stage.title %></span>
-            <% else %>
-              <span class="text-gray-400">–</span>
-            <% end %>
-          </td>
-
-          <!-- Position -->
-          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden xl:table-cell">
-            <%= pack.position %>
-          </td>
-
-          <!-- Hors connexion -->
-          <td class="px-4 sm:px-6 py-4 hidden lg:table-cell">
-            <% if pack.public? %>
-              <%= render BadgeComponent.new(label: "Oui", variant: :warning, size: :xs) %>
-            <% else %>
-              <span class="text-gray-400">Non</span>
-            <% end %>
-          </td>
-
-          <!-- Statut -->
-          <td class="px-4 sm:px-6 py-4">
-            <% if pack.active? %>
-              <%= render BadgeComponent.new(label: "Actif", variant: :success, size: :xs) %>
-            <% else %>
-              <%= render BadgeComponent.new(label: "Inactif", variant: :neutral, size: :xs) %>
-            <% end %>
-          </td>
-
-          <!-- Actions -->
-          <td class="px-4 sm:px-6 py-4 text-right space-x-2">
-            <%= link_to edit_admin_pack_path(pack),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
-              <%= lucide_icon("edit", size: 16) %>
-              <span class="hidden sm:inline">Modifier</span>
-            <% end %>
-
-            <%= button_to admin_pack_path(pack),
-                  method: :delete,
-                  data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer ce pack ?" },
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors" do %>
-              <%= lucide_icon("trash-2", size: 16) %>
-            <% end %>
-          </td>
-        </tr>
+<% type_badges = { "credits" => [ "Crédits", :neutral ], "licence" => [ "Licence", :neutral ], "stage" => [ "Stage", :warning ],
+                    "inscription_tournoi" => [ "Inscription tournoi", :danger ], "equipements" => [ "Équipements", :neutral ] } %>
+<%= render TableComponent.new(framed: true, fixed: true) do |table| %>
+  <% table.with_column("Nom") %>
+  <% table.with_column("Type", class_name: "hidden sm:table-cell") %>
+  <% table.with_column("Montant") %>
+  <% table.with_column("Crédits", class_name: "hidden md:table-cell") %>
+  <% table.with_column("Stage", class_name: "hidden lg:table-cell") %>
+  <% table.with_column("Position", class_name: "hidden xl:table-cell") %>
+  <% table.with_column("Hors connexion", class_name: "hidden lg:table-cell") %>
+  <% table.with_column("Statut") %>
+  <% table.with_column("Actions", align: :right, class_name: "w-16 sm:w-24") %>
+  <% @packs.each do |pack| %>
+    <% table.with_row do |row| %>
+      <% row.with_cell(weight: :medium, wrap: true) { pack.name } %>
+      <% row.with_cell(class_name: "hidden sm:table-cell") do %>
+        <% label, variant = type_badges.fetch(pack.pack_type) { [ pack.pack_type.humanize, :neutral ] } %>
+        <%= render BadgeComponent.new(label: label, variant: variant, size: :xs) %>
       <% end %>
-    </tbody>
-  </table>
-</div>
+      <% row.with_cell(weight: :semibold) { number_to_currency(pack.amount_eur, unit: "€", precision: 2) } %>
+      <% row.with_cell(class_name: "hidden md:table-cell") { pack.credits.present? ? pack.credits.to_s : tag.span("–", class: "text-gray-400") } %>
+      <% row.with_cell(wrap: true, class_name: "hidden lg:table-cell") { pack.stage.present? ? pack.stage.title : tag.span("–", class: "text-gray-400") } %>
+      <% row.with_cell(class_name: "hidden xl:table-cell") { pack.position.to_s } %>
+      <% row.with_cell(class_name: "hidden lg:table-cell") do %>
+        <% if pack.public? %>
+          <%= render BadgeComponent.new(label: "Oui", variant: :warning, size: :xs) %>
+        <% else %>
+          <span class="text-gray-400">Non</span>
+        <% end %>
+      <% end %>
+      <% row.with_cell { render BadgeComponent.new(label: pack.active? ? "Actif" : "Inactif", variant: pack.active? ? :success : :neutral, size: :xs) } %>
+      <% row.with_cell(align: :right, class_name: "space-x-2") do %>
+        <%= link_to edit_admin_pack_path(pack), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
+          <%= lucide_icon("edit", size: 16) %>
+          <span class="hidden sm:inline">Modifier</span>
+        <% end %>
+        <%= button_to admin_pack_path(pack), method: :delete,
+              data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer ce pack ?" },
+              class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors" do %>
+          <%= lucide_icon("trash-2", size: 16) %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
 
 <% if @packs.empty? %>
-  <%= render CardComponent.new(padding: :none, class_name: "text-center py-12 mt-6") do %>
-    <div class="flex flex-col items-center gap-3">
-      <%= lucide_icon("package", size: 48, class: "text-gray-300") %>
-      <p class="text-gray-500 text-lg">Aucun pack pour le moment</p>
-      <%= button("Créer le premier pack", variant: :primary, size: :medium, href: new_admin_pack_path) %>
-    </div>
-  <% end %>
+  <div class="mt-6">
+    <%= render EmptyStateComponent.new(icon: "package", title: "Aucun pack pour le moment") do |empty| %>
+      <% empty.with_action { button("Créer le premier pack", variant: :primary, size: :medium, href: new_admin_pack_path) } %>
+    <% end %>
+  </div>
 <% end %>
