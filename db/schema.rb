@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_25_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -241,6 +241,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_150000) do
     t.index ["position"], name: "index_packs_on_position"
     t.index ["stage_id"], name: "index_packs_on_stage_id"
     t.index ["tournament_id"], name: "index_packs_on_tournament_id", unique: true
+  end
+
+  create_table "public_pages", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "slug", null: false
+    t.string "script_url", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_public_pages_on_slug", unique: true
   end
 
   create_table "push_subscriptions", force: :cascade do |t|
