@@ -26,6 +26,8 @@ Rails.application.routes.draw do
   # Écran d'accueil du joueur connecté : sa prochaine session, son solde et les
   # sessions ouvertes pour lui. Remplace l'atterrissage sur les classements.
   get "mon-terrain", to: "home#show", as: :home
+  # Vitrine de tous les composants (cf. UiKitController)
+  get "ui-kit", to: "ui_kit#show", as: :ui_kit
   # Section Règles & informations
   scope :infos, controller: :infos do
     get "/", action: :index, as: :infos_root
