@@ -17,7 +17,7 @@ module Admin
 
     def create
       @public_page = PublicPage.new(public_page_params)
-      if @public_page.save
+      if save_with_meta
         redirect_to admin_public_pages_path, notice: "Page publique créée."
       else
         render :new, status: :unprocessable_content
@@ -27,7 +27,8 @@ module Admin
     def edit; end
 
     def update
-      if @public_page.update(public_page_params)
+      @public_page.assign_attributes(public_page_params)
+      if save_with_meta
         redirect_to admin_public_pages_path, notice: "Page publique mise à jour."
       else
         render :edit, status: :unprocessable_content
@@ -43,6 +44,15 @@ module Admin
 
     def set_public_page
       @public_page = PublicPage.find_by!(slug: params[:id])
+    end
+
+    # Relit les métadonnées du script à chaque enregistrement : réenregistrer
+    # la page suffit à rafraîchir l'aperçu après une modification du script.
+    def save_with_meta
+      return false unless @public_page.valid?
+
+      @public_page.assign_attributes(PublicPages::FetchMeta.new.call(@public_page.script_url))
+      @public_page.save
     end
 
     def public_page_params

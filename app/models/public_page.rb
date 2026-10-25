@@ -23,6 +23,10 @@ class PublicPage < ApplicationRecord
       .to_set
   end
 
+  def display_title
+    meta_title.presence || title
+  end
+
   def to_param
     slug_was.presence || slug
   end
