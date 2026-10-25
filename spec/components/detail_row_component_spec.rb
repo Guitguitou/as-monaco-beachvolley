@@ -15,4 +15,10 @@ RSpec.describe DetailRowComponent, type: :component do
 
     expect(page).not_to have_css("div.border-b")
   end
+
+  it "met la valeur en avant selon l'emphase" do
+    render_inline(described_class.new(icon: "coins", label: "Crédits", emphasis: :large)) { "1000" }
+
+    expect(page).to have_css("span.text-lg.font-bold", text: "1000")
+  end
 end

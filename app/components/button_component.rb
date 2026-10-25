@@ -1,18 +1,36 @@
 # frozen_string_literal: true
 
+# Bouton standard de l'app.
+#
+#   render ButtonComponent.new(href: packs_path) { "Voir les packs" }      # lien
+#   render ButtonComponent.new(type: "submit", full_width: true) { "OK" }  # bouton
+#   render ButtonComponent.new(href: buy_pack_path(pack), method: :post,  # formulaire
+#                              data: { turbo: false }) { "Acheter" }
+#
+# Avec `method` autre que :get, le bouton est rendu par `button_to` : un
+# formulaire qui envoie la requête, comme les boutons d'achat le faisaient.
 class ButtonComponent < ApplicationComponent
   attr_reader :variant, :size, :options
 
-  def initialize(variant: :primary, size: :medium, shape: :square, icon_only: false, **options)
+  def initialize(variant: :primary, size: :medium, shape: :square, icon_only: false, full_width: false, **options)
     @variant = variant
     @size = size
     @shape = shape
     @icon_only = icon_only
+    @full_width = full_width
     @options = options
   end
 
   def tag_name
     options[:href] || options[:url] ? :a : :button
+  end
+
+  def form?
+    options[:method].present? && options[:method].to_sym != :get
+  end
+
+  def url
+    options[:href] || options[:url]
   end
 
   def icon_path
@@ -34,9 +52,17 @@ class ButtonComponent < ApplicationComponent
     end
   end
 
+  def icon_svg
+    return unless options[:icon]
+
+    tag.svg(class: "w-4 h-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24") do
+      tag.path("stroke-linecap" => "round", "stroke-linejoin" => "round", "stroke-width" => "2", d: icon_path)
+    end
+  end
+
   def classes
     base = "inline-flex items-center justify-center gap-2 font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-    "#{base} #{shape_classes} #{variant_classes} #{size_classes}"
+    [ base, shape_classes, variant_classes, size_classes, ("w-full" if @full_width), options[:class] ].compact.join(" ")
   end
 
   private
