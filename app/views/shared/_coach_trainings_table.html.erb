@@ -1,0 +1,51 @@
+<%# Tableau des séances d'un coach (passées ou à venir), cf. shared/_coach_trainings.
+
+    locals :
+      trainings:     séances à lister
+      admin_links:   lie les titres de séance vers l'administration
+      empty_icon:    icône de la ligne vide
+      empty_message: message de la ligne vide
+%>
+<%= render TableComponent.new do |table| %>
+  <% table.with_column("Date") %>
+  <% table.with_column("Nom") %>
+  <% table.with_column("Groupes") %>
+  <% table.with_column("Participants") %>
+  <% trainings.each do |training| %>
+    <% table.with_row do |row| %>
+      <% row.with_cell { l(training.start_at, format: :short) } %>
+      <% row.with_cell(wrap: true) do %>
+        <div class="font-medium">
+          <% title = training.title.presence || training.display_name %>
+          <% if admin_links %>
+            <%= link_to title, admin_session_path(training), class: "text-brand hover:text-brand-dark" %>
+          <% else %>
+            <%= title %>
+          <% end %>
+        </div>
+        <div class="text-gray-500 text-xs"><%= training.terrain&.name %></div>
+      <% end %>
+      <% row.with_cell(wrap: true) do %>
+        <% if training.levels.any? %>
+          <div class="flex flex-wrap gap-1">
+            <% training.levels.each do |level| %>
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style="background-color: <%= level.color %>20; color: <%= level.color %>">
+                <span class="w-2 h-2 rounded-full mr-1" style="background-color: <%= level.color %>"></span>
+                <%= level.name %>
+              </span>
+            <% end %>
+          </div>
+        <% else %>
+          <span class="text-gray-400 text-xs">Tous niveaux</span>
+        <% end %>
+      <% end %>
+      <% row.with_cell do %>
+        <div class="flex items-center gap-1">
+          <%= lucide_icon("users", class: "w-4 h-4 text-gray-400") %>
+          <%= training.registrations.count %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+  <% table.with_empty(icon: empty_icon, message: empty_message) %>
+<% end %>

@@ -1,0 +1,11 @@
+<%= tag.dialog(**dialog_options) do %>
+  <div class="p-5 space-y-4 text-left">
+    <h3 class="font-anton text-xl uppercase text-gray-900"><%= title %></h3>
+    <%= content %>
+    <% if actions %>
+      <div class="space-y-2">
+        <%= actions %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

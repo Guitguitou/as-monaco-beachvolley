@@ -132,11 +132,80 @@
     </div>
   <% end %>
 
+  <%= render layout: "ui_kit/specimen", locals: { component: "AlertComponent" } do %>
+    <div class="space-y-3">
+      <%= render AlertComponent.new(tone: :error, title: "2 erreurs ont empêché l'enregistrement") do %>
+        <ul class="list-disc list-inside space-y-1"><li>Nom doit être rempli(e)</li><li>Email n'est pas valide</li></ul>
+      <% end %>
+      <% %i[warning success info].each do |tone| %>
+        <%= render AlertComponent.new(tone: tone) do %>Alerte <%= tone %>, sans titre.<% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "ModalComponent", note: "Ouverte ici par le bouton ; dans l'app, par un contrôleur Stimulus." } do %>
+    <%= render ButtonComponent.new(variant: :secondary, onclick: "document.getElementById('ui_kit_modal').showModal()") do %>Ouvrir la modale<% end %>
+    <%= render ModalComponent.new(title: "Désinscriptions tardives", id: "ui_kit_modal") do |modal| %>
+      <p class="text-sm text-gray-700">Le délai d'annulation est dépassé : sans excuse, ces joueurs ne sont pas remboursés.</p>
+      <% modal.with_actions do %>
+        <%= render ButtonComponent.new(class: "w-full", onclick: "this.closest('dialog').close()") do %>Confirmer<% end %>
+        <%= render ButtonComponent.new(variant: :link, class: "w-full", onclick: "this.closest('dialog').close()") do %>Annuler<% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+
   <%# ——— Mise en page ——— %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "BackLinkComponent" } do %>
+    <div class="flex gap-6">
+      <%= render BackLinkComponent.new(href: "#") %>
+      <%= render BackLinkComponent.new(href: "#", label: "Retour aux joueurs") %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "DetailRowComponent" } do %>
+    <%= render CardComponent.new(padding: :sm, class_name: "max-w-sm") do %>
+      <%= render DetailRowComponent.new(icon: "calendar-days", label: "Dates") do %>12/07 - 18/07<% end %>
+      <%= render DetailRowComponent.new(icon: "users", label: "Coachs") do %>Marc Coach<% end %>
+      <%= render DetailRowComponent.new(icon: "euro", label: "Prix", last: true) do %>250 €<% end %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "TableComponent" } do %>
+    <% months = [ [ "Septembre", 8, 240.0 ], [ "Octobre", 6, 180.0 ] ] %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Encadré (posé seul sur la page)" } do %>
+      <%= render TableComponent.new(framed: true) do |table| %>
+        <% table.with_column("Mois") %>
+        <% table.with_column("Entraînements") %>
+        <% table.with_column("Total", align: :right) %>
+        <% months.each do |name, count, total| %>
+          <% table.with_row do |row| %>
+            <% row.with_cell(weight: :medium) { name } %>
+            <% row.with_cell { count.to_s } %>
+            <% row.with_cell(weight: :semibold, align: :right) { "#{number_with_precision(total, precision: 2)} €" } %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Dans une carte, sans ligne" } do %>
+      <%= render CardComponent.new(padding: :none) do %>
+        <%= render TableComponent.new do |table| %>
+          <% table.with_column("Date") %>
+          <% table.with_column("Nom") %>
+          <% table.with_empty(icon: "calendar-x", message: "Aucun entraînement passé") %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
 
   <%= render layout: "ui_kit/specimen", locals: { component: "PageHeaderComponent" } do %>
     <%= render PageHeaderComponent.new(title: "Titre de page", subtitle: "Sous-titre") do |header| %>
       <% header.with_actions { render(ButtonComponent.new) { "Action" } } %>
+    <% end %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Variante admin" } do %>
+      <%= render PageHeaderComponent.new(title: "Terrains", icon: "map-pin", variant: :admin) do |header| %>
+        <% header.with_actions { render(ButtonComponent.new) { "Nouveau terrain" } } %>
+      <% end %>
     <% end %>
   <% end %>
 

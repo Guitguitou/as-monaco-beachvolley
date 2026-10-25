@@ -1,0 +1,11 @@
+<%= tag.div(**wrapper_options) do %>
+  <%= lucide_icon(tone[:icon], class: "w-5 h-5 shrink-0 #{tone[:title]}", aria: { hidden: true }) %>
+  <div class="min-w-0 flex-1">
+    <% if title.present? %>
+      <h3 class="text-sm font-medium <%= tone[:title] %>"><%= title %></h3>
+    <% end %>
+    <% if content? %>
+      <div class="<%= 'mt-2 ' if title.present? %>text-sm <%= tone[:body] %>"><%= content %></div>
+    <% end %>
+  </div>
+<% end %>

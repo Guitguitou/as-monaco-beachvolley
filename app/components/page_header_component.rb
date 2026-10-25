@@ -10,15 +10,26 @@
 #   <%= render PageHeaderComponent.new(title: "Calendrier") do |header| %>
 #     <% header.with_actions do %>...<% end %>
 #   <% end %>
+#
+# `variant: :admin` rend l'en-tête des index de l'administration : titre en
+# gras précédé d'une icône, sans bandeau, actions à droite.
+#
+#   render PageHeaderComponent.new(title: "Terrains", icon: "map-pin", variant: :admin)
 class PageHeaderComponent < ApplicationComponent
   renders_one :actions
 
-  def initialize(title:, subtitle: nil)
+  def initialize(title:, subtitle: nil, icon: nil, variant: :default)
     @title = title
     @subtitle = subtitle
+    @icon = icon
+    @variant = variant
   end
 
   private
 
-  attr_reader :title, :subtitle
+  attr_reader :title, :subtitle, :icon
+
+  def admin?
+    @variant == :admin
+  end
 end

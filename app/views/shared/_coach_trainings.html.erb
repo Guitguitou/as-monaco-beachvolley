@@ -66,51 +66,25 @@
         Salaire par mois
       </h3>
     </div>
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mois</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Entraînements</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salaire par entraînement</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <% report.monthly_history.each do |month_data| %>
-            <tr class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                <%= month_data[:month_name] %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= month_data[:training_count] %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= number_with_precision(report.salary_per_training, precision: 2) %> €
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                <%= number_with_precision(month_data[:total_salary], precision: 2) %> €
-              </td>
-            </tr>
-          <% end %>
-          <% if report.monthly_history.empty? %>
-            <tr>
-              <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                <div class="flex flex-col items-center gap-2">
-                  <%= lucide_icon("calendar-x", class: "w-8 h-8 text-gray-300") %>
-                  <span>Aucun entraînement sur les 12 derniers mois</span>
-                </div>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
+    <%= render TableComponent.new do |table| %>
+      <% table.with_column("Mois") %>
+      <% table.with_column("Entraînements") %>
+      <% table.with_column("Salaire par entraînement") %>
+      <% table.with_column("Total") %>
+      <% report.monthly_history.each do |month_data| %>
+        <% table.with_row do |row| %>
+          <% row.with_cell(weight: :medium) { month_data[:month_name] } %>
+          <% row.with_cell { month_data[:training_count].to_s } %>
+          <% row.with_cell { "#{number_with_precision(report.salary_per_training, precision: 2)} €" } %>
+          <% row.with_cell(weight: :semibold) { "#{number_with_precision(month_data[:total_salary], precision: 2)} €" } %>
+        <% end %>
+      <% end %>
+      <% table.with_empty(icon: "calendar-x", message: "Aucun entraînement sur les 12 derniers mois") %>
+    <% end %>
   <% end %>
 
   <!-- Training Tables -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <!-- Past Trainings Table -->
     <%= render CardComponent.new(padding: :none) do %>
       <div class="px-6 py-4 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -118,72 +92,9 @@
           Entraînements passés
         </h3>
       </div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Groupes</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participants</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% if report.past_trainings.any? %>
-              <% report.past_trainings.each do |training| %>
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <%= l training.start_at, format: :short %>
-                  </td>
-                  <td class="px-6 py-4 text-sm text-gray-900">
-                    <div class="font-medium">
-                      <% title = training.title.presence || training.display_name %>
-                    <% if admin_links %>
-                      <%= link_to title, admin_session_path(training), class: "text-brand hover:text-brand-dark" %>
-                    <% else %>
-                      <%= title %>
-                    <% end %>
-                    </div>
-                    <div class="text-gray-500 text-xs"><%= training.terrain&.name %></div>
-                  </td>
-                  <td class="px-6 py-4 text-sm text-gray-900">
-                    <% if training.levels.any? %>
-                      <div class="flex flex-wrap gap-1">
-                        <% training.levels.each do |level| %>
-                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style="background-color: <%= level.color %>20; color: <%= level.color %>">
-                            <span class="w-2 h-2 rounded-full mr-1" style="background-color: <%= level.color %>"></span>
-                            <%= level.name %>
-                          </span>
-                        <% end %>
-                      </div>
-                    <% else %>
-                      <span class="text-gray-400 text-xs">Tous niveaux</span>
-                    <% end %>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div class="flex items-center gap-1">
-                      <%= lucide_icon("users", class: "w-4 h-4 text-gray-400") %>
-                      <%= training.registrations.count %>
-                    </div>
-                  </td>
-                </tr>
-              <% end %>
-            <% else %>
-              <tr>
-                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                  <div class="flex flex-col items-center gap-2">
-                    <%= lucide_icon("calendar-x", class: "w-8 h-8 text-gray-300") %>
-                    <span>Aucun entraînement passé</span>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
+      <%= render "shared/coach_trainings_table", trainings: report.past_trainings, admin_links: admin_links,
+                 empty_icon: "calendar-x", empty_message: "Aucun entraînement passé" %>
     <% end %>
-
-    <!-- Upcoming Trainings Table -->
     <%= render CardComponent.new(padding: :none) do %>
       <div class="px-6 py-4 border-b border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -191,69 +102,8 @@
           Entraînements à venir
         </h3>
       </div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Groupes</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participants</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% if report.upcoming_trainings.any? %>
-              <% report.upcoming_trainings.each do |training| %>
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <%= l training.start_at, format: :short %>
-                  </td>
-                  <td class="px-6 py-4 text-sm text-gray-900">
-                    <div class="font-medium">
-                      <% title = training.title.presence || training.display_name %>
-                    <% if admin_links %>
-                      <%= link_to title, admin_session_path(training), class: "text-brand hover:text-brand-dark" %>
-                    <% else %>
-                      <%= title %>
-                    <% end %>
-                    </div>
-                    <div class="text-gray-500 text-xs"><%= training.terrain&.name %></div>
-                  </td>
-                  <td class="px-6 py-4 text-sm text-gray-900">
-                    <% if training.levels.any? %>
-                      <div class="flex flex-wrap gap-1">
-                        <% training.levels.each do |level| %>
-                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style="background-color: <%= level.color %>20; color: <%= level.color %>">
-                            <span class="w-2 h-2 rounded-full mr-1" style="background-color: <%= level.color %>"></span>
-                            <%= level.name %>
-                          </span>
-                        <% end %>
-                      </div>
-                    <% else %>
-                      <span class="text-gray-400 text-xs">Tous niveaux</span>
-                    <% end %>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div class="flex items-center gap-1">
-                      <%= lucide_icon("users", class: "w-4 h-4 text-gray-400") %>
-                      <%= training.registrations.count %>
-                    </div>
-                  </td>
-                </tr>
-              <% end %>
-            <% else %>
-              <tr>
-                <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                  <div class="flex flex-col items-center gap-2">
-                    <%= lucide_icon("calendar-plus", class: "w-8 h-8 text-gray-300") %>
-                    <span>Aucun entraînement à venir</span>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
+      <%= render "shared/coach_trainings_table", trainings: report.upcoming_trainings, admin_links: admin_links,
+                 empty_icon: "calendar-plus", empty_message: "Aucun entraînement à venir" %>
     <% end %>
   </div>
 </div>
