@@ -650,7 +650,7 @@ DEPENDENCIES
   webpush
 
 RUBY VERSION
-  ruby 4.0.7p0
+   ruby 4.0.8p0
 
 BUNDLED WITH
-  4.0.20
+   2.4.10
