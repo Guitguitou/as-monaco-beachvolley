@@ -69,9 +69,11 @@ class StatTileComponent < ApplicationComponent
     "#{base} #{tone.to_sym == :accent ? 'text-gray-400' : 'text-gray-500'}"
   end
 
+  # :positive / :negative colorent la valeur (un bénéfice, une perte).
+  VALUE_COLORS = { accent: "text-white", positive: "text-green-600", negative: "text-red-600" }.freeze
+
   def value_classes
-    base = "mt-1 font-anton text-3xl leading-none tabular-nums"
-    "#{base} #{tone.to_sym == :accent ? 'text-white' : 'text-gray-900'}"
+    "mt-1 font-anton text-3xl leading-none tabular-nums #{VALUE_COLORS.fetch(tone.to_sym, 'text-gray-900')}"
   end
 
   def hint_classes

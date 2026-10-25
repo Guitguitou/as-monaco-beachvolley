@@ -1,76 +1,37 @@
 <% session_type_tabs = [
-  [ "upcoming", "Sessions prévues", "" ],
-  [ "entrainement", "Entrainements", "entrainement" ],
-  [ "jeu_libre", "Jeux libres", "jeu_libre" ],
-  [ "coaching_prive", "Coachings privés", "coaching_prive" ]
+  [ "Sessions prévues", "" ],
+  [ "Entrainements", "entrainement" ],
+  [ "Jeux libres", "jeu_libre" ],
+  [ "Coachings privés", "coaching_prive" ]
 ] %>
 
 <!-- Sous-onglets par type -->
-<div class="border-b border-gray-200 mb-6">
-  <nav class="flex gap-4" aria-label="Type de session">
-    <% session_type_tabs.each do |(id, label, param_value)| %>
-      <% active = (param_value.blank? && @sessions_tab.upcoming?) || @sessions_tab.sub_tab == param_value %>
-      <%= link_to label,
-                  admin_root_path(tab: "sessions", session_type: param_value),
-                  class: "py-3 px-1 border-b-2 text-sm font-medium #{active ? 'border-brand text-brand' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" %>
-    <% end %>
-  </nav>
+<div class="mb-6">
+  <%= render TabsComponent.new(tabs: session_type_tabs.map { |(label, param_value)|
+        { label: label,
+          href: admin_root_path(tab: "sessions", session_type: param_value),
+          active: (param_value.blank? && @sessions_tab.upcoming?) || @sessions_tab.sub_tab == param_value }
+      }) %>
 </div>
 
 <% if @sessions_tab.upcoming? %>
   <!-- Sessions prévues (à partir d'aujourd'hui) -->
-  <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden mb-8") do %>
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900">Sessions prévues</h3>
-    </div>
-    <div class="overflow-x-auto">
-      <% if @sessions_tab.upcoming_sessions.any? %>
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsable</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participants</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% @sessions_tab.upcoming_sessions.each do |session| %>
-              <tr class="hover:bg-gray-50">
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  <%= l(session.start_at, format: :short) %>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium
-                    <%= case session.session_type
-                        when 'entrainement' then 'bg-blue-100 text-blue-800'
-                        when 'jeu_libre' then 'bg-green-100 text-green-800'
-                        when 'coaching_prive' then 'bg-purple-100 text-purple-800'
-                        else 'bg-gray-100 text-gray-800'
-                        end %>">
-                    <%= session.session_type.humanize %>
-                  </span>
-                </td>
-                <td class="px-4 py-3 text-sm text-gray-900"><%= session.title %></td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm">
-                  <%= link_to session.user&.full_name, admin_session_path(session), class: "text-brand hover:underline" %>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  <%= session.registrations.confirmed.count %>/<%= session.max_players || "∞" %>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm">
-                  <%= link_to "Voir", admin_session_path(session), class: "text-brand hover:underline" %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      <% else %>
-        <p class="px-6 py-8 text-center text-gray-500">Aucune session prévue.</p>
+  <%= render CardComponent.new(title: "Sessions prévues", icon: "calendar", padding: :none, class_name: "overflow-hidden mb-8") do %>
+    <%= render TableComponent.new do |table| %>
+      <% %w[Date Type Titre Responsable Participants Actions].each { |label| table.with_column(label) } %>
+      <% @sessions_tab.upcoming_sessions.each do |session| %>
+        <% session_type = Sessions::SessionType.for(session.session_type) %>
+        <% table.with_row do |row| %>
+          <% row.with_cell { l(session.start_at, format: :short) } %>
+          <% row.with_cell { render BadgeComponent.new(label: session_type.label, variant: session_type.badge, size: :xs) } %>
+          <% row.with_cell(wrap: true) { session.title } %>
+          <% row.with_cell { link_to session.user&.full_name, admin_session_path(session), class: "text-brand hover:underline" } %>
+          <% row.with_cell { "#{session.registrations.confirmed.count}/#{session.max_players || '∞'}" } %>
+          <% row.with_cell { link_to "Voir", admin_session_path(session), class: "text-brand hover:underline" } %>
+        <% end %>
       <% end %>
-    </div>
+      <% table.with_empty(icon: "calendar-x", message: "Aucune session prévue.") %>
+    <% end %>
   <% end %>
 <% else %>
   <!-- Vue par type : période + tableau -->
@@ -88,46 +49,18 @@
     </nav>
   </div>
 
-  <%= render CardComponent.new(padding: :none, class_name: "overflow-hidden mb-8") do %>
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900">
-        <%= case @sessions_tab.sub_tab
-            when "entrainement" then "Entrainements"
-            when "jeu_libre" then "Jeux libres"
-            when "coaching_prive" then "Coachings privés"
-            else @sessions_tab.sub_tab.humanize
-            end %>
-      </h3>
-    </div>
-    <div class="overflow-x-auto">
-      <% if @sessions_tab.sessions_by_type.any? %>
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jour</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre de participants</th>
-              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Responsable</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <% @sessions_tab.sessions_by_type.each do |session| %>
-              <tr class="hover:bg-gray-50">
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  <%= l(session.start_at, format: :short) %>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  <%= session.registrations.confirmed.count %>
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm">
-                  <%= link_to session.user&.full_name, admin_session_path(session), class: "text-brand hover:underline" %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      <% else %>
-        <p class="px-6 py-8 text-center text-gray-500">Aucune session sur cette période.</p>
+  <%= render CardComponent.new(title: session_type_tabs.to_h.key(@sessions_tab.sub_tab) || @sessions_tab.sub_tab.humanize, icon: "calendar",
+                               padding: :none, class_name: "overflow-hidden mb-8") do %>
+    <%= render TableComponent.new do |table| %>
+      <% [ "Jour", "Nombre de participants", "Responsable" ].each { |label| table.with_column(label) } %>
+      <% @sessions_tab.sessions_by_type.each do |session| %>
+        <% table.with_row do |row| %>
+          <% row.with_cell { l(session.start_at, format: :short) } %>
+          <% row.with_cell { session.registrations.confirmed.count.to_s } %>
+          <% row.with_cell { link_to session.user&.full_name, admin_session_path(session), class: "text-brand hover:underline" } %>
+        <% end %>
       <% end %>
-    </div>
+      <% table.with_empty(icon: "calendar-x", message: "Aucune session sur cette période.") %>
+    <% end %>
   <% end %>
 <% end %>

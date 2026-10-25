@@ -1,6 +1,6 @@
 <div class="mb-8">
   <!-- Tab Navigation -->
-  <div class="border-b border-gray-200">
+  <div class="border-b border-gray-200 overflow-x-auto">
     <nav class="-mb-px flex space-x-8" data-controller="tabs">
       <% tabs.each do |tab| %>
         <%= link_to helpers.admin_root_path(tab: tab[:id]), 
