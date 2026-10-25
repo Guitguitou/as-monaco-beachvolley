@@ -1,15 +1,7 @@
 <!-- Désinscriptions hors délai -->
-<%= render CardComponent.new(padding: :none, class_name: "border border-gray-200") do |card| %>
-  <% card.with_header do %>
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900 flex items-center">
-        <span class="mr-2">⚠️</span>
-        Désinscriptions hors délai
-        <span class="ml-2"><%= render BadgeComponent.new(label: @alerts[:late_cancellations]&.size.to_i.to_s, variant: :danger, size: :xs) %></span>
-      </h3>
-    </div>
-  <% end %>
-  <div class="p-6">
+<%= render CardComponent.new(title: "Désinscriptions hors délai", icon: "user-x", padding: :lg) do |card| %>
+  <% card.with_title_aside { render BadgeComponent.new(label: @alerts[:late_cancellations]&.size.to_i.to_s, variant: :danger, size: :xs) } %>
+  <div>
     <% if @alerts[:late_cancellations]&.any? %>
       <div class="space-y-3">
         <% @alerts[:late_cancellations].each do |cancellation| %>
@@ -34,7 +26,7 @@
         <% end %>
       </div>
     <% else %>
-      <p class="text-gray-500 text-center py-4">Aucune désinscription hors délai</p>
+      <%= render EmptyStateComponent.new(icon: "check-circle", title: "Aucune désinscription hors délai", compact: true) %>
     <% end %>
   </div>
 <% end %>

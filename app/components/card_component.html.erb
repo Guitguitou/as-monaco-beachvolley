@@ -1,11 +1,32 @@
 <%= content_tag tag_name, tag_options do %>
+  <% if title %>
+    <div class="px-6 py-4 border-b border-gray-200 flex items-start justify-between gap-3">
+      <div class="min-w-0">
+        <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <%= lucide_icon(icon, class: "w-5 h-5 shrink-0 text-gray-500", aria: { hidden: true }) if icon %>
+          <%= title %>
+        </h3>
+        <% if subtitle.present? %>
+          <p class="mt-1 text-sm text-gray-500"><%= subtitle %></p>
+        <% end %>
+      </div>
+      <% if title_aside %>
+        <div class="shrink-0"><%= title_aside %></div>
+      <% end %>
+    </div>
+  <% end %>
+
   <% if header %>
     <div class="mb-3">
       <%= header %>
     </div>
   <% end %>
 
-  <%= content %>
+  <% if title %>
+    <div class="<%= padding_classes %>"><%= content %></div>
+  <% else %>
+    <%= content %>
+  <% end %>
 
   <% if footer %>
     <div class="mt-3">
@@ -13,4 +34,3 @@
     </div>
   <% end %>
 <% end %>
-

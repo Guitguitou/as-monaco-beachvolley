@@ -97,6 +97,10 @@
         <% card.with_footer { "Pied" } %>
         Avec en-tête et pied
       <% end %>
+      <%= render CardComponent.new(title: "Avec titre", subtitle: "Sous-titre", icon: "calendar", padding: :md) do |card| %>
+        <% card.with_title_aside { render BadgeComponent.new(label: "3", variant: :danger, size: :xs) } %>
+        Barre d'en-tête intégrée, padding appliqué au corps
+      <% end %>
     </div>
   <% end %>
 
@@ -104,6 +108,9 @@
     <div class="grid gap-4 sm:grid-cols-3">
       <%= render StatTileComponent.new(value: 12, label: "Sessions jouées") %>
       <%= render StatTileComponent.new(value: 340, label: "Tes crédits", href: "#", hint: "≈ 34 sessions", icon: "wallet") %>
+      <%= render StatTileComponent.new(value: "700,00 €", label: "Bénéfice", tone: :positive, icon: "trending-up") %>
+      <%= render StatTileComponent.new(value: "-95,00 €", label: "Différence", tone: :negative, icon: "trending-down") %>
+      <%= render StatTileComponent.new(value: 8, label: "Accent", tone: :accent) %>
       <%= render StatTileComponent.new(value: 3, label: "Avec action") do |tile| %>
         <% tile.with_action { link_to "Voir", "#", class: "text-sm text-asmbv-red" } %>
       <% end %>
