@@ -6,13 +6,18 @@ RSpec.describe "Admin::PublicPages", type: :request do
   let(:admin) { create(:user, :admin) }
   let(:script_url) { "https://script.google.com/macros/s/AKfycbw-abc_123/exec" }
 
-  before { login_as(admin, scope: :user) }
+  let(:fetch_meta) { instance_double(PublicPages::FetchMeta, call: { meta_title: "Noël en direct" }) }
+
+  before do
+    login_as(admin, scope: :user)
+    allow(PublicPages::FetchMeta).to receive(:new).and_return(fetch_meta)
+  end
 
   it "crée une page dont le slug est déduit du titre" do
     post admin_public_pages_path, params: { public_page: { title: "Tournoi d'été", slug: "", script_url: script_url } }
 
     expect(response).to redirect_to(admin_public_pages_path)
-    expect(PublicPage.last).to have_attributes(slug: "tournoi-d-ete", script_url: script_url)
+    expect(PublicPage.last).to have_attributes(slug: "tournoi-d-ete", script_url: script_url, meta_title: "Noël en direct")
 
     get admin_public_pages_path
     expect(response.body).to include("/tournoi-d-ete")
@@ -44,6 +49,19 @@ RSpec.describe "PublicPages", type: :request do
 
     expect(response).to have_http_status(:success)
     expect(response.body).to include(%(<iframe src="#{page.script_url}"))
+  end
+
+  it "reprend les métadonnées du script pour les aperçus de lien" do
+    create(:public_page, title: "Noël", slug: "noel", meta_title: "Noël en direct",
+                         meta_description: "Samedi festif", meta_image: "https://example.com/noel.png")
+
+    get "/noel"
+
+    expect(response.body).to include(
+      "<title>Noël en direct</title>",
+      %(<meta property="og:description" content="Samedi festif">),
+      %(<meta property="og:image" content="https://example.com/noel.png">)
+    )
   end
 
   it "renvoie 404 pour un slug inconnu" do
