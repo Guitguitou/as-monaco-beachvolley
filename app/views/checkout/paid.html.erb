@@ -51,21 +51,18 @@
 
       <%# Actions %>
       <div class="flex flex-col sm:flex-row gap-3">
-        <%= link_to packs_path,
-              class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-brand px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-brand-dark transition-all" do %>
+        <%= render ButtonComponent.new(href: packs_path, size: :large, class: "flex-1") do %>
           <%= lucide_icon("package", size: 20) %>
           Voir les packs
         <% end %>
 
         <% if user_signed_in? %>
-          <%= link_to sessions_path,
-                class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
+          <%= render ButtonComponent.new(href: sessions_path, variant: :secondary, size: :large, class: "flex-1") do %>
             <%= lucide_icon("calendar", size: 20) %>
             Mes séances
           <% end %>
         <% else %>
-          <%= link_to new_user_session_path,
-                class: "flex-1 inline-flex items-center justify-center gap-2 rounded-none bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
+          <%= render ButtonComponent.new(href: new_user_session_path, variant: :secondary, size: :large, class: "flex-1") do %>
             <%= lucide_icon("log-in", size: 20) %>
             Me connecter
           <% end %>

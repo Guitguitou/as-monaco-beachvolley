@@ -105,13 +105,9 @@
           <%# Content %>
           <div class="flex-1 p-4 flex flex-col">
             <%# Crédits %>
-            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-              <div class="flex items-center gap-2 text-gray-600">
-                <%= lucide_icon("coins", size: 16, class: "text-gray-500") %>
-                <span class="text-sm font-medium">Crédits</span>
-              </div>
-              <span class="text-lg font-bold text-gray-900"><%= pack.credits %></span>
-            </div>
+            <%= render DetailRowComponent.new(icon: "coins", label: "Crédits", emphasis: :large) do %>
+              <%= pack.credits %>
+            <% end %>
 
             <%# Taux de conversion %>
             <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
@@ -124,10 +120,7 @@
             </div>
 
             <%# Bouton d'achat %>
-            <%= button_to buy_pack_path(pack),
-                  method: :post,
-                  class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand transition-all mt-auto",
-                  data: { turbo: false } do %>
+            <%= render ButtonComponent.new(href: buy_pack_path(pack), method: :post, data: { turbo: false }, full_width: true, class: "mt-auto") do %>
               <%= lucide_icon("shopping-cart", size: 16) %>
               Acheter
             <% end %>
@@ -171,15 +164,9 @@
           <%# Content %>
           <div class="flex-1 p-4 flex flex-col">
             <%# Dates du stage %>
-            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-              <div class="flex items-center gap-2 text-gray-600">
-                <%= lucide_icon("calendar-days", size: 16, class: "text-gray-500") %>
-                <span class="text-sm font-medium">Dates</span>
-              </div>
-              <span class="text-xs text-gray-500">
-                <%= pack.stage.starts_on.strftime("%d/%m") %> - <%= pack.stage.ends_on.strftime("%d/%m") %>
-              </span>
-            </div>
+            <%= render DetailRowComponent.new(icon: "calendar-days", label: "Dates") do %>
+              <%= pack.stage.starts_on.strftime("%d/%m") %> - <%= pack.stage.ends_on.strftime("%d/%m") %>
+            <% end %>
 
             <%# Durée du stage %>
             <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
@@ -189,17 +176,13 @@
 
             <%# Boutons d'action %>
             <div class="flex flex-col gap-2 mt-auto">
-              <%= link_to stage_path(pack.stage),
-                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 transition-all" do %>
+              <%= render ButtonComponent.new(href: stage_path(pack.stage), variant: :secondary, full_width: true) do %>
                 <%= lucide_icon("info", size: 16) %>
                 Détails
               <% end %>
               
               <% if pack.stage.current_or_upcoming? %>
-                <%= button_to buy_pack_path(pack),
-                      method: :post,
-                      class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand transition-all",
-                      data: { turbo: false } do %>
+                <%= render ButtonComponent.new(href: buy_pack_path(pack), method: :post, data: { turbo: false }, full_width: true) do %>
                   <%= lucide_icon("user-plus", size: 16) %>
                   S'inscrire
                 <% end %>
@@ -250,13 +233,9 @@
           <%# Content %>
           <div class="flex-1 p-4 flex flex-col">
             <%# Licence info %>
-            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-              <div class="flex items-center gap-2 text-gray-600">
-                <%= lucide_icon("award", size: 16, class: "text-gray-500") %>
-                <span class="text-sm font-medium">Licence</span>
-              </div>
-              <span class="text-sm font-bold text-gray-900">Annuelle</span>
-            </div>
+            <%= render DetailRowComponent.new(icon: "award", label: "Licence", emphasis: :strong) do %>
+              Annuelle
+            <% end %>
 
             <%# Description %>
             <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
@@ -265,10 +244,7 @@
             </div>
 
             <%# Bouton d'achat %>
-            <%= button_to buy_pack_path(pack),
-                  method: :post,
-                  class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand transition-all mt-auto",
-                  data: { turbo: false } do %>
+            <%= render ButtonComponent.new(href: buy_pack_path(pack), method: :post, data: { turbo: false }, full_width: true, class: "mt-auto") do %>
               <%= lucide_icon("shopping-cart", size: 16) %>
               Acheter
             <% end %>
@@ -308,20 +284,12 @@
             </div>
           </div>
           <div class="flex-1 p-4 flex flex-col">
-            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-              <div class="flex items-center gap-2 text-gray-600">
-                <%= lucide_icon("trophy", size: 16, class: "text-gray-500") %>
-                <span class="text-sm font-medium">Inscription tournoi</span>
-              </div>
-            </div>
+            <%= render DetailRowComponent.new(icon: "trophy", label: "Inscription tournoi") %>
             <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
               <%= lucide_icon("info", size: 14, class: "text-gray-400") %>
               <span>Réserve ta place pour le tournoi</span>
             </div>
-            <%= button_to buy_pack_path(pack),
-                  method: :post,
-                  class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand transition-all mt-auto",
-                  data: { turbo: false } do %>
+            <%= render ButtonComponent.new(href: buy_pack_path(pack), method: :post, data: { turbo: false }, full_width: true, class: "mt-auto") do %>
               <%= lucide_icon("shopping-cart", size: 16) %>
               Acheter
             <% end %>
@@ -361,20 +329,12 @@
             </div>
           </div>
           <div class="flex-1 p-4 flex flex-col">
-            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-              <div class="flex items-center gap-2 text-gray-600">
-                <%= lucide_icon("shirt", size: 16, class: "text-gray-500") %>
-                <span class="text-sm font-medium">Équipement</span>
-              </div>
-            </div>
+            <%= render DetailRowComponent.new(icon: "shirt", label: "Équipement") %>
             <div class="flex items-center gap-2 text-xs text-gray-500 mb-4">
               <%= lucide_icon("info", size: 14, class: "text-gray-400") %>
               <span>Commande d'équipement club</span>
             </div>
-            <%= button_to buy_pack_path(pack),
-                  method: :post,
-                  class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand transition-all mt-auto",
-                  data: { turbo: false } do %>
+            <%= render ButtonComponent.new(href: buy_pack_path(pack), method: :post, data: { turbo: false }, full_width: true, class: "mt-auto") do %>
               <%= lucide_icon("shopping-cart", size: 16) %>
               Acheter
             <% end %>

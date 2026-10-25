@@ -24,10 +24,7 @@
 
     <!-- Submit -->
     <div>
-      <%= f.submit "Envoyer les instructions", 
-            class: "w-full inline-flex justify-center items-center gap-2 rounded-none bg-brand px-4 py-2 
-                    text-sm font-semibold text-white hover:bg-brand-dark 
-                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand transition-colors" %>
+      <%= render ButtonComponent.new(type: "submit", full_width: true) do %>Envoyer les instructions<% end %>
     </div>
   <% end %>
   <% end %>

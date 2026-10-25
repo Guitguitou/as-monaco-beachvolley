@@ -14,6 +14,7 @@
         <% end %>
         <%= render ButtonComponent.new(variant: :filter, aria: { pressed: true }) do %>filter (actif)<% end %>
         <%= render ButtonComponent.new(variant: :primary, disabled: true) do %>désactivé<% end %>
+        <%= render ButtonComponent.new(href: "#", method: :post) do %>action POST (button_to)<% end %>
       </div>
     <% end %>
     <%= render layout: "ui_kit/variant", locals: { label: "Tailles" } do %>
@@ -22,6 +23,9 @@
           <%= render ButtonComponent.new(size: size) do %><%= size %><% end %>
         <% end %>
       </div>
+    <% end %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Pleine largeur" } do %>
+      <%= render ButtonComponent.new(full_width: true) do %>full_width<% end %>
     <% end %>
     <%= render layout: "ui_kit/variant", locals: { label: "Forme pill, icône seule" } do %>
       <div class="flex flex-wrap items-center gap-3">
@@ -167,7 +171,8 @@
     <%= render CardComponent.new(padding: :sm, class_name: "max-w-sm") do %>
       <%= render DetailRowComponent.new(icon: "calendar-days", label: "Dates") do %>12/07 - 18/07<% end %>
       <%= render DetailRowComponent.new(icon: "users", label: "Coachs") do %>Marc Coach<% end %>
-      <%= render DetailRowComponent.new(icon: "euro", label: "Prix", last: true) do %>250 €<% end %>
+      <%= render DetailRowComponent.new(icon: "award", label: "Licence", emphasis: :strong) do %>Annuelle<% end %>
+      <%= render DetailRowComponent.new(icon: "coins", label: "Crédits", emphasis: :large, last: true) do %>1000<% end %>
     <% end %>
   <% end %>
 
