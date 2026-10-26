@@ -24,6 +24,14 @@ module Mcp
                         "tant que next_cursor n'est pas null, rappelle le tool avec ce cursor pour la suite."
 
       class << self
+        # Bornes de période `from` / `to` d'un input_schema, avec leurs valeurs par défaut.
+        def date_range_properties(from_default, to_default)
+          {
+            from: { type: "string", format: "date", description: "Début inclus (AAAA-MM-JJ). Défaut : #{from_default}." },
+            to: { type: "string", format: "date", description: "Fin incluse (AAAA-MM-JJ). Défaut : #{to_default}." }
+          }
+        end
+
         def call(server_context:, **arguments)
           server_context.authorize!(*permission)
           data = execute(server_context, **arguments)

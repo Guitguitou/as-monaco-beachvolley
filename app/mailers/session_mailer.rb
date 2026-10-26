@@ -2,21 +2,11 @@
 
 class SessionMailer < ApplicationMailer
   def promoted_to_main_list(user, session_record)
-    assign_session(user, session_record)
-
-    mail(
-      to: user.email,
-      subject: "Tu passes en liste principale – #{@session_name} du #{@session_date}"
-    )
+    mail_about_session(user, session_record, "Tu passes en liste principale")
   end
 
   def displaced_to_waitlist(user, session_record)
-    assign_session(user, session_record)
-
-    mail(
-      to: user.email,
-      subject: "Tu repasses en liste d'attente – #{@session_name} du #{@session_date}"
-    )
+    mail_about_session(user, session_record, "Tu repasses en liste d'attente")
   end
 
   def session_cancelled(user, session_name:, session_date:)
@@ -32,6 +22,11 @@ class SessionMailer < ApplicationMailer
   end
 
   private
+
+  def mail_about_session(user, session_record, headline)
+    assign_session(user, session_record)
+    mail(to: user.email, subject: "#{headline} – #{@session_name} du #{@session_date}")
+  end
 
   def assign_session(user, session_record)
     @user = user

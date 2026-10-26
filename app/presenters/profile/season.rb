@@ -55,22 +55,18 @@ module Profile
     # L'ancienne page chargeait TOUTES les transactions, sans limite, et
     # rappelait `.count` dans la vue pour afficher le total.
     def transactions
-      @transactions ||= Pagination.new(
-        scope: user.credit_transactions.includes(:session).order(created_at: :desc),
-        page: page
-      )
+      @transactions ||= newest_first(user.credit_transactions.includes(:session))
     end
 
     # Les achats réels (montant en euros, pack, référence) n'étaient jamais
     # montrés au joueur : seule leur contrepartie en crédits apparaissait.
     def purchases
-      @purchases ||= Pagination.new(
-        scope: user.credit_purchases.includes(:pack).order(created_at: :desc),
-        page: page
-      )
+      @purchases ||= newest_first(user.credit_purchases.includes(:pack))
     end
 
     private
+
+    def newest_first(scope) = Pagination.new(scope: scope.order(created_at: :desc), page: page)
 
     attr_reader :user, :page, :history
   end
