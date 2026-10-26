@@ -24,6 +24,12 @@ module Reporting
       }
     end
 
+    # Séances de la semaine qui demandent une action (remplissage anormal) :
+    # le compteur affiché dans la barre latérale de l'admin.
+    def pending_count
+      capacity_alerts.size
+    end
+
     # Alertes de désinscriptions hors délai
     def late_cancellation_alerts(limit: 20)
       grouped = LateCancellation.counted
