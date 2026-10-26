@@ -6,7 +6,7 @@
 class ClubRules < Data.define(
   :price_by_type, :priority_window_hours, :registration_deadline_hour,
   :registration_opening_days, :cancellation_deadline_mode, :cancellation_deadline_hour,
-  :cancellation_hours_before, :time_zone
+  :cancellation_hours_before, :season_start_month, :time_zone
 )
   DEFAULT_PRICE_BY_TYPE = {
     "entrainement" => 400,
@@ -24,6 +24,7 @@ class ClubRules < Data.define(
       cancellation_deadline_mode: "eve_at_hour",
       cancellation_deadline_hour: 22, # 22h la veille
       cancellation_hours_before: 24,
+      season_start_month: 9, # septembre
       time_zone: Rails.application.config.time_zone
     )
   end
@@ -42,6 +43,7 @@ class ClubRules < Data.define(
       cancellation_deadline_mode: setting.cancellation_deadline_mode,
       cancellation_deadline_hour: setting.cancellation_deadline_hour,
       cancellation_hours_before: setting.cancellation_hours_before,
+      season_start_month: setting.season_start_month,
       time_zone: Rails.application.config.time_zone
     )
   end

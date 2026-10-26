@@ -14,17 +14,7 @@ module Admin
     private
 
     def render_overview_tab
-      kpis_service = Reporting::Kpis.new
-      @kpis = kpis_service.week_kpis
-      @upcoming_sessions = kpis_service.upcoming_sessions
-      @alerts = Reporting::Alerts.new.all_alerts
-
-      # Inscrits par mois (jeu libre + entrainement) avec navigation
-      @stats_year = (params[:stats_year].presence || Time.current.year).to_i
-      @stats_month = (params[:stats_month].presence || Time.current.month).to_i.clamp(1, 12)
-      participants = kpis_service.monthly_participants(ClubRules.current.zone.local(@stats_year, @stats_month))
-      @participants_jeu_libre = participants[:jeu_libre]
-      @participants_entrainement = participants[:entrainement]
+      @home = Admin::HomeDashboard.new(routes: self)
     end
 
     def render_sessions_tab
