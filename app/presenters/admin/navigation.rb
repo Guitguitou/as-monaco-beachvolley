@@ -36,52 +36,47 @@ module Admin
 
     def visible?(item) = @user.admin? || !item.admin_only
 
+    def item(label, path, icon, **options) = Item.new(label: label, path: path, icon: icon, **options)
+
+    def section(title, icon, *items) = Section.new(title: title, icon: icon, items: items)
+
+    # [titre, icône, [[libellé, route, icône, options]…]] ; le Responsable
+    # financier ne voit que les liens `admin_only: false`.
+    SECTIONS = [
+      [ "Activité", "calendar", [
+        [ "Séances", :admin_sessions_path, "calendar" ], [ "Stages", :admin_stages_path, "flag" ],
+        [ "Tournois", :admin_tournaments_path, "trophy" ], [ "Fermetures de terrain", :admin_terrain_closures_path, "ban" ]
+      ] ],
+      [ "Membres", "users", [
+        [ "Joueurs", :admin_users_path, "users" ], [ "Groupes", :admin_groups_path, "users-round" ],
+        [ "Niveaux", :admin_levels_path, "layers" ], [ "Saison", :admin_season_path, "refresh-cw" ]
+      ] ],
+      [ "Finances", "euro", [
+        [ "Finances", :admin_finances_path, "euro", { admin_only: false } ],
+        [ "Historique achats", :admin_purchase_history_index_path, "shopping-cart", { admin_only: false } ],
+        [ "Boutique", :admin_packs_path, "package" ]
+      ] ]
+    ].freeze
+
     def all_sections
-      [ pilotage, activity, members, finances, configuration ]
+      [ pilotage, *SECTIONS.map { |title, icon, items| section(title, icon, *items.map { |entry| routed_item(*entry) }) }, configuration ]
     end
+
+    def routed_item(label, route, icon, options = {}) = item(label, @routes.public_send(route), icon, **options)
 
     def pilotage
-      Section.new(title: "Pilotage", icon: "gauge", items: [
-        Item.new(label: "Dashboard", path: @routes.admin_root_path, icon: "layout-dashboard", admin_only: false),
-        Item.new(label: "Alertes", path: @routes.admin_root_path(tab: "alerts"), icon: "triangle-alert",
-                 admin_only: false, badge: @alerts_count.nonzero?)
-      ])
-    end
-
-    def activity
-      Section.new(title: "Activité", icon: "calendar", items: [
-        Item.new(label: "Séances", path: @routes.admin_sessions_path, icon: "calendar"),
-        Item.new(label: "Stages", path: @routes.admin_stages_path, icon: "flag"),
-        Item.new(label: "Tournois", path: @routes.admin_tournaments_path, icon: "trophy"),
-        Item.new(label: "Fermetures de terrain", path: @routes.admin_terrain_closures_path, icon: "ban")
-      ])
-    end
-
-    def members
-      Section.new(title: "Membres", icon: "users", items: [
-        Item.new(label: "Joueurs", path: @routes.admin_users_path, icon: "users"),
-        Item.new(label: "Groupes", path: @routes.admin_groups_path, icon: "users-round"),
-        Item.new(label: "Niveaux", path: @routes.admin_levels_path, icon: "layers"),
-        Item.new(label: "Saison", path: @routes.admin_season_path, icon: "refresh-cw")
-      ])
-    end
-
-    def finances
-      Section.new(title: "Finances", icon: "euro", items: [
-        Item.new(label: "Finances", path: @routes.admin_finances_path, icon: "euro", admin_only: false),
-        Item.new(label: "Historique achats", path: @routes.admin_purchase_history_index_path, icon: "shopping-cart",
-                 admin_only: false),
-        Item.new(label: "Boutique", path: @routes.admin_packs_path, icon: "package")
-      ])
+      section("Pilotage", "gauge",
+        item("Dashboard", @routes.admin_root_path, "layout-dashboard", admin_only: false),
+        item("Alertes", @routes.admin_root_path(tab: "alerts"), "triangle-alert", admin_only: false, badge: @alerts_count.nonzero?)
+      )
     end
 
     # Un seul écran à onglets (cf. Admin::ConfigurationTabsComponent), actif
     # sur chacun de ses onglets.
     def configuration
-      Section.new(title: "Configuration", icon: "settings", items: [
-        Item.new(label: "Configuration", path: @routes.admin_club_rules_path, icon: "settings",
-                 also: ConfigurationTabsComponent.paths(@routes))
-      ])
+      section("Configuration", "settings",
+        item("Configuration", @routes.admin_club_rules_path, "settings", also: ConfigurationTabsComponent.paths(@routes))
+      )
     end
   end
 end

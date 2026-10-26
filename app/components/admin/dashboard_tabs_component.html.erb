@@ -9,7 +9,7 @@
               action: "click->tabs#switchTab",
               tab: tab[:id]
             } do %>
-          <span class="mr-2"><%= tab[:icon] %></span>
+          <%= lucide_icon(tab[:icon], class: "w-4 h-4 mr-2 inline") %>
           <%= tab[:name] %>
         <% end %>
       <% end %>

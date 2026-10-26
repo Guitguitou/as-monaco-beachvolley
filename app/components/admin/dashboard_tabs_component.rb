@@ -12,11 +12,11 @@ module Admin
 
     def tabs
       [
-        { id: "overview", name: "Vue d'ensemble", icon: "📊" },
-        { id: "sessions", name: "Sessions", icon: "🏐" },
-        { id: "packs", name: "Packs", icon: "📦" },
-        { id: "coaches", name: "Coachs", icon: "👥" },
-        { id: "alerts", name: "Alertes", icon: "⚠️" }
+        { id: "overview", name: "Accueil", icon: "layout-dashboard" },
+        { id: "attendance", name: "Fréquentation", icon: "users" },
+        { id: "revenue", name: "Revenus", icon: "euro" },
+        { id: "coaches", name: "Coachs", icon: "dumbbell" },
+        { id: "alerts", name: "Alertes", icon: "triangle-alert" }
       ]
     end
 

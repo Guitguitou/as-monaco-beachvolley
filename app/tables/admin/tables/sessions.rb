@@ -9,20 +9,15 @@ module Admin
 
       def columns
         [
-          DataTable::Column.new(key: :title, label: "Titre", sort: "sessions.title",
-                                filter: DataTable::Filters::Text.new("sessions.title")),
-          DataTable::Column.new(key: :session_type, label: "Type", sort: "sessions.session_type",
-                                filter: DataTable::Filters::Select.new("sessions.session_type", options: type_options)),
-          DataTable::Column.new(key: :start_at, label: "Date", sort: "sessions.start_at",
-                                filter: DataTable::Filters::DateRange.new("sessions.start_at")),
-          DataTable::Column.new(key: :terrain, label: "Terrain",
-                                filter: DataTable::Filters::Select.new("sessions.terrain_id", options: terrain_options)),
-          DataTable::Column.new(key: :levels, label: "Niveau", filter: levels_filter),
-          DataTable::Column.new(key: :coach, label: "Encadrant",
-                                filter: DataTable::Filters::Select.new("sessions.user_id", options: coach_options)),
-          DataTable::Column.new(key: :participants, label: "Inscrits"),
-          DataTable::Column.new(key: :status, label: "Statut", filter: status_filter),
-          DataTable::Column.new(key: :actions, label: "", class_name: "w-24")
+          col(:title, "Titre", sort: "sessions.title", filter: DataTable::Filters::Text.new("sessions.title")),
+          col(:session_type, "Type", sort: "sessions.session_type", filter: select_filter("sessions.session_type", type_options)),
+          date_col(:start_at, "Date", "sessions.start_at"),
+          col(:terrain, "Terrain", filter: select_filter("sessions.terrain_id", options_from(Terrain.ordered))),
+          col(:levels, "Niveau", filter: levels_filter(SessionLevel, :session_id)),
+          col(:coach, "Encadrant", filter: select_filter("sessions.user_id", coach_options)),
+          col(:participants, "Inscrits"),
+          col(:status, "Statut", filter: status_filter),
+          col(:actions, "", class_name: "w-24")
         ]
       end
 
@@ -31,8 +26,7 @@ module Admin
       def quick_filters
         [
           DataTable::QuickFilter.new(key: :upcoming, label: "À venir", scope: ->(sessions) { sessions.held.upcoming }),
-          DataTable::QuickFilter.new(key: :this_week, label: "Cette semaine",
-                                     scope: ->(sessions) { sessions.where(start_at: Time.current.all_week) }),
+          current_period(:this_week, "Cette semaine", :start_at, :all_week),
           DataTable::QuickFilter.new(key: :cancelled, label: "Annulées", scope: ->(sessions) { sessions.cancelled })
         ]
       end
@@ -52,18 +46,7 @@ module Admin
 
       def type_options = Session.session_types.keys.map { |type| [ ::Sessions::SessionType.for(type).label, type ] }
 
-      def terrain_options = Terrain.ordered.map { |terrain| [ terrain.name, terrain.id ] }
-
-      def coach_options
-        User.where(id: Session.select(:user_id)).order(:last_name, :first_name).map { |user| [ user.full_name, user.id ] }
-      end
-
-      def levels_filter
-        DataTable::Filters::Select.new(
-          options: Level.order(:name).map { |level| [ level.display_name, level.id ] }, multiple: true,
-          scope: ->(sessions, ids) { sessions.where(id: SessionLevel.where(level_id: ids).select(:session_id)) }
-        )
-      end
+      def coach_options = options_from(User.where(id: Session.select(:user_id)).order(:last_name, :first_name), :full_name)
 
       def status_filter
         DataTable::Filters::Select.new(options: STATUSES, scope: lambda { |sessions, status|

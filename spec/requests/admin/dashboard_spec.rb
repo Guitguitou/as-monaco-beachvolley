@@ -22,14 +22,10 @@ RSpec.describe "Admin::Dashboard", type: :request do
         expect(response).to have_http_status(:success)
       end
 
-      it "shows sessions tab" do
-        get admin_root_path, params: { tab: "sessions" }
+      it "affiche la fréquentation de la saison choisie" do
+        get admin_root_path, params: { tab: "attendance", saison: Season.current.previous.starts_on.year }
         expect(response).to have_http_status(:success)
-      end
-
-      it "shows sessions tab with type and period" do
-        get admin_root_path, params: { tab: "sessions", session_type: "entrainement", period: "month" }
-        expect(response).to have_http_status(:success)
+        expect(response.body).to include("Saison #{Season.current.previous.label}", "attendance-chart")
       end
 
       it "no longer has a finances tab, moved to its own page" do
@@ -37,8 +33,8 @@ RSpec.describe "Admin::Dashboard", type: :request do
         expect(assigns(:active_tab)).to eq("overview")
       end
 
-      it "shows packs tab" do
-        get admin_root_path, params: { tab: 'packs' }
+      it "affiche les revenus" do
+        get admin_root_path, params: { tab: "revenue" }
         expect(response).to have_http_status(:success)
       end
 

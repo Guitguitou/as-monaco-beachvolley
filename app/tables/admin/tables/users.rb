@@ -11,22 +11,17 @@ module Admin
 
       def columns
         [
-          DataTable::Column.new(key: :name, label: "Nom", sort: %w[users.last_name users.first_name],
-                                csv: ->(user) { "#{user.last_name} #{user.first_name}" }),
-          DataTable::Column.new(key: :email, label: "Email", sort: "users.email",
-                                filter: DataTable::Filters::Text.new("users.email"), csv: :email.to_proc),
-          DataTable::Column.new(key: :roles, label: "Rôles", filter: roles_filter, csv: ->(user) { roles(user).join(", ") }),
-          DataTable::Column.new(key: :license_type, label: "Licence", sort: "users.license_type", filter: license_filter,
-                                csv: ->(user) { license_label(user) }),
-          DataTable::Column.new(key: :activated, label: "Licence payée", sort: "users.activated_at",
-                                filter: DataTable::Filters::Boolean.new(scope: method(:activated)),
-                                csv: ->(user) { user.activated? ? "Oui" : "Non" }),
-          DataTable::Column.new(key: :dossier_complet, label: "Dossier complet",
-                                filter: DataTable::Filters::Boolean.new("users.dossier_complet"),
-                                csv: ->(user) { user.dossier_complet? ? "Oui" : "Non" }),
-          DataTable::Column.new(key: :levels, label: "Groupe", filter: levels_filter, class_name: "min-w-56",
-                                csv: ->(user) { user.levels.map(&:display_name).join(", ") }),
-          DataTable::Column.new(key: :actions, label: "", class_name: "w-24")
+          col(:name, "Nom", sort: %w[users.last_name users.first_name], csv: ->(user) { "#{user.last_name} #{user.first_name}" }),
+          col(:email, "Email", sort: "users.email", filter: DataTable::Filters::Text.new("users.email"), csv: :email.to_proc),
+          col(:roles, "Rôles", filter: roles_filter, csv: ->(user) { roles(user).join(", ") }),
+          col(:license_type, "Licence", sort: "users.license_type", filter: license_filter, csv: ->(user) { license_label(user) }),
+          col(:activated, "Licence payée", sort: "users.activated_at", filter: DataTable::Filters::Boolean.new(scope: method(:activated)),
+                                           csv: ->(user) { yes_no(user.activated?) }),
+          col(:dossier_complet, "Dossier complet", filter: DataTable::Filters::Boolean.new("users.dossier_complet"),
+                                                   csv: ->(user) { yes_no(user.dossier_complet?) }),
+          col(:levels, "Groupe", filter: levels_filter(UserLevel, :user_id), class_name: "min-w-56",
+                                 csv: ->(user) { user.levels.map(&:display_name).join(", ") }),
+          col(:actions, "", class_name: "w-24")
         ]
       end
 
@@ -54,6 +49,8 @@ module Admin
 
       private
 
+      def yes_no(value) = value ? "Oui" : "Non"
+
       def activated(users, value) = value ? users.activated : users.not_activated
 
       def roles_filter
@@ -65,13 +62,6 @@ module Admin
         DataTable::Filters::Select.new(options: LICENSES, scope: lambda { |users, license|
           license == "none" ? users.where(license_type: [ nil, "" ]) : users.where(license_type: license)
         })
-      end
-
-      def levels_filter
-        DataTable::Filters::Select.new(
-          options: Level.order(:name).map { |level| [ level.display_name, level.id ] }, multiple: true,
-          scope: ->(users, ids) { users.where(id: UserLevel.where(level_id: ids).select(:user_id)) }
-        )
       end
     end
   end

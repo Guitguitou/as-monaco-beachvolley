@@ -1,0 +1,34 @@
+<%= render "season_header" %>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+  <div class="xl:col-span-2">
+    <%= render CardComponent.new(title: "Encaissé par mois", subtitle: "Achats payés, par type de pack", icon: "chart-column", padding: :lg) do %>
+      <% series = @report.revenue_by_pack_type %>
+      <% if series.any? %>
+        <%= column_chart series, stacked: true, suffix: " €", id: "revenue-chart" %>
+        <%= render "chart_table", series: series, unit: " €" %>
+      <% else %>
+        <%= render EmptyStateComponent.new(icon: "euro", title: "Aucune vente sur la saison", compact: true) %>
+      <% end %>
+    <% end %>
+  </div>
+  <%= render CardComponent.new(title: "Par type de pack", icon: "package", padding: :none) do %>
+    <%= render TableComponent.new do |table| %>
+      <% table.with_column("Pack") %>
+      <% table.with_column("Ventes", align: :right) %>
+      <% table.with_column("Encaissé", align: :right) %>
+      <% @report.by_pack_type.each do |row| %>
+        <% table.with_row do |r| %>
+          <% r.with_cell(weight: :medium) { row[:label] } %>
+          <% r.with_cell(align: :right) { row[:count].to_s } %>
+          <% r.with_cell(align: :right, weight: :semibold) { "#{number_with_delimiter(row[:eur], delimiter: " ")} €" } %>
+        <% end %>
+      <% end %>
+      <% table.with_empty(icon: "package", message: "Aucune vente") %>
+    <% end %>
+  <% end %>
+</div>
+<p class="mt-4 text-sm text-gray-600">
+  Détail des ventes : <%= link_to "Historique achats", admin_purchase_history_index_path, class: "text-brand underline" %> ·
+  bilan financier : <%= link_to "Finances", admin_finances_path, class: "text-brand underline" %>.
+</p>

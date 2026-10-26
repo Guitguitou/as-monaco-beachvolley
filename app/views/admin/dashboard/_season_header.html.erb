@@ -1,0 +1,11 @@
+<%# En-tête commun des dashboards analytiques : saison choisie et chiffres clés
+    comparés à la saison précédente à date égale. %>
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+  <p class="text-sm text-gray-600">Comparé à la saison <%= @season.previous.label %> à la même date.</p>
+  <%= render Admin::SeasonSelectorComponent.new(season: @season, tab: @active_tab) %>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+  <% @report.comparisons.each do |comparison| %>
+    <%= render Admin::KpiTileComponent.new(metric: comparison, previous_label: "en #{@season.previous.label}") %>
+  <% end %>
+</div>

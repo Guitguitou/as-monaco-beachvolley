@@ -4,18 +4,6 @@ module Reporting
   # Les chiffres clés de la semaine en cours (lundi → dimanche), chacun comparé
   # à la semaine précédente : la première chose que le Staff lit en arrivant.
   class WeekPulse
-    # `higher_is_better: false` : une hausse est une mauvaise nouvelle
-    # (désinscriptions tardives).
-    Metric = Data.define(:key, :label, :icon, :current, :previous, :unit, :higher_is_better) do
-      def change = previous.to_f.zero? ? nil : ((current - previous) / previous.to_f * 100).round
-
-      def trend
-        return :flat if current == previous
-
-        (current > previous) == higher_is_better ? :good : :bad
-      end
-    end
-
     def initialize(now: Time.current)
       @week = now.all_week(:monday)
     end
@@ -35,8 +23,8 @@ module Reporting
     private
 
     def metric(key, label, icon, unit: nil, higher_is_better: true)
-      Metric.new(key: key, label: label, icon: icon, current: yield(@week), previous: yield(previous_week), unit: unit,
-                 higher_is_better: higher_is_better)
+      Comparison.new(key: key, label: label, icon: icon, current: yield(@week), previous: yield(previous_week), unit: unit,
+                     higher_is_better: higher_is_better)
     end
 
     def previous_week = (@week.begin - 1.week)..(@week.end - 1.week)

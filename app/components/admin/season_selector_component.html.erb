@@ -1,0 +1,18 @@
+<nav class="flex items-center gap-2" aria-label="Choix de la saison">
+  <%= link_to url(season.previous), class: "inline-flex items-center justify-center w-8 h-8 border border-gray-300 bg-white hover:bg-gray-50",
+                                     aria: { label: "Saison #{season.previous.label}" } do %>
+    <%= lucide_icon("chevron-left", size: 16) %>
+  <% end %>
+  <span class="min-w-32 text-center text-sm font-semibold text-gray-900">
+    Saison <%= season.label %>
+    <% if current? %><span class="block text-xs font-normal text-gray-500">en cours</span><% end %>
+  </span>
+  <% if next? %>
+    <%= link_to url(next_season), class: "inline-flex items-center justify-center w-8 h-8 border border-gray-300 bg-white hover:bg-gray-50",
+                                  aria: { label: "Saison #{next_season.label}" } do %>
+      <%= lucide_icon("chevron-right", size: 16) %>
+    <% end %>
+  <% else %>
+    <span class="inline-flex items-center justify-center w-8 h-8 border border-gray-200 text-gray-300"><%= lucide_icon("chevron-right", size: 16) %></span>
+  <% end %>
+</nav>

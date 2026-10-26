@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 module Admin
-  # Chiffre clé de la semaine et sa tendance par rapport à la semaine
-  # précédente : vert quand c'est une bonne nouvelle, rouge sinon.
+  # Chiffre clé et sa tendance par rapport à la période précédente
+  # (semaine, saison) : vert quand c'est une bonne nouvelle, rouge sinon.
   class KpiTileComponent < ApplicationComponent
     TREND_CLASSES = { good: "text-green-700", bad: "text-red-700", flat: "text-gray-500" }.freeze
 
-    def initialize(metric:)
+    def initialize(metric:, previous_label: "la semaine passée")
       @metric = metric
+      @previous_label = previous_label
     end
 
     def call
@@ -31,7 +32,7 @@ module Admin
     def trend_text
       change = @metric.change
       prefix = change ? "#{'+' if change.positive?}#{change} % · " : ""
-      "#{prefix}#{format_value(@metric.previous)} la semaine passée"
+      "#{prefix}#{format_value(@metric.previous)} #{@previous_label}"
     end
 
     def format_value(value)
