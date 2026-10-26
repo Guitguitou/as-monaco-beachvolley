@@ -8,14 +8,11 @@ module Admin
     PER_PAGE = 25
 
     def index
-      result = Sessions::AdminFilterQuery.call(relation: @sessions, params: params)
-      @type_counts = result.type_counts
-      @total_count = result.total_count
-      @current_type = result.current_type
-
-      @total_pages = [ (result.filtered_count.to_f / PER_PAGE).ceil, 1 ].max
-      @page = params[:page].to_i.clamp(1, @total_pages)
-      @sessions = result.relation.limit(PER_PAGE).offset((@page - 1) * PER_PAGE)
+      @table = Admin::Tables::Sessions.new
+      @state = DataTable::State.new(params)
+      sessions = DataTable::Query.call(relation: @sessions.includes(:levels, :terrain, :user), definition: @table, state: @state)
+      @page = Pagination.new(scope: sessions, page: @state.page, per_page: PER_PAGE)
+      @confirmed_counts = Registration.confirmed.where(session_id: @page.records.map(&:id)).group(:session_id).count
     end
 
     def show

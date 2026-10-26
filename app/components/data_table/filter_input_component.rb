@@ -6,15 +6,16 @@ module DataTable
   class FilterInputComponent < ApplicationComponent
     INPUT = DataTableComponent::INPUT
 
-    def initialize(column:, value:)
+    def initialize(column:, value:, form:)
       @column = column
       @filter = column.filter
       @value = value
+      @form = form
     end
 
     def call
       case @filter.type
-      when :text then text_field_tag(name, @value, class: INPUT, placeholder: "Filtrer…", aria: label, data: debounced)
+      when :text then text_field_tag(name, @value, class: INPUT, placeholder: "Filtrer…", aria: label, data: debounced, form: @form)
       when :select, :boolean then select
       when :date_range then range(:date_field)
       when :number_range then range(:number_field, step: "any")
@@ -34,7 +35,8 @@ module DataTable
     def select
       return checkboxes if @filter.respond_to?(:multiple?) && @filter.multiple?
 
-      select_tag(name, options_for_select(@filter.options, @value), include_blank: "Tous", class: INPUT, aria: label, data: submit)
+      select_tag(name, options_for_select(@filter.options, @value), include_blank: "Tous", class: INPUT, aria: label,
+                                                                    data: submit, form: @form)
     end
 
     # Choix multiple : une liste déroulante de cases à cocher, aussi compacte qu'un select.
@@ -52,7 +54,7 @@ module DataTable
 
     def checkbox(label, value, checked)
       tag.label(class: "flex items-center gap-2 py-1 text-xs font-normal normal-case text-gray-700") do
-        safe_join([ check_box_tag(name("[]"), value, checked, id: nil, class: "rounded-none text-brand", data: submit), label ])
+        safe_join([ check_box_tag(name("[]"), value, checked, id: nil, class: "rounded-none text-brand", data: submit, form: @form), label ])
       end
     end
 
@@ -60,7 +62,7 @@ module DataTable
       bounds = @value.is_a?(Hash) ? @value : {}
       tag.div(class: "flex flex-col gap-1") do
         safe_join(%w[from to].map do |bound|
-          public_send(:"#{field}_tag", name("[#{bound}]"), bounds[bound], class: INPUT, data: submit,
+          public_send(:"#{field}_tag", name("[#{bound}]"), bounds[bound], class: INPUT, data: submit, form: @form,
                       placeholder: bound == "from" ? "De" : "À", aria: { label: "#{@column.label} : #{bound == 'from' ? 'de' : 'à'}" }, **options)
         end)
       end

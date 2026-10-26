@@ -1,17 +1,17 @@
 module Admin
   class PurchaseHistoryController < BaseController
-    STATUS_FILTERS = { "paid" => %w[paid], "pending" => %w[pending], "failed" => %w[failed cancelled] }.freeze
+    PER_PAGE = 50
 
     XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".freeze
 
     before_action :require_admin_or_financial_manager!
 
     def index
-      base_scope = CreditPurchase.includes(:user, :pack).order(created_at: :desc)
-
-      @status_filter = params[:status].to_s
-      statuses = STATUS_FILTERS[@status_filter]
-      @credit_purchases = (statuses ? base_scope.where(status: statuses) : base_scope).limit(100)
+      @table = Admin::Tables::Purchases.new
+      @state = DataTable::State.new(params)
+      purchases = CreditPurchase.left_joins(:pack, :user).includes(:user, :pack)
+      @page = Pagination.new(scope: DataTable::Query.call(relation: purchases, definition: @table, state: @state),
+                             page: @state.page, per_page: PER_PAGE)
 
       # Stats (toujours sur tous les achats)
       @total_revenue = CreditPurchase.paid_status.sum(:amount_cents) / 100.0
