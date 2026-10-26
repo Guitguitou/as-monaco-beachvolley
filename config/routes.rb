@@ -164,13 +164,12 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # Manifest PWA (app/views/pwa/manifest.json.erb), lié dans layouts/_pwa_tags
+  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+
   # Pages publiques (web apps Google Apps Script) : à déclarer en dernier,
   # le slug ne doit masquer aucune autre route.
   get ":slug", to: "public_pages#show", as: :public_page, constraints: { slug: /[a-z0-9]+(?:-[a-z0-9]+)*/ }
-
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")
   # root "posts#index"
