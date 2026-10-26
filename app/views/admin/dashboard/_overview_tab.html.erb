@@ -1,80 +1,56 @@
-<% money = ->(amount) { number_to_currency(amount, unit: "", separator: ",", delimiter: "") } %>
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-  <%= render StatTileComponent.new(value: @kpis[:trainings_count], label: "Entraînements (semaine)", icon: "dumbbell") %>
-  <%= render StatTileComponent.new(value: @kpis[:free_plays_count], label: "Jeux libres (semaine)", icon: "volleyball") %>
-  <%= render StatTileComponent.new(value: @kpis[:private_coachings_count], label: "Coachings privés (semaine)", icon: "shield-user") %>
-  <%= render StatTileComponent.new(value: @kpis[:late_cancellations_count], label: "Désinscriptions hors délai", icon: "user-x") %>
-</div>
-
-<!-- Inscrits par mois (jeu libre + entrainement) -->
-<% stats_month_date = Date.new(@stats_year, @stats_month, 1) %>
-<% prev_month = stats_month_date - 1.month %>
-<% next_month = stats_month_date + 1.month %>
-<% next_month_future = next_month > Date.current %>
-<div class="mb-8">
-  <div class="flex items-center justify-between mb-4">
-    <h3 class="text-lg font-medium text-gray-900">Inscrits par mois</h3>
-    <nav class="flex items-center gap-2" aria-label="Navigation par mois">
-      <%= button("Mois précédent", variant: :ghost, size: :small, href: admin_root_path(tab: "overview", stats_year: prev_month.year, stats_month: prev_month.month)) %>
-      <span class="text-sm font-medium text-gray-700"><%= l(stats_month_date, format: :month_and_year) %></span>
-      <% if next_month_future %>
-        <%= button("Mois suivant", variant: :ghost, size: :small, href: admin_root_path(tab: "overview", stats_year: next_month.year, stats_month: next_month.month)) %>
-      <% else %>
-        <span class="text-sm text-gray-400">Mois suivant</span>
-      <% end %>
-    </nav>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <%= render StatTileComponent.new(value: @participants_jeu_libre, label: "Inscrits en jeu libre (mois)", icon: "volleyball") %>
-    <%= render StatTileComponent.new(value: @participants_entrainement, label: "Inscrits en entrainement (mois)", icon: "dumbbell") %>
-  </div>
-</div>
-
-<!-- Financial KPIs -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-  <%= render StatTileComponent.new(value: money.(@kpis[:revenue]), label: "CA semaine (€)", icon: "euro") %>
-  <%= render StatTileComponent.new(value: money.(@kpis[:coach_salaries]), label: "Salaires coachs (€)", icon: "users") %>
-  <%= render StatTileComponent.new(value: money.(@kpis[:net_profit]), label: "Différence (€)", icon: "trending-up",
-                                   tone: @kpis[:net_profit] >= 0 ? :positive : :negative) %>
-</div>
-
-<!-- Upcoming Sessions -->
-<%= render CardComponent.new(title: "Sessions à venir", icon: "calendar", padding: :lg) do %>
-  <div>
-    <% if @upcoming_sessions.any? %>
-      <div class="space-y-4">
-        <% @upcoming_sessions.each do |session_type, sessions| %>
-          <div>
-            <h4 class="text-md font-medium text-gray-700 mb-2">
-              <%= case session_type.to_s
-                  when 'entrainement' then 'Entraînements à venir'
-                  when 'jeu_libre' then 'Jeux libres à venir'
-                  when 'coaching_prive' then 'Coachings privés à venir'
-                  else session_type.to_s.humanize
-                  end %>
-            </h4>
-            <div class="space-y-2">
-              <% sessions.each do |session| %>
-                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-none border border-gray-100">
-                  <div>
-                    <p class="font-medium text-gray-900"><%= session.title %></p>
-                    <p class="text-sm text-gray-500">
-                      <%= session.start_at.strftime("%d/%m - %H:%M") %> - <%= session.terrain&.name %>
-                    </p>
-                  </div>
-                  <div class="text-right">
-                    <p class="text-sm text-gray-500">
-                      <%= session.registrations.confirmed.count %>/<%= session.max_players || '∞' %> places
-                    </p>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    <% else %>
-      <%= render EmptyStateComponent.new(icon: "calendar-x", title: "Aucune session à venir", compact: true) %>
+<section aria-labelledby="week-title" class="mb-8">
+  <h2 id="week-title" class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-3">Cette semaine</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+    <% @home.metrics.each do |metric| %>
+      <%= render Admin::KpiTileComponent.new(metric: metric) %>
     <% end %>
   </div>
-<% end %>
+</section>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+  <%= render CardComponent.new(title: "À traiter", icon: "list-checks", padding: :none) do %>
+    <ul class="divide-y divide-gray-100">
+      <% @home.actions.each do |action| %>
+        <li>
+          <%= link_to action.path, class: "flex items-center gap-3 px-5 py-3 hover:bg-gray-50" do %>
+            <%= lucide_icon(action.icon, class: "w-4 h-4 text-gray-400 shrink-0") %>
+            <span class="flex-1 text-sm text-gray-800"><%= action.label %></span>
+            <%= render BadgeComponent.new(label: action.count.to_s, variant: action.count.zero? ? :neutral : :warning, size: :xs) %>
+            <%= lucide_icon("chevron-right", class: "w-4 h-4 text-gray-300") %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <div class="xl:col-span-2">
+    <%= render CardComponent.new(title: "Séances à risque", subtitle: "7 prochains jours, remplies à moins de 40 %",
+                                 icon: "triangle-alert", padding: :none) do %>
+      <% if @home.at_risk_sessions.any? %>
+        <ul class="divide-y divide-gray-100">
+          <% @home.at_risk_sessions.each do |risk| %>
+            <% session = risk.session %>
+            <li>
+              <%= link_to admin_session_path(session), class: "grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_10rem_auto] items-center gap-3 px-5 py-3 hover:bg-gray-50" do %>
+                <span class="min-w-0">
+                  <span class="block text-sm font-medium text-gray-900 truncate"><%= session.title.presence || Sessions::SessionType.for(session.session_type).label %></span>
+                  <span class="block text-xs text-gray-500">
+                    <%= l(session.start_at, format: "%a %d/%m %H:%M") %> · <%= session.terrain&.name %> · <%= session.user&.full_name %>
+                  </span>
+                </span>
+                <span class="hidden sm:block">
+                  <%= render ProgressBarComponent.new(value: risk.confirmed, max: session.max_players) %>
+                </span>
+                <span class="text-sm tabular-nums font-semibold <%= risk.fill_rate < 20 ? 'text-red-700' : 'text-orange-700' %>">
+                  <%= risk.confirmed %>/<%= session.max_players %>
+                </span>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <%= render EmptyStateComponent.new(icon: "check-circle", title: "Toutes les séances de la semaine sont bien remplies", compact: true) %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
