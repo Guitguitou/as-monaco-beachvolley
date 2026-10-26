@@ -16,22 +16,14 @@ module Admin
 
     def create
       @stage = Stage.new(stage_params)
-      if @stage.save
-        redirect_to admin_stage_path(@stage), notice: "Stage créé avec succès."
-      else
-        render :new, status: :unprocessable_entity
-      end
+      redirect_or_render(@stage.save, :new, to: [ :admin, @stage ], notice: "Stage créé avec succès.")
     end
 
     def edit
     end
 
     def update
-      if @stage.update(stage_params)
-        redirect_to admin_stage_path(@stage), notice: "Stage mis à jour avec succès."
-      else
-        render :edit, status: :unprocessable_entity
-      end
+      redirect_or_render(@stage.update(stage_params), :edit, to: [ :admin, @stage ], notice: "Stage mis à jour avec succès.")
     end
 
     private

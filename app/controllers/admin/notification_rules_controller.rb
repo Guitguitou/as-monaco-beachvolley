@@ -20,22 +20,14 @@ module Admin
     def create
       @notification_rule = NotificationRule.new(notification_rule_params)
 
-      if @notification_rule.save
-        redirect_to admin_notification_rules_path, notice: "Règle de notification créée avec succès."
-      else
-        render :new, status: :unprocessable_entity
-      end
+      redirect_or_render(@notification_rule.save, :new, to: admin_notification_rules_path, notice: "Règle de notification créée avec succès.")
     end
 
     def edit
     end
 
     def update
-      if @notification_rule.update(notification_rule_params)
-        redirect_to admin_notification_rules_path, notice: "Règle de notification mise à jour avec succès."
-      else
-        render :edit, status: :unprocessable_entity
-      end
+      redirect_or_render(@notification_rule.update(notification_rule_params), :edit, to: admin_notification_rules_path, notice: "Règle de notification mise à jour avec succès.")
     end
 
     def destroy

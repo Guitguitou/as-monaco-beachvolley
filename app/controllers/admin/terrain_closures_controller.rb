@@ -15,21 +15,13 @@ module Admin
 
     def create
       @terrain_closure = TerrainClosure.new(terrain_closure_params)
-      if @terrain_closure.save
-        redirect_to admin_terrain_closures_path, notice: "Indisponibilité enregistrée."
-      else
-        render :new, status: :unprocessable_entity
-      end
+      redirect_or_render(@terrain_closure.save, :new, to: admin_terrain_closures_path, notice: "Indisponibilité enregistrée.")
     end
 
     def edit; end
 
     def update
-      if @terrain_closure.update(terrain_closure_params)
-        redirect_to admin_terrain_closures_path, notice: "Indisponibilité mise à jour."
-      else
-        render :edit, status: :unprocessable_entity
-      end
+      redirect_or_render(@terrain_closure.update(terrain_closure_params), :edit, to: admin_terrain_closures_path, notice: "Indisponibilité mise à jour.")
     end
 
     def destroy

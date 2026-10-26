@@ -31,11 +31,7 @@ module Admin
     def create
       @user = Users::AdminAttributes.apply(User.new, user_params, activate: params[:user][:activate_immediately])
 
-      if @user.save
-        redirect_to admin_user_path(@user), notice: "Utilisateur créé avec succès"
-      else
-        render :new, status: :unprocessable_entity
-      end
+      redirect_or_render(@user.save, :new, to: [ :admin, @user ], notice: "Utilisateur créé avec succès")
     end
 
     def edit; end
@@ -43,11 +39,7 @@ module Admin
     def update
       Users::AdminAttributes.apply(@user, user_params, activate: params[:user][:activate_immediately])
 
-      if @user.save
-        redirect_to admin_user_path(@user), notice: "Utilisateur mis à jour"
-      else
-        render :edit, status: :unprocessable_entity
-      end
+      redirect_or_render(@user.save, :edit, to: [ :admin, @user ], notice: "Utilisateur mis à jour")
     end
 
     def adjust_credits

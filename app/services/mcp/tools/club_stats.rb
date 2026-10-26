@@ -22,7 +22,7 @@ module Mcp
         def execute(_context, from: nil, to: nil)
           start_on = parse_date(from, Date.current.beginning_of_month)
           end_on = parse_date(to, start_on.end_of_month)
-          range = start_on.in_time_zone.beginning_of_day..end_on.in_time_zone.end_of_day
+          range = day_range(start_on, end_on)
 
           {
             from: start_on.iso8601,
