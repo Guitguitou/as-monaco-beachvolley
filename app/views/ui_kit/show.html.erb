@@ -305,7 +305,14 @@
     </div>
   <% end %>
 
-  <%= render layout: "ui_kit/specimen", locals: { component: "NextSessionComponent" } do %>
+  <%= render layout: "ui_kit/specimen", locals: { component: "PlaySlotCardComponent" } do %>
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <%= render PlaySlotCardComponent.new(slot: s.play_slot(joined: 0), user: s.activated_player) %>
+    <%= render PlaySlotCardComponent.new(slot: s.play_slot(joined: 4), user: s.activated_player) %>
+  </div>
+<% end %>
+
+<%= render layout: "ui_kit/specimen", locals: { component: "NextSessionComponent" } do %>
     <%= render NextSessionComponent.new(registration: s.registration) %>
   <% end %>
 
