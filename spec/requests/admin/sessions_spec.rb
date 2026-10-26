@@ -55,21 +55,19 @@ describe "Admin::Sessions index", type: :request do
     get admin_sessions_path
 
     expect(response).to have_http_status(:success)
-    expect(response.body).to include('id="sessions_list"')
-    expect(assigns(:sessions).size).to eq(25)
+    expect(response.body).to include('id="data_table_sessions"')
+    expect(assigns(:page).records.size).to eq(25)
     expect(response.body).to include("Page 1 sur 2")
   end
 
-  it "filtre par type via l'onglet session_type" do
+  it "filtre par type via le filtre de colonne" do
     3.times { |i| create(:session, user: admin, start_at: (i + 1).days.from_now, end_at: (i + 1).days.from_now + 1.hour) }
     create(:session, :tournoi, user: admin, start_at: 10.days.from_now, end_at: 10.days.from_now + 1.hour)
 
-    get admin_sessions_path(session_type: "tournoi")
+    get admin_sessions_path(f: { session_type: "tournoi" })
 
     expect(response).to have_http_status(:success)
-    expect(assigns(:sessions).size).to eq(1)
-    expect(assigns(:type_counts)["entrainement"]).to eq(3)
-    expect(assigns(:type_counts)["tournoi"]).to eq(1)
+    expect(assigns(:page).records.map(&:session_type)).to eq([ "tournoi" ])
   end
 
   it "sert la page 2" do
@@ -78,7 +76,7 @@ describe "Admin::Sessions index", type: :request do
     get admin_sessions_path(page: 2)
 
     expect(response).to have_http_status(:success)
-    expect(assigns(:sessions).size).to eq(5)
+    expect(assigns(:page).records.size).to eq(5)
     expect(response.body).to include("Page 2 sur 2")
   end
 end

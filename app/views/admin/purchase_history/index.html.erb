@@ -49,14 +49,6 @@
   <% end %>
 <% end %>
 
-<%# Tabs de filtrage par statut %>
-<%= tab_bar([
-  { label: "Tous", href: admin_purchase_history_index_path, active: @status_filter.blank?, icon: "list" },
-  { label: "Payés", href: admin_purchase_history_index_path(status: "paid"), active: @status_filter == "paid", icon: "check-circle" },
-  { label: "En attente", href: admin_purchase_history_index_path(status: "pending"), active: @status_filter == "pending", icon: "clock" },
-  { label: "Échoués/Annulés", href: admin_purchase_history_index_path(status: "failed"), active: @status_filter == "failed", icon: "x-circle" }
-]) %>
-
 <%# Stats Cards %>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
   <%= render StatTileComponent.new(value: number_to_currency(@total_revenue, unit: "€", precision: 2), label: "Chiffre d'affaires", icon: "euro") %>
@@ -64,47 +56,26 @@
   <%= render StatTileComponent.new(value: @pending_purchases, label: "En attente", icon: "clock") %>
 </div>
 
-<%# Table %>
-<% status_badges = { "paid" => [ "Payé", :success ], "pending" => [ "En attente", :warning ],
-                     "failed" => [ "Échoué", :danger ], "cancelled" => [ "Annulé", :neutral ] } %>
-<%= render TableComponent.new(framed: true, fixed: true) do |table| %>
-  <% table.with_column("Date") %>
-  <% table.with_column("Utilisateur", class_name: "hidden lg:table-cell") %>
-  <% table.with_column("Pack", class_name: "hidden md:table-cell") %>
-  <% table.with_column("Montant") %>
-  <% table.with_column("Crédits", class_name: "hidden sm:table-cell") %>
-  <% table.with_column("Statut") %>
-  <% table.with_column("Référence", class_name: "hidden xl:table-cell") %>
-  <% @credit_purchases.each do |purchase| %>
+<%= render DataTableComponent.new(definition: @table, state: @state, pagination: @page,
+                                  url: admin_purchase_history_index_path, empty_message: "Aucun achat.") do |table| %>
+  <% status_variants = { "paid" => :success, "pending" => :warning, "failed" => :danger, "cancelled" => :neutral } %>
+  <% @page.records.each do |purchase| %>
     <% table.with_row do |row| %>
-      <% row.with_cell(wrap: true) { l(purchase.created_at, format: :short) } %>
-      <% row.with_cell(wrap: true, class_name: "hidden lg:table-cell") do %>
+      <% row.with_cell { l(purchase.created_at, format: "%d/%m/%Y %H:%M") } %>
+      <% row.with_cell(wrap: true) do %>
         <div class="flex flex-col">
-          <% if purchase.user %>
-            <span class="font-medium text-gray-800"><%= purchase.user.full_name %></span>
-            <span class="text-xs text-gray-500"><%= purchase.user.email %></span>
-          <% else %>
-            <span class="text-gray-400 italic">Utilisateur anonyme</span>
-          <% end %>
+          <span class="font-medium text-gray-800"><%= purchase.user.full_name %></span>
+          <span class="text-xs text-gray-500"><%= purchase.user.email %></span>
         </div>
       <% end %>
-      <% row.with_cell(wrap: true, class_name: "hidden md:table-cell") do %>
-        <% if purchase.pack %>
-          <span class="font-medium text-gray-800"><%= purchase.pack.name %></span>
-        <% else %>
-          <span class="text-gray-400 italic">Achat direct</span>
-        <% end %>
-      <% end %>
+      <% row.with_cell(wrap: true) { purchase.pack&.name || tag.span("Achat direct", class: "text-gray-400 italic") } %>
       <% row.with_cell(weight: :semibold) { number_to_currency(purchase.amount_eur, unit: "€", precision: 2) } %>
-      <% row.with_cell(class_name: "hidden sm:table-cell") { purchase.credits.to_s } %>
+      <% row.with_cell { purchase.credits.to_s } %>
       <% row.with_cell do %>
-        <% label, variant = status_badges[purchase.status] %>
-        <% if label %>
-          <%= render BadgeComponent.new(label: label, variant: variant, size: :xs) %>
-        <% end %>
+        <%= render BadgeComponent.new(label: Admin::Tables::Purchases::STATUS_LABELS.fetch(purchase.status, purchase.status),
+                                      variant: status_variants.fetch(purchase.status, :neutral), size: :xs) %>
       <% end %>
-      <% row.with_cell(wrap: true, class_name: "text-xs font-mono text-gray-500 hidden xl:table-cell") { purchase.sherlock_transaction_reference } %>
+      <% row.with_cell(class_name: "text-xs font-mono text-gray-500") { purchase.sherlock_transaction_reference } %>
     <% end %>
   <% end %>
-  <% table.with_empty(icon: "shopping-cart", message: "Aucun achat pour le moment") %>
 <% end %>

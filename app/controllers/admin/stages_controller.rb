@@ -4,7 +4,10 @@ module Admin
     before_action :set_stage, only: [ :show, :edit, :update ]
 
     def index
-      @stages = @stages.order(starts_on: :desc)
+      @table = Admin::Tables::Stages.new
+      @state = DataTable::State.new(params)
+      @page = Pagination.new(scope: DataTable::Query.call(relation: @stages.includes(:main_coach, :assistant_coach), definition: @table, state: @state),
+                             page: @state.page, per_page: 25)
     end
 
     def show

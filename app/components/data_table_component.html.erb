@@ -1,6 +1,6 @@
-<%= turbo_frame_tag frame_id, class: "block min-w-0", data: { turbo_action: "advance" } do %>
-  <%= form_with url: @url, method: :get, scope: nil,
-        data: { controller: "auto-submit", turbo_frame: frame_id }, class: "space-y-3" do |form| %>
+<%= turbo_frame_tag frame_id, class: "block min-w-0 space-y-3", data: { turbo_action: "advance", controller: "auto-submit" } do %>
+  <%= form_with url: @url, method: :get, scope: nil, id: form_id,
+        data: { auto_submit_target: "form", turbo_frame: frame_id } do |form| %>
     <%= hidden_field_tag :sort, state.sort if state.sort %>
     <%= hidden_field_tag :direction, state.direction if state.sort %>
     <%= hidden_field_tag :quick, state.quick if state.quick %>
@@ -34,52 +34,52 @@
         <% end %>
       </div>
     </div>
+  <% end %>
 
-    <div class="relative overflow-x-auto rounded-none border border-gray-200 shadow-sm">
-      <table class="<%= table_classes %>">
-        <thead class="bg-gray-50">
+  <div class="relative overflow-x-auto rounded-none border border-gray-200 shadow-sm">
+    <table class="<%= table_classes %>">
+      <thead class="bg-gray-50">
+        <tr>
+          <% columns.each do |column| %>
+            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap <%= column.class_name %>"
+                aria-sort="<%= state.sorted_by?(column.key) ? "#{state.direction}ending" : "none" %>">
+              <% if column.sortable? %>
+                <%= link_to sort_url(column), class: "inline-flex items-center gap-1 hover:text-brand" do %>
+                  <span><%= column.label %></span>
+                  <%= lucide_icon(sort_icon(column), size: 14, class: state.sorted_by?(column.key) ? "text-brand" : "text-gray-300") %>
+                <% end %>
+              <% else %>
+                <%= column.label %>
+              <% end %>
+            </th>
+          <% end %>
+        </tr>
+        <% if definition.filterable? %>
           <tr>
             <% columns.each do |column| %>
-              <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap <%= column.class_name %>"
-                  aria-sort="<%= state.sorted_by?(column.key) ? "#{state.direction}ending" : "none" %>">
-                <% if column.sortable? %>
-                  <%= link_to sort_url(column), class: "inline-flex items-center gap-1 hover:text-brand" do %>
-                    <span><%= column.label %></span>
-                    <%= lucide_icon(sort_icon(column), size: 14, class: state.sorted_by?(column.key) ? "text-brand" : "text-gray-300") %>
-                  <% end %>
-                <% else %>
-                  <%= column.label %>
-                <% end %>
-              </th>
+              <th class="px-4 pb-3 align-top <%= column.class_name %>"><%= filter_input(column) if column.filter %></th>
             <% end %>
           </tr>
-          <% if definition.filterable? %>
-            <tr>
-              <% columns.each do |column| %>
-                <th class="px-4 pb-3 align-top <%= column.class_name %>"><%= filter_input(column) if column.filter %></th>
-              <% end %>
-            </tr>
+        <% end %>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% if rows? %>
+          <% rows.each do |row| %>
+            <%= row %>
           <% end %>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <% if rows? %>
-            <% rows.each do |row| %>
-              <%= row %>
-            <% end %>
-          <% else %>
-            <tr>
-              <td colspan="<%= columns.size %>" class="px-6 py-8 text-center text-gray-500">
-                <div class="flex flex-col items-center gap-2">
-                  <%= lucide_icon("search-x", class: "w-8 h-8 text-gray-300", aria: { hidden: true }) %>
-                  <span><%= empty_message %></span>
-                </div>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  <% end %>
+        <% else %>
+          <tr>
+            <td colspan="<%= columns.size %>" class="px-6 py-8 text-center text-gray-500">
+              <div class="flex flex-col items-center gap-2">
+                <%= lucide_icon("search-x", class: "w-8 h-8 text-gray-300", aria: { hidden: true }) %>
+                <span><%= empty_message %></span>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 
   <%= render PaginationComponent.new(pagination: pagination, url_for: ->(page) { page_url(page) }) %>
 <% end %>

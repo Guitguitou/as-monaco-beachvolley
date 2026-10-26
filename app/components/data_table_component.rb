@@ -40,6 +40,8 @@ class DataTableComponent < ApplicationComponent
 
   def frame_id = "data_table_#{definition.class.name.demodulize.underscore}"
 
+  def form_id = "#{frame_id}_filters"
+
   def columns = definition.columns
 
   def url_with(params) = "#{@url}?#{params.to_query}".delete_suffix("?")
@@ -66,7 +68,9 @@ class DataTableComponent < ApplicationComponent
     "#{base} #{active ? 'border-brand bg-brand text-white' : 'border-gray-300 bg-white text-gray-700 hover:border-brand'}"
   end
 
-  def filter_input(column) = render(DataTable::FilterInputComponent.new(column: column, value: state.filter(column.key)))
+  def filter_input(column)
+    render(DataTable::FilterInputComponent.new(column: column, value: state.filter(column.key), form: form_id))
+  end
 
   # Première colonne figée au défilement horizontal (tableaux larges sur mobile).
   def table_classes

@@ -6,7 +6,10 @@ module Admin
     before_action :set_terrain_closure, only: [ :edit, :update, :destroy ]
 
     def index
-      @terrain_closures = TerrainClosure.includes(:terrain).order(starts_on: :desc, terrain_id: :asc)
+      @table = Admin::Tables::TerrainClosures.new
+      @state = DataTable::State.new(params)
+      @page = Pagination.new(scope: DataTable::Query.call(relation: TerrainClosure.includes(:terrain), definition: @table, state: @state),
+                             page: @state.page, per_page: 25)
     end
 
     def new

@@ -1,104 +1,38 @@
-<%= render PageHeaderComponent.new(title: "Sessions", icon: "calendar-clock", variant: :admin) do |header| %>
+<%= render PageHeaderComponent.new(title: "Séances", icon: "calendar-clock", variant: :admin) do |header| %>
   <% header.with_actions do %>
     <% if can?(:create, Session) %>
-      <%= button("Nouvelle session", variant: :primary, size: :medium, href: new_admin_session_path) %>
+      <%= button("Nouvelle séance", variant: :primary, size: :medium, href: new_admin_session_path) %>
     <% end %>
   <% end %>
 <% end %>
 
-<%
-  base_params = request.query_parameters.except("session_type", "page")
-%>
-
-<%
-  session_tabs =
-    [ { label: "Toutes", href: admin_sessions_path(base_params), active: @current_type.nil?, count: @total_count } ] +
-    Session.session_types.keys.map do |type|
-      {
-        label: Sessions::SessionType.for(type).label,
-        href: admin_sessions_path(base_params.merge(session_type: type)),
-        active: @current_type == type,
-        count: @type_counts[type].to_i
-      }
-    end
-%>
-
-<%= turbo_frame_tag "sessions_list" do %>
-  <%= tab_bar(session_tabs, turbo_frame: "sessions_list") %>
-
-  <%= render TableComponent.new(framed: true, fixed: true) do |table| %>
-    <% table.with_column("Titre", class_name: "w-2/5") %>
-    <% table.with_column("Type", class_name: "hidden md:table-cell w-1/6") %>
-    <% table.with_column("Terrain", class_name: "hidden lg:table-cell w-1/12") %>
-    <% table.with_column("Niveau", class_name: "hidden lg:table-cell w-1/6") %>
-    <% table.with_column("Date", class_name: "w-1/5") %>
-    <% table.with_column("Coach / Responsable", class_name: "hidden md:table-cell w-1/6") %>
-    <% table.with_column("Actions", align: :right, class_name: "w-16 sm:w-24") %>
-    <% @sessions.each do |session| %>
-      <% session_type = Sessions::SessionType.for(session.session_type) %>
-      <% table.with_row do |row| %>
-        <% row.with_cell(weight: :medium, wrap: true) do %>
-          <span class="flex items-center gap-2">
-            <%= lucide_icon("calendar", size: 16, class: "shrink-0 text-gray-500") %>
-            <%= session.title.presence || "(Sans titre)" %>
-          </span>
+<%= render DataTableComponent.new(definition: @table, state: @state, pagination: @page, url: admin_sessions_path,
+                                  empty_message: "Aucune séance.") do |table| %>
+  <% @page.records.each do |session| %>
+    <% session_type = Sessions::SessionType.for(session.session_type) %>
+    <% table.with_row do |row| %>
+      <% row.with_cell(weight: :medium, wrap: true) do %>
+        <%= link_to session.title.presence || "(Sans titre)", admin_session_path(session), class: "hover:text-brand", data: { turbo_frame: "_top" } %>
+      <% end %>
+      <% row.with_cell { render BadgeComponent.new(label: session_type.label, variant: session_type.badge, size: :xs) } %>
+      <% row.with_cell { "#{l session.start_at, format: "%d/%m/%Y %H:%M"}–#{l session.end_at, format: "%H:%M"}" } %>
+      <% row.with_cell { session.terrain&.name } %>
+      <% row.with_cell(wrap: true) { @table.levels_label(session) } %>
+      <% row.with_cell { session.user&.full_name || "–" } %>
+      <% row.with_cell { [ @confirmed_counts[session.id].to_i, session.max_players ].compact.join(" / ") } %>
+      <% row.with_cell do %>
+        <%= render BadgeComponent.new(label: session.cancelled? ? "Annulée" : "Prévue", variant: session.cancelled? ? :danger : :neutral, size: :xs) %>
+      <% end %>
+      <% row.with_cell(align: :right, class_name: "space-x-2") do %>
+        <%= link_to edit_admin_session_path(session), class: "inline-flex text-gray-600 hover:text-brand", data: { turbo_frame: "_top" } do %>
+          <%= lucide_icon("edit", size: 16) %><span class="sr-only">Modifier</span>
         <% end %>
-        <% row.with_cell(class_name: "hidden md:table-cell") { render BadgeComponent.new(label: session_type.label, variant: session_type.badge, size: :xs) } %>
-        <% row.with_cell(class_name: "hidden lg:table-cell") { render BadgeComponent.new(label: session.terrain&.name, variant: :neutral, size: :xs) } %>
-        <% row.with_cell(wrap: true, class_name: "space-x-1 hidden lg:table-cell") do %>
-          <% session.levels.each do |level| %>
-            <%= render BadgeComponent.new(label: level.name, variant: :neutral, size: :xs) %>
-          <% end %>
-        <% end %>
-        <% row.with_cell(wrap: true) { "#{l session.start_at, format: :short} — #{l session.end_at, format: :short}" } %>
-        <% row.with_cell(wrap: true, class_name: "hidden md:table-cell") { session.user&.full_name || "-" } %>
-        <% row.with_cell(align: :right, class_name: "space-x-2") do %>
-          <%= link_to admin_session_path(session), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
-            <%= lucide_icon("eye", size: 16) %>
-          <% end %>
-          <%= link_to edit_admin_session_path(session), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
-            <%= lucide_icon("edit", size: 16) %>
-          <% end %>
-          <%= link_to admin_session_path(session),
-                data: { turbo_method: :delete, turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette session ?" },
-                class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors" do %>
-            <%= lucide_icon("trash", size: 16) %>
-          <% end %>
+        <%= link_to admin_session_path(session),
+              data: { turbo_method: :delete, turbo_frame: "_top", turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette séance ?" },
+              class: "inline-flex text-gray-600 hover:text-red-600" do %>
+          <%= lucide_icon("trash", size: 16) %><span class="sr-only">Supprimer</span>
         <% end %>
       <% end %>
     <% end %>
-    <% table.with_empty(icon: "calendar-x", message: "Aucune session.") %>
-  <% end %>
-
-  <!-- Pagination -->
-  <% if @total_pages > 1 %>
-    <div class="mt-4 flex items-center justify-between text-sm text-gray-600">
-      <div>Page <%= @page %> sur <%= @total_pages %></div>
-      <div class="flex items-center gap-2">
-        <% if @page > 1 %>
-          <%= link_to admin_sessions_path(base_params.merge(session_type: @current_type, page: @page - 1)),
-                data: { turbo_frame: "sessions_list", turbo_action: "advance" },
-                class: "inline-flex items-center gap-1 px-3 py-2 rounded-none border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors" do %>
-            <%= lucide_icon("chevron-left", size: 16) %> Précédent
-          <% end %>
-        <% else %>
-          <span class="inline-flex items-center gap-1 px-3 py-2 rounded-none border border-gray-100 text-gray-300 cursor-not-allowed">
-            <%= lucide_icon("chevron-left", size: 16) %> Précédent
-          </span>
-        <% end %>
-
-        <% if @page < @total_pages %>
-          <%= link_to admin_sessions_path(base_params.merge(session_type: @current_type, page: @page + 1)),
-                data: { turbo_frame: "sessions_list", turbo_action: "advance" },
-                class: "inline-flex items-center gap-1 px-3 py-2 rounded-none border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors" do %>
-            Suivant <%= lucide_icon("chevron-right", size: 16) %>
-          <% end %>
-        <% else %>
-          <span class="inline-flex items-center gap-1 px-3 py-2 rounded-none border border-gray-100 text-gray-300 cursor-not-allowed">
-            Suivant <%= lucide_icon("chevron-right", size: 16) %>
-          </span>
-        <% end %>
-      </div>
-    </div>
   <% end %>
 <% end %>
