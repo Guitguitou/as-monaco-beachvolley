@@ -1,116 +1,31 @@
 <%= render PageHeaderComponent.new(title: "Joueurs", icon: "users", variant: :admin) do |header| %>
   <% header.with_actions do %>
-    <%= button("Gérer la saison", variant: :secondary, size: :medium, href: admin_season_path, icon: "calendar-sync") %>
     <%= button("Nouveau joueur", variant: :primary, size: :medium, href: new_admin_user_path) %>
   <% end %>
 <% end %>
 
-<%= render 'filters' %>
-
-<% preserve = { q: params[:q], gender: params[:gender], license_type: params[:license_type] } %>
-<%= render TableComponent.new(framed: true, fixed: true) do |table| %>
-  <% table.with_column(sortable_link_to("Nom", :name, preserve: preserve)) %>
-  <% table.with_column(sortable_link_to("Email", :email, preserve: preserve), class_name: "hidden sm:table-cell") %>
-  <% table.with_column("Rôles") %>
-  <% table.with_column(sortable_link_to("Type de licence", :license_type, preserve: preserve)) %>
-  <% table.with_column("Groupe") %>
-  <% table.with_column("Actions", align: :right, class_name: "w-16 sm:w-24") %>
-  <% @users.each do |user| %>
+<%= render DataTableComponent.new(definition: @table, state: @state, pagination: @page, url: admin_users_path,
+                                  export_url: admin_users_path(format: :csv), empty_message: "Aucun joueur.") do |table| %>
+  <% @page.records.each do |user| %>
     <% table.with_row do |row| %>
       <% row.with_cell(weight: :medium) do %>
-        <span class="flex items-center gap-2">
-          <%= lucide_icon("user", size: 16, class: "text-gray-500") %>
-          <%= "#{user.last_name} #{user.first_name}" %>
-        </span>
+        <%= link_to "#{user.last_name} #{user.first_name}", admin_user_path(user), class: "hover:text-brand", data: { turbo_frame: "_top" } %>
       <% end %>
-      <% row.with_cell(wrap: true, class_name: "hidden sm:table-cell") { user.email } %>
-      <% row.with_cell(wrap: true, class_name: "space-x-1") do %>
-        <%= render BadgeComponent.new(label: "Admin", variant: :warning, size: :xs) if user.admin? %>
-        <%= render BadgeComponent.new(label: "Coach", variant: :success, size: :xs) if user.coach? %>
-        <%= render BadgeComponent.new(label: "Responsable", variant: :info, size: :xs) if user.responsable? %>
-        <%= render BadgeComponent.new(label: "Resp. Financier", variant: :purple, size: :xs) if user.financial_manager? %>
-      <% end %>
-      <% row.with_cell do %>
-        <% license_label = { "libre" => "Libre" }.fetch(user.license_type.to_s) { user.license_type.present? ? "Compétition" : "Pas de licence" } %>
-        <%= render BadgeComponent.new(label: license_label, variant: :neutral, size: :xs) %>
-      <% end %>
-      <% row.with_cell(wrap: true) do %>
-        <% levels = user.levels.presence || [ user.level ].compact %>
-        <%= levels.any? ? levels.map { |l| l.respond_to?(:display_name) ? l.display_name : l.name }.join(", ") : "–" %>
-      <% end %>
-      <% row.with_cell(align: :right, class_name: "space-x-2") do %>
-        <%= link_to admin_user_path(user), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
-          <%= lucide_icon("eye", size: 16) %>
-          <span class="hidden sm:inline">Voir</span>
+      <% row.with_cell { user.email } %>
+      <% row.with_cell(class_name: "space-x-1") do %>
+        <% @table.roles(user).each do |role| %>
+          <%= render BadgeComponent.new(label: role, variant: :neutral, size: :xs) %>
         <% end %>
-        <%= link_to edit_admin_user_path(user), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
-          <%= lucide_icon("edit", size: 16) %>
-          <span class="hidden sm:inline">Modifier</span>
+      <% end %>
+      <% row.with_cell { render BadgeComponent.new(label: @table.license_label(user), variant: :neutral, size: :xs) } %>
+      <% row.with_cell { render BadgeComponent.new(label: user.activated? ? "Oui" : "Non", variant: user.activated? ? :success : :danger, size: :xs) } %>
+      <% row.with_cell { render BadgeComponent.new(label: user.dossier_complet? ? "Oui" : "Non", variant: user.dossier_complet? ? :success : :warning, size: :xs) } %>
+      <% row.with_cell(wrap: true) { user.levels.map(&:display_name).join(", ").presence || "–" } %>
+      <% row.with_cell(align: :right) do %>
+        <%= link_to edit_admin_user_path(user), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand", data: { turbo_frame: "_top" } do %>
+          <%= lucide_icon("edit", size: 16) %><span class="sr-only">Modifier</span>
         <% end %>
       <% end %>
     <% end %>
   <% end %>
-  <% table.with_empty(icon: "users", message: "Aucun joueur.") %>
-<% end %>
-
-<%# Pagination controls (numbered) %>
-<% if @total_pages && @total_pages > 1 %>
-  <nav class="mt-4 flex items-center justify-between text-sm text-gray-700" aria-label="Pagination">
-    <div>
-      <% if @current_page > 1 %>
-        <%= link_to({ action: :index, page: @current_page - 1, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                    class: "inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-300 bg-white hover:bg-gray-50") do %>
-          <%= lucide_icon("chevron-left", size: 16) %>
-          Précédent
-        <% end %>
-      <% else %>
-        <span class="inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-200 text-gray-400">
-          <%= lucide_icon("chevron-left", size: 16) %>
-          Précédent
-        </span>
-      <% end %>
-    </div>
-
-    <ol class="flex items-center gap-1">
-      <%# Build a compact page list: first, last, and a window around current %>
-      <% window = 2
-         pages = [1, @total_pages]
-         range_start = [@current_page - window, 1].max
-         range_end = [@current_page + window, @total_pages].min
-         pages += (range_start..range_end).to_a
-         pages = pages.uniq.sort
-      %>
-      <% pages.each_with_index do |page, idx| %>
-        <% if idx > 0 && page - pages[idx - 1] > 1 %>
-          <li class="px-2 text-gray-400">…</li>
-        <% end %>
-        <% if page == @current_page %>
-          <li>
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-none bg-brand text-white font-semibold"><%= page %></span>
-          </li>
-        <% else %>
-          <li>
-            <%= link_to page,
-                        { action: :index, page: page, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                        class: "inline-flex items-center justify-center w-8 h-8 rounded-none border border-gray-300 bg-white hover:bg-gray-50" %>
-          </li>
-        <% end %>
-      <% end %>
-    </ol>
-
-    <div>
-      <% if @current_page < @total_pages %>
-        <%= link_to({ action: :index, page: @current_page + 1, q: params[:q], gender: params[:gender], license_type: params[:license_type], sort: params[:sort], direction: params[:direction] },
-                    class: "inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-300 bg-white hover:bg-gray-50") do %>
-          Suivant
-          <%= lucide_icon("chevron-right", size: 16) %>
-        <% end %>
-      <% else %>
-        <span class="inline-flex items-center gap-1 rounded-none px-3 py-1.5 border border-gray-200 text-gray-400">
-          Suivant
-          <%= lucide_icon("chevron-right", size: 16) %>
-        </span>
-      <% end %>
-    </div>
-  </nav>
 <% end %>
