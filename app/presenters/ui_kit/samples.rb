@@ -29,13 +29,11 @@ module UiKit
     end
 
     def ranked_players
-      [
-        { user: player(id: 1), name: "Alice", count: 18, rank: 1 },
-        { user: player(first_name: "Bob", last_name: "Durand", id: 2), name: "Bob", count: 12, rank: 2 },
-        { user: player(first_name: "Chloé", last_name: "Petit", id: 3), name: "Chloé", count: 9, rank: 3 },
-        { user: player(first_name: "David", last_name: "Roux", id: 4), name: "David", count: 4, rank: 4 },
-        { user: player(first_name: "Emma", last_name: "Blanc", id: 5), name: "Emma", count: 1, rank: 5 }
-      ]
+      [ %w[Alice Martin 18], %w[Bob Durand 12], %w[Chloé Petit 9], %w[David Roux 4], %w[Emma Blanc 1] ]
+        .each_with_index.map do |(first_name, last_name, count), index|
+          rank = index + 1
+          { user: player(first_name: first_name, last_name: last_name, id: rank), name: first_name, count: count.to_i, rank: rank }
+        end
     end
 
     def terrain(position = 1)
@@ -84,6 +82,12 @@ module UiKit
     def spending_period
       Admin::SessionsPeriod.new("month", Date.current.strftime("%Y-%m"))
     end
+
+    def comparison
+      Reporting::Comparison.new(key: :registrations, label: "Inscriptions", icon: "users", current: 128, previous: 112)
+    end
+
+    def page_of(scope) = Pagination.new(scope: scope.none, page: 1)
 
     # Même interface que Reporting::PlayerSessionSpending, sans requête.
     Spending = Data.define(:rows, :session_types, :totals)

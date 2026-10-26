@@ -9,17 +9,16 @@ module Admin
 
       def columns
         [
-          DataTable::Column.new(key: :created_at, label: "Date", sort: "credit_purchases.created_at",
-                                filter: DataTable::Filters::DateRange.new("credit_purchases.created_at")),
-          DataTable::Column.new(key: :user, label: "Joueur", sort: %w[users.last_name users.first_name]),
-          DataTable::Column.new(key: :pack_type, label: "Pack", filter: pack_type_filter),
-          DataTable::Column.new(key: :amount, label: "Montant", sort: "credit_purchases.amount_cents",
-                                filter: DataTable::Filters::NumberRange.new("credit_purchases.amount_cents", scale: 100)),
-          DataTable::Column.new(key: :credits, label: "Crédits", sort: "credit_purchases.credits"),
-          DataTable::Column.new(key: :status, label: "Statut", sort: "credit_purchases.status",
-                                filter: DataTable::Filters::Select.new("credit_purchases.status", options: STATUS_LABELS.invert.to_a,
-                                                                                                    multiple: true)),
-          DataTable::Column.new(key: :reference, label: "Référence")
+          date_col(:created_at, "Date", "credit_purchases.created_at"),
+          col(:user, "Joueur", sort: %w[users.last_name users.first_name]),
+          col(:pack_type, "Pack", filter: pack_type_filter),
+          col(:amount, "Montant", sort: "credit_purchases.amount_cents",
+                                  filter: DataTable::Filters::NumberRange.new("credit_purchases.amount_cents", scale: 100)),
+          col(:credits, "Crédits", sort: "credit_purchases.credits"),
+          col(:status, "Statut", sort: "credit_purchases.status",
+                                 filter: DataTable::Filters::Select.new("credit_purchases.status", options: STATUS_LABELS.invert.to_a,
+                                                                                                     multiple: true)),
+          col(:reference, "Référence")
         ]
       end
 
@@ -29,8 +28,7 @@ module Admin
 
       def quick_filters
         [
-          DataTable::QuickFilter.new(key: :this_month, label: "Ce mois-ci",
-                                     scope: ->(purchases) { purchases.where(created_at: Time.current.all_month) }),
+          current_period(:this_month, "Ce mois-ci", :created_at, :all_month),
           DataTable::QuickFilter.new(key: :to_check, label: "Échoués / annulés",
                                      scope: ->(purchases) { purchases.where(status: %w[failed cancelled]) })
         ]

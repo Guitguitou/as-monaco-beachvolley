@@ -1,0 +1,17 @@
+<%= render "season_header" %>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+  <div class="xl:col-span-2">
+    <%= render CardComponent.new(title: "Participations par mois", subtitle: "Inscriptions confirmées, par type de séance",
+                                 icon: "chart-column", padding: :lg) do %>
+      <% series = @report.participations_by_type %>
+      <%= column_chart series, stacked: true, id: "attendance-chart" %>
+      <%= render "chart_table", series: series, unit: nil %>
+    <% end %>
+  </div>
+  <%= render CardComponent.new(title: "Remplissage", subtitle: "Places occupées sur places offertes", icon: "gauge", padding: :lg) do %>
+    <% fill = @report.fill_rate_by_month %>
+    <%= line_chart fill, suffix: " %", max: 100, colors: [ "#2a78d6" ], id: "fill-chart" %>
+    <%= render "chart_table", series: [ { name: "Remplissage", data: fill } ], unit: " %" %>
+  <% end %>
+</div>

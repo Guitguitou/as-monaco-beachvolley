@@ -23,10 +23,9 @@ RSpec.describe Admin::MonthlyRevenueChartComponent, type: :component do
 
   before { render_inline(described_class.new(months: months, pack_types: Pack.pack_types.keys)) }
 
-  it "draws one stacked segment per type sold each month" do
-    expect(page).to have_css("svg rect", count: 4)
-    expect(page).to have_css("rect.fill-brand", count: 3)
-    expect(page).to have_css("rect.fill-ocean", count: 1)
+  it "draws a stacked chart with one series per type sold" do
+    expect(page).to have_css("#monthly-revenue-chart")
+    expect(page.native.to_html).to include("Crédits", "Licences")
   end
 
   it "only lists the pack types sold over the period" do
@@ -54,7 +53,7 @@ RSpec.describe Admin::MonthlyRevenueChartComponent, type: :component do
 
     it "shows an empty state instead of the chart" do
       expect(page).to have_text("Aucune vente de pack sur la période")
-      expect(page).not_to have_css("svg[role=img]")
+      expect(page).not_to have_css("#monthly-revenue-chart")
     end
   end
 end

@@ -19,7 +19,8 @@ RSpec.describe Reporting::WeekPulse do
     create_list(:registration, 4, session: this_week, status: :confirmed)
 
     sessions = metric(:sessions)
-    expect([ sessions.current, sessions.previous, sessions.change, sessions.trend ]).to eq([ 1, 2, -50, :bad ])
+    expect([ sessions.current, sessions.previous, sessions.change, sessions.trend ]).to eq([ 1, 2, nil, :bad ])
+    expect(sessions.with(current: 15, previous: 20).change).to eq(-25)
     expect(metric(:registrations).current).to eq(4)
     expect(metric(:fill_rate).current).to eq(40)
   end

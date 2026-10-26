@@ -9,16 +9,6 @@ module Admin
   #     pack_types: Pack.pack_types.keys
   #   )
   class MonthlyRevenueChartComponent < ApplicationComponent
-    # Classes écrites en entier pour que Tailwind les détecte.
-    COLORS = {
-      "credits" => { fill: "fill-brand", swatch: "bg-brand" },
-      "licence" => { fill: "fill-ocean", swatch: "bg-ocean" },
-      "stage" => { fill: "fill-amber-500", swatch: "bg-amber-500" },
-      "inscription_tournoi" => { fill: "fill-emerald-500", swatch: "bg-emerald-500" },
-      "equipements" => { fill: "fill-violet-500", swatch: "bg-violet-500" }
-    }.freeze
-    DEFAULT_COLOR = { fill: "fill-gray-400", swatch: "bg-gray-400" }.freeze
-
     def initialize(months:, pack_types:)
       @months = months
       @pack_types = pack_types
@@ -35,11 +25,12 @@ module Admin
 
     def empty? = types.empty?
 
-    def chart
-      @chart ||= StackedBarChart.new(columns: months.map { |month| amounts(month) }, keys: types)
+    # Séries Chartkick : une par type de pack, en euros par mois.
+    def series
+      types.map do |type|
+        { name: type_label(type), data: months.to_h { |month| [ month_label(month), amount(month, type).round ] } }
+      end
     end
-
-    def amounts(month) = types.index_with { |type| amount(month, type) }
 
     def amount(month, type) = month[:by_type].dig(type, :amount) || 0.0
 
@@ -82,8 +73,6 @@ module Admin
     def month_label(month) = l(Date.new(month[:year], month[:month]), format: :month_short)
 
     def month_title(month) = month[:period]
-
-    def color(type) = COLORS.fetch(type, DEFAULT_COLOR)
 
     def format_currency(amount) = helpers.number_to_currency(amount, unit: "€", format: "%n %u", precision: 0)
   end

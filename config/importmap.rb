@@ -12,3 +12,8 @@ pin_all_from "app/javascript/controllers", under: "controllers"
 # pin "@fullcalendar/timegrid", to: "https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.18/index.global.min.js"
 # pin "@fullcalendar/resource-timegrid", to: "https://cdn.jsdelivr.net/npm/@fullcalendar/resource-timegrid@6.1.18/index.global.min.js"
 # pin "@fullcalendar/interaction", to: "https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.18/index.global.min.js"
+
+# Graphiques des dashboards admin (Chartkick + Chart.js, fournis par la gem chartkick)
+pin "chartkick", to: "chartkick.js"
+pin "Chart.bundle", to: "Chart.bundle.js"
+pin "admin_charts"

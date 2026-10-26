@@ -6,22 +6,17 @@ module Admin
     class Tournaments < DataTable::Definition
       def columns
         [
-          DataTable::Column.new(key: :title, label: "Titre", sort: "tournaments.title"),
-          DataTable::Column.new(key: :starts_on, label: "Dates", sort: "tournaments.starts_on",
-                                filter: DataTable::Filters::DateRange.new("tournaments.starts_on")),
-          DataTable::Column.new(key: :level, label: "Niveau", sort: "tournaments.level",
-                                filter: DataTable::Filters::Select.new("tournaments.level",
-                                                                       options: Tournament::LEVELS.map { |level| [ level, level ] })),
-          DataTable::Column.new(key: :payment, label: "Paiement")
+          col(:title, "Titre", sort: "tournaments.title"),
+          date_col(:starts_on, "Dates", "tournaments.starts_on"),
+          col(:level, "Niveau", sort: "tournaments.level",
+                                filter: select_filter("tournaments.level", Tournament::LEVELS.map { |level| [ level, level ] })),
+          col(:payment, "Paiement")
         ]
       end
 
       def search_columns = %w[tournaments.title]
 
-      def quick_filters
-        [ DataTable::QuickFilter.new(key: :upcoming, label: "À venir",
-                                     scope: ->(tournaments) { tournaments.where(ends_on: Date.current..) }) ]
-      end
+      def quick_filters = [ upcoming ]
 
       def default_order = { starts_on: :desc }
     end
