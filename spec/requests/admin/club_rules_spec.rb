@@ -35,6 +35,15 @@ RSpec.describe "Admin::ClubRules", type: :request do
   end
 
   describe "PATCH /admin/regles-du-club" do
+    it "enregistre le lien du formulaire d'adhésion" do
+      login_as(admin, scope: :user)
+
+      patch admin_club_rules_path, params: { club_rules: valid_params.merge(membership_form_url: "https://forms.example.com/2027") }
+
+      expect(response).to redirect_to(admin_club_rules_path)
+      expect(ClubSetting.current.membership_form_url).to eq("https://forms.example.com/2027")
+    end
+
     it "enregistre les règles, prix convertis en centimes" do
       login_as(admin, scope: :user)
 

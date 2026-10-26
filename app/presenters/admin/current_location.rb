@@ -13,13 +13,16 @@ module Admin
     end
 
     def active?(item)
-      target = URI.parse(item.path)
+      item.paths.any? { |path| matches?(URI.parse(path)) }
+    end
+
+    private
+
+    def matches?(target)
       return @path == target.path && matches_query?(target.query) if target.path == ROOT
 
       @path == target.path || @path.start_with?("#{target.path}/")
     end
-
-    private
 
     def matches_query?(target_query)
       Rack::Utils.parse_query(target_query).all? { |key, value| @query[key] == value } &&

@@ -1,5 +1,5 @@
-<%= render PageHeaderComponent.new(title: "Terrains", icon: "map-pin", variant: :admin) do |header| %>
-  <% header.with_actions do %>
+<%= render Admin::ConfigurationTabsComponent.new(active: :terrains) do |config| %>
+  <% config.with_actions do %>
     <%= button("Nouveau terrain", variant: :primary, size: :medium, href: new_admin_terrain_path) %>
   <% end %>
 <% end %>

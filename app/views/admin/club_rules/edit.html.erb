@@ -2,12 +2,7 @@
 <% immediate_hint = "Immédiat, toutes les séances" %>
 <% price_labels = { "entrainement" => "Entraînement", "jeu_libre" => "Jeu libre", "coaching_prive" => "Coaching privé", "stage" => "Stage" } %>
 
-<div class="flex items-center gap-2 mb-6">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("sliders-horizontal") %>
-    Règles du club
-  </h1>
-</div>
+<%= render Admin::ConfigurationTabsComponent.new(active: :club_rules) %>
 
 <%= form_with model: @form, scope: :club_rules, url: admin_club_rules_path, method: :patch, class: "max-w-xl mx-auto space-y-6" do |f| %>
   <% if @form.errors.any? %>
@@ -87,6 +82,17 @@
         <p class="text-sm text-red-600"><%= @form.errors[:cancellation_deadline_mode].first %></p>
       <% end %>
     </div>
+  <% end %>
+
+  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200 space-y-4") do %>
+    <div>
+      <h2 class="text-lg font-semibold text-gray-900">Formulaire d'adhésion</h2>
+      <p class="text-sm text-gray-600 mt-1">
+        Lien montré aux joueurs dont la licence est payée mais le dossier incomplet. À changer à chaque saison.
+      </p>
+    </div>
+    <%= render FormFieldComponent.new(form: f, attribute: :membership_form_url, type: :url_field, label: "Lien du formulaire",
+                                      html_options: { placeholder: "https://…" }) %>
   <% end %>
 
   <%= render ButtonComponent.new(type: "submit", full_width: true) do %>Enregistrer les règles<% end %>

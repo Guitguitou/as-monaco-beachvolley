@@ -12,6 +12,14 @@ RSpec.describe Admin::CurrentLocation do
     expect(location("/admin/users_export").active?(item.call("/admin/users"))).to be(false)
   end
 
+  it "active un lien sur ses chemins supplémentaires" do
+    configuration = Admin::Navigation::Item.new(label: "x", path: "/admin/regles-du-club", icon: "x",
+                                                also: [ "/admin/terrains" ])
+
+    expect(location("/admin/terrains/2/edit").active?(configuration)).to be(true)
+    expect(location("/admin/users").active?(configuration)).to be(false)
+  end
+
   it "distingue le dashboard de son onglet Alertes" do
     dashboard = item.call("/admin")
     alerts = item.call("/admin?tab=alerts")

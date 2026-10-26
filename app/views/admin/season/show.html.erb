@@ -5,20 +5,9 @@
   </h1>
 </div>
 
-<%= render CardComponent.new(padding: :lg, class_name: "max-w-xl mx-auto mb-6 border border-gray-200 space-y-4") do %>
-  <div>
-    <h2 class="text-lg font-semibold text-gray-900">Formulaire d'adhésion</h2>
-    <p class="text-sm text-gray-600 mt-1">
-      Lien montré aux joueurs dont la licence est payée mais le dossier incomplet. À changer à chaque saison.
-    </p>
-  </div>
-
-  <%= form_with model: @club_setting, url: admin_season_path, method: :patch, class: "space-y-3" do |f| %>
-    <%= f.url_field :membership_form_url, placeholder: "https://…",
-          class: "w-full rounded-none border-gray-300 text-sm focus:border-brand focus:ring-brand" %>
-    <%= render ButtonComponent.new(type: "submit", full_width: true) do %>Enregistrer le lien<% end %>
-  <% end %>
-<% end %>
+<p class="max-w-xl mx-auto mb-4 text-sm text-gray-600">
+  Le lien du formulaire d'adhésion se règle dans <%= link_to "Configuration › Règles du club", admin_club_rules_path, class: "text-brand underline" %>.
+</p>
 
 <%= render CardComponent.new(padding: :lg, class_name: "max-w-xl mx-auto border border-gray-200 space-y-6") do %>
   <div>
