@@ -5,12 +5,18 @@ module Admin
   # que Pilotage et Finances (hors Boutique), comme le permettent les gardes
   # des controllers.
   class Navigation
-    Item = Data.define(:label, :path, :icon, :admin_only, :badge) do
-      def initialize(label:, path:, icon:, admin_only: true, badge: nil) = super
+    # `also` : autres chemins pour lesquels le lien est actif.
+    Item = Data.define(:label, :path, :icon, :admin_only, :badge, :also) do
+      def initialize(label:, path:, icon:, admin_only: true, badge: nil, also: []) = super
+
+      def paths = [ path, *also ].uniq
     end
 
+    # Une section d'un seul lien s'affiche comme ce lien, sans titre repliable.
     Section = Data.define(:title, :icon, :items) do
       def active?(current) = items.any? { |item| current.active?(item) }
+
+      def single? = items.one?
     end
 
     def initialize(user:, routes:, alerts_count:)
@@ -69,13 +75,12 @@ module Admin
       ])
     end
 
+    # Un seul écran à onglets (cf. Admin::ConfigurationTabsComponent), actif
+    # sur chacun de ses onglets.
     def configuration
       Section.new(title: "Configuration", icon: "settings", items: [
-        Item.new(label: "Règles du club", path: @routes.admin_club_rules_path, icon: "sliders-horizontal"),
-        Item.new(label: "Terrains", path: @routes.admin_terrains_path, icon: "map-pin"),
-        Item.new(label: "Pages publiques", path: @routes.admin_public_pages_path, icon: "globe"),
-        Item.new(label: "Notifications", path: @routes.admin_notification_rules_path, icon: "bell"),
-        Item.new(label: "Connexions Claude", path: @routes.admin_claude_connections_path, icon: "bot")
+        Item.new(label: "Configuration", path: @routes.admin_club_rules_path, icon: "settings",
+                 also: ConfigurationTabsComponent.paths(@routes))
       ])
     end
   end

@@ -15,6 +15,16 @@ module Admin
 
     def sections = @navigation.sections
 
+    def link_for(item)
+      link_to(item.path, class: link_classes(item), aria: { current: (location.active?(item) ? "page" : nil) }) do
+        safe_join([
+          lucide_icon(item.icon, class: icon_classes(item)),
+          tag.span(item.label, class: "flex-1"),
+          (render(BadgeComponent.new(label: item.badge.to_s, variant: :danger, size: :xs)) if item.badge)
+        ].compact)
+      end
+    end
+
     def link_classes(item)
       active = location.active?(item)
       [

@@ -1,7 +1,9 @@
+<%= render Admin::ConfigurationTabsComponent.new(active: :integrations) %>
+
 <div class="mb-6">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
+  <h2 class="text-lg font-semibold flex items-center gap-2 text-gray-900">
     <%= lucide_icon("bot") %> Connexions Claude
-  </h1>
+  </h2>
   <p class="text-sm text-gray-500 mt-1">
     Membres du Staff ayant connecté leur Claude au club. Une connexion inutilisée pendant 30 jours est coupée automatiquement.
   </p>

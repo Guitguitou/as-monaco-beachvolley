@@ -1,21 +1,19 @@
 <nav class="flex-1 space-y-1 text-sm" aria-label="Administration">
   <% sections.each do |section| %>
-    <details class="group" <%= "open" if section.active?(location) %>>
-      <summary class="flex items-center justify-between gap-2 px-3 py-2 cursor-pointer list-none text-xs font-semibold uppercase tracking-wide text-gray-500 hover:text-gray-900">
-        <span class="flex items-center gap-2"><%= lucide_icon(section.icon, class: "w-4 h-4") %><%= section.title %></span>
-        <%= lucide_icon("chevron-down", class: "w-4 h-4 transition-transform group-open:rotate-180") %>
-      </summary>
-      <div class="space-y-1 pb-2">
-        <% section.items.each do |item| %>
-          <%= link_to item.path, class: link_classes(item), aria: { current: (location.active?(item) ? "page" : nil) } do %>
-            <%= lucide_icon(item.icon, class: icon_classes(item)) %>
-            <span class="flex-1"><%= item.label %></span>
-            <% if item.badge %>
-              <%= render BadgeComponent.new(label: item.badge.to_s, variant: :danger, size: :xs) %>
-            <% end %>
+    <% if section.single? %>
+      <%= link_for(section.items.first) %>
+    <% else %>
+      <details class="group" <%= "open" if section.active?(location) %>>
+        <summary class="flex items-center justify-between gap-2 px-3 py-2 cursor-pointer list-none text-xs font-semibold uppercase tracking-wide text-gray-500 hover:text-gray-900">
+          <span class="flex items-center gap-2"><%= lucide_icon(section.icon, class: "w-4 h-4") %><%= section.title %></span>
+          <%= lucide_icon("chevron-down", class: "w-4 h-4 transition-transform group-open:rotate-180") %>
+        </summary>
+        <div class="space-y-1 pb-2">
+          <% section.items.each do |item| %>
+            <%= link_for(item) %>
           <% end %>
-        <% end %>
-      </div>
-    </details>
+        </div>
+      </details>
+    <% end %>
   <% end %>
 </nav>

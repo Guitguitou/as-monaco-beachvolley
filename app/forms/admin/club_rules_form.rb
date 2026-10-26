@@ -6,7 +6,7 @@ module Admin
   class ClubRulesForm
     RULE_ATTRIBUTES = %i[
       priority_window_hours registration_deadline_hour registration_opening_days
-      cancellation_deadline_mode cancellation_deadline_hour cancellation_hours_before
+      cancellation_deadline_mode cancellation_deadline_hour cancellation_hours_before membership_form_url
     ].freeze
     EURO_ATTRIBUTES = ClubSetting::SESSION_TYPES.map { |type| :"#{type}_price_euros" }.freeze
 
