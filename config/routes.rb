@@ -120,9 +120,6 @@ Rails.application.routes.draw do
         get :export
       end
     end
-
-    # Notification rules management
-    resources :notification_rules
   end
 
   resources :tournaments, only: [ :index, :show ], path: "tournois"
