@@ -50,7 +50,7 @@ gem "image_processing", "2.2.0"
 gem "mini_magick", "5.4.0"
 
 gem "view_component", "~> 4.15"
-gem "chartkick", "5.2.1"
+gem "chartkick", "5.3.0"
 gem "view_component-contrib"
 gem "devise", "~> 5.0"
 gem "lucide-rails"
