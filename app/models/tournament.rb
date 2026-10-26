@@ -17,8 +17,8 @@ class Tournament < ApplicationRecord
   validates :price_cents, numericality: { greater_than: 0 }
   validates :points, :teams_count, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
   validates :registration_link, format: { with: %r{\Ahttps?://}i, message: "doit commencer par http(s)://" }, allow_blank: true
-  validate :ends_on_after_starts_on
-  validate :end_time_after_start_time
+  validates :ends_on, after: { start: :starts_on, allow_equal: true, message: "doit être après la date de début" }
+  validates :end_time, after: { start: :start_time, message: "doit être après l'heure de début" }
   validate :terrains_known
 
   scope :upcoming, -> { where("ends_on >= ?", Date.current).order(:starts_on) }
@@ -95,16 +95,6 @@ class Tournament < ApplicationRecord
   end
 
   private
-
-  def ends_on_after_starts_on
-    return if starts_on.blank? || ends_on.blank?
-    errors.add(:ends_on, "doit être après la date de début") if ends_on < starts_on
-  end
-
-  def end_time_after_start_time
-    return if start_time.blank? || end_time.blank?
-    errors.add(:end_time, "doit être après l'heure de début") if end_time <= start_time
-  end
 
   def terrains_known
     errors.add(:terrain_ids, "contient un terrain inconnu") unless occupied_terrains.count == terrain_ids.size

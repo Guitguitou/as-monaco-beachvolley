@@ -19,21 +19,13 @@ module Admin
 
     def create
       @terrain = Terrain.new(terrain_params)
-      if @terrain.save
-        redirect_to admin_terrains_path, notice: "Terrain créé."
-      else
-        render :new, status: :unprocessable_content
-      end
+      redirect_or_render(@terrain.save, :new, to: admin_terrains_path, notice: "Terrain créé.")
     end
 
     def edit; end
 
     def update
-      if @terrain.update(terrain_params)
-        redirect_to admin_terrains_path, notice: "Terrain mis à jour."
-      else
-        render :edit, status: :unprocessable_content
-      end
+      redirect_or_render(@terrain.update(terrain_params), :edit, to: admin_terrains_path, notice: "Terrain mis à jour.")
     end
 
     def move

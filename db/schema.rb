@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_25_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_26_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -107,6 +107,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_25_140000) do
     t.string "cancellation_deadline_mode", default: "eve_at_hour", null: false
     t.integer "cancellation_deadline_hour", default: 22, null: false
     t.integer "cancellation_hours_before", default: 24, null: false
+    t.integer "season_start_month", default: 9, null: false
   end
 
   create_table "credit_purchases", force: :cascade do |t|

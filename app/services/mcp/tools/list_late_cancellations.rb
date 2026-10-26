@@ -11,12 +11,7 @@ module Mcp
       description "Liste les désinscriptions tardives des sessions de la période (date de la session), " \
                   "avec le joueur, la session, l'heure de désinscription et si le Staff l'a excusée. " \
                   "Par défaut : hier et aujourd'hui."
-      input_schema(
-        properties: {
-          from: { type: "string", format: "date", description: "Début inclus (AAAA-MM-JJ). Défaut : hier." },
-          to: { type: "string", format: "date", description: "Fin incluse (AAAA-MM-JJ). Défaut : aujourd'hui." }
-        }
-      )
+      input_schema(properties: date_range_properties("hier", "aujourd'hui"))
       annotations(**READ_ONLY)
 
       class << self
@@ -26,7 +21,7 @@ module Mcp
           start_on = parse_date(from, Date.current - 1)
           end_on = parse_date(to, Date.current)
           cancellations = LateCancellation.joins(:session)
-                                          .where(sessions: { start_at: start_on.beginning_of_day..end_on.end_of_day })
+                                          .where(sessions: { start_at: day_range(start_on, end_on) })
                                           .includes(:user, :session)
                                           .order(:created_at)
                                           .limit(MAX_RESULTS)

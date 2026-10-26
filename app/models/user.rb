@@ -34,7 +34,6 @@ class User < ApplicationRecord
   scope :activated, -> { where.not(activated_at: nil) }
   scope :not_activated, -> { where(activated_at: nil) }
   scope :peut_reserver, -> { activated.where(dossier_complet: true) }
-  scope :peut_reserver, -> { activated.where(dossier_complet: true) }
   scope :renewed_for_next_season, -> { where(next_season_renewed: true) }
   scope :gender, ->(g) { joins(:levels).where(levels: { gender: g }) }
   scope :with_license, ->(lic) { where(license_type: lic) }

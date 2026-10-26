@@ -4,11 +4,11 @@
   <% end %>
 <% end %>
 
-<%= render TableComponent.new(framed: true) do |table| %>
-  <% %w[Titre Dates Niveau Paiement].each { |label| table.with_column(label) } %>
-  <% @tournaments.each do |tournament| %>
+<%= render DataTableComponent.new(definition: @table, state: @state, pagination: @page, url: admin_tournaments_path,
+                                  empty_message: "Aucun tournoi pour l'instant.") do |table| %>
+  <% @page.records.each do |tournament| %>
     <% table.with_row do |row| %>
-      <% row.with_cell(weight: :medium) { link_to tournament.title, admin_tournament_path(tournament), class: "hover:text-brand" } %>
+      <% row.with_cell(weight: :medium) { link_to tournament.title, admin_tournament_path(tournament), class: "hover:text-brand", data: { turbo_frame: "_top" } } %>
       <% row.with_cell { "#{l tournament.starts_on}#{" — #{l tournament.ends_on}" if tournament.ends_on != tournament.starts_on}" } %>
       <% row.with_cell { render BadgeComponent.new(label: tournament.level_label, variant: :neutral, size: :xs) } %>
       <% row.with_cell do %>
@@ -16,5 +16,4 @@
       <% end %>
     <% end %>
   <% end %>
-  <% table.with_empty(icon: "trophy", message: "Aucun tournoi pour l'instant.") %>
 <% end %>

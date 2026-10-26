@@ -10,6 +10,13 @@ module Admin
 
     private
 
+    # Redirige après un enregistrement réussi, sinon réaffiche le formulaire.
+    def redirect_or_render(saved, template, to:, notice:)
+      return redirect_to(to, notice: notice) if saved
+
+      render template, status: :unprocessable_content
+    end
+
     def require_admin!
       deny_access unless current_user.admin?
     end

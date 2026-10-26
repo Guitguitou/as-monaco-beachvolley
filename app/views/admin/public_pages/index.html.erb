@@ -1,5 +1,5 @@
-<%= render PageHeaderComponent.new(title: "Pages publiques", icon: "globe", variant: :admin) do |header| %>
-  <% header.with_actions do %>
+<%= render Admin::ConfigurationTabsComponent.new(active: :public_pages) do |config| %>
+  <% config.with_actions do %>
     <%= button("Nouvelle page", variant: :primary, size: :medium, href: new_admin_public_page_path) %>
   <% end %>
 <% end %>

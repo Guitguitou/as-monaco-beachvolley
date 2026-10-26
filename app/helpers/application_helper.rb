@@ -86,24 +86,6 @@ module ApplicationHelper
     CREDIT_TRANSACTION_TYPE_LABELS.fetch(transaction_type.to_s, "Transaction")
   end
 
-  # Builds a sortable link for table headers, preserving current filters.
-  # Usage: sortable_link_to("Nom", :name, preserve: { gender: params[:gender], ... })
-  def sortable_link_to(title, key, preserve: {})
-    current_sort = params[:sort].to_s
-    current_direction = params[:direction] == "desc" ? "desc" : "asc"
-    next_direction = (current_sort == key.to_s && current_direction == "asc") ? "desc" : "asc"
-
-    url_params = preserve.merge(action: :index, sort: key, direction: next_direction, page: 1)
-
-    link_to url_params, class: "inline-flex items-center gap-1 hover:text-brand" do
-      concat content_tag(:span, title)
-      if current_sort == key.to_s
-        icon_name = current_direction == "asc" ? "chevron-up" : "chevron-down"
-        concat lucide_icon(icon_name, size: 14, class: "text-gray-600")
-      end
-    end
-  end
-
   # Titre de l'en-tête de page, ou nil si la page n'en déclare pas.
   #
   # Renvoyer nil est un cas normal : les pages Devise, les formulaires et les
@@ -124,41 +106,6 @@ module ApplicationHelper
     return content_for(:page_title) if content_for?(:page_title)
 
     PAGE_TITLES["#{controller_path}##{action_name}"]
-  end
-
-  # Helper to create external links that open in a new tab
-  # Usage: external_link_to("Google", "https://google.com", class: "text-blue-500")
-  def external_link_to(name = nil, options = nil, html_options = nil, &block)
-    if block_given?
-      html_options = options || {}
-      options = name
-      name = capture(&block)
-    end
-
-    # Ensure external links open in new tab with security attributes
-    html_options ||= {}
-    html_options[:target] = "_blank"
-    html_options[:rel] = "noopener noreferrer"
-
-    # Add external link icon if not already present
-    unless html_options[:class]&.include?("no-external-icon")
-      name = "#{name} #{lucide_icon('external-link', class: 'inline w-3 h-3 ml-1')}".html_safe
-    end
-
-    link_to(name, options, html_options)
-  end
-
-  # Helper to check if a URL is external
-  def external_url?(url)
-    return false if url.blank?
-
-    begin
-      uri = URI.parse(url)
-      # Consider it external if it has a different host
-      uri.host.present? && uri.host != request.host
-    rescue URI::InvalidURIError
-      false
-    end
   end
 
   # Helper pour le composant Button

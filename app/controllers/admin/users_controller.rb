@@ -8,11 +8,15 @@ module Admin
     PER_PAGE = 25
 
     def index
-      users = Users::AdminFilterQuery.call(relation: @users, params: params)
-      page = Pagination.new(scope: users.includes(:levels), page: params[:page], per_page: PER_PAGE)
-      @users = page.records
-      @total_pages = page.total_pages
-      @current_page = page.current_page
+      @table = Admin::Tables::Users.new
+      @state = DataTable::State.new(params)
+      users = DataTable::Query.call(relation: @users.includes(:levels), definition: @table, state: @state)
+
+      respond_to do |format|
+        format.html { @page = Pagination.new(scope: users, page: @state.page, per_page: PER_PAGE) }
+        format.csv { send_data DataTable::CsvExport.new(definition: @table, records: users).call,
+                               filename: DataTable::CsvExport.filename("joueurs"), type: "text/csv; charset=utf-8" }
+      end
     end
 
     def show
@@ -31,11 +35,7 @@ module Admin
     def create
       @user = Users::AdminAttributes.apply(User.new, user_params, activate: params[:user][:activate_immediately])
 
-      if @user.save
-        redirect_to admin_user_path(@user), notice: "Utilisateur créé avec succès"
-      else
-        render :new, status: :unprocessable_entity
-      end
+      redirect_or_render(@user.save, :new, to: [ :admin, @user ], notice: "Utilisateur créé avec succès")
     end
 
     def edit; end
@@ -43,11 +43,7 @@ module Admin
     def update
       Users::AdminAttributes.apply(@user, user_params, activate: params[:user][:activate_immediately])
 
-      if @user.save
-        redirect_to admin_user_path(@user), notice: "Utilisateur mis à jour"
-      else
-        render :edit, status: :unprocessable_entity
-      end
+      redirect_or_render(@user.save, :edit, to: [ :admin, @user ], notice: "Utilisateur mis à jour")
     end
 
     def adjust_credits

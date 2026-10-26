@@ -4,7 +4,7 @@ class AnnonceSlot < ApplicationRecord
   has_many :available_users, through: :availabilities, source: :user
 
   validates :start_at, :end_at, presence: true
-  validate :end_at_after_start_at
+  validates :end_at, after: { start: :start_at, message: "doit être après la date de début" }
 
   scope :ordered_by_start, -> { order(:start_at) }
   scope :upcoming, -> { where("annonce_slots.start_at > ?", Time.current) }
@@ -24,14 +24,5 @@ class AnnonceSlot < ApplicationRecord
 
   def overlaps?(range_start, range_end)
     start_at < range_end && end_at > range_start
-  end
-
-  private
-
-  def end_at_after_start_at
-    return if start_at.blank? || end_at.blank?
-    return if end_at > start_at
-
-    errors.add(:end_at, "doit être après la date de début")
   end
 end

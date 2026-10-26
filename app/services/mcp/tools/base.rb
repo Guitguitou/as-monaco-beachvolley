@@ -24,6 +24,14 @@ module Mcp
                         "tant que next_cursor n'est pas null, rappelle le tool avec ce cursor pour la suite."
 
       class << self
+        # Bornes de période `from` / `to` d'un input_schema, avec leurs valeurs par défaut.
+        def date_range_properties(from_default, to_default)
+          {
+            from: { type: "string", format: "date", description: "Début inclus (AAAA-MM-JJ). Défaut : #{from_default}." },
+            to: { type: "string", format: "date", description: "Fin incluse (AAAA-MM-JJ). Défaut : #{to_default}." }
+          }
+        end
+
         def call(server_context:, **arguments)
           server_context.authorize!(*permission)
           data = execute(server_context, **arguments)
@@ -57,6 +65,26 @@ module Mcp
           Date.iso8601(value)
         rescue Date::Error
           raise ArgumentError, "Date invalide : #{value} (format attendu AAAA-MM-JJ)"
+        end
+
+        # Plage horaire couvrant les jours [start_on, end_on] en entier.
+        def day_range(start_on, end_on)
+          start_on.in_time_zone.beginning_of_day..end_on.in_time_zone.end_of_day
+        end
+
+        # Restreint à la période (date de création) et aux filtres renseignés.
+        def filter(relation, period, **conditions)
+          relation = relation.where(created_at: day_range(*period)) if period
+          relation.where(conditions.compact_blank)
+        end
+
+        # Réponse paginée : période, totaux, curseur suivant et enregistrements sérialisés.
+        def page_response(relation, period, cursor, updated_since, key:, includes:, **totals)
+          page = paginate(relation.includes(*includes), cursor, updated_since)
+          {
+            from: period&.first&.iso8601, to: period&.last&.iso8601, **totals,
+            next_cursor: page[:next_cursor], key => page[:records].map { |record| serialize(record) }
+          }
         end
 
         def paginate(relation, cursor, updated_since)

@@ -1,4 +1,4 @@
-<%= render PageHeaderComponent.new(title: "Indisponibilité terrains", icon: "ban", variant: :admin) do |header| %>
+<%= render PageHeaderComponent.new(title: "Fermetures de terrain", icon: "ban", variant: :admin) do |header| %>
   <% header.with_actions do %>
     <%= button("Nouvelle période", variant: :primary, size: :medium, href: new_admin_terrain_closure_path) %>
   <% end %>
@@ -8,29 +8,24 @@
   Les terrains concernés ne pourront pas être choisis pour une session dont la date de début tombe dans ces plages (formulaire et validation serveur).
 </p>
 
-<%= render TableComponent.new(framed: true, fixed: true) do |table| %>
-  <% table.with_column("Terrain") %>
-  <% table.with_column("Du") %>
-  <% table.with_column("Au") %>
-  <% table.with_column("Motif", class_name: "hidden md:table-cell") %>
-  <% table.with_column("Actions", align: :right, class_name: "w-24") %>
-  <% @terrain_closures.each do |closure| %>
+<%= render DataTableComponent.new(definition: @table, state: @state, pagination: @page, url: admin_terrain_closures_path,
+                                  empty_message: "Aucune période définie.") do |table| %>
+  <% @page.records.each do |closure| %>
     <% table.with_row do |row| %>
       <% row.with_cell(weight: :medium) { closure.terrain.name } %>
       <% row.with_cell { l(closure.starts_on, format: :default) } %>
       <% row.with_cell { l(closure.ends_on, format: :default) } %>
-      <% row.with_cell(wrap: true, class_name: "hidden md:table-cell") { closure.reason.presence || "—" } %>
+      <% row.with_cell(wrap: true) { closure.reason.presence || "—" } %>
       <% row.with_cell(align: :right, class_name: "space-x-2") do %>
-        <%= link_to edit_admin_terrain_closure_path(closure), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
-          <%= lucide_icon("edit", size: 16) %>
+        <%= link_to edit_admin_terrain_closure_path(closure), class: "inline-flex text-gray-600 hover:text-brand", data: { turbo_frame: "_top" } do %>
+          <%= lucide_icon("edit", size: 16) %><span class="sr-only">Modifier</span>
         <% end %>
         <%= button_to admin_terrain_closure_path(closure), method: :delete,
-              form: { data: { turbo_confirm: "Supprimer cette indisponibilité ?" } },
-              class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors" do %>
-          <%= lucide_icon("trash-2", size: 16) %>
+              form: { class: "inline", data: { turbo_confirm: "Supprimer cette indisponibilité ?", turbo_frame: "_top" } },
+              class: "inline-flex text-gray-600 hover:text-red-600" do %>
+          <%= lucide_icon("trash-2", size: 16) %><span class="sr-only">Supprimer</span>
         <% end %>
       <% end %>
     <% end %>
   <% end %>
-  <% table.with_empty(icon: "ban", message: "Aucune période définie.") %>
 <% end %>

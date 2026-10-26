@@ -8,12 +8,7 @@ module Mcp
       description "Statistiques du club sur une période : sessions et participants par type, " \
                   "ventes de packs (euros), crédits consommés par type de session, annulations tardives. " \
                   "Par défaut : le mois en cours."
-      input_schema(
-        properties: {
-          from: { type: "string", format: "date", description: "Début inclus (AAAA-MM-JJ). Défaut : 1er du mois." },
-          to: { type: "string", format: "date", description: "Fin incluse (AAAA-MM-JJ). Défaut : fin du mois." }
-        }
-      )
+      input_schema(properties: date_range_properties("1er du mois", "fin du mois"))
       annotations(**READ_ONLY)
 
       class << self
@@ -22,7 +17,7 @@ module Mcp
         def execute(_context, from: nil, to: nil)
           start_on = parse_date(from, Date.current.beginning_of_month)
           end_on = parse_date(to, start_on.end_of_month)
-          range = start_on.in_time_zone.beginning_of_day..end_on.in_time_zone.end_of_day
+          range = day_range(start_on, end_on)
 
           {
             from: start_on.iso8601,

@@ -1,7 +1,4 @@
-# Seuil aligné sur le score atteint : à remonter au fil des refactorings.
-# Ramené de 90 à 89 quand le code arrivé de main (tools MCP) a fait passer
-# le score à 89,93.
-minimum_score: 89
+minimum_score: 91
 paths:
   - app
   - lib

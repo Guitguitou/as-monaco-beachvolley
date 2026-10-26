@@ -31,14 +31,11 @@ namespace :dashboard do
     # 4. Vérifier les services de reporting
     puts "\n🔧 Services de reporting:"
     begin
-      kpis_service = Reporting::Kpis.new
-      kpis = kpis_service.week_kpis
-      puts "  ✅ Reporting::Kpis: OK"
-      puts "    - Entraînements: #{kpis[:trainings_count]}"
-      puts "    - Jeux libres: #{kpis[:free_plays_count]}"
-      puts "    - Désinscriptions: #{kpis[:late_cancellations_count]}"
+      metrics = Reporting::WeekPulse.new.metrics
+      puts "  ✅ Reporting::WeekPulse: OK"
+      metrics.each { |metric| puts "    - #{metric.label}: #{metric.current}" }
     rescue => e
-      puts "  ❌ Reporting::Kpis: Erreur - #{e.message}"
+      puts "  ❌ Reporting::WeekPulse: Erreur - #{e.message}"
     end
 
     begin

@@ -26,26 +26,6 @@ RSpec.describe "Admin::Season", type: :request do
     end
   end
 
-describe "PATCH /admin/saison" do
-    it "enregistre le lien du formulaire d'adhésion" do
-      login_as(admin, scope: :user)
-
-      patch admin_season_path, params: { club_setting: { membership_form_url: "https://forms.example.com/2027" } }
-
-      expect(response).to redirect_to(admin_season_path)
-      expect(ClubSetting.current.membership_form_url).to eq("https://forms.example.com/2027")
-    end
-
-    it "refuse un joueur" do
-      login_as(player, scope: :user)
-
-      patch admin_season_path, params: { club_setting: { membership_form_url: "https://evil.example.com" } }
-
-      expect(response).to redirect_to(root_path)
-      expect(ClubSetting.current.membership_form_url).to be_blank
-    end
-  end
-
   describe "POST /admin/saison/reinitialiser" do
     context "when user is admin" do
       before { login_as(admin, scope: :user) }

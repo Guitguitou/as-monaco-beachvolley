@@ -8,20 +8,7 @@ class SessionsController < ApplicationController
   def index
     return redirect_to(sessions_path(request.query_parameters.merge("terrain" => Terrain.resolve(params[:terrain])&.id))) if legacy_terrain_param?
 
-    @view = params[:view].presence_in(%w[grid calendar]) || "calendar"
-    @for_me = ActiveModel::Type::Boolean.new.cast(params[:for_me])
-    filter = Sessions::ListingFilter.new(terrain: params[:terrain], for_me: @for_me, level_ids: current_user.levels.pluck(:id))
-
-    if @view == "calendar"
-      sessions = filter.apply(Session.held.includes(:levels, :user, :terrain).order(start_at: :desc))
-      calendar = Sessions::CalendarEvents.new(user: current_user, sessions: sessions, url_for: ->(s) { helpers.sessions_calendar_event_path(s) })
-      @events = calendar.sessions
-      @closures = calendar.closures
-      @agenda = Sessions::MobileAgenda.new(events: @events, user: current_user, date_param: params[:date])
-      return
-    end
-
-    @grid = Sessions::UpcomingGrid.new(user: current_user, sessions: filter.apply(Session.held.upcoming.ordered_by_start))
+    @planning = Sessions::Planning.new(user: current_user, params: params, url_for: ->(s) { helpers.sessions_calendar_event_path(s) })
   end
 
   def show

@@ -1,4 +1,5 @@
 <% content_for :title, "UI kit — AS Monaco Beach Volley" %>
+<% content_for :head, javascript_import_module_tag("admin_charts") %>
 <% s = @samples %>
 
 <div class="mx-auto max-w-5xl space-y-10 px-4 py-8 sm:px-6">
@@ -358,6 +359,39 @@
 
   <%= render layout: "ui_kit/specimen", locals: { component: "Admin::MonthlyRevenueChartComponent" } do %>
     <div class="overflow-x-auto"><%= render Admin::MonthlyRevenueChartComponent.new(months: s.revenue_months, pack_types: Pack.pack_types.keys) %></div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "Admin::SidebarComponent" } do %>
+    <div class="w-56 border border-gray-200 bg-white p-4">
+      <%= render Admin::SidebarComponent.new(
+            navigation: Admin::Navigation.new(user: s.player.tap { |u| u.admin = true }, routes: self, alerts_count: 3),
+            location: Admin::CurrentLocation.new(path: "/admin/users", query: {})
+          ) %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "Admin::ConfigurationTabsComponent" } do %>
+    <%= render Admin::ConfigurationTabsComponent.new(active: :terrains) %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "Admin::KpiTileComponent" } do %>
+    <div class="max-w-xs"><%= render Admin::KpiTileComponent.new(metric: s.comparison) %></div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "Admin::SeasonSelectorComponent" } do %>
+    <%= render Admin::SeasonSelectorComponent.new(season: Season.current, tab: "attendance") %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "DataTableComponent" } do %>
+    <%# DataTable::FilterInputComponent est rendu dans l'en-tête de ce tableau. %>
+    <span class="hidden" data-ui-kit-component="DataTable::FilterInputComponent"></span>
+    <%= render DataTableComponent.new(definition: Admin::Tables::Users.new, state: DataTable::State.new(ActionController::Parameters.new),
+                                      pagination: s.page_of(User), url: ui_kit_path) %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "PaginationComponent" } do %>
+    <%= render PaginationComponent.new(pagination: Struct.new(:multiple_pages?, :current_page, :total_pages, :total_count, :prev_page, :next_page)
+                                                      .new(true, 4, 9, 210, 3, 5), url_for: ->(page) { ui_kit_path(page: page) }) %>
   <% end %>
 
   <%= render layout: "ui_kit/specimen", locals: { component: "Admin::PlayerSpendingComponent" } do %>

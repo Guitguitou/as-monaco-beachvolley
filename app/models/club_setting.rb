@@ -16,6 +16,7 @@ class ClubSetting < ApplicationRecord
             numericality: { only_integer: true, in: 0..72 }
   validates :registration_opening_days, numericality: { only_integer: true, in: 1..30 }
   validates :cancellation_deadline_mode, inclusion: { in: CANCELLATION_MODES }
+  validates :season_start_month, numericality: { only_integer: true, in: 1..12 }
 
   # Les règles mémorisées pour la requête en cours ne sont plus à jour.
   after_commit { CurrentClubRules.reset }

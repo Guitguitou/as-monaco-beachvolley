@@ -6,7 +6,7 @@ module Sessions
   # La grille en affiche des dizaines : elle injecte les valeurs qu'elle a déjà
   # préchargées en une requête (inscription, compteur, conflit, solde) pour
   # éviter les N+1. Le rafraîchissement Turbo Stream d'une seule carte passe par
-  # `.build`, qui calcule tout lui-même.
+  # `Sessions::SingleCardState`, qui calcule tout lui-même.
   class CardState
     ACCENTS = {
       "entrainement" => :training,
@@ -15,21 +15,6 @@ module Sessions
       "tournoi" => :tournament,
       "stage" => :stage
     }.freeze
-
-    # Calcule l'état d'une seule session (hors grille, donc N+1 sans importance).
-    def self.build(session:, user:)
-      confirmed = session.registrations.select(&:confirmed?)
-
-      new(
-        session: session,
-        user: user,
-        registration: user && session.registrations.find { |r| r.user_id == user.id },
-        confirmed_count: confirmed.size,
-        conflict: user.present? && Registrations::ScheduleConflictQuery.call(user: user, session: session).exists?,
-        balance: user&.balance&.amount.to_i,
-        weekly_rank: user && Registrations::UserWeeklyPriorityMap.call(user: user, sessions: [ session ])[session.id]
-      )
-    end
 
     def initialize(session:, user:, registration:, confirmed_count:, conflict:, balance:, user_level_ids: nil, weekly_rank: nil)
       @session = session

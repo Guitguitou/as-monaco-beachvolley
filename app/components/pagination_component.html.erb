@@ -1,0 +1,32 @@
+<nav class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-gray-700" aria-label="Pagination">
+  <p class="text-xs text-gray-500">
+    Page <%= pagination.current_page %> sur <%= pagination.total_pages %> · <%= pagination.total_count %> au total
+  </p>
+  <ol class="flex items-center gap-1">
+    <li>
+      <% if pagination.prev_page %>
+        <%= link_to lucide_icon("chevron-left", size: 16), url(pagination.prev_page), class: LINK, aria: { label: "Page précédente" } %>
+      <% else %>
+        <span class="<%= DISABLED %>"><%= lucide_icon("chevron-left", size: 16) %></span>
+      <% end %>
+    </li>
+    <% pages.each do |page| %>
+      <li>
+        <% if page.nil? %>
+          <span class="px-2 text-gray-400">…</span>
+        <% elsif page == pagination.current_page %>
+          <span class="<%= CURRENT %>" aria-current="page"><%= page %></span>
+        <% else %>
+          <%= link_to page, url(page), class: LINK %>
+        <% end %>
+      </li>
+    <% end %>
+    <li>
+      <% if pagination.next_page %>
+        <%= link_to lucide_icon("chevron-right", size: 16), url(pagination.next_page), class: LINK, aria: { label: "Page suivante" } %>
+      <% else %>
+        <span class="<%= DISABLED %>"><%= lucide_icon("chevron-right", size: 16) %></span>
+      <% end %>
+    </li>
+  </ol>
+</nav>

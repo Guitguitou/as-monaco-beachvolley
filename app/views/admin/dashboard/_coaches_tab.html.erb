@@ -1,258 +1,30 @@
-<% money = ->(amount) { number_to_currency(amount, unit: "", separator: ",", delimiter: "") } %>
-<% { week: [ "Coachs - Semaine", "users", "cette semaine" ],
-     month: [ "Coachs - Mois", "calendar-days", "ce mois" ],
-     year: [ "Coachs - Année", "calendar-range", "cette année" ] }.each do |period, (title, icon, when_label)| %>
-  <%= render CardComponent.new(title: title, icon: icon, padding: :none, class_name: "mb-8") do %>
+<%= render "season_header" %>
+
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+  <div class="xl:col-span-2">
+    <%= render CardComponent.new(title: "Entraînements par mois", subtitle: "Par coach", icon: "chart-column", padding: :lg) do %>
+      <% series = @report.trainings_by_coach %>
+      <% if series.any? %>
+        <%= column_chart series, stacked: true, id: "coaches-chart" %>
+        <%= render "chart_table", series: series, unit: nil %>
+      <% else %>
+        <%= render EmptyStateComponent.new(icon: "dumbbell", title: "Aucun entraînement sur la saison", compact: true) %>
+      <% end %>
+    <% end %>
+  </div>
+  <%= render CardComponent.new(title: "Bilan de la saison", icon: "wallet", padding: :none) do %>
     <%= render TableComponent.new do |table| %>
-      <% [ "Entraîneur", "Entraînements", "Salaires", "Moyenne/Session" ].each { |label| table.with_column(label) } %>
-      <% @coach_breakdown.each do |coach_data| %>
-        <% count = coach_data[:"#{period}_count"] || 0 %>
-        <% amount = coach_data[:"#{period}_amount"] || 0 %>
-        <% table.with_row do |row| %>
-          <% row.with_cell do %>
-            <div class="flex items-center gap-4">
-              <%= render AvatarComponent.new(user: coach_data[:user], variant: :light) if coach_data[:user] %>
-              <div>
-                <div class="text-sm font-medium text-gray-900"><%= coach_data[:user]&.full_name %></div>
-                <div class="text-sm text-gray-500"><%= coach_data[:user]&.email %></div>
-              </div>
-            </div>
-          <% end %>
-          <% row.with_cell { count.to_s } %>
-          <% row.with_cell { "#{money.(amount)}€" } %>
-          <% row.with_cell { count.positive? ? "#{money.(amount / count)}€" : "-" } %>
+      <% table.with_column("Coach") %>
+      <% table.with_column("Entraînements", align: :right) %>
+      <% table.with_column("Salaire", align: :right) %>
+      <% @report.rows.each do |row| %>
+        <% table.with_row do |r| %>
+          <% r.with_cell(weight: :medium) { link_to row.coach.full_name, admin_user_path(row.coach), class: "hover:text-brand" } %>
+          <% r.with_cell(align: :right) { row.count.to_s } %>
+          <% r.with_cell(align: :right, weight: :semibold) { "#{number_with_delimiter(row.amount_eur, delimiter: " ")} €" } %>
         <% end %>
       <% end %>
-      <% table.with_empty(icon: "calendar-x", message: "Aucun entraînement #{when_label}") %>
+      <% table.with_empty(icon: "users", message: "Aucun coach actif") %>
     <% end %>
   <% end %>
-<% end %>
-
-<!-- Statistiques Mensuelles (Année en cours) -->
-<div class="mt-8 mb-8">
-  <%= render CardComponent.new(title: "Statistiques Mensuelles - #{Time.current.year}", subtitle: "Récapitulatif des sessions et salaires par mois", icon: "calendar-days", padding: :none) do %>
-    
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Période
-            </th>
-            <% @coaches.each do |coach| %>
-              <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" colspan="2">
-                <%= coach.first_name %> <%= coach.last_name&.first %>.
-              </th>
-            <% end %>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-100" colspan="2">
-              Total
-            </th>
-          </tr>
-          <tr class="bg-gray-50 border-t border-gray-200">
-            <th class="px-6 py-2 text-left text-xs font-medium text-gray-400">
-            </th>
-            <% @coaches.each do |coach| %>
-              <th class="px-3 py-2 text-center text-xs font-medium text-gray-400">
-                Sessions
-              </th>
-              <th class="px-3 py-2 text-center text-xs font-medium text-gray-400">
-                Salaire
-              </th>
-            <% end %>
-            <th class="px-3 py-2 text-center text-xs font-medium text-gray-400 bg-gray-100">
-              Sessions
-            </th>
-            <th class="px-3 py-2 text-center text-xs font-medium text-gray-400 bg-gray-100">
-              €
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <% if @monthly_stats.any? %>
-            <% @monthly_stats.each do |stat| %>
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  <%= stat[:period] %>
-                </td>
-                <% @coaches.each do |coach| %>
-                  <% coach_data = stat[:by_coach][coach.id] %>
-                  <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
-                    <%= coach_data ? coach_data[:count] : '-' %>
-                  </td>
-                  <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
-                    <% if coach_data && coach_data[:count] > 0 %>
-                      <%= number_to_currency(coach_data[:amount], unit: "", separator: ",", delimiter: " ") %>€
-                    <% else %>
-                      -
-                    <% end %>
-                  </td>
-                <% end %>
-                <td class="px-3 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 text-center bg-gray-50">
-                  <%= stat[:total_sessions] %>
-                </td>
-                <td class="px-3 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 text-center bg-gray-50">
-                  <%= number_to_currency(stat[:total_amount], unit: "", separator: ",", delimiter: " ") %>€
-                </td>
-              </tr>
-            <% end %>
-            
-            <!-- Total Annuel -->
-            <tr class="bg-blue-50 font-semibold">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <strong>Total <%= Time.current.year %></strong>
-              </td>
-              <% @coaches.each do |coach| %>
-                <% 
-                  total_sessions = @monthly_stats.sum { |s| s[:by_coach][coach.id]&.dig(:count) || 0 }
-                  total_amount = @monthly_stats.sum { |s| s[:by_coach][coach.id]&.dig(:amount) || 0 }
-                %>
-                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                  <%= total_sessions %>
-                </td>
-                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                  <%= number_to_currency(total_amount, unit: "", separator: ",", delimiter: " ") %>€
-                </td>
-              <% end %>
-              <td class="px-3 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-center bg-gray-100">
-                <%= @monthly_stats.sum { |s| s[:total_sessions] } %>
-              </td>
-              <td class="px-3 py-4 whitespace-nowrap text-base font-bold text-gray-900 text-center bg-gray-100">
-                <%= number_to_currency(@monthly_stats.sum { |s| s[:total_amount] }, unit: "", separator: ",", delimiter: " ") %>€
-              </td>
-            </tr>
-          <% else %>
-            <tr>
-              <td colspan="<%= 1 + (@coaches.size * 2) + 2 %>" class="px-6 py-8 text-center text-gray-500">
-                Aucune session enregistrée pour l'année <%= Time.current.year %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  <% end %>
-</div>
-
-<!-- Statistiques Annuelles -->
-<div class="mb-8">
-  <%= render CardComponent.new(title: "Statistiques Annuelles", subtitle: "Récapitulatif historique par année", icon: "bar-chart-3", padding: :none) do %>
-    
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Année
-            </th>
-            <% @coaches.each do |coach| %>
-              <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" colspan="2">
-                <%= coach.first_name %> <%= coach.last_name&.first %>.
-              </th>
-            <% end %>
-            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-100" colspan="2">
-              Total
-            </th>
-          </tr>
-          <tr class="bg-gray-50 border-t border-gray-200">
-            <th class="px-6 py-2 text-left text-xs font-medium text-gray-400">
-            </th>
-            <% @coaches.each do |coach| %>
-              <th class="px-3 py-2 text-center text-xs font-medium text-gray-400">
-                Sessions
-              </th>
-              <th class="px-3 py-2 text-center text-xs font-medium text-gray-400">
-                Salaire
-              </th>
-            <% end %>
-            <th class="px-3 py-2 text-center text-xs font-medium text-gray-400 bg-gray-100">
-              Sessions
-            </th>
-            <th class="px-3 py-2 text-center text-xs font-medium text-gray-400 bg-gray-100">
-              €
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <% if @yearly_stats.any? %>
-            <% @yearly_stats.each do |stat| %>
-              <tr class="hover:bg-gray-50 <%= 'bg-blue-50' if stat[:year] == Time.current.year %>">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  <%= stat[:period] %>
-                  <% if stat[:year] == Time.current.year %>
-                    <span class="ml-2"><%= render BadgeComponent.new(label: "En cours", variant: :info, size: :xs) %></span>
-                  <% end %>
-                </td>
-                <% @coaches.each do |coach| %>
-                  <% coach_data = stat[:by_coach][coach.id] %>
-                  <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
-                    <%= coach_data ? coach_data[:count] : '-' %>
-                  </td>
-                  <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
-                    <% if coach_data && coach_data[:count] > 0 %>
-                      <%= number_to_currency(coach_data[:amount], unit: "", separator: ",", delimiter: " ") %>€
-                    <% else %>
-                      -
-                    <% end %>
-                  </td>
-                <% end %>
-                <td class="px-3 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 text-center bg-gray-50">
-                  <%= stat[:total_sessions] %>
-                </td>
-                <td class="px-3 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 text-center bg-gray-50">
-                  <%= number_to_currency(stat[:total_amount], unit: "", separator: ",", delimiter: " ") %>€
-                </td>
-              </tr>
-            <% end %>
-            
-            <!-- Total Général -->
-            <tr class="bg-indigo-50 font-bold border-t-2 border-indigo-200">
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <strong>TOTAL GÉNÉRAL</strong>
-              </td>
-              <% @coaches.each do |coach| %>
-                <% 
-                  total_sessions = @yearly_stats.sum { |s| s[:by_coach][coach.id]&.dig(:count) || 0 }
-                  total_amount = @yearly_stats.sum { |s| s[:by_coach][coach.id]&.dig(:amount) || 0 }
-                %>
-                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                  <strong><%= total_sessions %></strong>
-                </td>
-                <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                  <strong><%= number_to_currency(total_amount, unit: "", separator: ",", delimiter: " ") %>€</strong>
-                </td>
-              <% end %>
-              <td class="px-3 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-center bg-indigo-100">
-                <strong><%= @yearly_stats.sum { |s| s[:total_sessions] } %></strong>
-              </td>
-              <td class="px-3 py-4 whitespace-nowrap text-lg font-bold text-indigo-700 text-center bg-indigo-100">
-                <%= number_to_currency(@yearly_stats.sum { |s| s[:total_amount] }, unit: "", separator: ",", delimiter: " ") %>€
-              </td>
-            </tr>
-          <% else %>
-            <tr>
-              <td colspan="<%= 1 + (@coaches.size * 2) + 2 %>" class="px-6 py-8 text-center text-gray-500">
-                Aucune session enregistrée
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  <% end %>
-</div>
-
-<!-- KPIs Coachs -->
-<%
-  most_active_coach = @coaches.max_by do |coach|
-    @yearly_stats.sum { |s| s[:by_coach][coach.id]&.dig(:count) || 0 }
-  end
-  most_active_count = @yearly_stats.sum { |s| s[:by_coach][most_active_coach&.id]&.dig(:count) || 0 }
-%>
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-  <%= render StatTileComponent.new(value: @monthly_stats.sum { |s| s[:total_sessions] }, label: "Sessions #{Time.current.year}", icon: "volleyball",
-                                   hint: "Salaires: #{number_to_currency(@monthly_stats.sum { |s| s[:total_amount] }, unit: "", separator: ",", delimiter: " ")}€") %>
-  <%= render StatTileComponent.new(value: "#{@yearly_stats.sum { |s| s[:total_sessions] }} sessions", label: "Total (tous temps)", icon: "bar-chart-3",
-                                   hint: "Salaires: #{number_to_currency(@yearly_stats.sum { |s| s[:total_amount] }, unit: "", separator: ",", delimiter: " ")}€") %>
-  <%= render StatTileComponent.new(value: most_active_coach ? "#{most_active_coach.first_name} #{most_active_coach.last_name&.first}." : "-",
-                                   label: "Coach le plus actif", icon: "star", hint: "#{most_active_count} sessions") %>
 </div>

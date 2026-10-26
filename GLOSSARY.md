@@ -68,15 +68,11 @@ Raison d'une séance annulée : météo, moins de 2 inscrits, absence d'encadran
 Effacement d'une séance qui n'aurait jamais dû exister (erreur de saisie) ; ne laisse aucune trace.
 _Avoid_: Annulation
 
-## Licences
+## Saison
 
-**Licence payée** :
-Le joueur a réglé sa licence de la saison.
-_Avoid_: Compte activé
+**Saison** :
+Période d'un an qui commence au mois de début de saison du club (septembre par défaut). La remise à zéro des licences en marque le passage sans la définir.
+_Avoid_: Année, exercice
 
-**Dossier complet** :
-Le formulaire d'adhésion et les pièces du joueur sont reçus et validés.
-
-**Peut réserver** :
-Joueur dont la licence est payée et le dossier complet : seul cas où il peut s'inscrire à une séance.
-_Avoid_: Compte activé
+**Alerte** :
+Situation calculée qui demande l'attention du Staff (joueur à risque, séance sans encadrant…). Elle n'a pas d'état : elle disparaît quand la situation est résolue.

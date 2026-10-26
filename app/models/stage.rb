@@ -12,7 +12,7 @@ class Stage < ApplicationRecord
   validates :starts_on, presence: true
   validates :ends_on, presence: true
   validates :price_cents, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
-  validate :ends_on_after_starts_on
+  validates :ends_on, after: { start: :starts_on, allow_equal: true, message: "doit être après la date de début" }
 
   # Scopes
   scope :ordered_for_players, -> do
@@ -33,12 +33,5 @@ class Stage < ApplicationRecord
 
   def price=(euros)
     self.price_cents = (euros.to_f * 100).round
-  end
-
-  private
-
-  def ends_on_after_starts_on
-    return if starts_on.blank? || ends_on.blank?
-    errors.add(:ends_on, "doit être après la date de début") if ends_on < starts_on
   end
 end

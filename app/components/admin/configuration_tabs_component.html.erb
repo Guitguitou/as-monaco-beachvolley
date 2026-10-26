@@ -1,0 +1,6 @@
+<%= render PageHeaderComponent.new(title: "Configuration", icon: "settings", variant: :admin) do |header| %>
+  <% header.with_actions { actions.to_s } if actions? %>
+<% end %>
+<div class="mb-6">
+  <%= render TabsComponent.new(tabs: tabs) %>
+</div>

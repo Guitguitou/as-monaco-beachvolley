@@ -3,7 +3,10 @@ module Admin
     load_and_authorize_resource
 
     def index
-      @tournaments = @tournaments.order(starts_on: :desc)
+      @table = Admin::Tables::Tournaments.new
+      @state = DataTable::State.new(params)
+      @page = Pagination.new(scope: DataTable::Query.call(relation: @tournaments, definition: @table, state: @state),
+                             page: @state.page, per_page: 25)
     end
 
     def show
