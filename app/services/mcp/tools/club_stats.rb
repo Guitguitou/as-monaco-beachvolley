@@ -8,12 +8,7 @@ module Mcp
       description "Statistiques du club sur une période : sessions et participants par type, " \
                   "ventes de packs (euros), crédits consommés par type de session, annulations tardives. " \
                   "Par défaut : le mois en cours."
-      input_schema(
-        properties: {
-          from: { type: "string", format: "date", description: "Début inclus (AAAA-MM-JJ). Défaut : 1er du mois." },
-          to: { type: "string", format: "date", description: "Fin incluse (AAAA-MM-JJ). Défaut : fin du mois." }
-        }
-      )
+      input_schema(properties: date_range_properties("1er du mois", "fin du mois"))
       annotations(**READ_ONLY)
 
       class << self

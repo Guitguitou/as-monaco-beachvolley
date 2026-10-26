@@ -11,12 +11,7 @@ module Mcp
       description "Liste les désinscriptions tardives des sessions de la période (date de la session), " \
                   "avec le joueur, la session, l'heure de désinscription et si le Staff l'a excusée. " \
                   "Par défaut : hier et aujourd'hui."
-      input_schema(
-        properties: {
-          from: { type: "string", format: "date", description: "Début inclus (AAAA-MM-JJ). Défaut : hier." },
-          to: { type: "string", format: "date", description: "Fin incluse (AAAA-MM-JJ). Défaut : aujourd'hui." }
-        }
-      )
+      input_schema(properties: date_range_properties("hier", "aujourd'hui"))
       annotations(**READ_ONLY)
 
       class << self
