@@ -8,26 +8,12 @@
       <span>Admin</span>
     </div>
 
-    <nav class="flex-1 space-y-2 text-sm">
-      <%= nav_link "Dashboard", admin_root_path, icon: "layout-dashboard" %>
-      <% if current_user.admin? %>
-        <%= nav_link "Joueurs", admin_users_path, icon: "users" %>
-        <%= nav_link "Sessions", admin_sessions_path, icon: "calendar" %>
-        <%= nav_link "Stages", admin_stages_path, icon: "flag" %>
-        <%= nav_link "Tournois", admin_tournaments_path, icon: "trophy" %>
-        <%= nav_link "Niveaux", admin_levels_path, icon: "layers" %>
-        <%= nav_link "Groupes", admin_groups_path, icon: "users-round" %>
-        <%= nav_link "Terrains", admin_terrains_path, icon: "map-pin" %>
-        <%= nav_link "Indisponibilité terrains", admin_terrain_closures_path, icon: "ban" %>
-        <%= nav_link "Boutique", admin_packs_path, icon: "package" %>
-        <%= nav_link "Pages publiques", admin_public_pages_path, icon: "globe" %>
-        <%= nav_link "Règles du club", admin_club_rules_path, icon: "sliders-horizontal" %>
-        <%= nav_link "Connexions Claude", admin_claude_connections_path, icon: "bot" %>
-      <% end %>
-      <%= nav_link "Finances", admin_finances_path, icon: "euro" %>
-      <%= nav_link "Historique achats", admin_purchase_history_index_path, icon: "shopping-cart" %>
-      <%= nav_link "Retour App", sessions_path, icon: "arrow-left" %>
-    </nav>
+    <%= render Admin::SidebarComponent.new(
+          navigation: Admin::Navigation.new(user: current_user, routes: self, alerts_count: Reporting::Alerts.new.pending_count),
+          location: Admin::CurrentLocation.new(path: request.path, query: request.query_parameters)
+        ) %>
+
+    <%= nav_link "Retour App", sessions_path, icon: "arrow-left" %>
 
     <div class="border-t border-gray-200 pt-4 mt-auto">
       <%= link_to '#', method: :delete, class: "flex items-center gap-2 px-3 py-2 rounded-none hover:bg-gray-100 text-gray-800 font-medium" do %>
