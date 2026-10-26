@@ -30,28 +30,12 @@ module Mcp
         def execute(_context, from: nil, to: nil, transaction_type: nil, player_id: nil, session_id: nil, cursor: nil,
                     updated_since: nil)
           period = period(from, to, updated_since)
-          transactions = scope(period, transaction_type, player_id, session_id)
-          page = paginate(transactions.includes(:user, :session), cursor, updated_since)
-
-          {
-            from: period&.first&.iso8601,
-            to: period&.last&.iso8601,
-            totals_by_type: totals(transactions),
-            next_cursor: page[:next_cursor],
-            transactions: page[:records].map { |transaction| serialize(transaction) }
-          }
+          transactions = filter(CreditTransaction.all, period, transaction_type:, user_id: player_id, session_id:)
+          page_response(transactions, period, cursor, updated_since, key: :transactions, includes: %i[user session],
+                                                                     totals_by_type: totals(transactions))
         end
 
         private
-
-        def scope(period, transaction_type, player_id, session_id)
-          transactions = CreditTransaction.all
-          transactions = transactions.where(created_at: period.first.in_time_zone.beginning_of_day..period.last.in_time_zone.end_of_day) if period
-          transactions = transactions.where(transaction_type:) if transaction_type.present?
-          transactions = transactions.where(user_id: player_id) if player_id.present?
-          transactions = transactions.where(session_id:) if session_id.present?
-          transactions
-        end
 
         def totals(transactions)
           sums = transactions.group(:transaction_type).sum(:amount)

@@ -126,41 +126,6 @@ module ApplicationHelper
     PAGE_TITLES["#{controller_path}##{action_name}"]
   end
 
-  # Helper to create external links that open in a new tab
-  # Usage: external_link_to("Google", "https://google.com", class: "text-blue-500")
-  def external_link_to(name = nil, options = nil, html_options = nil, &block)
-    if block_given?
-      html_options = options || {}
-      options = name
-      name = capture(&block)
-    end
-
-    # Ensure external links open in new tab with security attributes
-    html_options ||= {}
-    html_options[:target] = "_blank"
-    html_options[:rel] = "noopener noreferrer"
-
-    # Add external link icon if not already present
-    unless html_options[:class]&.include?("no-external-icon")
-      name = "#{name} #{lucide_icon('external-link', class: 'inline w-3 h-3 ml-1')}".html_safe
-    end
-
-    link_to(name, options, html_options)
-  end
-
-  # Helper to check if a URL is external
-  def external_url?(url)
-    return false if url.blank?
-
-    begin
-      uri = URI.parse(url)
-      # Consider it external if it has a different host
-      uri.host.present? && uri.host != request.host
-    rescue URI::InvalidURIError
-      false
-    end
-  end
-
   # Helper pour le composant Button
   def button(label, variant: :primary, size: :medium, href: nil, url: nil, icon: nil, **options)
     render ButtonComponent.new(

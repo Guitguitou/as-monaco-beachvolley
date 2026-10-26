@@ -26,7 +26,7 @@ module Mcp
           start_on = parse_date(from, Date.current - 1)
           end_on = parse_date(to, Date.current)
           cancellations = LateCancellation.joins(:session)
-                                          .where(sessions: { start_at: start_on.beginning_of_day..end_on.end_of_day })
+                                          .where(sessions: { start_at: day_range(start_on, end_on) })
                                           .includes(:user, :session)
                                           .order(:created_at)
                                           .limit(MAX_RESULTS)

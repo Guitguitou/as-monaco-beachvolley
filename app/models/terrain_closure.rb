@@ -8,7 +8,7 @@ class TerrainClosure < ApplicationRecord
   before_save { Terrains::LegacyColumns.write_closure(self) }
 
   validates :starts_on, :ends_on, presence: true
-  validate :ends_on_not_before_starts_on
+  validates :ends_on, after: { start: :starts_on, allow_equal: true, message: "doit être postérieure ou égale à la date de début" }
 
   scope :for_date, ->(date) {
     d = date.respond_to?(:to_date) ? date.to_date : date
@@ -45,14 +45,5 @@ class TerrainClosure < ApplicationRecord
         reason: c.reason.presence
       }
     end
-  end
-
-  private
-
-  def ends_on_not_before_starts_on
-    return if starts_on.blank? || ends_on.blank?
-    return if ends_on >= starts_on
-
-    errors.add(:ends_on, "doit être postérieure ou égale à la date de début")
   end
 end

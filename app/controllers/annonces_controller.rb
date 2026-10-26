@@ -12,7 +12,7 @@ class AnnoncesController < ApplicationController
 
   def show
     authorize! :read, @annonce
-    @available_slot_ids = current_slot_ids_for(current_user)
+    @available_slot_ids = AnnonceAvailability.slot_ids_for(annonce: @annonce, user: current_user)
   end
 
   def new
@@ -68,12 +68,10 @@ class AnnoncesController < ApplicationController
 
     return prepare_confirmation if request.get?
 
-    slot = @annonce.slots.find(params[:slot_id])
-    result = Annonces::ConfirmationService.new(annonce: @annonce, slot: slot, terrain: Terrain.resolve(params[:terrain])).call
-    Annonces::CreationNotifier.new(annonce: @annonce).notify_confirmed(session: result.session, users: result.registered)
+    result = confirm_annonce!
     redirect_to result.session, notice: result.summary
   rescue ActiveRecord::RecordInvalid => e
-    redirect_to confirm_annonce_path(@annonce), alert: "Confirmation impossible : #{e.record.errors.full_messages.to_sentence.presence || e.message}"
+    redirect_to confirm_annonce_path(@annonce), alert: "Confirmation impossible : #{invalid_record_message(e)}"
   end
 
   def cancel
@@ -89,15 +87,19 @@ class AnnoncesController < ApplicationController
     @terrains_by_slot_id = @confirmable_slots.index_with { |slot| Annonces::AvailableTerrainsForSlotQuery.call(slot: slot) }
   end
 
-  def set_annonce
-    @annonce = Annonce.includes(:levels, slots: { availabilities: :user }).find(params[:id])
+  def confirm_annonce!
+    slot = @annonce.slots.find(params[:slot_id])
+    Annonces::ConfirmationService.new(annonce: @annonce, slot: slot, terrain: Terrain.resolve(params[:terrain])).call.tap do |result|
+      Annonces::CreationNotifier.new(annonce: @annonce).notify_confirmed(session: result.session, users: result.registered)
+    end
   end
 
-  def current_slot_ids_for(user)
-    AnnonceAvailability
-      .where(annonce_slot_id: @annonce.slots.select(:id), user_id: user.id)
-      .pluck(:annonce_slot_id)
-      .to_set
+  def invalid_record_message(error)
+    error.record.errors.full_messages.to_sentence.presence || error.message
+  end
+
+  def set_annonce
+    @annonce = Annonce.includes(:levels, slots: { availabilities: :user }).find(params[:id])
   end
 
   def annonce_params

@@ -5,38 +5,30 @@ class RegistrationsController < ApplicationController
   def create
     authorize! :create, Registration
 
-    # Check if registration deadline has passed (only for regular users on trainings)
-    if @session.entrainement? && @session.past_registration_deadline? && !can_bypass_deadline?
-      respond_after_change("Les inscriptions sont closes (limite : 17h le jour de la session).", kind: :alert)
-      return
+    if actor.deadline_blocks?
+      return respond_after_change("Les inscriptions sont closes (limite : 17h le jour de la session).", kind: :alert)
     end
 
-    target_user = acting_for_someone? ? User.find(params[:user_id]) : current_user
     result = Registrations::Enrollment.new(
-      user: target_user, session: @session,
-      waitlist: ActiveModel::Type::Boolean.new.cast(params[:waitlist]), privileged: can_bypass_deadline?
+      user: actor.target_user, session: @session,
+      waitlist: ActiveModel::Type::Boolean.new.cast(params[:waitlist]), privileged: actor.privileged?
     ).call
     respond_after_change(result.message, kind: result.success? ? :notice : :alert)
   end
 
   def destroy
     authorize! :destroy, Registration
-    registration = if acting_for_someone?
-                     @session.registrations.find_by(user_id: params[:user_id])
-    else
-                     current_user.registrations.find_by(session: @session)
-    end
+    registration = actor.registration
     return respond_after_change("Tu n'es pas inscrit.", kind: :alert) unless registration
 
-    # Après la session, seul un admin peut retirer un joueur (remboursement manuel).
-    if Time.current > @session.end_at && !current_user.admin?
+    if actor.session_over_for?
       return respond_after_change("La session est passée. Seul un administrateur peut retirer des joueurs.", kind: :alert)
     end
 
-    message = Registrations::Cancellation.new(registration, excused: excused?).call
+    message = Registrations::Cancellation.new(registration, excused: actor.excused?).call
     # Sur la fiche, le joueur qui vient de se désinscrire peut revenir sur sa
     # décision d'un clic (cf. sessions/_reregister).
-    flash[:reregister] = @session.id unless acting_for_someone? || card_request?
+    flash[:reregister] = @session.id unless actor.acting_for_someone? || card_request?
     respond_after_change(message)
   rescue StandardError => e
     respond_after_change("Erreur lors de la désinscription: #{e.message}", kind: :alert)
@@ -58,7 +50,7 @@ class RegistrationsController < ApplicationController
     end
 
     flash.now[kind] = message
-    state = Sessions::CardState.build(session: @session.reload, user: current_user)
+    state = Sessions::SingleCardState.call(session: @session.reload, user: current_user)
 
     render turbo_stream: [
       turbo_stream.replace(
@@ -77,18 +69,7 @@ class RegistrationsController < ApplicationController
     @session = Session.find(params[:session_id])
   end
 
-  # Seuls un admin ou le coach de la session agissent pour un autre joueur.
-  def acting_for_someone?
-    params[:user_id].present? && can_bypass_deadline?
-  end
-
-  # Seul le Staff peut excuser une désinscription tardive (cf. GLOSSARY.md).
-  def excused?
-    acting_for_someone? && current_user.staff? && params[:excused] == "1"
-  end
-
-  # Admins and the session coach can bypass the registration deadline
-  def can_bypass_deadline?
-    current_user.admin? || current_user == @session.user
+  def actor
+    @actor ||= Registrations::Actor.new(current_user: current_user, session: @session, params: params)
   end
 end

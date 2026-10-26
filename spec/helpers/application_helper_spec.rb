@@ -110,30 +110,4 @@ RSpec.describe ApplicationHelper, type: :helper do
       expect(helper.humanize_credit_transaction_type('unknown')).to eq('Transaction')
     end
   end
-
-  describe '#external_url?' do
-    it 'returns true for external URL with different host' do
-      allow(helper).to receive(:request).and_return(double(host: 'example.com'))
-      expect(helper.external_url?('https://google.com')).to be true
-    end
-
-    it 'returns false for same host with scheme' do
-      allow(helper).to receive(:request).and_return(double(host: 'example.com'))
-      expect(helper.external_url?('https://example.com/path')).to be false
-    end
-
-    it 'returns false for same host without scheme' do
-      allow(helper).to receive(:request).and_return(double(host: 'example.com'))
-      expect(helper.external_url?('//example.com/path')).to be false
-    end
-
-    it 'returns false for blank URL' do
-      expect(helper.external_url?('')).to be false
-      expect(helper.external_url?(nil)).to be false
-    end
-
-    it 'returns false for invalid URL' do
-      expect(helper.external_url?('not a url')).to be false
-    end
-  end
 end

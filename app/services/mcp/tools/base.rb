@@ -59,6 +59,26 @@ module Mcp
           raise ArgumentError, "Date invalide : #{value} (format attendu AAAA-MM-JJ)"
         end
 
+        # Plage horaire couvrant les jours [start_on, end_on] en entier.
+        def day_range(start_on, end_on)
+          start_on.in_time_zone.beginning_of_day..end_on.in_time_zone.end_of_day
+        end
+
+        # Restreint à la période (date de création) et aux filtres renseignés.
+        def filter(relation, period, **conditions)
+          relation = relation.where(created_at: day_range(*period)) if period
+          relation.where(conditions.compact_blank)
+        end
+
+        # Réponse paginée : période, totaux, curseur suivant et enregistrements sérialisés.
+        def page_response(relation, period, cursor, updated_since, key:, includes:, **totals)
+          page = paginate(relation.includes(*includes), cursor, updated_since)
+          {
+            from: period&.first&.iso8601, to: period&.last&.iso8601, **totals,
+            next_cursor: page[:next_cursor], key => page[:records].map { |record| serialize(record) }
+          }
+        end
+
         def paginate(relation, cursor, updated_since)
           CursorPage.new(relation, per_page: self::MAX_RESULTS, cursor:, updated_since:).call
         end

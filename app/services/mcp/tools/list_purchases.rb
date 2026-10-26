@@ -29,28 +29,13 @@ module Mcp
 
         def execute(_context, from: nil, to: nil, status: nil, pack_type: nil, player_id: nil, cursor: nil, updated_since: nil)
           period = period(from, to, updated_since)
-          purchases = scope(period, status, pack_type, player_id)
-          page = paginate(purchases.includes(:user, :pack), cursor, updated_since)
-
-          {
-            from: period&.first&.iso8601,
-            to: period&.last&.iso8601,
-            totals: totals(purchases),
-            next_cursor: page[:next_cursor],
-            purchases: page[:records].map { |purchase| serialize(purchase) }
-          }
+          purchases = filter(CreditPurchase.left_joins(:pack), period, status:, user_id: player_id)
+          purchases = purchases.where(CreditPurchase::PACK_TYPE_SQL.eq(pack_type)) if pack_type.present?
+          page_response(purchases, period, cursor, updated_since, key: :purchases, includes: %i[user pack],
+                                                                  totals: totals(purchases))
         end
 
         private
-
-        def scope(period, status, pack_type, player_id)
-          purchases = CreditPurchase.left_joins(:pack)
-          purchases = purchases.where(created_at: period.first.in_time_zone.beginning_of_day..period.last.in_time_zone.end_of_day) if period
-          purchases = purchases.where(status:) if status.present?
-          purchases = purchases.where(CreditPurchase::PACK_TYPE_SQL.eq(pack_type)) if pack_type.present?
-          purchases = purchases.where(user_id: player_id) if player_id.present?
-          purchases
-        end
 
         def totals(purchases)
           paid = purchases.paid_status
