@@ -37,8 +37,7 @@
         </div>
       </div>
 
-      <%= link_to packs_path,
-            class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-gray-200 px-6 py-3 text-base font-semibold text-gray-800 hover:bg-gray-300 transition-all" do %>
+      <%= render ButtonComponent.new(href: packs_path, variant: :secondary, size: :large, full_width: true) do %>
         <%= lucide_icon("package", size: 20) %>
         Voir les packs
       <% end %>

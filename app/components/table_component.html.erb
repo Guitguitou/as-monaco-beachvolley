@@ -1,0 +1,22 @@
+<div class="<%= wrapper_classes %>">
+  <table class="<%= table_classes %>">
+    <thead class="bg-gray-50">
+      <tr>
+        <% columns.each do |column| %>
+          <%= column %>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      <% if rows? %>
+        <% rows.each do |row| %>
+          <%= row %>
+        <% end %>
+      <% elsif raw_rows.present? %>
+        <%= raw_rows %>
+      <% else %>
+        <%= empty %>
+      <% end %>
+    </tbody>
+  </table>
+</div>

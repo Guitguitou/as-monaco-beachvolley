@@ -1,13 +1,6 @@
 <!-- Statistiques Mensuelles (Année en cours) -->
 <div class="mb-8">
-  <%= render CardComponent.new(padding: :none) do %>
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-xl font-semibold text-gray-900 flex items-center">
-        <span class="mr-2">📅</span>
-        Statistiques Mensuelles - <%= Time.current.year %>
-      </h3>
-      <p class="text-sm text-gray-500 mt-1">Récapitulatif des packs achetés par mois</p>
-    </div>
+  <%= render CardComponent.new(title: "Statistiques Mensuelles - #{Time.current.year}", subtitle: "Récapitulatif des packs achetés par mois", icon: "calendar-days", padding: :none) do %>
     
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
@@ -111,14 +104,7 @@
 
 <!-- Statistiques Annuelles -->
 <div class="mb-8">
-  <%= render CardComponent.new(padding: :none) do %>
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-xl font-semibold text-gray-900 flex items-center">
-        <span class="mr-2">📊</span>
-        Statistiques Annuelles
-      </h3>
-      <p class="text-sm text-gray-500 mt-1">Récapitulatif historique par année</p>
-    </div>
+  <%= render CardComponent.new(title: "Statistiques Annuelles", subtitle: "Récapitulatif historique par année", icon: "bar-chart-3", padding: :none) do %>
     
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
@@ -167,7 +153,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   <%= stat[:period] %>
                   <% if stat[:year] == Time.current.year %>
-                    <span class="ml-2 text-xs bg-blue-500 text-white px-2 py-1 rounded-full">En cours</span>
+                    <span class="ml-2"><%= render BadgeComponent.new(label: "En cours", variant: :info, size: :xs) %></span>
                   <% end %>
                 </td>
                 <% @pack_types.each do |pack_type| %>
@@ -223,80 +209,23 @@
   <% end %>
 </div>
 
-<!-- Graphique de l'évolution (optionnel, pour plus tard) -->
+<!-- KPIs Packs -->
+<%
+  pack_type_label = ->(type) {
+    { "credits" => "Crédits", "licence" => "Licence", "stage" => "Stage", "inscription_tournoi" => "Inscription tournoi",
+      "equipements" => "Équipements", "autre" => "Autres (pack supprimé)" }.fetch(type) { type.humanize }
+  }
+  money = ->(amount) { number_to_currency(amount, unit: "", separator: ",", delimiter: " ") }
+  most_popular_type = @pack_types.max_by do |type|
+    @yearly_stats.sum { |s| s[:by_type][type]&.dig(:count) || 0 }
+  end
+  most_popular_count = @yearly_stats.sum { |s| s[:by_type][most_popular_type]&.dig(:count) || 0 }
+%>
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-  <!-- KPI : Total année en cours -->
-  <%= render CardComponent.new(padding: :lg) do %>
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-12 h-12 bg-green-600 rounded-none flex items-center justify-center">
-          <span class="text-white text-lg font-bold">€</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">CA Packs <%= Time.current.year %></p>
-        <p class="text-2xl font-semibold text-gray-900">
-          <%= number_to_currency(@monthly_stats.sum { |s| s[:total] }, unit: "", separator: ",", delimiter: " ") %>€
-        </p>
-        <p class="text-xs text-gray-500">
-          <%= @monthly_stats.sum { |s| s[:by_type].values.sum { |v| v[:count] } } %> achats
-        </p>
-      </div>
-    </div>
-  <% end %>
-
-  <!-- KPI : Total tous temps -->
-  <%= render CardComponent.new(padding: :lg) do %>
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-12 h-12 bg-blue-600 rounded-none flex items-center justify-center">
-          <span class="text-white text-lg font-bold">📦</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">CA Total (tous temps)</p>
-        <p class="text-2xl font-semibold text-gray-900">
-          <%= number_to_currency(@yearly_stats.sum { |s| s[:total] }, unit: "", separator: ",", delimiter: " ") %>€
-        </p>
-        <p class="text-xs text-gray-500">
-          <%= @yearly_stats.sum { |s| s[:by_type].values.sum { |v| v[:count] } } %> achats
-        </p>
-      </div>
-    </div>
-  <% end %>
-
-  <!-- KPI : Pack le plus populaire -->
-  <% 
-    most_popular_type = @pack_types.max_by do |type|
-      @yearly_stats.sum { |s| s[:by_type][type]&.dig(:count) || 0 }
-    end
-    most_popular_count = @yearly_stats.sum { |s| s[:by_type][most_popular_type]&.dig(:count) || 0 }
-  %>
-  <%= render CardComponent.new(padding: :lg) do %>
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-12 h-12 bg-purple-600 rounded-none flex items-center justify-center">
-          <span class="text-white text-lg font-bold">⭐</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Pack le plus populaire</p>
-        <p class="text-xl font-semibold text-gray-900">
-          <%= case most_popular_type
-              when 'credits' then 'Crédits'
-              when 'licence' then 'Licence'
-              when 'stage' then 'Stage'
-              when 'inscription_tournoi' then 'Inscription tournoi'
-              when 'equipements' then 'Équipements'
-              when 'autre' then 'Autres (pack supprimé)'
-              else most_popular_type.humanize
-              end %>
-        </p>
-        <p class="text-xs text-gray-500">
-          <%= most_popular_count %> achats
-        </p>
-      </div>
-    </div>
-  <% end %>
+  <%= render StatTileComponent.new(value: "#{money.(@monthly_stats.sum { |s| s[:total] })}€", label: "CA Packs #{Time.current.year}", icon: "euro",
+                                   hint: "#{@monthly_stats.sum { |s| s[:by_type].values.sum { |v| v[:count] } }} achats") %>
+  <%= render StatTileComponent.new(value: "#{money.(@yearly_stats.sum { |s| s[:total] })}€", label: "CA Total (tous temps)", icon: "package",
+                                   hint: "#{@yearly_stats.sum { |s| s[:by_type].values.sum { |v| v[:count] } }} achats") %>
+  <%= render StatTileComponent.new(value: most_popular_type ? pack_type_label.(most_popular_type) : "-", label: "Pack le plus populaire", icon: "star",
+                                   hint: "#{most_popular_count} achats") %>
 </div>
-

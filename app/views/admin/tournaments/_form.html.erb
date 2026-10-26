@@ -42,5 +42,5 @@
   <%= render FormFieldComponent.new(form: f, attribute: :images, type: :file_field, label: "Ajouter des images (affiches, photos)",
         html_options: { multiple: true, accept: "image/*" }, input_class: "block w-full text-sm text-gray-900") %>
 
-  <%= f.submit "Enregistrer", class: "w-full inline-flex justify-center items-center rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-dark transition-colors" %>
+  <%= render ButtonComponent.new(type: "submit", full_width: true) do %>Enregistrer<% end %>
 <% end %>

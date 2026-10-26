@@ -1,76 +1,13 @@
+<% money = ->(amount) { number_to_currency(amount, unit: "", separator: ",", delimiter: "") } %>
+<% month_profit = @revenues[:month] - @coach_salaries[:month] %>
+
 <!-- KPIs Financiers -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-  <!-- CA Semaine -->
-  <%= render CardComponent.new(padding: :lg) do %>
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-green-600 rounded-none flex items-center justify-center">
-          <span class="text-white text-sm font-medium">€</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">CA Semaine</p>
-        <p class="text-2xl font-semibold text-gray-900">
-          <%= number_to_currency(@revenues[:week], unit: "", separator: ",", delimiter: "") %>€
-        </p>
-        <p class="text-xs text-gray-500">Achats de crédits</p>
-      </div>
-    </div>
-  <% end %>
-
-  <!-- CA Mois -->
-  <%= render CardComponent.new(padding: :lg) do %>
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-blue-600 rounded-none flex items-center justify-center">
-          <span class="text-white text-sm font-medium">📅</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">CA Mois</p>
-        <p class="text-2xl font-semibold text-gray-900">
-          <%= number_to_currency(@revenues[:month], unit: "", separator: ",", delimiter: "") %>€
-        </p>
-        <p class="text-xs text-gray-500">Achats de crédits</p>
-      </div>
-    </div>
-  <% end %>
-
-  <!-- Salaires Coachs Mois -->
-  <%= render CardComponent.new(padding: :lg) do %>
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-orange-500 rounded-none flex items-center justify-center">
-          <span class="text-white text-sm font-medium">👥</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Salaires Coachs (Mois)</p>
-        <p class="text-2xl font-semibold text-gray-900">
-          <%= number_to_currency(@coach_salaries[:month], unit: "", separator: ",", delimiter: "") %>€
-        </p>
-        <p class="text-xs text-gray-500">Charges</p>
-      </div>
-    </div>
-  <% end %>
-
-  <!-- Bénéfice Mois -->
-  <%= render CardComponent.new(padding: :lg) do %>
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-purple-500 rounded-none flex items-center justify-center">
-          <span class="text-white text-sm font-medium">📊</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Bénéfice (Mois)</p>
-        <p class="text-2xl font-semibold <%= (@revenues[:month] - @coach_salaries[:month]) >= 0 ? 'text-green-600' : 'text-red-600' %>">
-          <%= number_to_currency(@revenues[:month] - @coach_salaries[:month], unit: "", separator: ",", delimiter: "") %>€
-        </p>
-        <p class="text-xs text-gray-500">CA - Salaires</p>
-      </div>
-    </div>
-  <% end %>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+  <%= render StatTileComponent.new(value: "#{money.(@revenues[:week])}€", label: "CA Semaine", icon: "euro", hint: "Achats de crédits") %>
+  <%= render StatTileComponent.new(value: "#{money.(@revenues[:month])}€", label: "CA Mois", icon: "calendar-days", hint: "Achats de crédits") %>
+  <%= render StatTileComponent.new(value: "#{money.(@coach_salaries[:month])}€", label: "Salaires Coachs (Mois)", icon: "users", hint: "Charges") %>
+  <%= render StatTileComponent.new(value: "#{money.(month_profit)}€", label: "Bénéfice (Mois)", icon: "trending-up", hint: "CA - Salaires",
+                                   tone: month_profit >= 0 ? :positive : :negative) %>
 </div>
 
 <!-- Évolution mensuelle du CA par type de pack -->
@@ -80,118 +17,34 @@
 
 <!-- Tableaux de Différences CA - Salaires -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-  <!-- Différence Semaine -->
-  <%= render CardComponent.new(padding: :none) do %>
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900 flex items-center">
-        <span class="mr-2">📈</span>
-        Différence Semaine
-      </h3>
-    </div>
-    <div class="p-6">
+  <% { week: "Semaine", month: "Mois", year: "Année" }.each do |period, name| %>
+    <% difference = @revenues[period] - @coach_salaries[period] %>
+    <%= render CardComponent.new(title: "Différence #{name}", icon: "trending-up", padding: :lg) do %>
       <div class="space-y-4">
         <div class="flex justify-between items-center">
-          <span class="text-sm font-medium text-gray-500">CA Semaine</span>
-          <span class="text-sm font-semibold text-gray-900">
-            <%= number_to_currency(@revenues[:week], unit: "", separator: ",", delimiter: "") %>€
-          </span>
+          <span class="text-sm font-medium text-gray-500">CA <%= name %></span>
+          <span class="text-sm font-semibold text-gray-900"><%= money.(@revenues[period]) %>€</span>
         </div>
         <div class="flex justify-between items-center">
           <span class="text-sm font-medium text-gray-500">Salaires Coachs</span>
-          <span class="text-sm font-semibold text-gray-900">
-            <%= number_to_currency(@coach_salaries[:week], unit: "", separator: ",", delimiter: "") %>€
-          </span>
+          <span class="text-sm font-semibold text-gray-900"><%= money.(@coach_salaries[period]) %>€</span>
         </div>
         <hr class="border-gray-200">
         <div class="flex justify-between items-center">
           <span class="text-sm font-bold text-gray-900">Différence</span>
-          <span class="text-lg font-bold <%= (@revenues[:week] - @coach_salaries[:week]) >= 0 ? 'text-green-600' : 'text-red-600' %>">
-            <%= number_to_currency(@revenues[:week] - @coach_salaries[:week], unit: "", separator: ",", delimiter: "") %>€
-          </span>
+          <span class="text-lg font-bold <%= difference >= 0 ? 'text-green-600' : 'text-red-600' %>"><%= money.(difference) %>€</span>
         </div>
       </div>
-    </div>
-  <% end %>
-
-  <!-- Différence Mois -->
-  <%= render CardComponent.new(padding: :none) do %>
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900 flex items-center">
-        <span class="mr-2">📊</span>
-        Différence Mois
-      </h3>
-    </div>
-    <div class="p-6">
-      <div class="space-y-4">
-        <div class="flex justify-between items-center">
-          <span class="text-sm font-medium text-gray-500">CA Mois</span>
-          <span class="text-sm font-semibold text-gray-900">
-            <%= number_to_currency(@revenues[:month], unit: "", separator: ",", delimiter: "") %>€
-          </span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-sm font-medium text-gray-500">Salaires Coachs</span>
-          <span class="text-sm font-semibold text-gray-900">
-            <%= number_to_currency(@coach_salaries[:month], unit: "", separator: ",", delimiter: "") %>€
-          </span>
-        </div>
-        <hr class="border-gray-200">
-        <div class="flex justify-between items-center">
-          <span class="text-sm font-bold text-gray-900">Différence</span>
-          <span class="text-lg font-bold <%= (@revenues[:month] - @coach_salaries[:month]) >= 0 ? 'text-green-600' : 'text-red-600' %>">
-            <%= number_to_currency(@revenues[:month] - @coach_salaries[:month], unit: "", separator: ",", delimiter: "") %>€
-          </span>
-        </div>
-      </div>
-    </div>
-  <% end %>
-
-  <!-- Différence Année -->
-  <%= render CardComponent.new(padding: :none) do %>
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900 flex items-center">
-        <span class="mr-2">📈</span>
-        Différence Année
-      </h3>
-    </div>
-    <div class="p-6">
-      <div class="space-y-4">
-        <div class="flex justify-between items-center">
-          <span class="text-sm font-medium text-gray-500">CA Année</span>
-          <span class="text-sm font-semibold text-gray-900">
-            <%= number_to_currency(@revenues[:year], unit: "", separator: ",", delimiter: "") %>€
-          </span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-sm font-medium text-gray-500">Salaires Coachs</span>
-          <span class="text-sm font-semibold text-gray-900">
-            <%= number_to_currency(@coach_salaries[:year], unit: "", separator: ",", delimiter: "") %>€
-          </span>
-        </div>
-        <hr class="border-gray-200">
-        <div class="flex justify-between items-center">
-          <span class="text-sm font-bold text-gray-900">Différence</span>
-          <span class="text-lg font-bold <%= (@revenues[:year] - @coach_salaries[:year]) >= 0 ? 'text-green-600' : 'text-red-600' %>">
-            <%= number_to_currency(@revenues[:year] - @coach_salaries[:year], unit: "", separator: ",", delimiter: "") %>€
-          </span>
-        </div>
-      </div>
-    </div>
+    <% end %>
   <% end %>
 </div>
 
 <!-- Détail des Revenus par Type -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
   <!-- Revenus par Type de Session (Information visuelle) -->
-  <%= render CardComponent.new(padding: :none) do %>
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900 flex items-center">
-        <span class="mr-2">🏐</span>
-        Revenus par Type de Session (Mois)
-        <span class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Info</span>
-      </h3>
-    </div>
-    <div class="p-6">
+  <%= render CardComponent.new(title: "Revenus par Type de Session (Mois)", icon: "volleyball", padding: :lg) do |card| %>
+    <% card.with_title_aside { render BadgeComponent.new(label: "Info", variant: :info, size: :xs) } %>
+    <div>
       <% if @breakdowns[:sessions].any? %>
         <div class="space-y-3">
           <% @breakdowns[:sessions].each do |session_type, amount| %>
@@ -211,20 +64,14 @@
           <% end %>
         </div>
       <% else %>
-        <p class="text-gray-500 text-center py-4">Aucun revenu de session ce mois</p>
+        <%= render EmptyStateComponent.new(icon: "volleyball", title: "Aucun revenu de session ce mois", compact: true) %>
       <% end %>
     </div>
   <% end %>
 
   <!-- CA par Type d'Achat -->
-  <%= render CardComponent.new(padding: :none) do %>
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900 flex items-center">
-        <span class="mr-2">📦</span>
-        CA par Type d'Achat (Mois)
-      </h3>
-    </div>
-    <div class="p-6">
+  <%= render CardComponent.new(title: "CA par Type d'Achat (Mois)", icon: "package", padding: :lg) do %>
+    <div>
       <% if @breakdowns[:packs].any? %>
         <div class="space-y-3">
           <% @breakdowns[:packs].each do |pack_type, amount| %>
@@ -247,7 +94,7 @@
           <% end %>
         </div>
       <% else %>
-        <p class="text-gray-500 text-center py-4">Aucun CA ce mois</p>
+        <%= render EmptyStateComponent.new(icon: "package", title: "Aucun CA ce mois", compact: true) %>
       <% end %>
     </div>
   <% end %>

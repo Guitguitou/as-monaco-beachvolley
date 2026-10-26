@@ -1,56 +1,53 @@
-<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("shopping-cart") %> Historique des achats
-  </h1>
-  
-  <%# Formulaire d'export %>
-  <%= render CardComponent.new(padding: :md, class_name: "w-full sm:w-auto") do %>
-    <%= form_with url: export_admin_purchase_history_index_path, method: :get, local: true, data: { turbo: false }, class: "flex flex-col sm:flex-row gap-3 items-end" do |f| %>
-      <div class="flex flex-col sm:flex-row gap-3 flex-1">
-        <div class="flex flex-col">
-          <%= render FormFieldComponent.new(
-            form: f,
-            attribute: :start_date,
-            type: :date_field,
-            label: "Date de début",
-            required: true,
-            input_class: "px-3 py-2 border border-gray-300 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent",
-            html_options: { value: params[:start_date] || Date.current.beginning_of_month }
-          ) %>
-        </div>
-        <div class="flex flex-col">
-          <%= render FormFieldComponent.new(
-            form: f,
-            attribute: :end_date,
-            type: :date_field,
-            label: "Date de fin",
-            required: true,
-            input_class: "px-3 py-2 border border-gray-300 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent",
-            html_options: { value: params[:end_date] || Date.current.end_of_month }
-          ) %>
-        </div>
-        <fieldset class="flex flex-col gap-2 min-w-[10rem]">
-          <legend class="text-sm font-medium text-gray-700">Format d'export</legend>
-          <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
-            <label class="inline-flex items-center gap-2 text-sm text-gray-800 cursor-pointer">
-              <%= f.radio_button :export_format, "csv", checked: params[:export_format].to_s != "xlsx", class: "text-brand focus:ring-brand" %>
-              CSV
-            </label>
-            <label class="inline-flex items-center gap-2 text-sm text-gray-800 cursor-pointer">
-              <%= f.radio_button :export_format, "xlsx", class: "text-brand focus:ring-brand" %>
-              Excel (.xlsx)
-            </label>
+<%= render PageHeaderComponent.new(title: "Historique des achats", icon: "shopping-cart", variant: :admin) do |header| %>
+  <% header.with_actions do %>
+    <%# Formulaire d'export %>
+    <%= render CardComponent.new(padding: :md, class_name: "w-full sm:w-auto") do %>
+      <%= form_with url: export_admin_purchase_history_index_path, method: :get, local: true, data: { turbo: false }, class: "flex flex-col sm:flex-row gap-3 items-end" do |f| %>
+        <div class="flex flex-col sm:flex-row gap-3 flex-1">
+          <div class="flex flex-col">
+            <%= render FormFieldComponent.new(
+              form: f,
+              attribute: :start_date,
+              type: :date_field,
+              label: "Date de début",
+              required: true,
+              input_class: "px-3 py-2 border border-gray-300 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent",
+              html_options: { value: params[:start_date] || Date.current.beginning_of_month }
+            ) %>
           </div>
-        </fieldset>
-      </div>
-      <%= f.submit class: "px-4 py-2 bg-brand text-white rounded-none hover:bg-brand-dark transition-colors text-sm font-medium flex items-center gap-2 whitespace-nowrap cursor-pointer",
-          data: { disable_with: "Export en cours..." } do %>
-        <%= lucide_icon("download", size: 16) %> Exporter
+          <div class="flex flex-col">
+            <%= render FormFieldComponent.new(
+              form: f,
+              attribute: :end_date,
+              type: :date_field,
+              label: "Date de fin",
+              required: true,
+              input_class: "px-3 py-2 border border-gray-300 rounded-none text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent",
+              html_options: { value: params[:end_date] || Date.current.end_of_month }
+            ) %>
+          </div>
+          <fieldset class="flex flex-col gap-2 min-w-[10rem]">
+            <legend class="text-sm font-medium text-gray-700">Format d'export</legend>
+            <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
+              <label class="inline-flex items-center gap-2 text-sm text-gray-800 cursor-pointer">
+                <%= f.radio_button :export_format, "csv", checked: params[:export_format].to_s != "xlsx", class: "text-brand focus:ring-brand" %>
+                CSV
+              </label>
+              <label class="inline-flex items-center gap-2 text-sm text-gray-800 cursor-pointer">
+                <%= f.radio_button :export_format, "xlsx", class: "text-brand focus:ring-brand" %>
+                Excel (.xlsx)
+              </label>
+            </div>
+          </fieldset>
+        </div>
+        <%= render ButtonComponent.new(type: "submit", class: "whitespace-nowrap") do %>
+          <%= lucide_icon("download", size: 16) %> Exporter
+        <% end %>
       <% end %>
+      <p class="text-xs text-gray-500 mt-2">Par défaut, le mois en cours est sélectionné</p>
     <% end %>
-    <p class="text-xs text-gray-500 mt-2">Par défaut, le mois en cours est sélectionné</p>
   <% end %>
-</div>
+<% end %>
 
 <%# Tabs de filtrage par statut %>
 <%= tab_bar([
@@ -62,125 +59,52 @@
 
 <%# Stats Cards %>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-  <%= render CardComponent.new(padding: :lg) do %>
-    <div class="flex items-center gap-3">
-      <div class="p-3 bg-green-100 rounded-none">
-        <%= lucide_icon("euro", size: 24, class: "text-green-600") %>
-      </div>
-      <div>
-        <p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Chiffre d'affaires</p>
-        <p class="text-2xl font-bold text-gray-900"><%= number_to_currency(@total_revenue, unit: "€", precision: 2) %></p>
-      </div>
-    </div>
-  <% end %>
-
-  <%= render CardComponent.new(padding: :lg) do %>
-    <div class="flex items-center gap-3">
-      <div class="p-3 bg-blue-100 rounded-none">
-        <%= lucide_icon("shopping-bag", size: 24, class: "text-blue-600") %>
-      </div>
-      <div>
-        <p class="text-sm font-medium text-gray-600 uppercase tracking-wide">Total achats</p>
-        <p class="text-2xl font-bold text-gray-900"><%= @total_purchases %></p>
-      </div>
-    </div>
-  <% end %>
-
-  <%= render CardComponent.new(padding: :lg) do %>
-    <div class="flex items-center gap-3">
-      <div class="p-3 bg-orange-100 rounded-none">
-        <%= lucide_icon("clock", size: 24, class: "text-orange-600") %>
-      </div>
-      <div>
-        <p class="text-sm font-medium text-gray-600 uppercase tracking-wide">En attente</p>
-        <p class="text-2xl font-bold text-gray-900"><%= @pending_purchases %></p>
-      </div>
-    </div>
-  <% end %>
+  <%= render StatTileComponent.new(value: number_to_currency(@total_revenue, unit: "€", precision: 2), label: "Chiffre d'affaires", icon: "euro") %>
+  <%= render StatTileComponent.new(value: @total_purchases, label: "Total achats", icon: "shopping-bag") %>
+  <%= render StatTileComponent.new(value: @pending_purchases, label: "En attente", icon: "clock") %>
 </div>
 
 <%# Table %>
-<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
-  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
-    <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
-      <tr>
-        <th class="px-4 sm:px-6 py-3 text-left">Date</th>
-        <th class="px-4 sm:px-6 py-3 text-left hidden lg:table-cell">Utilisateur</th>
-        <th class="px-4 sm:px-6 py-3 text-left hidden md:table-cell">Pack</th>
-        <th class="px-4 sm:px-6 py-3 text-left">Montant</th>
-        <th class="px-4 sm:px-6 py-3 text-left hidden sm:table-cell">Crédits</th>
-        <th class="px-4 sm:px-6 py-3 text-left">Statut</th>
-        <th class="px-4 sm:px-6 py-3 text-left hidden xl:table-cell">Référence</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-100">
-      <% @credit_purchases.each do |purchase| %>
-        <tr class="hover:bg-gray-50 transition-colors">
-          <!-- Date -->
-          <td class="px-4 sm:px-6 py-4 text-gray-700">
-            <%= l(purchase.created_at, format: :short) %>
-          </td>
-
-          <!-- Utilisateur -->
-          <td class="px-4 sm:px-6 py-4 hidden lg:table-cell">
-            <div class="flex flex-col">
-              <% if purchase.user %>
-                <span class="font-medium text-gray-800"><%= purchase.user.full_name %></span>
-                <span class="text-xs text-gray-500"><%= purchase.user.email %></span>
-              <% else %>
-                <span class="text-gray-400 italic">Utilisateur anonyme</span>
-              <% end %>
-            </div>
-          </td>
-
-          <!-- Pack -->
-          <td class="px-4 sm:px-6 py-4 hidden md:table-cell">
-            <% if purchase.pack %>
-              <span class="font-medium text-gray-800"><%= purchase.pack.name %></span>
-            <% else %>
-              <span class="text-gray-400 italic">Achat direct</span>
-            <% end %>
-          </td>
-
-          <!-- Montant -->
-          <td class="px-4 sm:px-6 py-4 font-semibold text-gray-900">
-            <%= number_to_currency(purchase.amount_eur, unit: "€", precision: 2) %>
-          </td>
-
-          <!-- Crédits -->
-          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden sm:table-cell">
-            <%= purchase.credits %>
-          </td>
-
-          <!-- Statut -->
-          <td class="px-4 sm:px-6 py-4">
-            <% case purchase.status %>
-            <% when "paid" %>
-              <%= render BadgeComponent.new(label: "Payé", variant: :success, size: :xs) %>
-            <% when "pending" %>
-              <%= render BadgeComponent.new(label: "En attente", variant: :warning, size: :xs) %>
-            <% when "failed" %>
-              <%= render BadgeComponent.new(label: "Échoué", variant: :danger, size: :xs) %>
-            <% when "cancelled" %>
-              <%= render BadgeComponent.new(label: "Annulé", variant: :neutral, size: :xs) %>
-            <% end %>
-          </td>
-
-          <!-- Référence -->
-          <td class="px-4 sm:px-6 py-4 text-xs font-mono text-gray-500 hidden xl:table-cell">
-            <%= purchase.sherlock_transaction_reference %>
-          </td>
-        </tr>
+<% status_badges = { "paid" => [ "Payé", :success ], "pending" => [ "En attente", :warning ],
+                     "failed" => [ "Échoué", :danger ], "cancelled" => [ "Annulé", :neutral ] } %>
+<%= render TableComponent.new(framed: true, fixed: true) do |table| %>
+  <% table.with_column("Date") %>
+  <% table.with_column("Utilisateur", class_name: "hidden lg:table-cell") %>
+  <% table.with_column("Pack", class_name: "hidden md:table-cell") %>
+  <% table.with_column("Montant") %>
+  <% table.with_column("Crédits", class_name: "hidden sm:table-cell") %>
+  <% table.with_column("Statut") %>
+  <% table.with_column("Référence", class_name: "hidden xl:table-cell") %>
+  <% @credit_purchases.each do |purchase| %>
+    <% table.with_row do |row| %>
+      <% row.with_cell(wrap: true) { l(purchase.created_at, format: :short) } %>
+      <% row.with_cell(wrap: true, class_name: "hidden lg:table-cell") do %>
+        <div class="flex flex-col">
+          <% if purchase.user %>
+            <span class="font-medium text-gray-800"><%= purchase.user.full_name %></span>
+            <span class="text-xs text-gray-500"><%= purchase.user.email %></span>
+          <% else %>
+            <span class="text-gray-400 italic">Utilisateur anonyme</span>
+          <% end %>
+        </div>
       <% end %>
-    </tbody>
-  </table>
-</div>
-
-<% if @credit_purchases.empty? %>
-  <%= render CardComponent.new(padding: :none, class_name: "text-center py-12 mt-6") do %>
-    <div class="flex flex-col items-center gap-3">
-      <%= lucide_icon("shopping-cart", size: 48, class: "text-gray-300") %>
-      <p class="text-gray-500 text-lg">Aucun achat pour le moment</p>
-    </div>
+      <% row.with_cell(wrap: true, class_name: "hidden md:table-cell") do %>
+        <% if purchase.pack %>
+          <span class="font-medium text-gray-800"><%= purchase.pack.name %></span>
+        <% else %>
+          <span class="text-gray-400 italic">Achat direct</span>
+        <% end %>
+      <% end %>
+      <% row.with_cell(weight: :semibold) { number_to_currency(purchase.amount_eur, unit: "€", precision: 2) } %>
+      <% row.with_cell(class_name: "hidden sm:table-cell") { purchase.credits.to_s } %>
+      <% row.with_cell do %>
+        <% label, variant = status_badges[purchase.status] %>
+        <% if label %>
+          <%= render BadgeComponent.new(label: label, variant: variant, size: :xs) %>
+        <% end %>
+      <% end %>
+      <% row.with_cell(wrap: true, class_name: "text-xs font-mono text-gray-500 hidden xl:table-cell") { purchase.sherlock_transaction_reference } %>
+    <% end %>
   <% end %>
+  <% table.with_empty(icon: "shopping-cart", message: "Aucun achat pour le moment") %>
 <% end %>

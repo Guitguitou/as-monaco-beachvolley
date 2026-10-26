@@ -25,8 +25,11 @@
         <%= hidden_field_tag name, value, id: nil %>
       <% end %>
 
-      <%= submit_tag "Continuer vers le paiement",
-            class: "w-full inline-flex items-center justify-center rounded-none bg-brand px-6 py-3 text-base font-semibold text-white hover:bg-brand-dark transition-all" %>
+      <%# name/value reprennent ceux de submit_tag : le formulaire envoyé à Sherlock ne change pas. %>
+      <%= render ButtonComponent.new(type: "submit", name: "commit", value: "Continuer vers le paiement",
+                                     size: :large, full_width: true) do %>
+        Continuer vers le paiement
+      <% end %>
     <% end %>
 
     <p class="text-xs text-gray-500 mt-4">

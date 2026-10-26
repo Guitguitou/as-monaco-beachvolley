@@ -1,0 +1,28 @@
+<%= render PageHeaderComponent.new(title: "Pages publiques", icon: "globe", variant: :admin) do |header| %>
+  <% header.with_actions do %>
+    <%= button("Nouvelle page", variant: :primary, size: :medium, href: new_admin_public_page_path) %>
+  <% end %>
+<% end %>
+
+<p class="text-sm text-gray-600 mb-4">
+  Chaque page affiche une web app Google Apps Script à l'adresse publique indiquée, accessible sans compte.
+</p>
+
+<%= render TableComponent.new(framed: true) do |table| %>
+  <% table.with_column("Page") %>
+  <% table.with_column("Adresse publique") %>
+  <% table.with_column("Actions", align: :right) %>
+  <% @public_pages.each do |public_page| %>
+    <% table.with_row do |row| %>
+      <% row.with_cell(weight: :medium) { public_page.title } %>
+      <% row.with_cell(wrap: true) do %>
+        <%= link_to public_page_url(public_page.slug), public_page_path(public_page.slug), target: "_blank", rel: "noopener", class: "text-brand hover:underline break-all" %>
+      <% end %>
+      <% row.with_cell(align: :right, class_name: "space-x-2") do %>
+        <%= link_to lucide_icon("pencil", size: 16), edit_admin_public_page_path(public_page), class: "inline-flex text-gray-600 hover:text-brand", title: "Modifier" %>
+        <%= button_to lucide_icon("trash-2", size: 16), admin_public_page_path(public_page), method: :delete, form_class: "inline", class: "inline-flex text-gray-600 hover:text-red-600", title: "Supprimer", data: { turbo_confirm: "Supprimer cette page publique ?" } %>
+      <% end %>
+    <% end %>
+  <% end %>
+  <% table.with_empty(icon: "globe", message: "Aucune page publique.") %>
+<% end %>

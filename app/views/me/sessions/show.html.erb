@@ -1,7 +1,7 @@
 <div class="container mx-auto px-4 py-8">
   <div class="max-w-3xl mx-auto">
     <nav class="mb-6">
-      <%= button("Retour à mes sessions", variant: :ghost, size: :small, href: me_sessions_path) %>
+      <%= render BackLinkComponent.new(href: me_sessions_path, label: "Retour à mes sessions") %>
     </nav>
 
     <%= render CardComponent.new(padding: :lg, class_name: "space-y-6") do %>

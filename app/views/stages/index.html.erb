@@ -79,8 +79,7 @@
 
             <%# Boutons d'action %>
             <div class="flex flex-col gap-3 mt-auto">
-              <%= link_to stage_path(@next_stage),
-                    class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-brand px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-brand-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand transition-all" do %>
+              <%= render ButtonComponent.new(href: stage_path(@next_stage), size: :large, full_width: true) do %>
                 <%= lucide_icon("info", size: 20) %>
                 Voir les détails
               <% end %>
@@ -138,27 +137,15 @@
               <%# Content %>
               <div class="flex-1 p-4 flex flex-col">
                 <%# Dates du stage %>
-                <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-                  <div class="flex items-center gap-2 text-gray-600">
-                    <%= lucide_icon("calendar-days", size: 16, class: "text-gray-500") %>
-                    <span class="text-sm font-medium">Dates</span>
-                  </div>
-                  <span class="text-xs text-gray-500">
-                    <%= stage.starts_on.strftime("%d/%m") %> - <%= stage.ends_on.strftime("%d/%m") %>
-                  </span>
-                </div>
+                <%= render DetailRowComponent.new(icon: "calendar-days", label: "Dates") do %>
+                  <%= stage.starts_on.strftime("%d/%m") %> - <%= stage.ends_on.strftime("%d/%m") %>
+                <% end %>
 
                 <%# Coachs %>
                 <% if stage.main_coach || stage.assistant_coach %>
-                  <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <%= lucide_icon("users", size: 16, class: "text-gray-500") %>
-                      <span class="text-sm font-medium">Coachs</span>
-                    </div>
-                    <span class="text-xs text-gray-500">
-                      <%= [stage.main_coach&.full_name, stage.assistant_coach&.full_name].compact.join(" / ") %>
-                    </span>
-                  </div>
+                  <%= render DetailRowComponent.new(icon: "users", label: "Coachs") do %>
+                    <%= [stage.main_coach&.full_name, stage.assistant_coach&.full_name].compact.join(" / ") %>
+                  <% end %>
                 <% end %>
 
                 <%# Durée du stage %>
@@ -230,27 +217,15 @@
               <%# Content %>
               <div class="flex-1 p-4 flex flex-col">
                 <%# Dates du stage %>
-                <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-                  <div class="flex items-center gap-2 text-gray-600">
-                    <%= lucide_icon("calendar-days", size: 16, class: "text-gray-500") %>
-                    <span class="text-sm font-medium">Dates</span>
-                  </div>
-                  <span class="text-xs text-gray-500">
-                    <%= stage.starts_on.strftime("%d/%m") %> - <%= stage.ends_on.strftime("%d/%m") %>
-                  </span>
-                </div>
+                <%= render DetailRowComponent.new(icon: "calendar-days", label: "Dates") do %>
+                  <%= stage.starts_on.strftime("%d/%m") %> - <%= stage.ends_on.strftime("%d/%m") %>
+                <% end %>
 
                 <%# Coachs %>
                 <% if stage.main_coach || stage.assistant_coach %>
-                  <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
-                    <div class="flex items-center gap-2 text-gray-600">
-                      <%= lucide_icon("users", size: 16, class: "text-gray-500") %>
-                      <span class="text-sm font-medium">Coachs</span>
-                    </div>
-                    <span class="text-xs text-gray-500">
-                      <%= [stage.main_coach&.full_name, stage.assistant_coach&.full_name].compact.join(" / ") %>
-                    </span>
-                  </div>
+                  <%= render DetailRowComponent.new(icon: "users", label: "Coachs") do %>
+                    <%= [stage.main_coach&.full_name, stage.assistant_coach&.full_name].compact.join(" / ") %>
+                  <% end %>
                 <% end %>
 
                 <%# Durée du stage %>

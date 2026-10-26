@@ -123,8 +123,6 @@
 
   <!-- Retour -->
   <div>
-    <%= link_to "← Retour aux sessions",
-          admin_sessions_path,
-          class: "text-sm font-medium text-brand hover:text-brand-dark" %>
+    <%= render BackLinkComponent.new(href: admin_sessions_path, label: "Retour aux sessions") %>
   </div>
 </div>

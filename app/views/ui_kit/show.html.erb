@@ -1,0 +1,359 @@
+<% content_for :title, "UI kit — AS Monaco Beach Volley" %>
+<% s = @samples %>
+
+<div class="mx-auto max-w-5xl space-y-10 px-4 py-8 sm:px-6">
+  <%= render PageHeaderComponent.new(title: "UI kit", subtitle: "Tous les composants de l'app et leurs variantes, avec des données fictives.") %>
+
+  <%# ——— Actions ——— %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "ButtonComponent" } do %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Variantes" } do %>
+      <div class="flex flex-wrap gap-3">
+        <% %i[primary secondary ghost link destructive success warning info].each do |variant| %>
+          <%= render ButtonComponent.new(variant: variant) do %><%= variant %><% end %>
+        <% end %>
+        <%= render ButtonComponent.new(variant: :filter, aria: { pressed: true }) do %>filter (actif)<% end %>
+        <%= render ButtonComponent.new(variant: :primary, disabled: true) do %>désactivé<% end %>
+        <%= render ButtonComponent.new(href: "#", method: :post) do %>action POST (button_to)<% end %>
+      </div>
+    <% end %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Tailles" } do %>
+      <div class="flex flex-wrap items-center gap-3">
+        <% %i[small medium large xl].each do |size| %>
+          <%= render ButtonComponent.new(size: size) do %><%= size %><% end %>
+        <% end %>
+      </div>
+    <% end %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Pleine largeur" } do %>
+      <%= render ButtonComponent.new(full_width: true) do %>full_width<% end %>
+    <% end %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Forme pill, icône seule" } do %>
+      <div class="flex flex-wrap items-center gap-3">
+        <%= render ButtonComponent.new(shape: :pill) do %>pill<% end %>
+        <% %i[small medium large xl].each do |size| %>
+          <%= render ButtonComponent.new(variant: :secondary, size: size, icon_only: true, aria: { label: "Ajouter" }) do %>
+            <%= lucide_icon("plus", class: "w-4 h-4", aria: { hidden: true }) %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "AddToCalendarComponent" } do %>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <%= render AddToCalendarComponent.new(url: "#", google_url: "#") %>
+      <%= render AddToCalendarComponent.new(url: "#", variant: :primary, size: :small, full_width: false) %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "WhatsappShareComponent" } do %>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <%= render WhatsappShareComponent.new(text: "Viens jouer jeudi !") %>
+      <%= render WhatsappShareComponent.new(text: "Viens jouer jeudi !", variant: :secondary, size: :small, full_width: false) %>
+    </div>
+  <% end %>
+
+  <%# ——— Affichage ——— %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "BadgeComponent" } do %>
+    <% BadgeComponent::SIZES.each_key do |size| %>
+      <%= render layout: "ui_kit/variant", locals: { label: "Taille #{size}" } do %>
+        <div class="flex flex-wrap gap-2 <%= 'bg-asmbv-red p-2' if size == :md %>">
+          <% (BadgeComponent::VARIANTS.keys + [ :neutral ]).each do |variant| %>
+            <%= render BadgeComponent.new(label: variant.to_s, variant: variant, size: size) %>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Avec icône" } do %>
+      <%= render BadgeComponent.new(label: "Complet", variant: :danger, icon: "lock") %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "AvatarComponent" } do %>
+    <% AvatarComponent::VARIANTS.each_key do |variant| %>
+      <%= render layout: "ui_kit/variant", locals: { label: variant.to_s } do %>
+        <div class="flex flex-wrap items-end gap-3">
+          <% AvatarComponent::SIZES.each_key do |size| %>
+            <%= render AvatarComponent.new(user: s.player, size: size, variant: variant) %>
+          <% end %>
+          <%= render AvatarComponent.new(user: s.player, variant: variant, ring: true) %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "CardComponent" } do %>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <% CardComponent::PADDINGS.each_key do |padding| %>
+        <%= render CardComponent.new(padding: padding) do %>padding <%= padding %><% end %>
+      <% end %>
+      <% CardComponent::ACCENTS.each_key do |accent| %>
+        <%= render CardComponent.new(accent: accent) do %>accent <%= accent %><% end %>
+      <% end %>
+      <%= render CardComponent.new(href: "#") do %>Carte cliquable<% end %>
+      <%= render CardComponent.new do |card| %>
+        <% card.with_header { "En-tête" } %>
+        <% card.with_footer { "Pied" } %>
+        Avec en-tête et pied
+      <% end %>
+      <%= render CardComponent.new(title: "Avec titre", subtitle: "Sous-titre", icon: "calendar", padding: :md) do |card| %>
+        <% card.with_title_aside { render BadgeComponent.new(label: "3", variant: :danger, size: :xs) } %>
+        Barre d'en-tête intégrée, padding appliqué au corps
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "StatTileComponent" } do %>
+    <div class="grid gap-4 sm:grid-cols-3">
+      <%= render StatTileComponent.new(value: 12, label: "Sessions jouées") %>
+      <%= render StatTileComponent.new(value: 340, label: "Tes crédits", href: "#", hint: "≈ 34 sessions", icon: "wallet") %>
+      <%= render StatTileComponent.new(value: "700,00 €", label: "Bénéfice", tone: :positive, icon: "trending-up") %>
+      <%= render StatTileComponent.new(value: "-95,00 €", label: "Différence", tone: :negative, icon: "trending-down") %>
+      <%= render StatTileComponent.new(value: 8, label: "Accent", tone: :accent) %>
+      <%= render StatTileComponent.new(value: 3, label: "Avec action") do |tile| %>
+        <% tile.with_action { link_to "Voir", "#", class: "text-sm text-asmbv-red" } %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "ProgressBarComponent" } do %>
+    <div class="space-y-3">
+      <% (ProgressBarComponent::VARIANTS.keys + [ :primary ]).each do |variant| %>
+        <%= render ProgressBarComponent.new(value: 7, max: 12, variant: variant) %>
+      <% end %>
+      <% ProgressBarComponent::HEIGHTS.each_key do |height| %>
+        <%= render ProgressBarComponent.new(value: 12, max: 12, height: height) %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "EmptyStateComponent" } do %>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <%= render EmptyStateComponent.new(icon: "calendar-x", title: "Aucune session", description: "Reviens plus tard.") do |empty| %>
+        <% empty.with_action { render(ButtonComponent.new(href: "#")) { "Voir le calendrier" } } %>
+      <% end %>
+      <%= render EmptyStateComponent.new(icon: "inbox", title: "Compact", compact: true) %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "FlashComponent", note: "Toasts ancrés en haut de l'écran ; ici confinés dans le cadre." } do %>
+    <div class="relative h-64 overflow-hidden border border-dashed border-gray-300 [transform:translateZ(0)]">
+      <%= render FlashComponent.new(flash: { notice: "Inscription confirmée.", alert: "Session complète.", warning: "Plus que 2 places.", info: "Nouvelle saison ouverte." }) %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "AlertComponent" } do %>
+    <div class="space-y-3">
+      <%= render AlertComponent.new(tone: :error, title: "2 erreurs ont empêché l'enregistrement") do %>
+        <ul class="list-disc list-inside space-y-1"><li>Nom doit être rempli(e)</li><li>Email n'est pas valide</li></ul>
+      <% end %>
+      <% %i[warning success info].each do |tone| %>
+        <%= render AlertComponent.new(tone: tone) do %>Alerte <%= tone %>, sans titre.<% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "ModalComponent", note: "Ouverte ici par le bouton ; dans l'app, par un contrôleur Stimulus." } do %>
+    <%= render ButtonComponent.new(variant: :secondary, onclick: "document.getElementById('ui_kit_modal').showModal()") do %>Ouvrir la modale<% end %>
+    <%= render ModalComponent.new(title: "Désinscriptions tardives", id: "ui_kit_modal") do |modal| %>
+      <p class="text-sm text-gray-700">Le délai d'annulation est dépassé : sans excuse, ces joueurs ne sont pas remboursés.</p>
+      <% modal.with_actions do %>
+        <%= render ButtonComponent.new(class: "w-full", onclick: "this.closest('dialog').close()") do %>Confirmer<% end %>
+        <%= render ButtonComponent.new(variant: :link, class: "w-full", onclick: "this.closest('dialog').close()") do %>Annuler<% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%# ——— Mise en page ——— %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "BackLinkComponent" } do %>
+    <div class="flex gap-6">
+      <%= render BackLinkComponent.new(href: "#") %>
+      <%= render BackLinkComponent.new(href: "#", label: "Retour aux joueurs") %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "DetailRowComponent" } do %>
+    <%= render CardComponent.new(padding: :sm, class_name: "max-w-sm") do %>
+      <%= render DetailRowComponent.new(icon: "calendar-days", label: "Dates") do %>12/07 - 18/07<% end %>
+      <%= render DetailRowComponent.new(icon: "users", label: "Coachs") do %>Marc Coach<% end %>
+      <%= render DetailRowComponent.new(icon: "award", label: "Licence", emphasis: :strong) do %>Annuelle<% end %>
+      <%= render DetailRowComponent.new(icon: "coins", label: "Crédits", emphasis: :large, last: true) do %>1000<% end %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "TableComponent" } do %>
+    <% months = [ [ "Septembre", 8, 240.0 ], [ "Octobre", 6, 180.0 ] ] %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Encadré (posé seul sur la page)" } do %>
+      <%= render TableComponent.new(framed: true) do |table| %>
+        <% table.with_column("Mois") %>
+        <% table.with_column("Entraînements") %>
+        <% table.with_column("Total", align: :right) %>
+        <% months.each do |name, count, total| %>
+          <% table.with_row do |row| %>
+            <% row.with_cell(weight: :medium) { name } %>
+            <% row.with_cell { count.to_s } %>
+            <% row.with_cell(weight: :semibold, align: :right) { "#{number_with_precision(total, precision: 2)} €" } %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Dans une carte, sans ligne" } do %>
+      <%= render CardComponent.new(padding: :none) do %>
+        <%= render TableComponent.new do |table| %>
+          <% table.with_column("Date") %>
+          <% table.with_column("Nom") %>
+          <% table.with_empty(icon: "calendar-x", message: "Aucun entraînement passé") %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "PageHeaderComponent" } do %>
+    <%= render PageHeaderComponent.new(title: "Titre de page", subtitle: "Sous-titre") do |header| %>
+      <% header.with_actions { render(ButtonComponent.new) { "Action" } } %>
+    <% end %>
+    <%= render layout: "ui_kit/variant", locals: { label: "Variante admin" } do %>
+      <%= render PageHeaderComponent.new(title: "Terrains", icon: "map-pin", variant: :admin) do |header| %>
+        <% header.with_actions { render(ButtonComponent.new) { "Nouveau terrain" } } %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "SectionHeaderComponent" } do %>
+    <%= render SectionHeaderComponent.new(title: "Titre de section", subtitle: "Sous-titre") do |header| %>
+      <% header.with_action { link_to "Tout voir", "#", class: "text-sm text-asmbv-red" } %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "HeroComponent" } do %>
+    <% HeroComponent::WRAPPERS.each_key do |variant| %>
+      <%= render HeroComponent.new(title: "Hero #{variant}", subtitle: "Sous-titre", variant: variant) do |hero| %>
+        <% hero.with_eyebrow { "Eyebrow" } %>
+        <% hero.with_meta { "Méta" } %>
+        <% hero.with_actions { render(ButtonComponent.new(variant: :secondary)) { "Action" } } %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "LandingSectionComponent" } do %>
+    <% LandingSectionComponent::TONES.each_key do |tone| %>
+      <%= render LandingSectionComponent.new(eyebrow: "Eyebrow", title: "Section #{tone}", subtitle: "Sous-titre", tone: tone) do %>
+        <p>Contenu de la section.</p>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "TabsComponent" } do %>
+    <%= render TabsComponent.new(tabs: [
+      { label: "Toutes", href: "#", active: true, count: 42 },
+      { label: "Tournois", href: "#", active: false, count: 3, icon: "trophy" },
+      { label: "Sans compteur", href: "#", active: false }
+    ]) %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "SegmentedControlComponent" } do %>
+    <div data-controller="switch" class="space-y-3">
+      <%= render SegmentedControlComponent.new(options: [ { key: "week", label: "Semaine" }, { key: "month", label: "Mois", icon: "calendar" } ], label: "Période") %>
+      <div data-switch-target="panel" data-key="week" class="text-sm">Panneau Semaine</div>
+      <div data-switch-target="panel" data-key="month" class="text-sm" hidden>Panneau Mois</div>
+    </div>
+    <%= render SegmentedControlComponent.new(options: [ { key: "h", label: "Hommes" }, { key: "f", label: "Femmes" } ], label: "Genre", full_width: true) %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "BottomNavComponent", note: "Mobile uniquement ; confinée dans le cadre." } do %>
+    <% { "Membre" => s.activated_player, "Compte non activé" => s.guest_player }.each do |label, user| %>
+      <%= render layout: "ui_kit/variant", locals: { label: label } do %>
+        <div class="relative h-20 overflow-hidden border border-dashed border-gray-300 [transform:translateZ(0)]">
+          <%= render BottomNavComponent.new(user: user, current_path: "/sessions") %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "SortableComponent" } do %>
+    <%= render SortableComponent.new(url: "#", class_name: "grid grid-cols-3 gap-3") do |list| %>
+      <% 1.upto(3) do |i| %>
+        <% list.with_item(id: i, class_name: "flex items-center gap-2 border border-gray-200 bg-white p-3") do %>
+          <%= render SortableComponent::Handle.new %> Élément <%= i %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%# ——— Formulaires ——— %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "FormFieldComponent" } do %>
+    <% user = s.player.tap { |u| u.errors.add(:last_name, "doit être rempli(e)") } %>
+    <%= form_with model: user, url: "#", scope: :ui_kit, class: "grid gap-4 sm:grid-cols-2" do |f| %>
+      <%= render FormFieldComponent.new(form: f, attribute: :first_name, required: true) %>
+      <%= render FormFieldComponent.new(form: f, attribute: :last_name, label: "Nom (en erreur)") %>
+      <%= render FormFieldComponent.new(form: f, attribute: :license_type, type: :select, options: [ [ "Libre", "libre" ], [ "Compétition", "competition" ] ]) %>
+      <%= render FormFieldComponent.new(form: f, attribute: :activated_at, type: :date_field) %>
+    <% end %>
+  <% end %>
+
+  <%# ——— Métier ——— %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "SessionCardComponent" } do %>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <%= render SessionCardComponent.new(state: s.card_state) %>
+      <%= render SessionCardComponent.new(state: s.card_state(session_type: "jeu_libre", terrain: s.terrain(2), title: "Jeu libre")) %>
+      <%= render SessionCardComponent.new(state: s.card_state(session_type: "tournoi", terrain: s.terrain(3), title: "Tournoi", confirmed_count: 12)) %>
+      <%= render SessionCardComponent.new(state: s.card_state(cancelled_at: Time.current, cancellation_reason: "meteo")) %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "NextSessionComponent" } do %>
+    <%= render NextSessionComponent.new(registration: s.registration) %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "LicenseCardComponent" } do %>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <%= render LicenseCardComponent.new(user: s.activated_player) %>
+      <%= render LicenseCardComponent.new(user: s.guest_player) %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "DossierPendingComponent" } do %>
+    <%= render DossierPendingComponent.new(user: s.pending_player) %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "PodiumComponent" } do %>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <%= render PodiumComponent.new(players: s.ranked_players, title: "Top assiduité", current_user_id: 1) %>
+      <%= render PodiumComponent.new(players: [], title: "Vide", empty_message: "Aucune donnée") %>
+    </div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "RankingComponent" } do %>
+    <%= render RankingComponent.new(players: s.ranked_players, current_user_id: 2, visible: 3) %>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "LeaderboardCardComponent" } do %>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <% LeaderboardCardComponent::ICON_TONES.each_key do |accent| %>
+        <%= render LeaderboardCardComponent.new(category: accent.to_s.humanize, icon: "trophy", accent: accent) do %>
+          <%= render RankingComponent.new(players: s.ranked_players.first(2)) %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# ——— Admin ——— %>
+
+  <h2 class="font-anton text-2xl uppercase tracking-tight text-gray-900">Admin</h2>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "Admin::DashboardTabsComponent" } do %>
+    <div class="overflow-x-auto"><%= render Admin::DashboardTabsComponent.new(active_tab: "overview") %></div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "Admin::MonthlyRevenueChartComponent" } do %>
+    <div class="overflow-x-auto"><%= render Admin::MonthlyRevenueChartComponent.new(months: s.revenue_months, pack_types: Pack.pack_types.keys) %></div>
+  <% end %>
+
+  <%= render layout: "ui_kit/specimen", locals: { component: "Admin::PlayerSpendingComponent" } do %>
+    <%= render Admin::PlayerSpendingComponent.new(spending: s.player_spending, period: s.spending_period) %>
+  <% end %>
+</div>

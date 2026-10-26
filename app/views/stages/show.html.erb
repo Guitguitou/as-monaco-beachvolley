@@ -2,7 +2,7 @@
   <div class="container mx-auto px-4 py-6">
     <!-- Breadcrumb -->
     <nav class="mb-6">
-      <%= button("Retour aux stages", variant: :ghost, size: :small, href: stages_path) %>
+      <%= render BackLinkComponent.new(href: stages_path, label: "Retour aux stages") %>
     </nav>
 
     <!-- Layout en 2 colonnes -->
@@ -90,10 +90,7 @@
                   </div>
 
                   <% if @stage.current_or_upcoming? %>
-                    <%= button_to buy_pack_path(pack),
-                          method: :post,
-                          class: "w-full inline-flex items-center justify-center gap-2 rounded-none bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand transition-all",
-                          data: { turbo: false } do %>
+                    <%= render ButtonComponent.new(href: buy_pack_path(pack), method: :post, full_width: true, data: { turbo: false }) do %>
                       <%= lucide_icon("shopping-cart", size: 16) %>
                       S'inscrire
                     <% end %>

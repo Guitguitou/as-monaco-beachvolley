@@ -1,105 +1,57 @@
-<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("users") %>
-    Joueurs
-  </h1>
-
-  <div class="flex items-center gap-2">
+<%= render PageHeaderComponent.new(title: "Joueurs", icon: "users", variant: :admin) do |header| %>
+  <% header.with_actions do %>
     <%= button("Gérer la saison", variant: :secondary, size: :medium, href: admin_season_path, icon: "calendar-sync") %>
     <%= button("Nouveau joueur", variant: :primary, size: :medium, href: new_admin_user_path) %>
-  </div>
-</div>
+  <% end %>
+<% end %>
 
 <%= render 'filters' %>
 
-<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
-  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
-    <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
-      <tr>
-        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">
-          <%= sortable_link_to "Nom", :name, preserve: { q: params[:q], gender: params[:gender], license_type: params[:license_type] } %>
-        </th>
-        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium hidden sm:table-cell">
-          <%= sortable_link_to "Email", :email, preserve: { q: params[:q], gender: params[:gender], license_type: params[:license_type] } %>
-        </th>
-        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">Rôles</th>
-        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">
-          <%= sortable_link_to "Type de licence", :license_type, preserve: { q: params[:q], gender: params[:gender], license_type: params[:license_type] } %>
-        </th>
-        <th scope="col" class="px-4 sm:px-6 py-3 text-left font-medium">Groupe</th>
-        <th scope="col" class="px-4 sm:px-6 py-3 text-right font-medium w-16 sm:w-24">Actions</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-100">
-      <% @users.each do |user| %>
-        <tr class="hover:bg-gray-50 transition-colors">
-          <!-- Nom -->
-          <td class="px-4 sm:px-6 py-4 whitespace-nowrap font-medium text-gray-800 flex items-center gap-2">
-            <%= lucide_icon("user", size: 16, class: "text-gray-500") %>
-            <%= "#{user.last_name} #{user.first_name}" %>
-          </td>
-
-          <!-- Email -->
-          <td class="px-4 sm:px-6 py-4 text-gray-700 hidden sm:table-cell"><%= user.email %></td>
-
-          <!-- Rôles -->
-          <td class="px-4 sm:px-6 py-4 space-x-1">
-            <% if user.admin? %>
-              <%= render BadgeComponent.new(label: "Admin", variant: :warning, size: :xs) %>
-            <% end %>
-            <% if user.coach? %>
-              <%= render BadgeComponent.new(label: "Coach", variant: :success, size: :xs) %>
-            <% end %>
-            <% if user.responsable? %>
-              <%= render BadgeComponent.new(label: "Responsable", variant: :info, size: :xs) %>
-            <% end %>
-            <% if user.financial_manager? %>
-              <%= render BadgeComponent.new(label: "Resp. Financier", variant: :purple, size: :xs) %>
-            <% end %>
-          </td>
-
-          <!-- Type de licence -->
-          <td class="px-4 sm:px-6 py-4">
-            <% if user.license_type.present? %>
-              <% if user.license_type == 'libre' %>
-                <%= render BadgeComponent.new(label: "Libre", variant: :neutral, size: :xs) %>
-              <% else %>
-                <%= render BadgeComponent.new(label: "Compétition", variant: :neutral, size: :xs) %>
-              <% end %>
-            <% else %>
-              <%= render BadgeComponent.new(label: "Pas de licence", variant: :neutral, size: :xs) %>
-            <% end %>
-          </td>
-
-          <!-- Groupe -->
-          <td class="px-4 sm:px-6 py-4">
-            <% levels = user.levels.presence || [user.level].compact %>
-            <% if levels.any? %>
-              <%= levels.map { |l| l.respond_to?(:display_name) ? l.display_name : l.name }.join(', ') %>
-            <% else %>
-              –
-            <% end %>
-          </td>
-
-          <!-- Actions -->
-          <td class="px-4 sm:px-6 py-4 text-right space-x-2">
-            <%= link_to admin_user_path(user),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
-              <%= lucide_icon("eye", size: 16) %>
-              <span class="hidden sm:inline">Voir</span>
-            <% end %>
-
-            <%= link_to edit_admin_user_path(user),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
-              <%= lucide_icon("edit", size: 16) %>
-              <span class="hidden sm:inline">Modifier</span>
-            <% end %>
-          </td>
-        </tr>
+<% preserve = { q: params[:q], gender: params[:gender], license_type: params[:license_type] } %>
+<%= render TableComponent.new(framed: true, fixed: true) do |table| %>
+  <% table.with_column(sortable_link_to("Nom", :name, preserve: preserve)) %>
+  <% table.with_column(sortable_link_to("Email", :email, preserve: preserve), class_name: "hidden sm:table-cell") %>
+  <% table.with_column("Rôles") %>
+  <% table.with_column(sortable_link_to("Type de licence", :license_type, preserve: preserve)) %>
+  <% table.with_column("Groupe") %>
+  <% table.with_column("Actions", align: :right, class_name: "w-16 sm:w-24") %>
+  <% @users.each do |user| %>
+    <% table.with_row do |row| %>
+      <% row.with_cell(weight: :medium) do %>
+        <span class="flex items-center gap-2">
+          <%= lucide_icon("user", size: 16, class: "text-gray-500") %>
+          <%= "#{user.last_name} #{user.first_name}" %>
+        </span>
       <% end %>
-    </tbody>
-  </table>
-</div>
+      <% row.with_cell(wrap: true, class_name: "hidden sm:table-cell") { user.email } %>
+      <% row.with_cell(wrap: true, class_name: "space-x-1") do %>
+        <%= render BadgeComponent.new(label: "Admin", variant: :warning, size: :xs) if user.admin? %>
+        <%= render BadgeComponent.new(label: "Coach", variant: :success, size: :xs) if user.coach? %>
+        <%= render BadgeComponent.new(label: "Responsable", variant: :info, size: :xs) if user.responsable? %>
+        <%= render BadgeComponent.new(label: "Resp. Financier", variant: :purple, size: :xs) if user.financial_manager? %>
+      <% end %>
+      <% row.with_cell do %>
+        <% license_label = { "libre" => "Libre" }.fetch(user.license_type.to_s) { user.license_type.present? ? "Compétition" : "Pas de licence" } %>
+        <%= render BadgeComponent.new(label: license_label, variant: :neutral, size: :xs) %>
+      <% end %>
+      <% row.with_cell(wrap: true) do %>
+        <% levels = user.levels.presence || [ user.level ].compact %>
+        <%= levels.any? ? levels.map { |l| l.respond_to?(:display_name) ? l.display_name : l.name }.join(", ") : "–" %>
+      <% end %>
+      <% row.with_cell(align: :right, class_name: "space-x-2") do %>
+        <%= link_to admin_user_path(user), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
+          <%= lucide_icon("eye", size: 16) %>
+          <span class="hidden sm:inline">Voir</span>
+        <% end %>
+        <%= link_to edit_admin_user_path(user), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
+          <%= lucide_icon("edit", size: 16) %>
+          <span class="hidden sm:inline">Modifier</span>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+  <% table.with_empty(icon: "users", message: "Aucun joueur.") %>
+<% end %>
 
 <%# Pagination controls (numbered) %>
 <% if @total_pages && @total_pages > 1 %>

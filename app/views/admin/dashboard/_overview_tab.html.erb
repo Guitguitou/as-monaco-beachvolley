@@ -1,60 +1,9 @@
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-  <!-- KPIs Cards -->
-  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
-  <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-blue-500 rounded-none flex items-center justify-center">
-          <span class="text-white text-sm font-medium">🏋️</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Entraînements (semaine)</p>
-        <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:trainings_count] %></p>
-      </div>
-    </div>
-  <% end %>
-
-  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
-  <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-green-500 rounded-none flex items-center justify-center">
-          <span class="text-white text-sm font-medium">🎮</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Jeux libres (semaine)</p>
-        <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:free_plays_count] %></p>
-      </div>
-    </div>
-  <% end %>
-
-  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
-  <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-purple-500 rounded-none flex items-center justify-center">
-          <span class="text-white text-sm font-medium">👥</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Coachings privés (semaine)</p>
-        <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:private_coachings_count] %></p>
-      </div>
-    </div>
-  <% end %>
-
-  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
-  <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-red-500 rounded-none flex items-center justify-center">
-          <span class="text-white text-sm font-medium">⚠️</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Désinscriptions hors délai</p>
-        <p class="text-2xl font-semibold text-gray-900"><%= @kpis[:late_cancellations_count] %></p>
-      </div>
-    </div>
-  <% end %>
+<% money = ->(amount) { number_to_currency(amount, unit: "", separator: ",", delimiter: "") } %>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+  <%= render StatTileComponent.new(value: @kpis[:trainings_count], label: "Entraînements (semaine)", icon: "dumbbell") %>
+  <%= render StatTileComponent.new(value: @kpis[:free_plays_count], label: "Jeux libres (semaine)", icon: "volleyball") %>
+  <%= render StatTileComponent.new(value: @kpis[:private_coachings_count], label: "Coachings privés (semaine)", icon: "shield-user") %>
+  <%= render StatTileComponent.new(value: @kpis[:late_cancellations_count], label: "Désinscriptions hors délai", icon: "user-x") %>
 </div>
 
 <!-- Inscrits par mois (jeu libre + entrainement) -->
@@ -76,88 +25,22 @@
     </nav>
   </div>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <div class="w-8 h-8 bg-green-500 rounded-none flex items-center justify-center">
-            <span class="text-white text-sm font-medium">🎮</span>
-          </div>
-        </div>
-        <div class="ml-4">
-          <p class="text-sm font-medium text-gray-500">Inscrits en jeu libre (mois)</p>
-          <p class="text-2xl font-semibold text-gray-900"><%= @participants_jeu_libre %></p>
-        </div>
-      </div>
-    <% end %>
-    <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <div class="w-8 h-8 bg-blue-500 rounded-none flex items-center justify-center">
-            <span class="text-white text-sm font-medium">🏋️</span>
-          </div>
-        </div>
-        <div class="ml-4">
-          <p class="text-sm font-medium text-gray-500">Inscrits en entrainement (mois)</p>
-          <p class="text-2xl font-semibold text-gray-900"><%= @participants_entrainement %></p>
-        </div>
-      </div>
-    <% end %>
+    <%= render StatTileComponent.new(value: @participants_jeu_libre, label: "Inscrits en jeu libre (mois)", icon: "volleyball") %>
+    <%= render StatTileComponent.new(value: @participants_entrainement, label: "Inscrits en entrainement (mois)", icon: "dumbbell") %>
   </div>
 </div>
 
 <!-- Financial KPIs -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-green-600 rounded-none flex items-center justify-center">
-          <span class="text-white text-sm font-medium">€</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">CA semaine (€)</p>
-        <p class="text-2xl font-semibold text-gray-900"><%= number_to_currency(@kpis[:revenue], unit: "", separator: ",", delimiter: "") %></p>
-      </div>
-    </div>
-  <% end %>
-
-  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-orange-500 rounded-none flex items-center justify-center">
-          <span class="text-white text-sm font-medium">👥</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Salaires coachs (€)</p>
-        <p class="text-2xl font-semibold text-gray-900"><%= number_to_currency(@kpis[:coach_salaries], unit: "", separator: ",", delimiter: "") %></p>
-      </div>
-    </div>
-  <% end %>
-
-  <%= render CardComponent.new(padding: :lg, class_name: "border border-gray-200") do %>
-    <div class="flex items-center">
-      <div class="flex-shrink-0">
-        <div class="w-8 h-8 bg-<%= @kpis[:net_profit] >= 0 ? 'green' : 'red' %>-500 rounded-none flex items-center justify-center">
-          <span class="text-white text-sm font-medium">📊</span>
-        </div>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Différence (€)</p>
-        <p class="text-2xl font-semibold text-gray-900"><%= number_to_currency(@kpis[:net_profit], unit: "", separator: ",", delimiter: "") %></p>
-      </div>
-    </div>
-  <% end %>
+  <%= render StatTileComponent.new(value: money.(@kpis[:revenue]), label: "CA semaine (€)", icon: "euro") %>
+  <%= render StatTileComponent.new(value: money.(@kpis[:coach_salaries]), label: "Salaires coachs (€)", icon: "users") %>
+  <%= render StatTileComponent.new(value: money.(@kpis[:net_profit]), label: "Différence (€)", icon: "trending-up",
+                                   tone: @kpis[:net_profit] >= 0 ? :positive : :negative) %>
 </div>
 
 <!-- Upcoming Sessions -->
-<%= render CardComponent.new(padding: :none, class_name: "border border-gray-200") do |card| %>
-  <% card.with_header do %>
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h3 class="text-lg font-medium text-gray-900">Sessions à venir</h3>
-    </div>
-  <% end %>
-  <div class="p-6">
+<%= render CardComponent.new(title: "Sessions à venir", icon: "calendar", padding: :lg) do %>
+  <div>
     <% if @upcoming_sessions.any? %>
       <div class="space-y-4">
         <% @upcoming_sessions.each do |session_type, sessions| %>
@@ -191,7 +74,7 @@
         <% end %>
       </div>
     <% else %>
-      <p class="text-gray-500 text-center py-4">Aucune session à venir</p>
+      <%= render EmptyStateComponent.new(icon: "calendar-x", title: "Aucune session à venir", compact: true) %>
     <% end %>
   </div>
 <% end %>

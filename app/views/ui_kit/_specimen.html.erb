@@ -1,0 +1,10 @@
+<%# Un composant du kit : son nom de classe, une note facultative, puis ses rendus. %>
+<section id="<%= component.underscore.tr('/', '-') %>" data-ui-kit-component="<%= component %>" class="scroll-mt-20 border-t border-gray-200 pt-8">
+  <h2 class="font-mono text-sm font-semibold text-gray-900"><%= component %></h2>
+  <% if local_assigns[:note] %>
+    <p class="mt-1 text-sm text-gray-600"><%= note %></p>
+  <% end %>
+  <div class="mt-4 space-y-6">
+    <%= yield %>
+  </div>
+</section>

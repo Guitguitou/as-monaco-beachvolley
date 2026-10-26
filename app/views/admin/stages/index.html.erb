@@ -1,49 +1,35 @@
-<div class="flex items-center justify-between mb-6 flex-col gap-3 sm:flex-row sm:gap-0">
-  <h1 class="text-2xl font-bold flex items-center gap-2 text-gray-900">
-    <%= lucide_icon("flag") %>
-    Stages
-  </h1>
-
-  <% if can?(:create, Stage) %>
-  <%= button("Nouveau stage", variant: :primary, size: :medium, href: new_admin_stage_path) %>
+<%= render PageHeaderComponent.new(title: "Stages", icon: "flag", variant: :admin) do |header| %>
+  <% header.with_actions do %>
+    <% if can?(:create, Stage) %>
+      <%= button("Nouveau stage", variant: :primary, size: :medium, href: new_admin_stage_path) %>
+    <% end %>
   <% end %>
-</div>
+<% end %>
 
-<div class="overflow-x-auto rounded-none border border-gray-200 shadow-sm">
-  <table class="min-w-full divide-y divide-gray-200 bg-white text-sm table-fixed">
-    <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wide">
-      <tr>
-        <th class="px-4 sm:px-6 py-3 text-left w-1/3">Titre</th>
-        <th class="px-4 sm:px-6 py-3 text-left w-1/4">Dates</th>
-        <th class="px-4 sm:px-6 py-3 text-left w-1/4">Coachs</th>
-        <th class="px-4 sm:px-6 py-3 text-right w-16 sm:w-24">Actions</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-100">
-      <% @stages.each do |stage| %>
-        <tr class="hover:bg-gray-50 transition-colors">
-          <td class="px-4 sm:px-6 py-4 whitespace-nowrap font-medium text-gray-800 flex items-center gap-2">
-            <%= lucide_icon("flag", size: 16, class: "text-gray-500") %>
-            <%= stage.title.presence || "(Sans titre)" %>
-          </td>
-          <td class="px-4 sm:px-6 py-4 text-gray-700">
-            <%= l stage.starts_on, format: :default %> — <%= l stage.ends_on, format: :default %>
-          </td>
-          <td class="px-4 sm:px-6 py-4 text-gray-700">
-            <%= [stage.main_coach&.full_name, stage.assistant_coach&.full_name].compact.join(" / ") %>
-          </td>
-          <td class="px-4 sm:px-6 py-4 text-right space-x-2">
-            <%= link_to admin_stage_path(stage),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
-              <%= lucide_icon("eye", size: 16) %>
-            <% end %>
-            <%= link_to edit_admin_stage_path(stage),
-                  class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
-              <%= lucide_icon("edit", size: 16) %>
-            <% end %>
-          </td>
-        </tr>
+<%= render TableComponent.new(framed: true, fixed: true) do |table| %>
+  <% table.with_column("Titre", class_name: "w-1/3") %>
+  <% table.with_column("Dates", class_name: "w-1/4") %>
+  <% table.with_column("Coachs", class_name: "w-1/4") %>
+  <% table.with_column("Actions", align: :right, class_name: "w-16 sm:w-24") %>
+  <% @stages.each do |stage| %>
+    <% table.with_row do |row| %>
+      <% row.with_cell(weight: :medium) do %>
+        <span class="flex items-center gap-2">
+          <%= lucide_icon("flag", size: 16, class: "text-gray-500") %>
+          <%= stage.title.presence || "(Sans titre)" %>
+        </span>
       <% end %>
-    </tbody>
-  </table>
-</div>
+      <% row.with_cell(wrap: true) { "#{l stage.starts_on, format: :default} — #{l stage.ends_on, format: :default}" } %>
+      <% row.with_cell(wrap: true) { [ stage.main_coach&.full_name, stage.assistant_coach&.full_name ].compact.join(" / ") } %>
+      <% row.with_cell(align: :right, class_name: "space-x-2") do %>
+        <%= link_to admin_stage_path(stage), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
+          <%= lucide_icon("eye", size: 16) %>
+        <% end %>
+        <%= link_to edit_admin_stage_path(stage), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-dark transition-colors" do %>
+          <%= lucide_icon("edit", size: 16) %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+  <% table.with_empty(icon: "flag", message: "Aucun stage.") %>
+<% end %>
