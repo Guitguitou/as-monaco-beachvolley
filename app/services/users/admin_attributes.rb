@@ -3,7 +3,7 @@
 module Users
   # Applique le formulaire admin d'un membre. Un mot de passe laissé vide ne
   # change rien, sauf à la création où il est tiré au hasard ; la case
-  # « activer » active ou désactive le compte.
+  # « licence payée » pose ou retire la date de paiement (activated_at).
   module AdminAttributes
     def self.apply(user, attributes, activate:)
       attributes = attributes.except(:password, :password_confirmation) if attributes[:password].blank?

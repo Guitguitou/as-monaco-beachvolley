@@ -51,9 +51,9 @@ module Mcp
             license_type: user.license_type,
             balance_credits: user.balance&.amount.to_i,
             roles: user.role_labels,
-            activated: user.activated_at.present?,
             licence_payee: user.activated?,
             dossier_complet: user.dossier_complet?,
+            compte_actif: user.peut_reserver?,
             disabled: user.disabled?
           }
         end
