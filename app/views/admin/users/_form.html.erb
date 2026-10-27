@@ -41,27 +41,19 @@
     </div>
   </fieldset>
 
-  <!-- Activation du compte -->
-  <div class="border-l-4 border-brand bg-brand/5 p-4 rounded-none">
-    <div class="flex items-start">
-      <div class="flex items-center h-5">
-        <%= f.check_box :activate_immediately,
-              { checked: @user.persisted? ? @user.activated? : false, class: "h-4 w-4 text-brand border-gray-300 rounded-none focus:ring-brand" },
-              "1", "0" %>
-      </div>
-      <div class="ml-3">
-        <%= f.label :activate_immediately, class: "text-sm font-medium text-gray-900" do %>
-          Activer le compte immédiatement
-        <% end %>
-        <p class="text-xs text-gray-600 mt-1">
-          ⚠️ Par défaut, le compte sera inactif jusqu'au paiement de la licence.
-          <% if @user.new_record? %>
-            Cochez cette case pour activer le compte dès sa création.
-          <% else %>
-            <%= @user.activated? ? "✅ Compte activé le #{l(@user.activated_at, format: :short)}" : "❌ Compte non activé" %>
-          <% end %>
-        </p>
-      </div>
+  <!-- Licence payée -->
+  <div class="flex items-start">
+    <div class="flex items-center h-5">
+      <%= f.check_box :licence_payee,
+            { checked: @user.activated?, class: "h-4 w-4 text-brand border-gray-300 rounded-none focus:ring-brand" },
+            "1", "0" %>
+    </div>
+    <div class="ml-3">
+      <%= f.label :licence_payee, "Licence payée", class: "text-sm font-medium text-gray-900" %>
+      <p class="text-xs text-gray-600 mt-1">
+        Cochée automatiquement au paiement en ligne de la licence.
+        <% if @user.activated? %>Payée le <%= l(@user.activated_at, format: :short) %>.<% end %>
+      </p>
     </div>
   </div>
 
@@ -77,6 +69,17 @@
       </p>
     </div>
   </div>
+
+  <!-- Statut du compte : licence payée + dossier complet -->
+  <% if @user.persisted? %>
+    <p class="text-sm <%= @user.peut_reserver? ? "text-green-700" : "text-gray-600" %>">
+      <% if @user.peut_reserver? %>
+        ✅ Compte actif : licence payée et dossier complet, peut réserver.
+      <% else %>
+        ❌ Compte non actif : il manque <%= [ ("la licence" unless @user.activated?), ("le dossier complet" unless @user.dossier_complet?) ].compact.to_sentence(two_words_connector: " et ") %>.
+      <% end %>
+    </p>
+  <% end %>
 
   <!-- Renouvellement de la prochaine saison -->
   <div class="flex items-start">
