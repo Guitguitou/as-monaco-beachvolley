@@ -76,3 +76,21 @@ _Avoid_: Année, exercice
 
 **Alerte** :
 Situation calculée qui demande l'attention du Staff (joueur à risque, séance sans encadrant…). Elle n'a pas d'état : elle disparaît quand la situation est résolue.
+
+## Boutique équipements
+
+**Article** :
+Équipement vendu par le club (t-shirt, sweat, sac…), d'une marque donnée, présenté dans la boutique équipements.
+_Avoid_: Produit, pack
+
+**Coupe** :
+Déclinaison d'un article qui porte son propre prix et sa liste de tailles (Homme, Femme, Unisexe, ou un modèle comme Basse / Haute pour des chaussettes).
+_Avoid_: Variante, modèle
+
+**Coloris** :
+Couleur dans laquelle un article est proposé, avec sa photo.
+_Avoid_: Couleur, variante
+
+**Guide des tailles** :
+Tableau de correspondance entre les tailles d'une marque et une mesure du corps (tour de poitrine, de hanches…), rattaché aux coupes qui l'utilisent.
+_Avoid_: Grille, barème

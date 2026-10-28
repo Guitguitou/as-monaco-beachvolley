@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_26_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_28_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -334,6 +334,48 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_100000) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "shop_colors", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.string "name", null: false
+    t.string "hex", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_shop_colors_on_product_id"
+  end
+
+  create_table "shop_cuts", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.bigint "size_guide_id"
+    t.string "label", null: false
+    t.integer "price_cents", null: false
+    t.string "sizes", default: [], null: false, array: true
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_shop_cuts_on_product_id"
+    t.index ["size_guide_id"], name: "index_shop_cuts_on_size_guide_id"
+  end
+
+  create_table "shop_products", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "brand", null: false
+    t.string "description"
+    t.string "marking"
+    t.integer "position", default: 0, null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "shop_size_guides", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "measure_label", null: false
+    t.jsonb "rows", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "solid_cable_messages", force: :cascade do |t|
     t.binary "channel", null: false
     t.binary "payload", null: false
@@ -610,6 +652,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_100000) do
   add_foreign_key "sessions", "terrains"
   add_foreign_key "sessions", "tournaments"
   add_foreign_key "sessions", "users"
+  add_foreign_key "shop_colors", "shop_products", column: "product_id"
+  add_foreign_key "shop_cuts", "shop_products", column: "product_id"
+  add_foreign_key "shop_cuts", "shop_size_guides", column: "size_guide_id", on_delete: :nullify
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

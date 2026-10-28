@@ -1,0 +1,42 @@
+<% product = @sheet.product %>
+<div class="max-w-5xl mx-auto space-y-8">
+  <div class="space-y-2">
+    <%= render BackLinkComponent.new(href: admin_shop_products_path, label: "Articles") %>
+    <div class="flex flex-wrap items-center gap-3">
+      <h1 class="text-2xl font-bold text-gray-900"><%= product.name_was.presence || product.name %></h1>
+      <%= render BadgeComponent.new(label: product.active? ? "En vente" : "Retiré de la vente", variant: product.active? ? :success : :neutral, size: :xs) %>
+    </div>
+  </div>
+
+  <%= render "form", product: product %>
+
+  <section id="coupes" class="bg-white p-6 rounded-none shadow-md space-y-4">
+    <div>
+      <h2 class="text-lg font-bold text-gray-900">Coupes, prix et tailles</h2>
+      <p class="text-sm text-gray-500">Un prix par coupe : Homme, Femme, Unisexe, ou un modèle (Basse, Haute). Tailles séparées par des virgules.</p>
+    </div>
+    <% @sheet.cuts.each do |cut| %>
+      <%= render "admin/shop_products/cut_form", product: product, cut: cut, guides: @sheet.size_guide_options %>
+    <% end %>
+    <div class="border-t border-dashed border-gray-300 pt-4">
+      <p class="text-sm font-semibold text-gray-700 mb-2">Ajouter une coupe</p>
+      <%= render "admin/shop_products/cut_form", product: product, cut: @sheet.new_cut, guides: @sheet.size_guide_options %>
+    </div>
+  </section>
+
+  <section id="coloris" class="bg-white p-6 rounded-none shadow-md space-y-4">
+    <div>
+      <h2 class="text-lg font-bold text-gray-900">Coloris</h2>
+      <p class="text-sm text-gray-500">Chaque coloris a sa photo, affichée quand le membre le choisit.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <% @sheet.colors.each do |color| %>
+        <%= render "admin/shop_products/color_form", product: product, color: color %>
+      <% end %>
+      <div class="border border-dashed border-gray-300 p-4">
+        <p class="text-sm font-semibold text-gray-700 mb-2">Ajouter un coloris</p>
+        <%= render "admin/shop_products/color_form", product: product, color: @sheet.new_color %>
+      </div>
+    </div>
+  </section>
+</div>

@@ -380,6 +380,8 @@ end
 
 puts "✅ Crédits ajoutés aux joueurs"
 
+load Rails.root.join("db/seeds/shop_catalog.rb")
+
 # ===========================================
 # 10. RÉSUMÉ FINAL
 # ===========================================
