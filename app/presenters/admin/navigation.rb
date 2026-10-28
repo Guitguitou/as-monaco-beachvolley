@@ -54,7 +54,8 @@ module Admin
       [ "Finances", "euro", [
         [ "Finances", :admin_finances_path, "euro", { admin_only: false } ],
         [ "Historique achats", :admin_purchase_history_index_path, "shopping-cart", { admin_only: false } ],
-        [ "Boutique", :admin_packs_path, "package" ]
+        [ "Boutique", :admin_packs_path, "package" ],
+        [ "Équipements", :admin_shop_products_path, "shirt", { tabs: ShopTabsComponent } ]
       ] ]
     ].freeze
 
@@ -62,7 +63,11 @@ module Admin
       [ pilotage, *SECTIONS.map { |title, icon, items| section(title, icon, *items.map { |entry| routed_item(*entry) }) }, configuration ]
     end
 
-    def routed_item(label, route, icon, options = {}) = item(label, @routes.public_send(route), icon, **options)
+    # `tabs` : écran à onglets (cf. SectionTabsComponent), actif sur chacun d'eux.
+    def routed_item(label, route, icon, options = {})
+      tabs = options[:tabs]
+      item(label, @routes.public_send(route), icon, **options.except(:tabs), also: tabs ? tabs.paths(@routes) : [])
+    end
 
     def pilotage
       section("Pilotage", "gauge",

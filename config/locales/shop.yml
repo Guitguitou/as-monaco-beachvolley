@@ -1,0 +1,41 @@
+fr:
+  activerecord:
+    models:
+      shop/product:
+        one: "Article"
+        other: "Articles"
+      shop/cut:
+        one: "Coupe"
+        other: "Coupes"
+      shop/color:
+        one: "Coloris"
+        other: "Coloris"
+      shop/size_guide:
+        one: "Guide des tailles"
+        other: "Guides des tailles"
+    attributes:
+      shop/product:
+        name: "Nom"
+        brand: "Marque"
+        description: "Description"
+        marking: "Marquage"
+        position: "Position"
+        active: "En vente"
+      shop/cut:
+        label: "Coupe"
+        price_cents: "Prix"
+        price_eur: "Prix"
+        sizes: "Tailles"
+        sizes_text: "Tailles"
+        size_guide: "Guide des tailles"
+        position: "Position"
+      shop/color:
+        name: "Nom"
+        hex: "Couleur"
+        photo: "Photo"
+        position: "Position"
+      shop/size_guide:
+        name: "Nom"
+        measure_label: "Mesure"
+        rows: "Tableau"
+        rows_text: "Tableau"

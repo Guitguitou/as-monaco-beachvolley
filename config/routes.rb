@@ -120,6 +120,15 @@ Rails.application.routes.draw do
         get :export
       end
     end
+
+    # Boutique équipements : catalogue des articles (cf. GLOSSARY.md)
+    scope "equipements" do
+      resources :shop_products, path: "articles", except: [ :show, :destroy ] do
+        resources :shop_cuts, path: "coupes", only: [ :create, :update, :destroy ]
+        resources :shop_colors, path: "coloris", only: [ :create, :update, :destroy ]
+      end
+      resources :shop_size_guides, path: "guides-des-tailles", except: [ :show ]
+    end
   end
 
   resources :tournaments, only: [ :index, :show ], path: "tournois"

@@ -1,0 +1,39 @@
+<%= render Admin::ShopTabsComponent.new(active: :size_guides) do |tabs| %>
+  <% tabs.with_actions do %>
+    <%= button("Nouveau guide", variant: :primary, size: :medium, href: new_admin_shop_size_guide_path) %>
+  <% end %>
+<% end %>
+
+<% if @guides.empty? %>
+  <%= render EmptyStateComponent.new(icon: "ruler", title: "Aucun guide des tailles pour le moment") do |empty| %>
+    <% empty.with_action { button("Créer le premier guide", variant: :primary, size: :medium, href: new_admin_shop_size_guide_path) } %>
+  <% end %>
+<% else %>
+  <%= render TableComponent.new(framed: true, fixed: true) do |table| %>
+    <% table.with_column("Guide") %>
+    <% table.with_column("Mesure", class_name: "hidden sm:table-cell") %>
+    <% table.with_column("Tailles", class_name: "hidden md:table-cell") %>
+    <% table.with_column("Utilisé par") %>
+    <% table.with_column("Actions", align: :right, class_name: "w-24") %>
+    <% @guides.each do |guide| %>
+      <% table.with_row do |row| %>
+        <% row.with_cell(weight: :medium) { guide.name } %>
+        <% row.with_cell(class_name: "hidden sm:table-cell") { guide.measure_label } %>
+        <% row.with_cell(wrap: true, class_name: "hidden md:table-cell") { guide.rows.pluck("size").join(", ") } %>
+        <% row.with_cell { pluralize(@usage.fetch(guide.id, 0), "coupe", plural: "coupes") } %>
+        <% row.with_cell(align: :right, class_name: "space-x-2") do %>
+          <%= link_to edit_admin_shop_size_guide_path(guide), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
+            <%= lucide_icon("edit", size: 16) %>
+            <span class="hidden sm:inline">Modifier</span>
+          <% end %>
+          <%= button_to admin_shop_size_guide_path(guide), method: :delete,
+                data: { turbo_confirm: "Supprimer ce guide ? Les coupes qui l'utilisent n'auront plus de guide." },
+                class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors",
+                "aria-label": "Supprimer #{guide.name}" do %>
+            <%= lucide_icon("trash-2", size: 16) %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

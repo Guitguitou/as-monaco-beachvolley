@@ -1,0 +1,35 @@
+<% url = cut.persisted? ? admin_shop_product_shop_cut_path(product, cut) : admin_shop_product_shop_cuts_path(product) %>
+<% dom = cut.persisted? ? "cut_#{cut.id}" : "cut_new" %>
+<div class="flex flex-wrap items-end gap-3">
+  <%= form_with model: cut, url: url, scope: :shop_cut, namespace: dom, class: "flex-1 grid grid-cols-2 md:grid-cols-12 gap-3 items-end" do |f| %>
+    <div class="md:col-span-2">
+      <%= render FormFieldComponent.new(form: f, attribute: :label, label: "Coupe", required: true, html_options: { id: "#{dom}_label", placeholder: "Homme" }) %>
+    </div>
+    <div class="md:col-span-2">
+      <%= render FormFieldComponent.new(form: f, attribute: :price_eur, type: :number_field, label: "Prix (€)", required: true,
+            html_options: { id: "#{dom}_price", step: "0.5", min: "0", value: (cut.price_eur.to_s.delete_suffix(".0") if cut.price_cents) }) %>
+    </div>
+    <div class="col-span-2 md:col-span-4">
+      <%= render FormFieldComponent.new(form: f, attribute: :sizes_text, label: "Tailles", required: true,
+            html_options: { id: "#{dom}_sizes", placeholder: "2XS, XS, S, M, L, XL, 2XL" }) %>
+    </div>
+    <div class="col-span-2 md:col-span-3">
+      <%= render FormFieldComponent.new(form: f, attribute: :size_guide_id, type: :select, label: "Guide des tailles",
+            options: guides, select_options: { include_blank: "Aucun" }, html_options: { id: "#{dom}_guide" }) %>
+    </div>
+    <div class="md:col-span-1">
+      <%= render ButtonComponent.new(type: :submit, variant: (cut.persisted? ? :secondary : :primary), class: "w-full") do %>
+        <%= lucide_icon(cut.persisted? ? "save" : "plus", size: 16) %>
+        <span class="sr-only"><%= cut.persisted? ? "Enregistrer la coupe" : "Ajouter la coupe" %></span>
+      <% end %>
+    </div>
+  <% end %>
+  <% if cut.persisted? %>
+    <%= button_to admin_shop_product_shop_cut_path(product, cut), method: :delete, form_class: "pb-0.5",
+          data: { turbo_confirm: "Supprimer la coupe #{cut.label} ?" },
+          class: "inline-flex items-center justify-center w-10 h-10 border border-gray-200 text-gray-600 hover:text-red-600",
+          "aria-label": "Supprimer la coupe #{cut.label}" do %>
+      <%= lucide_icon("trash-2", size: 16) %>
+    <% end %>
+  <% end %>
+</div>

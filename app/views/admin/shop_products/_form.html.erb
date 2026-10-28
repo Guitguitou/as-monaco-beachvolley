@@ -1,0 +1,40 @@
+<%= form_with model: product, url: (product.persisted? ? admin_shop_product_path(product) : admin_shop_products_path), scope: :shop_product,
+              class: "space-y-6 bg-white p-6 rounded-none shadow-md" do |f| %>
+  <%= render "shared/form_errors", object: product %>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <%= render FormFieldComponent.new(form: f, attribute: :name, label: "Nom", required: true,
+          html_options: { placeholder: "Ex : T-shirt Varone" }) %>
+    <%= render FormFieldComponent.new(form: f, attribute: :brand, label: "Marque", required: true,
+          html_options: { placeholder: "Ex : Joma", list: "shop-brands" }) %>
+    <datalist id="shop-brands">
+      <% Shop::Product.distinct.order(:brand).pluck(:brand).each do |brand| %>
+        <option value="<%= brand %>"></option>
+      <% end %>
+    </datalist>
+  </div>
+
+  <%= render FormFieldComponent.new(form: f, attribute: :description, label: "Description courte",
+        html_options: { placeholder: "Ex : T-shirt d'entraînement" }) %>
+
+  <div>
+    <%= render FormFieldComponent.new(form: f, attribute: :marking, label: "Marquage",
+          html_options: { placeholder: "Ex : Logo du club au dos, blanc sur rouge ou noir" }) %>
+    <p class="mt-1 text-xs text-gray-500">Affiché sur la fiche de l'article dans la boutique.</p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
+    <div>
+      <%= render FormFieldComponent.new(form: f, attribute: :position, type: :number_field, label: "Position") %>
+      <p class="mt-1 text-xs text-gray-500">Les articles de position plus petite s'affichent en premier.</p>
+    </div>
+    <div class="flex items-center gap-2 pb-2">
+      <%= f.check_box :active, class: "rounded-none border-gray-300 text-brand focus:ring-brand" %>
+      <%= f.label :active, "En vente (visible dans la boutique)", class: "text-sm font-medium text-gray-900" %>
+    </div>
+  </div>
+
+  <%= render ButtonComponent.new(type: :submit) do %>
+    <%= lucide_icon("save", size: 16) %> Enregistrer
+  <% end %>
+<% end %>
