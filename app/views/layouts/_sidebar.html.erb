@@ -16,7 +16,7 @@
       <% end %>
     </div>
 
-    <% shop_open = Shop::Campaign.for_members.present? %>
+    <% shop_open = Shop::Campaign.for_member(current_user).present? %>
     <nav class="flex-1 space-y-2 text-xs">
       <% if current_user.activated? %>
         <%= nav_link "Performances & Stats", performances_path, icon: "bar-chart-3", extra_classes: 'sidebar-link' %>

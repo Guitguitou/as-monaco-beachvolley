@@ -7,9 +7,8 @@ module Shop
   class Checkout
     Result = Data.define(:purchase, :payment_request, :error)
 
-    def initialize(order:, team: nil)
+    def initialize(order:)
       @order = order
-      @team = team
     end
 
     def call
@@ -17,7 +16,7 @@ module Shop
       return Result.new(purchase: nil, payment_request: nil, error: error) if error
 
       purchase = ActiveRecord::Base.transaction do
-        @order.update!(status: :awaiting_payment, team: @team.presence)
+        @order.update!(status: :awaiting_payment)
         @order.user.credit_purchases.create!(shop_order: @order, amount_cents: @order.total_cents, currency: "EUR", credits: 0, status: :pending)
       end
       Result.new(purchase: purchase, payment_request: Sherlock::CreatePayment.new(purchase).call, error: nil)

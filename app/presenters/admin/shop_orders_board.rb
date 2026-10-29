@@ -28,6 +28,8 @@ module Admin
       ]
     end
 
+    def group_of(order) = (@groups ||= Shop::TrainingGroups.new(orders.map(&:user_id))).of(order.user_id)
+
     def lines_of(order) = (@lines ||= Shop::OrderLine.where(order_id: orders.map(&:id)).order(:id).group_by(&:order_id)).fetch(order.id, [])
 
     private

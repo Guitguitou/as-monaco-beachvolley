@@ -13,7 +13,7 @@ class ShopCartsController < ShopBaseController
   def checkout
     return redirect_to(shop_cart_path, alert: "Ton panier est vide.") unless cart
 
-    result = Shop::Checkout.new(order: cart, team: params[:team]).call
+    result = Shop::Checkout.new(order: cart).call
     return redirect_to(shop_cart_path, alert: result.error) if result.error
 
     @credit_purchase = result.purchase

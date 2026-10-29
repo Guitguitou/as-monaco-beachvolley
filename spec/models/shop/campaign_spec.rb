@@ -31,4 +31,12 @@ RSpec.describe Shop::Campaign do
     expect(described_class.for_members).to eq(campaign)
     expect(campaign).to be_accepting_orders
   end
+
+  it "n'ouvre la boutique qu'aux licenciés à jour" do
+    campaign = create(:shop_campaign)
+
+    expect(described_class.for_member(build(:user, activated_at: Time.current))).to eq(campaign)
+    expect(described_class.for_member(build(:user, activated_at: nil))).to be_nil
+    expect(described_class.for_member(nil)).to be_nil
+  end
 end

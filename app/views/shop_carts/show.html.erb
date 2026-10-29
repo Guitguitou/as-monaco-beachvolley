@@ -60,10 +60,6 @@
         <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Commande au nom de</p>
         <p class="font-semibold text-gray-900"><%= current_user.full_name %></p>
       </div>
-      <div>
-        <%= f.label :team, "Ton équipe (facultatif)", class: "block text-sm text-gray-600 mb-1" %>
-        <%= f.text_field :team, placeholder: "Ex : Seniors F", maxlength: 60, class: "w-full h-11 px-3 border border-gray-300 rounded-none text-sm" %>
-      </div>
       <%= render ButtonComponent.new(type: :submit, size: :large, full_width: true) do %>
         <%= lucide_icon("lock", size: 18) %> Payer <%= number_to_currency(cart.total_cents / 100.0, unit: "€", precision: 2) %> par carte
       <% end %>

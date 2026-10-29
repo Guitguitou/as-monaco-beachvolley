@@ -6,7 +6,8 @@ module Shop
   class OrderLine < ApplicationRecord
     MAX_QUANTITY = 20
 
-    belongs_to :order
+    # Une correction de taille date la commande : le connecteur la voit avec updated_since.
+    belongs_to :order, touch: true
     belongs_to :product
     belongs_to :cut, optional: true
     belongs_to :color, optional: true

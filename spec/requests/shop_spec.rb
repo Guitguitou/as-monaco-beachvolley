@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe "Boutique équipements", type: :request do
-  let(:user) { create(:user) }
+  let(:user) { create(:user, activated_at: Time.current) }
   let(:product) { create(:shop_product, name: "T-shirt Varone") }
   let!(:cut) { create(:shop_cut, product: product, label: "Femme", price_cents: 1800, sizes: %w[S M L]) }
   let!(:color) { create(:shop_color, product: product, name: "Noir") }
@@ -28,6 +28,19 @@ RSpec.describe "Boutique équipements", type: :request do
 
   context "pendant une campagne" do
     let!(:campaign) { create(:shop_campaign, welcome_message: "Commande groupée Joma et Nine") }
+
+    it "réserve la boutique aux licenciés à jour" do
+      sign_in create(:user, activated_at: nil)
+
+      get shop_products_path
+      expect(response).to redirect_to(packs_path)
+
+      post shop_cart_lines_path, params: { line: { cut_id: cut.id, color_id: color.id, size: "M" } }
+      expect(Shop::Order.count).to eq(0)
+
+      get packs_path
+      expect(response.body).not_to include("Commande groupée d'équipements ouverte")
+    end
 
     it "annonce la commande groupée sur la page Boutique" do
       get packs_path

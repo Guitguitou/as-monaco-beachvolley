@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe "Paiement de la boutique équipements", type: :request do
   let(:secret) { "test_secret" }
-  let(:user) { create(:user) }
+  let(:user) { create(:user, activated_at: Time.current) }
   let(:campaign) { create(:shop_campaign) }
   let(:order) { create(:shop_order, user: user, campaign: campaign) }
   let!(:line) { create(:shop_order_line, order: order, quantity: 2, unit_price_cents: 1800, size: "M") }
@@ -21,7 +21,7 @@ RSpec.describe "Paiement de la boutique équipements", type: :request do
   end
 
   it "envoie vers la page de paiement avec le montant des lignes" do
-    post checkout_shop_cart_path, params: { team: "Seniors F" }
+    post checkout_shop_cart_path
 
     expect(response.body).to include("Commande d&#39;équipements", "36,00")
     expect(CreditPurchase.find_by!(shop_order_id: order.id).amount_cents).to eq(3600)

@@ -15,6 +15,9 @@ module Shop
 
     def self.for_members(on: Date.current) = accepting_orders(on: on).order(:closes_on).first
 
+    # La boutique est réservée aux licenciés à jour (licence payée, cf. GLOSSARY.md).
+    def self.for_member(user, on: Date.current) = (for_members(on: on) if user&.activated?)
+
     def accepting_orders?(on: Date.current) = open_status? && (opens_on..closes_on).cover?(on)
   end
 end

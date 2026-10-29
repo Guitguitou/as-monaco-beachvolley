@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
 # Socle de la boutique équipements côté membre : la campagne ouverte aux
-# commandes, s'il y en a une, et le panier du membre pour cette campagne
-# (rouvert si son dernier paiement a échoué ou a été abandonné).
+# commandes, s'il y en a une et si le membre est licencié à jour, et son
+# panier pour cette campagne (rouvert si son dernier paiement a échoué ou a
+# été abandonné).
 class ShopBaseController < ApplicationController
   helper_method :campaign, :cart
 
   private
 
-  def campaign = @campaign ||= Shop::Campaign.for_members
+  def campaign = @campaign ||= Shop::Campaign.for_member(current_user)
 
   def cart
     return @cart if defined?(@cart)

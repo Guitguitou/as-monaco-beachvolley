@@ -28,7 +28,9 @@ joma_marking = "Logo du club au dos : blanc sur rouge ou noir, rouge sur blanc."
 nine_marking = "Logo du club au dos et Sideline devant et derrière, en blanc."
 
 catalog = [
-  { name: "Pack Championship VIII", brand: "Joma", description: "Veste, pantalon et t-shirt assortis", marking: joma_marking,
+  # Le « Pack Championship VIII » (t-shirt) du bon n'a pas de prix : à ajouter
+  # depuis l'admin une fois confirmé par la boutique.
+  { name: "Ensemble veste + pantalon Championship VIII", brand: "Joma", description: "Veste et pantalon assortis", marking: joma_marking,
     cuts: [ [ "Homme", 68, range.("6XS", "4XL"), :joma_h ], [ "Femme", 68, range.("2XS", "2XL"), :joma_f ] ],
     colors: { "Rouge" => "pack-rouge", "Blanc" => "pack-blanc" } },
   { name: "T-shirt Championship VIII", brand: "Joma", description: "T-shirt d'entraînement", marking: joma_marking,

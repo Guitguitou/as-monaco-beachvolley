@@ -64,7 +64,7 @@
           <% end %>
           <% row.with_cell(wrap: true) do %>
             <%= order.user.full_name %>
-            <span class="block text-xs text-gray-500"><%= order.team.presence || order.user.email %></span>
+            <span class="block text-xs text-gray-500"><%= @board.group_of(order) %></span>
           <% end %>
           <% row.with_cell(wrap: true, class_name: "hidden lg:table-cell") do %>
             <span class="text-sm text-gray-700"><%= lines.map { |line| "#{"#{line.quantity} × " if line.quantity > 1}#{line.product_name} (#{line.details})" }.join(" · ") %></span>
