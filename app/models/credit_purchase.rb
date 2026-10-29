@@ -59,6 +59,14 @@ class CreditPurchase < ApplicationRecord
     pack&.pack_type_equipements?
   end
 
+  # Ce que l'achat a réglé : le pack, ou la commande d'équipements.
+  def label
+    return pack.name if pack
+    return [ "Équipements", shop_order.number ].compact.join(" ") if shop_order
+
+    "Achat direct"
+  end
+
   # Calculer le montant en euros
   def amount_eur
     amount_cents / 100.0

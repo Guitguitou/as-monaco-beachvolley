@@ -1,0 +1,48 @@
+<%= render Admin::ShopTabsComponent.new(active: :recap) %>
+
+<% if @recap.nil? %>
+  <%= render EmptyStateComponent.new(icon: "clipboard-list", title: "Aucune campagne pour le moment") %>
+<% else %>
+  <% campaign = @choice.campaign %>
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <p class="text-sm text-gray-600">Quantités par marque, calculées sur les commandes payées de <strong><%= campaign.name %></strong>.</p>
+    <div class="flex flex-wrap items-center gap-3">
+      <%= render "admin/shop_orders/campaign_picker", choice: @choice, url: admin_shop_recap_path %>
+      <%= link_to admin_shop_recap_pdf_path(campaign_id: campaign.id), class: "h-10 inline-flex items-center gap-2 px-4 border border-gray-900 bg-white text-sm font-semibold" do %>
+        <%= lucide_icon("download", size: 16) %> Télécharger le PDF
+      <% end %>
+      <%= link_to admin_shop_recap_excel_path(campaign_id: campaign.id), class: "h-10 inline-flex items-center gap-2 px-4 border border-gray-900 bg-white text-sm font-semibold" do %>
+        <%= lucide_icon("download", size: 16) %> Télécharger l'Excel
+      <% end %>
+    </div>
+  </div>
+
+  <% brands = @recap.brands %>
+  <% if brands.empty? %>
+    <%= render EmptyStateComponent.new(icon: "clipboard-list", title: "Aucune commande payée pour le moment", compact: true) %>
+  <% end %>
+  <div class="space-y-6">
+    <% brands.each do |brand| %>
+      <section class="bg-white border border-gray-200">
+        <header class="flex items-baseline gap-3 px-5 py-4 border-b border-gray-200">
+          <h2 class="font-anton text-2xl uppercase text-gray-900"><%= brand.name %></h2>
+          <span class="text-sm text-gray-600"><%= pluralize(brand.quantity, "article", plural: "articles") %> · <%= pluralize(brand.rows.size, "référence", plural: "références") %></span>
+        </header>
+        <ul class="divide-y divide-gray-100">
+          <% brand.rows.each do |row| %>
+            <li class="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 items-center px-5 py-3 text-sm">
+              <span class="md:col-span-4 font-semibold text-gray-900"><%= row.product_name %></span>
+              <span class="md:col-span-2 text-gray-600"><%= row.color_name %> · <%= row.cut_label %></span>
+              <span class="md:col-span-5 flex flex-wrap gap-1.5">
+                <% row.sizes.each do |size, qty| %>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-1 border border-gray-300 tabular-nums"><strong><%= size %></strong><span class="text-gray-500">×<%= qty %></span></span>
+                <% end %>
+              </span>
+              <span class="md:col-span-1 md:text-right font-bold tabular-nums"><%= row.quantity %></span>
+            </li>
+          <% end %>
+        </ul>
+      </section>
+    <% end %>
+  </div>
+<% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_29_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_29_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -398,6 +398,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_29_100000) do
     t.datetime "paid_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "handed_over_at"
     t.index ["campaign_id"], name: "index_shop_orders_on_campaign_id"
     t.index ["number"], name: "index_shop_orders_on_number", unique: true, where: "(number IS NOT NULL)"
     t.index ["user_id", "campaign_id"], name: "index_shop_orders_one_cart_per_campaign", unique: true, where: "((status)::text = 'cart'::text)"
