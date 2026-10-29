@@ -47,7 +47,7 @@
   </div>
 <% end %>
 
-<% if (shop_campaign = Shop::Campaign.for_members) %>
+<% if (shop_campaign = Shop::Campaign.for_member(current_user)) %>
   <%= link_to shop_products_path, class: "mb-6 flex items-center justify-between gap-4 border border-gray-900 bg-white p-4 rounded-none hover:bg-gray-50" do %>
     <span class="flex items-center gap-3">
       <%= lucide_icon("shirt", size: 24, class: "text-brand shrink-0") %>

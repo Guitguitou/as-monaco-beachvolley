@@ -15,4 +15,14 @@ RSpec.describe Shop::OrderLine do
     expect(line.details).to eq("Noir · Femme · S")
     expect(line.total_cents).to eq(line.unit_price_cents)
   end
+
+  it "date la commande quand une ligne change, pour le suivi par updated_since" do
+    line = create(:shop_order_line)
+    order = line.order
+    order.update_column(:updated_at, 2.days.ago)
+
+    line.update!(size: "L")
+
+    expect(order.reload.updated_at).to be_within(1.minute).of(Time.current)
+  end
 end

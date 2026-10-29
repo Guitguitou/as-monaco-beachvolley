@@ -7,7 +7,7 @@
     <div class="w-12 h-12 bg-green-700 flex items-center justify-center"><%= lucide_icon("check", size: 26, class: "text-white") %></div>
     <h1 class="font-anton text-3xl uppercase text-gray-900">Commande payée</h1>
     <p class="text-gray-700">
-      Ta commande <strong><%= @order.number %></strong> est enregistrée<%= " pour l'équipe #{@order.team}" if @order.team.present? %>.
+      Ta commande <strong><%= @order.number %></strong> est enregistrée.
       Ton reçu t'a été envoyé par e-mail.
     </p>
   </div>

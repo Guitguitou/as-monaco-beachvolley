@@ -13,12 +13,11 @@ RSpec.describe Shop::Checkout do
   end
 
   it "verrouille le panier et ouvre un achat du montant calculé, sans pack" do
-    result = described_class.new(order: order, team: "Seniors F").call
+    result = described_class.new(order: order).call
 
     purchase = result.purchase
     expect(result.error).to be_nil
     expect(order.reload).to be_awaiting_payment_status
-    expect(order.team).to eq("Seniors F")
     expect([ purchase.amount_cents, purchase.shop_order, purchase.pack, purchase.credits ]).to eq([ 5000, order, nil, 0 ])
     expect(result.payment_request.url).to be_present
   end

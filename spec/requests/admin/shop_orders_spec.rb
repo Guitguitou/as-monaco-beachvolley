@@ -7,11 +7,12 @@ RSpec.describe "Admin::ShopOrders et récap", type: :request do
 
   let(:campaign) { create(:shop_campaign, name: "Commande groupée 2026-2027") }
   let(:member) { create(:user, first_name: "Camille", last_name: "Rossi") }
-  let(:paid) { create(:shop_order, campaign: campaign, user: member, team: "Seniors F").tap(&:mark_paid!) }
+  let(:paid) { create(:shop_order, campaign: campaign, user: member).tap(&:mark_paid!) }
   let(:unfinished) { create(:shop_order, campaign: campaign) }
 
   before do
     sign_in create(:user, :admin)
+    create(:user_level, user: member, level: create(:level, name: "Intermédiaire"))
     create(:shop_order_line, order: paid, product_name: "T-shirt Varone", color_name: "Noir", cut_label: "Femme", size: "M", quantity: 2)
     create(:shop_order_line, order: unfinished, product_name: "Parka")
   end
@@ -19,7 +20,7 @@ RSpec.describe "Admin::ShopOrders et récap", type: :request do
   it "liste les commandes de la campagne avec leurs chiffres" do
     get admin_shop_orders_path
 
-    expect(response.body).to include(paid.number, "Camille Rossi", "Seniors F", "Non finalisée", "Commandes payées")
+    expect(response.body).to include(paid.number, "Camille Rossi", "Intermédiaire", "Non finalisée", "Commandes payées")
   end
 
   it "marque une commande payée comme remise, puis l'annule" do
