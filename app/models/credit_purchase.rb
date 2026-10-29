@@ -3,6 +3,8 @@
 class CreditPurchase < ApplicationRecord
   belongs_to :user
   belongs_to :pack, optional: true
+  # Commande d'équipements réglée par cet achat (cf. GLOSSARY.md), sans pack.
+  belongs_to :shop_order, class_name: "Shop::Order", optional: true
 
   # Statuts possibles
   enum :status, {

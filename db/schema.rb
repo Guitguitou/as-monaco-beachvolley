@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_28_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_29_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -123,10 +123,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_110000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "pack_id"
+    t.bigint "shop_order_id"
     t.index ["created_at"], name: "index_credit_purchases_on_created_at"
     t.index ["pack_id"], name: "index_credit_purchases_on_pack_id"
     t.index ["paid_at", "status"], name: "index_credit_purchases_on_paid_at_and_status"
     t.index ["sherlock_transaction_reference"], name: "index_credit_purchases_on_sherlock_transaction_reference", unique: true, where: "(sherlock_transaction_reference IS NOT NULL)"
+    t.index ["shop_order_id"], name: "index_credit_purchases_on_shop_order_id"
     t.index ["status", "paid_at"], name: "index_credit_purchases_on_status_and_paid_at"
     t.index ["status"], name: "index_credit_purchases_on_status"
     t.index ["user_id"], name: "index_credit_purchases_on_user_id"
@@ -675,6 +677,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_28_110000) do
   add_foreign_key "annonces", "users"
   add_foreign_key "balances", "users"
   add_foreign_key "credit_purchases", "packs"
+  add_foreign_key "credit_purchases", "shop_orders"
   add_foreign_key "credit_purchases", "users"
   add_foreign_key "credit_transactions", "sessions"
   add_foreign_key "credit_transactions", "users"

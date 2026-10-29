@@ -13,6 +13,13 @@
 
 <p>Référence : <%= @credit_purchase.sherlock_transaction_reference %></p>
 
+<% if (order = @credit_purchase.shop_order) %>
+  <p>
+    Ta commande d'équipements <strong><%= order.number %></strong> est enregistrée :
+    <%= link_to "voir ma commande", shop_order_url(order) %>.
+  </p>
+<% end %>
+
 <p>
   <%= link_to "Voir les packs et recharger", packs_url %> |
   <%= link_to "Mon espace", root_url %>
