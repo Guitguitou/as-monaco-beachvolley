@@ -124,6 +124,15 @@ Rails.application.routes.draw do
     # Boutique équipements : catalogue des articles (cf. GLOSSARY.md)
     scope "equipements" do
       resources :shop_campaigns, path: "campagnes", except: [ :show, :destroy ]
+      resources :shop_orders, path: "commandes", only: [ :index ] do
+        member do
+          patch :hand_over
+          post :remind
+        end
+      end
+      get "recap", to: "shop_recaps#show", as: :shop_recap
+      get "recap/excel", to: "shop_recaps#excel", as: :shop_recap_excel
+      get "recap/pdf", to: "shop_recaps#pdf", as: :shop_recap_pdf
       resources :shop_products, path: "articles", except: [ :show, :destroy ] do
         resources :shop_cuts, path: "coupes", only: [ :create, :update, :destroy ]
         resources :shop_colors, path: "coloris", only: [ :create, :update, :destroy ]

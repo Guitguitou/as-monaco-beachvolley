@@ -31,7 +31,7 @@ module CreditPurchases
         purchase.created_at.strftime("%H:%M:%S"),
         purchase.user.full_name,
         purchase.user.email,
-        purchase.pack&.name || "Achat direct",
+        purchase.label,
         pack_type_label(purchase.pack&.pack_type),
         purchase.amount_eur,
         purchase.credits,

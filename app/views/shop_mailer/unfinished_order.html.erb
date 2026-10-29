@@ -1,0 +1,11 @@
+<p>Bonjour <%= @user.first_name.presence || @user.email %>.</p>
+
+<p>
+  Tu as commencé une commande d'équipements, mais elle n'est pas encore payée.
+  Les commandes ferment le <strong><%= l(@order.campaign.closes_on, format: :long) %></strong> :
+  passé cette date, elle ne pourra plus être prise en compte.
+</p>
+
+<p><%= link_to "Retrouver mon panier", shop_cart_url %></p>
+
+<p>À bientôt,<br>L'équipe AS Monaco Beach Volley</p>

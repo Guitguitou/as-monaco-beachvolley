@@ -9,7 +9,7 @@ module Admin
     def index
       @table = Admin::Tables::Purchases.new
       @state = DataTable::State.new(params)
-      purchases = CreditPurchase.left_joins(:pack, :user).includes(:user, :pack)
+      purchases = CreditPurchase.left_joins(:pack, :user).includes(:user, :pack, :shop_order)
       @page = Pagination.new(scope: DataTable::Query.call(relation: purchases, definition: @table, state: @state),
                              page: @state.page, per_page: PER_PAGE)
 
@@ -24,7 +24,7 @@ module Admin
       return redirect_to(admin_purchase_history_index_path, alert: period.error) if period.error
 
       rows = CreditPurchases::ExportTable.new(
-        CreditPurchase.includes(:user, :pack).where(created_at: period.range).order(created_at: :asc)
+        CreditPurchase.includes(:user, :pack, :shop_order).where(created_at: period.range).order(created_at: :asc)
       ).rows
       # Ne pas utiliser `params[:format]` seul : réservé à la négociation MIME Rails (406 / formats inconnus).
       case params[:export_format].to_s.presence || params[:format].to_s.presence || "csv"
