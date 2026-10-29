@@ -116,5 +116,5 @@ gem "csv"
 gem "caxlsx"
 
 # Serveur MCP pour le Claude du Staff (cf. docs/adr/0001)
-gem "mcp", "1.8.1"
+gem "mcp", "1.8.2"
 gem "doorkeeper", "5.9.9"
