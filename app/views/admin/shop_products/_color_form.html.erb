@@ -2,7 +2,7 @@
 <% dom = color.persisted? ? "color_#{color.id}" : "color_new" %>
 <div class="flex gap-4 <%= 'border border-gray-200 p-4' if color.persisted? %>">
   <% if color.persisted? %>
-    <%= render "admin/shop_products/photo", color: color, size: "w-24 h-24" %>
+    <%= render "shop/photo", color: color, size: "w-24 h-24" %>
   <% end %>
   <div class="flex-1 space-y-3">
     <%= form_with model: color, url: url, scope: :shop_color, namespace: dom, class: "space-y-3" do |f| %>

@@ -25,3 +25,30 @@ FactoryBot.define do
     hex { "#e21e22" }
   end
 end
+
+FactoryBot.define do
+  factory :shop_campaign, class: "Shop::Campaign" do
+    name { "Commande groupée 2026-2027" }
+    opens_on { Date.current - 1 }
+    closes_on { Date.current + 14 }
+    status { "open" }
+  end
+
+  factory :shop_order, class: "Shop::Order" do
+    association :user
+    association :campaign, factory: :shop_campaign
+    status { "cart" }
+  end
+
+  factory :shop_order_line, class: "Shop::OrderLine" do
+    association :order, factory: :shop_order
+    cut { association :shop_cut }
+    product { cut.product }
+    product_name { product.name }
+    cut_label { cut.label }
+    color_name { "Rouge" }
+    size { "M" }
+    quantity { 1 }
+    unit_price_cents { cut.price_cents }
+  end
+end

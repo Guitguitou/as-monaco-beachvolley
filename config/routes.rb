@@ -123,6 +123,7 @@ Rails.application.routes.draw do
 
     # Boutique équipements : catalogue des articles (cf. GLOSSARY.md)
     scope "equipements" do
+      resources :shop_campaigns, path: "campagnes", except: [ :show, :destroy ]
       resources :shop_products, path: "articles", except: [ :show, :destroy ] do
         resources :shop_cuts, path: "coupes", only: [ :create, :update, :destroy ]
         resources :shop_colors, path: "coloris", only: [ :create, :update, :destroy ]
@@ -132,6 +133,14 @@ Rails.application.routes.draw do
   end
 
   resources :tournaments, only: [ :index, :show ], path: "tournois"
+
+  # Boutique équipements (cf. GLOSSARY.md) : le panier avant les articles,
+  # pour que « panier » ne soit pas pris pour un identifiant d'article.
+  scope "equipements" do
+    resource :shop_cart, path: "panier", only: [ :show ]
+    resources :shop_cart_lines, path: "panier/lignes", only: [ :create, :update, :destroy ]
+  end
+  resources :shop_products, path: "equipements", only: [ :index, :show ]
 
   # Public stages
   resources :stages, only: [ :index, :show ]

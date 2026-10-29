@@ -1,0 +1,31 @@
+<%= render "shop/header", title: "Équipements", subtitle: campaign&.welcome_message.presence %>
+
+<% if campaign.nil? %>
+  <%= render EmptyStateComponent.new(icon: "shirt", title: "Les commandes d'équipements sont fermées",
+        description: "La boutique ouvre le temps d'une commande groupée. Tu seras prévenu·e à la prochaine.") %>
+<% elsif @entries.empty? %>
+  <%= render EmptyStateComponent.new(icon: "shirt", title: "Aucun article pour le moment") %>
+<% else %>
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+    <% @entries.each do |entry| %>
+      <% prices = entry.cuts.map(&:price_eur).uniq %>
+      <%= link_to shop_product_path(entry.product), class: "group flex flex-col bg-white border border-gray-200 rounded-none hover:border-gray-900 transition-colors" do %>
+        <%= render "shop/photo", color: entry.colors.first, size: "w-full aspect-square" %>
+        <div class="flex flex-col gap-1 p-3">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-500"><%= entry.product.brand %></span>
+          <span class="text-sm font-semibold text-gray-900 leading-snug group-hover:text-brand"><%= entry.product.name %></span>
+          <div class="mt-1 flex items-center justify-between gap-2">
+            <span class="text-sm font-bold text-gray-900">
+              <%= "dès " if prices.many? %><%= number_to_currency(prices.min, unit: "€", precision: 2) %>
+            </span>
+            <span class="flex gap-1" aria-label="<%= entry.colors.map(&:name).join(', ') %>">
+              <% entry.colors.each do |color| %>
+                <span class="w-3 h-3 rounded-full border border-gray-400" style="background: <%= color.hex %>"></span>
+              <% end %>
+            </span>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

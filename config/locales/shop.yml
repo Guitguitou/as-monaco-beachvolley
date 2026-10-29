@@ -13,6 +13,15 @@ fr:
       shop/size_guide:
         one: "Guide des tailles"
         other: "Guides des tailles"
+      shop/campaign:
+        one: "Campagne"
+        other: "Campagnes"
+      shop/order:
+        one: "Commande"
+        other: "Commandes"
+      shop/order_line:
+        one: "Ligne de commande"
+        other: "Lignes de commande"
     attributes:
       shop/product:
         name: "Nom"
@@ -39,3 +48,14 @@ fr:
         measure_label: "Mesure"
         rows: "Tableau"
         rows_text: "Tableau"
+      shop/campaign:
+        name: "Nom"
+        opens_on: "Ouverture"
+        closes_on: "Clôture"
+        status: "Statut"
+        welcome_message: "Message d'accueil"
+        allow_edits: "Modification possible jusqu'à la clôture"
+      shop/order_line:
+        quantity: "Quantité"
+        size: "Taille"
+        unit_price_cents: "Prix"
