@@ -8,6 +8,9 @@ Ton paiement a bien été accepté.
 Montant : <%= "%.2f" % @credit_purchase.amount_eur %> €.
 <% end %>
 Référence : <%= @credit_purchase.sherlock_transaction_reference %>
+<% if (order = @credit_purchase.shop_order) %>
+Ta commande d'équipements <%= order.number %> est enregistrée : <%= shop_order_url(order) %>
+<% end %>
 
 Voir les packs : <%= packs_url %>
 Mon espace : <%= root_url %>

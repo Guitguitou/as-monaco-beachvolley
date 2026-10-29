@@ -137,8 +137,13 @@ Rails.application.routes.draw do
   # Boutique équipements (cf. GLOSSARY.md) : le panier avant les articles,
   # pour que « panier » ne soit pas pris pour un identifiant d'article.
   scope "equipements" do
-    resource :shop_cart, path: "panier", only: [ :show ]
+    resource :shop_cart, path: "panier", only: [ :show ] do
+      post :checkout, path: "valider"
+      delete :payment, action: :cancel_payment, path: "paiement"
+    end
     resources :shop_cart_lines, path: "panier/lignes", only: [ :create, :update, :destroy ]
+    resources :shop_orders, path: "commandes", only: [ :index, :show ]
+    resources :shop_order_lines, path: "commandes/lignes", only: [ :update ]
   end
   resources :shop_products, path: "equipements", only: [ :index, :show ]
 

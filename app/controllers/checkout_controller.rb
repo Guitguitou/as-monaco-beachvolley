@@ -34,6 +34,7 @@ class CheckoutController < ApplicationController
 
   def show
     @credit_purchase = CreditPurchase.find_signed!(params[:id], purpose: SIGNED_ID_PURPOSE)
+    return redirect_to(*ShopCheckoutReturn.new(@credit_purchase, routes: self).destination) if @credit_purchase.shop_order
 
     render STATUS_TEMPLATES.fetch(@credit_purchase.status, :pending)
   rescue ActiveSupport::MessageVerifier::InvalidSignature, ActiveRecord::RecordNotFound

@@ -22,6 +22,7 @@ module CreditPurchases
     attr_reader :purchase
 
     def processor_for(purchase)
+      return Processors::ShopOrder.new(purchase:) if purchase.shop_order
       return Processors::Credits.new(purchase:) if purchase.credits_pack?
       return Processors::LogOnly.new(purchase:, label: "Stage") if purchase.stage_pack?
       return Processors::Licence.new(purchase:) if purchase.licence_pack?

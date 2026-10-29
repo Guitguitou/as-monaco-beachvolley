@@ -16,7 +16,7 @@
       Tu vas être redirigé vers la page de paiement sécurisée de LCL.
     </p>
     <p class="text-sm text-gray-900 font-semibold mb-6">
-      <%= @credit_purchase.pack.name %> — <%= number_to_currency(@credit_purchase.amount_eur, unit: "€", format: "%n %u") %>
+      <%= local_assigns.fetch(:label) { @credit_purchase.pack.name } %> — <%= number_to_currency(@credit_purchase.amount_eur, unit: "€", format: "%n %u") %>
     </p>
 
     <%= form_tag @payment_request.url, method: :post, authenticity_token: false,

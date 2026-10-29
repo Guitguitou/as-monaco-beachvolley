@@ -1,0 +1,54 @@
+<% campaign = @order.campaign %>
+<% editable = campaign.allow_edits? && campaign.accepting_orders? %>
+<div class="max-w-3xl mx-auto space-y-6">
+  <%= render BackLinkComponent.new(href: shop_orders_path, label: "Mes commandes") %>
+
+  <div class="space-y-3">
+    <div class="w-12 h-12 bg-green-700 flex items-center justify-center"><%= lucide_icon("check", size: 26, class: "text-white") %></div>
+    <h1 class="font-anton text-3xl uppercase text-gray-900">Commande payée</h1>
+    <p class="text-gray-700">
+      Ta commande <strong><%= @order.number %></strong> est enregistrée<%= " pour l'équipe #{@order.team}" if @order.team.present? %>.
+      Ton reçu t'a été envoyé par e-mail.
+    </p>
+  </div>
+
+  <ul class="bg-white border border-gray-200 divide-y divide-gray-100">
+    <% @lines.each do |line| %>
+      <li class="flex gap-3 p-4">
+        <%= render "shop/photo", color: line.color, size: "w-16 h-16" %>
+        <div class="flex-1 min-w-0 space-y-1">
+          <div class="flex justify-between gap-3">
+            <p class="text-sm font-semibold text-gray-900"><%= line.quantity %> × <%= line.product_name %></p>
+            <p class="text-sm font-semibold whitespace-nowrap"><%= number_to_currency(line.total_cents / 100.0, unit: "€", precision: 2) %></p>
+          </div>
+          <p class="text-sm text-gray-500"><%= line.details %></p>
+          <% if editable && line.cut && line.cut.sizes.many? %>
+            <%= form_with url: shop_order_line_path(line), method: :patch, class: "flex items-center gap-2 pt-1" do |f| %>
+              <%= f.label :size, "Taille", for: "size_line_#{line.id}", class: "text-sm text-gray-600" %>
+              <%= f.select :size, line.cut.sizes, { selected: line.size }, id: "size_line_#{line.id}", class: "h-9 border border-gray-300 rounded-none text-sm" %>
+              <%= render ButtonComponent.new(type: :submit, variant: :secondary, size: :small) do %>Changer<% end %>
+            <% end %>
+          <% end %>
+        </div>
+      </li>
+    <% end %>
+    <li class="flex justify-between p-4 bg-gray-50 font-bold text-gray-900">
+      <span>Total payé</span>
+      <span><%= number_to_currency(@order.total_cents / 100.0, unit: "€", precision: 2) %></span>
+    </li>
+  </ul>
+
+  <div class="space-y-3">
+    <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">La suite</p>
+    <ul class="space-y-3 text-sm">
+      <li class="flex gap-3"><span class="mt-1.5 w-2.5 h-2.5 rounded-full bg-brand shrink-0"></span><span><strong><%= l(campaign.closes_on, format: :long) %></strong> · clôture des commandes</span></li>
+      <li class="flex gap-3"><span class="mt-1.5 w-2.5 h-2.5 rounded-full bg-gray-400 shrink-0"></span><span>Les commandes sont regroupées et passées aux marques</span></li>
+      <li class="flex gap-3"><span class="mt-1.5 w-2.5 h-2.5 rounded-full bg-gray-400 shrink-0"></span><span>Tu récupères ton équipement au club</span></li>
+    </ul>
+    <% if editable %>
+      <p class="bg-gray-50 border border-gray-200 p-3 text-sm text-gray-700">
+        Une erreur de taille ? Tu peux la corriger ci-dessus jusqu'au <%= l(campaign.closes_on, format: :long) %>.
+      </p>
+    <% end %>
+  </div>
+</div>

@@ -3,7 +3,17 @@
 <div class="max-w-3xl mx-auto space-y-6">
   <%= render BackLinkComponent.new(href: shop_products_path, label: "Continuer mes achats") %>
 
-  <% if @lines.empty? %>
+  <% if @awaiting %>
+    <div class="bg-white border border-gray-900 p-5 space-y-3">
+      <p class="font-semibold text-gray-900">Un paiement est en cours pour ta commande</p>
+      <p class="text-sm text-gray-600">
+        Si tu as quitté la page de paiement sans payer, annule-le pour retrouver ton panier.
+        Si tu viens de payer, la confirmation arrive dans quelques instants.
+      </p>
+      <%= button_to "Annuler ce paiement et modifier mon panier", payment_shop_cart_path, method: :delete,
+            class: "h-11 px-4 border border-gray-900 bg-white text-sm font-semibold hover:bg-gray-50" %>
+    </div>
+  <% elsif @lines.empty? %>
     <%= render EmptyStateComponent.new(icon: "shopping-bag", title: "Ton panier est vide",
           description: "Choisis tes articles, coupes et tailles dans la boutique.") %>
   <% else %>
@@ -44,6 +54,21 @@
         <span><%= number_to_currency(cart.total_cents / 100.0, unit: "€", precision: 2) %></span>
       </div>
     </div>
+
+    <%= form_with url: checkout_shop_cart_path, method: :post, data: { turbo: false }, class: "bg-white border border-gray-200 p-4 space-y-4" do |f| %>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Commande au nom de</p>
+        <p class="font-semibold text-gray-900"><%= current_user.full_name %></p>
+      </div>
+      <div>
+        <%= f.label :team, "Ton équipe (facultatif)", class: "block text-sm text-gray-600 mb-1" %>
+        <%= f.text_field :team, placeholder: "Ex : Seniors F", maxlength: 60, class: "w-full h-11 px-3 border border-gray-300 rounded-none text-sm" %>
+      </div>
+      <%= render ButtonComponent.new(type: :submit, size: :large, full_width: true) do %>
+        <%= lucide_icon("lock", size: 18) %> Payer <%= number_to_currency(cart.total_cents / 100.0, unit: "€", precision: 2) %> par carte
+      <% end %>
+      <p class="text-xs text-center text-gray-500">Paiement sécurisé LCL · le montant est calculé par l'app à partir des prix du club.</p>
+    <% end %>
 
     <p class="text-sm text-gray-600">
       Commandes ouvertes jusqu'au <%= l(campaign.closes_on, format: :long) %>. Les commandes sont ensuite regroupées pour les marques,
