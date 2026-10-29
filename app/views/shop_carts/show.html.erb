@@ -1,0 +1,53 @@
+<%= render "shop/header", title: "Mon panier" %>
+
+<div class="max-w-3xl mx-auto space-y-6">
+  <%= render BackLinkComponent.new(href: shop_products_path, label: "Continuer mes achats") %>
+
+  <% if @lines.empty? %>
+    <%= render EmptyStateComponent.new(icon: "shopping-bag", title: "Ton panier est vide",
+          description: "Choisis tes articles, coupes et tailles dans la boutique.") %>
+  <% else %>
+    <ul class="bg-white border border-gray-200 divide-y divide-gray-100">
+      <% @lines.each do |line| %>
+        <li class="flex gap-3 p-4">
+          <%= render "shop/photo", color: line.color, size: "w-20 h-20" %>
+          <div class="flex-1 min-w-0 space-y-1">
+            <div class="flex justify-between gap-3">
+              <p class="text-sm font-semibold text-gray-900"><%= line.product_name %></p>
+              <p class="text-sm font-bold text-gray-900 whitespace-nowrap"><%= number_to_currency(line.total_cents / 100.0, unit: "€", precision: 2) %></p>
+            </div>
+            <p class="text-sm text-gray-500"><%= line.details %></p>
+            <div class="flex items-center justify-between pt-1">
+              <div class="flex items-center border border-gray-300">
+                <%= button_to "−", shop_cart_line_path(line), method: :patch, params: { quantity: line.quantity - 1 },
+                      disabled: line.quantity <= 1, class: "w-10 h-9 text-lg disabled:text-gray-300", "aria-label": "Retirer un #{line.product_name}" %>
+                <span class="min-w-8 text-center text-sm font-bold" aria-label="Quantité"><%= line.quantity %></span>
+                <%= button_to "+", shop_cart_line_path(line), method: :patch, params: { quantity: line.quantity + 1 },
+                      disabled: line.quantity >= Shop::OrderLine::MAX_QUANTITY, class: "w-10 h-9 text-lg disabled:text-gray-300", "aria-label": "Ajouter un #{line.product_name}" %>
+              </div>
+              <%= button_to "Retirer", shop_cart_line_path(line), method: :delete,
+                    class: "text-sm text-gray-600 underline underline-offset-4 hover:text-red-600" %>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+
+    <div class="bg-gray-50 border border-gray-200 p-4 space-y-2">
+      <div class="flex justify-between text-sm text-gray-600">
+        <span>Articles (<%= @lines.sum(&:quantity) %>)</span>
+        <span><%= number_to_currency(cart.total_cents / 100.0, unit: "€", precision: 2) %></span>
+      </div>
+      <div class="flex justify-between text-sm text-gray-600"><span>Livraison au club</span><span>Offerte</span></div>
+      <div class="flex justify-between border-t border-gray-200 pt-2 text-lg font-bold text-gray-900">
+        <span>Total</span>
+        <span><%= number_to_currency(cart.total_cents / 100.0, unit: "€", precision: 2) %></span>
+      </div>
+    </div>
+
+    <p class="text-sm text-gray-600">
+      Commandes ouvertes jusqu'au <%= l(campaign.closes_on, format: :long) %>. Les commandes sont ensuite regroupées pour les marques,
+      et tu récupères ton équipement au club.
+    </p>
+  <% end %>
+</div>

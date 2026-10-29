@@ -21,7 +21,7 @@
       <% table.with_row do |row| %>
         <% row.with_cell(weight: :medium, wrap: true) do %>
           <div class="flex items-center gap-3">
-            <%= render "admin/shop_products/photo", color: entry.colors.find { |color| color.photo.attached? }, size: "w-10 h-10" %>
+            <%= render "shop/photo", color: entry.colors.find { |color| color.photo.attached? }, size: "w-10 h-10" %>
             <span><%= entry.product.name %></span>
           </div>
         <% end %>

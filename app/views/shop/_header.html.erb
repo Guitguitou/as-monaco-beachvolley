@@ -1,0 +1,18 @@
+<% content_for :hero do %>
+  <%= render HeroComponent.new(title: title, subtitle: local_assigns[:subtitle], variant: :white, flush_title: true, title_font: :anton) do |hero| %>
+    <% hero.with_eyebrow do %>
+      <%= render BadgeComponent.new(label: campaign ? "Commandes jusqu'au #{l(campaign.closes_on, format: :long)}" : "Commandes fermées", variant: :neutral, size: :sm) %>
+    <% end %>
+    <% if campaign %>
+      <% hero.with_actions do %>
+        <%= link_to shop_cart_path, class: "inline-flex items-center gap-2 h-11 px-4 bg-gray-900 text-white text-sm font-semibold rounded-none hover:bg-gray-800" do %>
+          <%= lucide_icon("shopping-bag", size: 18) %>
+          Mon panier
+          <% if cart && (count = cart.items_count).positive? %>
+            <span class="min-w-5 h-5 px-1.5 rounded-full bg-brand text-white text-xs font-bold inline-flex items-center justify-center"><%= count %></span>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

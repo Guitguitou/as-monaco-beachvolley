@@ -94,3 +94,15 @@ _Avoid_: Couleur, variante
 **Guide des tailles** :
 Tableau de correspondance entre les tailles d'une marque et une mesure du corps (tour de poitrine, de hanches…), rattaché aux coupes qui l'utilisent.
 _Avoid_: Grille, barème
+
+**Campagne** :
+Période de commande groupée (par exemple du 3 au 17 novembre) pendant laquelle les membres commandent leurs équipements ; à la clôture, les commandes sont regroupées pour les marques.
+_Avoid_: Vente, session de commande
+
+**Panier** :
+Commande d'un membre en cours de constitution pour la campagne ouverte, pas encore payée ; un membre a au plus un panier par campagne.
+_Avoid_: Brouillon
+
+**Commande** :
+Panier payé : ses lignes gardent l'article, la coupe, le coloris, la taille et le prix au moment de l'ajout.
+_Avoid_: Achat (réservé aux packs)

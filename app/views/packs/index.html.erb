@@ -47,6 +47,19 @@
   </div>
 <% end %>
 
+<% if (shop_campaign = Shop::Campaign.for_members) %>
+  <%= link_to shop_products_path, class: "mb-6 flex items-center justify-between gap-4 border border-gray-900 bg-white p-4 rounded-none hover:bg-gray-50" do %>
+    <span class="flex items-center gap-3">
+      <%= lucide_icon("shirt", size: 24, class: "text-brand shrink-0") %>
+      <span>
+        <span class="block font-semibold text-gray-900">Commande groupée d'équipements ouverte</span>
+        <span class="block text-sm text-gray-600">Jusqu'au <%= l(shop_campaign.closes_on, format: :long) %> : choisis tes articles et tes tailles, paie en ligne.</span>
+      </span>
+    </span>
+    <%= lucide_icon("arrow-right", size: 20, class: "text-gray-900 shrink-0") %>
+  <% end %>
+<% end %>
+
 <div data-controller="tabs">
   <div class="mb-8 border-b border-gray-200">
     <nav class="flex flex-wrap gap-6" aria-label="Catégories boutique">

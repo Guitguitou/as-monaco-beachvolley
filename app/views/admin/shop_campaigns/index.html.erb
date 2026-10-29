@@ -1,0 +1,42 @@
+<%= render Admin::ShopTabsComponent.new(active: :campaigns) do |tabs| %>
+  <% tabs.with_actions do %>
+    <%= button("Nouvelle campagne", variant: :primary, size: :medium, href: new_admin_shop_campaign_path) %>
+  <% end %>
+<% end %>
+
+<% if @campaigns.empty? %>
+  <%= render EmptyStateComponent.new(icon: "calendar-range", title: "Aucune campagne pour le moment") do |empty| %>
+    <% empty.with_action { button("Créer la première campagne", variant: :primary, size: :medium, href: new_admin_shop_campaign_path) } %>
+  <% end %>
+<% else %>
+  <% statuses = { "draft" => [ "Brouillon", :neutral ], "open" => [ "Ouverte", :success ], "closed" => [ "Clôturée", :warning ] } %>
+  <%= render TableComponent.new(framed: true, fixed: true) do |table| %>
+    <% table.with_column("Campagne") %>
+    <% table.with_column("Période", class_name: "hidden sm:table-cell") %>
+    <% table.with_column("Statut") %>
+    <% table.with_column("Actions", align: :right, class_name: "w-16 sm:w-24") %>
+    <% @campaigns.each do |campaign| %>
+      <% table.with_row do |row| %>
+        <% row.with_cell(weight: :medium, wrap: true) do %>
+          <%= campaign.name %>
+          <% if campaign.accepting_orders? %>
+            <span class="block text-xs font-normal text-green-700">Les membres peuvent commander</span>
+          <% end %>
+        <% end %>
+        <% row.with_cell(class_name: "hidden sm:table-cell") do %>
+          du <%= l(campaign.opens_on, format: :long) %> au <%= l(campaign.closes_on, format: :long) %>
+        <% end %>
+        <% row.with_cell do %>
+          <% label, variant = statuses.fetch(campaign.status) %>
+          <%= render BadgeComponent.new(label: label, variant: variant, size: :xs) %>
+        <% end %>
+        <% row.with_cell(align: :right) do %>
+          <%= link_to edit_admin_shop_campaign_path(campaign), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
+            <%= lucide_icon("edit", size: 16) %>
+            <span class="hidden sm:inline">Modifier</span>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
