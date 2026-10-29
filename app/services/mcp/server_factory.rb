@@ -13,7 +13,9 @@ module Mcp
       Tools::ClubStats,
       Tools::ListPurchases,
       Tools::ListCreditTransactions,
-      Tools::ListLateCancellations
+      Tools::ListLateCancellations,
+      Tools::ListShopOrders,
+      Tools::ShopSummary
     ].freeze
 
     INSTRUCTIONS = <<~TEXT
