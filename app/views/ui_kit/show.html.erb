@@ -374,6 +374,10 @@
     <%= render Admin::ConfigurationTabsComponent.new(active: :terrains) %>
   <% end %>
 
+  <%= render layout: "ui_kit/specimen", locals: { component: "Admin::ShopTabsComponent" } do %>
+    <%= render Admin::ShopTabsComponent.new(active: :products) %>
+  <% end %>
+
   <%= render layout: "ui_kit/specimen", locals: { component: "Admin::KpiTileComponent" } do %>
     <div class="max-w-xs"><%= render Admin::KpiTileComponent.new(metric: s.comparison) %></div>
   <% end %>

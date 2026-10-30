@@ -1,0 +1,63 @@
+<%= render Admin::ShopTabsComponent.new(active: :products) do |tabs| %>
+  <% tabs.with_actions do %>
+    <%= button("Nouvel article", variant: :primary, size: :medium, href: new_admin_shop_product_path) %>
+  <% end %>
+<% end %>
+
+<% entries = @catalog.entries %>
+<% if entries.empty? %>
+  <%= render EmptyStateComponent.new(icon: "shirt", title: "Aucun article pour le moment") do |empty| %>
+    <% empty.with_action { button("Créer le premier article", variant: :primary, size: :medium, href: new_admin_shop_product_path) } %>
+  <% end %>
+<% else %>
+  <%= render TableComponent.new(framed: true, fixed: true) do |table| %>
+    <% table.with_column("Article") %>
+    <% table.with_column("Marque", class_name: "hidden sm:table-cell") %>
+    <% table.with_column("Coupes, prix et tailles", class_name: "hidden md:table-cell") %>
+    <% table.with_column("Coloris", class_name: "hidden lg:table-cell") %>
+    <% table.with_column("Statut") %>
+    <% table.with_column("Actions", align: :right, class_name: "w-16 sm:w-24") %>
+    <% entries.each do |entry| %>
+      <% table.with_row do |row| %>
+        <% row.with_cell(weight: :medium, wrap: true) do %>
+          <div class="flex items-center gap-3">
+            <%= render "shop/photo", color: entry.colors.find { |color| color.photo.attached? }, size: "w-10 h-10" %>
+            <span><%= entry.product.name %></span>
+          </div>
+        <% end %>
+        <% row.with_cell(class_name: "hidden sm:table-cell") { entry.product.brand } %>
+        <% row.with_cell(wrap: true, class_name: "hidden md:table-cell") do %>
+          <% if entry.cuts.empty? %>
+            <span class="text-gray-400">Aucune coupe</span>
+          <% else %>
+            <ul class="space-y-0.5 text-sm">
+              <% entry.cuts.each do |cut| %>
+                <li>
+                  <span class="font-medium"><%= cut.label %></span>
+                  <span class="whitespace-nowrap"><%= number_to_currency(cut.price_eur, unit: "€", precision: 2) %></span>
+                  <span class="block text-xs text-gray-500"><%= cut.sizes.values_at(0, -1).uniq.join(" → ") %></span>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        <% end %>
+        <% row.with_cell(class_name: "hidden lg:table-cell") do %>
+          <div class="flex gap-1">
+            <% entry.colors.each do |color| %>
+              <span class="w-4 h-4 rounded-full border border-gray-300" style="background: <%= color.hex %>" title="<%= color.name %>"></span>
+            <% end %>
+          </div>
+        <% end %>
+        <% row.with_cell do %>
+          <%= render BadgeComponent.new(label: entry.product.active? ? "En vente" : "Retiré", variant: entry.product.active? ? :success : :neutral, size: :xs) %>
+        <% end %>
+        <% row.with_cell(align: :right) do %>
+          <%= link_to edit_admin_shop_product_path(entry.product), class: "inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand transition-colors" do %>
+            <%= lucide_icon("edit", size: 16) %>
+            <span class="hidden sm:inline">Modifier</span>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

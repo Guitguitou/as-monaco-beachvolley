@@ -93,7 +93,7 @@ RSpec.describe "Serveur MCP", type: :request do
       tools = response.parsed_body.dig("result", "tools")
       expect(tools.map { |tool| tool["name"] }).to contain_exactly(
         "list_sessions", "list_players", "get_player", "list_level_groups", "list_tournaments", "list_stages", "club_stats",
-        "list_purchases", "list_credit_transactions", "list_late_cancellations"
+        "list_purchases", "list_credit_transactions", "list_late_cancellations", "list_shop_orders", "shop_summary"
       )
       expect(tools.map { |tool| tool.dig("annotations", "readOnlyHint") }).to all(be(true))
     end
@@ -262,6 +262,67 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
 
       it "n'accède pas aux mouvements de crédits des joueurs" do
         expect(call_tool("list_credit_transactions", {}, token: token_for(financial_manager))["isError"]).to be(true)
+      end
+    end
+
+    describe "boutique équipements" do
+      let(:campaign) { create(:shop_campaign, name: "Commande groupée 2026-2027") }
+      let(:player) { create(:user, first_name: "Camille", last_name: "Rossi") }
+      let(:product) { create(:shop_product, name: "T-shirt Varone", brand: "Nine") }
+      let(:cut) { create(:shop_cut, product: product, label: "Femme", sizes: %w[S M L]) }
+      let!(:paid) do
+        create(:shop_order, campaign: campaign, user: player).tap do |order|
+          create(:shop_order_line, order: order, cut: cut, product: product, product_name: "T-shirt Varone",
+                                   cut_label: "Femme", color_name: "Noir", size: "M", quantity: 2, unit_price_cents: 1800)
+          order.mark_paid!
+        end
+      end
+
+      before do
+        create(:user_level, user: player, level: create(:level, name: "Intermédiaire"))
+        create(:shop_order_line, order: create(:shop_order, campaign: campaign), product_name: "Parka")
+        create(:shop_order, campaign: campaign) # panier vide : ignoré
+      end
+
+      it "liste les commandes avec leurs lignes, le groupe du joueur et les totaux" do
+        result = call_tool("list_shop_orders")["structuredContent"]
+
+        expect(result["totals"]).to eq("paid_eur" => 36.0, "count_by_status" => { "paid" => 1, "unfinished" => 1 })
+        expect(result["orders"]).to include(a_hash_including(
+          "number" => paid.number, "status" => "paid", "player" => "Camille Rossi", "training_group" => "Intermédiaire",
+          "amount_eur" => 36.0, "handed_over" => false,
+          "lines" => [ { "brand" => "Nine", "product" => "T-shirt Varone", "cut" => "Femme", "color" => "Noir",
+                         "size" => "M", "quantity" => 2, "unit_price_eur" => 18.0 } ]
+        ))
+      end
+
+      it "filtre les commandes non finalisées et les modifications récentes" do
+        expect(call_tool("list_shop_orders", { status: "unfinished" })["structuredContent"]["orders"].size).to eq(1)
+
+        travel_to(1.day.from_now) do
+          Shop::OrderLine.of(paid).first.update!(size: "L")
+          since = 1.hour.ago.iso8601
+          orders = call_tool("list_shop_orders", { updated_since: since })["structuredContent"]["orders"]
+          expect(orders.map { |order| order["number"] }).to eq([ paid.number ])
+        end
+      end
+
+      it "résume la campagne comme le récap envoyé aux marques" do
+        result = call_tool("shop_summary")["structuredContent"]
+
+        expect(result["campaign"]).to include("name" => "Commande groupée 2026-2027", "accepting_orders" => true)
+        expect(result["totals"]).to eq("paid_eur" => 36.0, "articles" => 2,
+                                       "count_by_status" => { "paid" => 1, "unfinished" => 1 }, "handed_over" => 0)
+        expect(result["brands"]).to eq([ { "brand" => "Nine", "quantity" => 2, "items" => [
+          { "product" => "T-shirt Varone", "color" => "Noir", "cut" => "Femme", "quantity" => 2,
+            "sizes" => [ { "size" => "M", "quantity" => 2 } ] }
+        ] } ])
+      end
+
+      it "est réservé aux admins, comme les données des joueurs" do
+        financial_manager = create(:user, :financial_manager)
+
+        expect(call_tool("list_shop_orders", {}, token: token_for(financial_manager))["isError"]).to be(true)
       end
     end
 

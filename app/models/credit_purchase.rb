@@ -3,6 +3,8 @@
 class CreditPurchase < ApplicationRecord
   belongs_to :user
   belongs_to :pack, optional: true
+  # Commande d'équipements réglée par cet achat (cf. GLOSSARY.md), sans pack.
+  belongs_to :shop_order, class_name: "Shop::Order", optional: true
 
   # Statuts possibles
   enum :status, {
@@ -55,6 +57,14 @@ class CreditPurchase < ApplicationRecord
 
   def equipements_pack?
     pack&.pack_type_equipements?
+  end
+
+  # Ce que l'achat a réglé : le pack, ou la commande d'équipements.
+  def label
+    return pack.name if pack
+    return [ "Équipements", shop_order.number ].compact.join(" ") if shop_order
+
+    "Achat direct"
   end
 
   # Calculer le montant en euros

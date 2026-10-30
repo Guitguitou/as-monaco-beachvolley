@@ -22,6 +22,13 @@ RSpec.describe Admin::Navigation do
     expect(sections.last.items.map(&:label)).to eq([ "Finances", "Historique achats" ])
   end
 
+  it "active le lien Équipements sur chacun des onglets de la boutique" do
+    finances = sections_for(build(:user, :admin)).find { |section| section.title == "Finances" }
+    shop = finances.items.find { |item| item.label == "Équipements" }
+
+    expect(shop.paths).to include("/admin/equipements/articles", "/admin/equipements/guides-des-tailles")
+  end
+
   it "porte le nombre d'alertes en badge, et rien quand il n'y en a pas" do
     alerts = ->(count) { sections_for(build(:user, :admin), alerts_count: count).first.items.last.badge }
 

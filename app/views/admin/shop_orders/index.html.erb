@@ -1,0 +1,92 @@
+<%= render Admin::ShopTabsComponent.new(active: :orders) %>
+
+<% if @board.nil? %>
+  <%= render EmptyStateComponent.new(icon: "receipt", title: "Aucune campagne pour le moment") do |empty| %>
+    <% empty.with_action { button("Créer une campagne", variant: :primary, size: :medium, href: new_admin_shop_campaign_path) } %>
+  <% end %>
+<% else %>
+  <% campaign = @board.campaign %>
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p class="font-semibold text-gray-900"><%= campaign.name %></p>
+      <p class="text-sm text-gray-600">
+        Du <%= l(campaign.opens_on, format: :long) %> au <%= l(campaign.closes_on, format: :long) %> ·
+        <%= campaign.accepting_orders? ? "les membres peuvent commander" : "commandes fermées" %>
+      </p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <%= render "admin/shop_orders/campaign_picker", choice: @choice, url: admin_shop_orders_path %>
+      <% if campaign.open_status? %>
+        <%= button_to "Clôturer la campagne", admin_shop_campaign_path(campaign), method: :patch,
+              params: { shop_campaign: { status: "closed" } },
+              data: { turbo_confirm: "Clôturer « #{campaign.name} » ? Plus aucune commande ne sera possible." },
+              class: "h-10 px-4 bg-brand text-white text-sm font-semibold rounded-none hover:bg-brand-dark" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+    <% @board.kpis.each do |kpi| %>
+      <div class="bg-white border border-gray-200 p-4">
+        <p class="text-sm text-gray-600"><%= kpi.label %></p>
+        <p class="mt-1 text-2xl font-bold tabular-nums text-gray-900"><%= kpi.value %></p>
+        <p class="mt-1 text-xs text-gray-500"><%= kpi.hint %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <nav class="flex flex-wrap gap-2 mb-4" aria-label="Filtrer les commandes">
+    <% [ [ nil, "Toutes" ], *Admin::ShopOrdersBoard::FILTERS.to_a ].each do |key, label| %>
+      <% active = @board.filter == key %>
+      <%= link_to label, admin_shop_orders_path(campaign_id: campaign.id, filter: key),
+            class: "h-10 inline-flex items-center px-4 border text-sm font-semibold #{active ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-900 border-gray-300'}",
+            "aria-current": (active ? "page" : nil) %>
+    <% end %>
+  </nav>
+
+  <% orders = @board.orders %>
+  <% if orders.empty? %>
+    <%= render EmptyStateComponent.new(icon: "receipt", title: "Aucune commande ici pour le moment", compact: true) %>
+  <% else %>
+    <%= render TableComponent.new(framed: true, fixed: true) do |table| %>
+      <% table.with_column("Commande") %>
+      <% table.with_column("Membre") %>
+      <% table.with_column("Articles", class_name: "hidden lg:table-cell") %>
+      <% table.with_column("Montant", align: :right) %>
+      <% table.with_column("Statut", class_name: "hidden sm:table-cell") %>
+      <% table.with_column("Remise", align: :right, class_name: "w-32") %>
+      <% orders.each do |order| %>
+        <% lines = @board.lines_of(order) %>
+        <% table.with_row do |row| %>
+          <% row.with_cell(weight: :medium) do %>
+            <%= order.number || "—" %>
+            <span class="block text-xs font-normal text-gray-500"><%= (order.paid_at || order.updated_at).strftime("%d/%m/%Y") %></span>
+          <% end %>
+          <% row.with_cell(wrap: true) do %>
+            <%= order.user.full_name %>
+            <span class="block text-xs text-gray-500"><%= @board.group_of(order) %></span>
+          <% end %>
+          <% row.with_cell(wrap: true, class_name: "hidden lg:table-cell") do %>
+            <span class="text-sm text-gray-700"><%= lines.map { |line| "#{"#{line.quantity} × " if line.quantity > 1}#{line.product_name} (#{line.details})" }.join(" · ") %></span>
+          <% end %>
+          <% row.with_cell(align: :right, weight: :semibold) { number_to_currency(lines.sum(&:total_cents) / 100.0, unit: "€", precision: 2) } %>
+          <% row.with_cell(class_name: "hidden sm:table-cell") do %>
+            <%= render BadgeComponent.new(label: order.paid_status? ? "Payée" : "Non finalisée", variant: order.paid_status? ? :success : :warning, size: :xs) %>
+          <% end %>
+          <% row.with_cell(align: :right) do %>
+            <% if order.paid_status? %>
+              <%= button_to (order.handed_over? ? "Remise ✓" : "À remettre"), hand_over_admin_shop_order_path(order, filter: @board.filter), method: :patch,
+                    title: (order.handed_over? ? "Annuler la remise" : "Marquer comme remise au membre"),
+                    class: "h-9 px-3 border text-sm font-semibold whitespace-nowrap #{order.handed_over? ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-900 border-gray-300'}" %>
+            <% else %>
+              <%= button_to "Relancer", remind_admin_shop_order_path(order, filter: @board.filter), method: :post,
+                    data: { turbo_confirm: "Envoyer un e-mail de relance à #{order.user.full_name} ?" },
+                    class: "h-9 px-3 whitespace-nowrap border border-orange-700 bg-white text-orange-800 text-sm font-semibold" %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+    <p class="mt-3 text-sm text-gray-500">Une commande non finalisée est un panier, ou un paiement qui n'a pas abouti. Elle n'entre pas dans le récap.</p>
+  <% end %>
+<% end %>

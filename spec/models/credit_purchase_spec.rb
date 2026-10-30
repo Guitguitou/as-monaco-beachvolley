@@ -170,4 +170,14 @@ RSpec.describe CreditPurchase, type: :model do
       expect(activated_user.reload.activated_at).to be_within(1.second).of(original_time)
     end
   end
+
+  describe "#label" do
+    it "nomme le pack, la commande d'équipements, sinon un achat direct" do
+      order = create(:shop_order).tap(&:mark_paid!)
+
+      expect(build(:credit_purchase, pack: build(:pack, name: "Pack 10 €")).label).to eq("Pack 10 €")
+      expect(build(:credit_purchase, pack: nil, shop_order: order).label).to eq("Équipements #{order.number}")
+      expect(build(:credit_purchase, pack: nil).label).to eq("Achat direct")
+    end
+  end
 end

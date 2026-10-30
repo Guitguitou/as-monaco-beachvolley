@@ -1,0 +1,7 @@
+<% if choice.options.many? %>
+  <%= form_with url: url, method: :get, data: { controller: "auto-submit", auto_submit_target: "form" }, class: "flex items-center gap-2" do |f| %>
+    <%= f.label :campaign_id, "Campagne", class: "text-sm text-gray-600" %>
+    <%= f.select :campaign_id, choice.options, { selected: choice.campaign.id }, class: "h-10 border border-gray-300 rounded-none text-sm",
+          data: { action: "change->auto-submit#submit" } %>
+  <% end %>
+<% end %>

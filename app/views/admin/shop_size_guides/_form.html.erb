@@ -1,0 +1,21 @@
+<%= form_with model: guide, url: (guide.persisted? ? admin_shop_size_guide_path(guide) : admin_shop_size_guides_path), scope: :shop_size_guide,
+              class: "space-y-6 bg-white p-6 rounded-none shadow-md" do |f| %>
+  <%= render "shared/form_errors", object: guide %>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <%= render FormFieldComponent.new(form: f, attribute: :name, label: "Nom", required: true,
+          html_options: { placeholder: "Ex : Joma homme" }) %>
+    <%= render FormFieldComponent.new(form: f, attribute: :measure_label, label: "Mesure", required: true,
+          html_options: { placeholder: "Ex : Tour de poitrine" }) %>
+  </div>
+
+  <div>
+    <%= render FormFieldComponent.new(form: f, attribute: :rows_text, type: :text_area, label: "Tableau", required: true,
+          html_options: { rows: 12, class: "font-mono", placeholder: "6XS ; 55–57 ; 4–5 ans\nS ; 88–95\nM ; 96–105" }) %>
+    <p class="mt-1 text-xs text-gray-500">Une taille par ligne : taille ; mesure en cm ; repère facultatif (âge…).</p>
+  </div>
+
+  <%= render ButtonComponent.new(type: :submit) do %>
+    <%= lucide_icon("save", size: 16) %> Enregistrer
+  <% end %>
+<% end %>

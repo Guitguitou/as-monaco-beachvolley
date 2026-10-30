@@ -1,0 +1,7 @@
+<div class="<%= size %> shrink-0 bg-gray-100 flex items-center justify-center overflow-hidden">
+  <% if color&.photo&.attached? %>
+    <%= image_tag color.photo, alt: "", class: "w-full h-full object-contain mix-blend-multiply" %>
+  <% else %>
+    <%= lucide_icon("shirt", size: 18, class: "text-gray-400") %>
+  <% end %>
+</div>

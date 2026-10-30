@@ -1,0 +1,25 @@
+<div class="max-w-3xl mx-auto space-y-6">
+  <%= render BackLinkComponent.new(href: shop_products_path, label: "Équipements") %>
+  <h1 class="font-anton text-3xl uppercase text-gray-900">Mes commandes</h1>
+
+  <% if @orders.empty? %>
+    <%= render EmptyStateComponent.new(icon: "package", title: "Aucune commande d'équipements pour le moment") %>
+  <% else %>
+    <ul class="bg-white border border-gray-200 divide-y divide-gray-100">
+      <% @orders.each do |order| %>
+        <li>
+          <%= link_to shop_order_path(order), class: "flex items-center justify-between gap-4 p-4 hover:bg-gray-50" do %>
+            <span>
+              <span class="block font-semibold text-gray-900"><%= order.number %></span>
+              <span class="block text-sm text-gray-500"><%= order.campaign.name %> · payée le <%= l(order.paid_at.to_date, format: :long) %></span>
+            </span>
+            <span class="flex items-center gap-3">
+              <span class="font-bold text-gray-900"><%= number_to_currency(order.total_cents / 100.0, unit: "€", precision: 2) %></span>
+              <%= lucide_icon("chevron-right", size: 18, class: "text-gray-400") %>
+            </span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

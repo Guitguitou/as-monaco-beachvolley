@@ -1,0 +1,125 @@
+<% product = @page.product %>
+<% first_color = @page.colors.first %>
+<% first_cut = @page.cuts.first %>
+<% price = ->(cut) { number_to_currency(cut.price_eur, unit: "€", precision: 2) } %>
+
+<div class="max-w-5xl mx-auto space-y-4">
+  <%= render BackLinkComponent.new(href: shop_products_path, label: "Équipements") %>
+
+  <%= form_with url: shop_cart_lines_path, scope: :line, class: "grid gap-6 md:grid-cols-2",
+                data: { controller: "shop-product" } do |f| %>
+    <div class="bg-gray-100 aspect-square flex items-center justify-center">
+      <% if first_color.photo.attached? %>
+        <%= image_tag first_color.photo, alt: "#{product.name}, coloris #{first_color.name.downcase}",
+              class: "w-full h-full object-contain mix-blend-multiply p-6", data: { shop_product_target: "photo" } %>
+      <% else %>
+        <%= lucide_icon("shirt", size: 48, class: "text-gray-400") %>
+      <% end %>
+    </div>
+
+    <div class="space-y-6">
+      <div class="space-y-2">
+        <p class="text-xs font-semibold uppercase tracking-wider text-gray-500"><%= product.brand %></p>
+        <h1 class="font-anton text-3xl uppercase leading-none text-gray-900"><%= product.name %></h1>
+        <% if product.description.present? %>
+          <p class="text-sm text-gray-600"><%= product.description %></p>
+        <% end %>
+        <p class="text-2xl font-bold text-gray-900" data-shop-product-target="price"><%= price.(first_cut) %></p>
+      </div>
+
+      <fieldset class="space-y-2">
+        <legend class="text-sm text-gray-600">Coloris : <strong class="text-gray-900" data-shop-product-target="colorName"><%= first_color.name %></strong></legend>
+        <div class="flex flex-wrap gap-2">
+          <% @page.colors.each do |color| %>
+            <label class="cursor-pointer">
+              <%= f.radio_button :color_id, color.id, checked: color == first_color, class: "peer sr-only",
+                    data: { action: "shop-product#pickColor", name: color.name,
+                            photo_url: (url_for(color.photo) if color.photo.attached?),
+                            photo_alt: "#{product.name}, coloris #{color.name.downcase}" } %>
+              <span class="h-11 inline-flex items-center gap-2 pl-2.5 pr-3.5 border border-gray-300 bg-white text-sm font-semibold peer-checked:border-gray-900 peer-checked:ring-1 peer-checked:ring-gray-900 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-brand">
+                <span class="w-4 h-4 rounded-full border border-gray-400" style="background: <%= color.hex %>"></span>
+                <%= color.name %>
+              </span>
+            </label>
+          <% end %>
+        </div>
+      </fieldset>
+
+      <% if @page.several_cuts? %>
+        <fieldset class="space-y-2">
+          <legend class="text-sm text-gray-600">Coupe</legend>
+          <div class="grid grid-cols-2 gap-2">
+            <% @page.cuts.each do |cut| %>
+              <label class="cursor-pointer">
+                <%= f.radio_button :cut_id, cut.id, checked: cut == first_cut, class: "peer sr-only",
+                      data: { action: "shop-product#pickCut", price: price.(cut) } %>
+                <span class="h-12 flex flex-col items-center justify-center border border-gray-300 bg-white text-sm font-semibold peer-checked:bg-gray-900 peer-checked:text-white peer-checked:border-gray-900 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-brand">
+                  <%= cut.label %>
+                  <span class="text-xs font-normal opacity-80"><%= price.(cut) %> · <%= cut.sizes.values_at(0, -1).uniq.join(" → ") %></span>
+                </span>
+              </label>
+            <% end %>
+          </div>
+        </fieldset>
+      <% else %>
+        <%= f.hidden_field :cut_id, value: first_cut.id %>
+        <% if first_cut.label != "Taille unique" %>
+          <p class="text-sm text-gray-600">Coupe <%= first_cut.label.downcase %></p>
+        <% end %>
+      <% end %>
+
+      <% @page.cuts.each do |cut| %>
+        <div class="space-y-2" data-shop-product-target="sizes" data-cut-id="<%= cut.id %>" <%= "hidden" unless cut == first_cut %>>
+          <% if @page.single_size?(cut) %>
+            <%= f.hidden_field :size, value: cut.sizes.first, disabled: cut != first_cut %>
+          <% else %>
+            <fieldset class="space-y-2">
+              <legend class="text-sm text-gray-600">Taille</legend>
+              <div class="grid grid-cols-5 gap-1.5">
+                <% cut.sizes.each do |size| %>
+                  <label class="cursor-pointer">
+                    <%= f.radio_button :size, size, id: "size_#{cut.id}_#{size.parameterize}", required: true, disabled: cut != first_cut, class: "peer sr-only" %>
+                    <span class="h-11 flex items-center justify-center border border-gray-300 bg-white text-sm font-semibold peer-checked:bg-gray-900 peer-checked:text-white peer-checked:border-gray-900 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-brand"><%= size %></span>
+                  </label>
+                <% end %>
+              </div>
+            </fieldset>
+            <% if (guide = cut.size_guide) %>
+              <details class="border border-gray-200">
+                <summary class="cursor-pointer px-4 py-3 text-sm font-semibold underline underline-offset-4">Guide des tailles</summary>
+                <div class="px-4 pb-3">
+                  <p class="text-xs text-gray-500 mb-2"><%= guide.name %> · <%= guide.measure_label %> en cm, à même le corps</p>
+                  <table class="w-full text-sm">
+                    <tbody>
+                      <% guide.rows.each do |row| %>
+                        <tr class="border-t border-gray-100">
+                          <th scope="row" class="py-1.5 text-left font-semibold"><%= row["size"] %></th>
+                          <td class="py-1.5"><%= row["measure"] %></td>
+                          <td class="py-1.5 text-gray-500"><%= row["note"] %></td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if product.marking.present? %>
+        <p class="flex gap-2 text-sm text-gray-600"><%= lucide_icon("info", size: 18, class: "shrink-0 mt-0.5") %><%= product.marking %></p>
+      <% end %>
+
+      <div class="flex items-end gap-3">
+        <div class="w-24">
+          <%= f.label :quantity, "Quantité", class: "block text-sm text-gray-600 mb-1" %>
+          <%= f.number_field :quantity, value: 1, min: 1, max: Shop::OrderLine::MAX_QUANTITY, class: "w-full h-12 border border-gray-300 rounded-none text-center font-semibold" %>
+        </div>
+        <%= render ButtonComponent.new(type: :submit, size: :large, class: "flex-1") do %>
+          <%= lucide_icon("shopping-bag", size: 18) %> Ajouter au panier
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

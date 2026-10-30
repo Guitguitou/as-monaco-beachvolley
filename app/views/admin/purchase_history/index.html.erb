@@ -68,7 +68,7 @@
           <span class="text-xs text-gray-500"><%= purchase.user.email %></span>
         </div>
       <% end %>
-      <% row.with_cell(wrap: true) { purchase.pack&.name || tag.span("Achat direct", class: "text-gray-400 italic") } %>
+      <% row.with_cell(wrap: true) { purchase.pack || purchase.shop_order ? purchase.label : tag.span(purchase.label, class: "text-gray-400 italic") } %>
       <% row.with_cell(weight: :semibold) { number_to_currency(purchase.amount_eur, unit: "€", precision: 2) } %>
       <% row.with_cell { purchase.credits.to_s } %>
       <% row.with_cell do %>

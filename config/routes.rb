@@ -120,9 +120,41 @@ Rails.application.routes.draw do
         get :export
       end
     end
+
+    # Boutique équipements : catalogue des articles (cf. GLOSSARY.md)
+    scope "equipements" do
+      resources :shop_campaigns, path: "campagnes", except: [ :show, :destroy ]
+      resources :shop_orders, path: "commandes", only: [ :index ] do
+        member do
+          patch :hand_over
+          post :remind
+        end
+      end
+      get "recap", to: "shop_recaps#show", as: :shop_recap
+      get "recap/excel", to: "shop_recaps#excel", as: :shop_recap_excel
+      get "recap/pdf", to: "shop_recaps#pdf", as: :shop_recap_pdf
+      resources :shop_products, path: "articles", except: [ :show, :destroy ] do
+        resources :shop_cuts, path: "coupes", only: [ :create, :update, :destroy ]
+        resources :shop_colors, path: "coloris", only: [ :create, :update, :destroy ]
+      end
+      resources :shop_size_guides, path: "guides-des-tailles", except: [ :show ]
+    end
   end
 
   resources :tournaments, only: [ :index, :show ], path: "tournois"
+
+  # Boutique équipements (cf. GLOSSARY.md) : le panier avant les articles,
+  # pour que « panier » ne soit pas pris pour un identifiant d'article.
+  scope "equipements" do
+    resource :shop_cart, path: "panier", only: [ :show ] do
+      post :checkout, path: "valider"
+      delete :payment, action: :cancel_payment, path: "paiement"
+    end
+    resources :shop_cart_lines, path: "panier/lignes", only: [ :create, :update, :destroy ]
+    resources :shop_orders, path: "commandes", only: [ :index, :show ]
+    resources :shop_order_lines, path: "commandes/lignes", only: [ :update ]
+  end
+  resources :shop_products, path: "equipements", only: [ :index, :show ]
 
   # Public stages
   resources :stages, only: [ :index, :show ]

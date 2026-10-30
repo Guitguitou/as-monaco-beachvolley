@@ -6,7 +6,7 @@ RSpec.describe "UI kit", type: :request do
   let(:components) do
     Rails.root.glob("app/components/**/*_component.rb").map do |path|
       path.relative_path_from(Rails.root.join("app/components")).to_s.delete_suffix(".rb").camelize
-    end - [ "ApplicationComponent" ]
+    end - [ "ApplicationComponent", "Admin::SectionTabsComponent" ] # socles abstraits
   end
 
   it "est accessible sans connexion et hors moteurs de recherche" do

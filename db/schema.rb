@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_26_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_29_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -123,10 +123,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "pack_id"
+    t.bigint "shop_order_id"
     t.index ["created_at"], name: "index_credit_purchases_on_created_at"
     t.index ["pack_id"], name: "index_credit_purchases_on_pack_id"
     t.index ["paid_at", "status"], name: "index_credit_purchases_on_paid_at_and_status"
     t.index ["sherlock_transaction_reference"], name: "index_credit_purchases_on_sherlock_transaction_reference", unique: true, where: "(sherlock_transaction_reference IS NOT NULL)"
+    t.index ["shop_order_id"], name: "index_credit_purchases_on_shop_order_id"
     t.index ["status", "paid_at"], name: "index_credit_purchases_on_status_and_paid_at"
     t.index ["status"], name: "index_credit_purchases_on_status"
     t.index ["user_id"], name: "index_credit_purchases_on_user_id"
@@ -332,6 +334,93 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_100000) do
     t.index ["tournament_id"], name: "index_sessions_on_tournament_id"
     t.index ["user_id", "start_at"], name: "index_sessions_on_user_and_start_at"
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "shop_campaigns", force: :cascade do |t|
+    t.string "name", null: false
+    t.date "opens_on", null: false
+    t.date "closes_on", null: false
+    t.string "status", default: "draft", null: false
+    t.text "welcome_message"
+    t.boolean "allow_edits", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "shop_colors", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.string "name", null: false
+    t.string "hex", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_shop_colors_on_product_id"
+  end
+
+  create_table "shop_cuts", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.bigint "size_guide_id"
+    t.string "label", null: false
+    t.integer "price_cents", null: false
+    t.string "sizes", default: [], null: false, array: true
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_shop_cuts_on_product_id"
+    t.index ["size_guide_id"], name: "index_shop_cuts_on_size_guide_id"
+  end
+
+  create_table "shop_order_lines", force: :cascade do |t|
+    t.bigint "order_id", null: false
+    t.bigint "product_id", null: false
+    t.bigint "cut_id"
+    t.bigint "color_id"
+    t.string "product_name", null: false
+    t.string "cut_label", null: false
+    t.string "color_name", null: false
+    t.string "size", null: false
+    t.integer "quantity", null: false
+    t.integer "unit_price_cents", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["color_id"], name: "index_shop_order_lines_on_color_id"
+    t.index ["cut_id"], name: "index_shop_order_lines_on_cut_id"
+    t.index ["order_id"], name: "index_shop_order_lines_on_order_id"
+    t.index ["product_id"], name: "index_shop_order_lines_on_product_id"
+  end
+
+  create_table "shop_orders", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "campaign_id", null: false
+    t.string "status", default: "cart", null: false
+    t.string "number"
+    t.datetime "paid_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "handed_over_at"
+    t.index ["campaign_id"], name: "index_shop_orders_on_campaign_id"
+    t.index ["number"], name: "index_shop_orders_on_number", unique: true, where: "(number IS NOT NULL)"
+    t.index ["user_id", "campaign_id"], name: "index_shop_orders_one_cart_per_campaign", unique: true, where: "((status)::text = 'cart'::text)"
+    t.index ["user_id"], name: "index_shop_orders_on_user_id"
+  end
+
+  create_table "shop_products", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "brand", null: false
+    t.string "description"
+    t.string "marking"
+    t.integer "position", default: 0, null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "shop_size_guides", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "measure_label", null: false
+    t.jsonb "rows", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -588,6 +677,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_100000) do
   add_foreign_key "annonces", "users"
   add_foreign_key "balances", "users"
   add_foreign_key "credit_purchases", "packs"
+  add_foreign_key "credit_purchases", "shop_orders"
   add_foreign_key "credit_purchases", "users"
   add_foreign_key "credit_transactions", "sessions"
   add_foreign_key "credit_transactions", "users"
@@ -610,6 +700,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_100000) do
   add_foreign_key "sessions", "terrains"
   add_foreign_key "sessions", "tournaments"
   add_foreign_key "sessions", "users"
+  add_foreign_key "shop_colors", "shop_products", column: "product_id"
+  add_foreign_key "shop_cuts", "shop_products", column: "product_id"
+  add_foreign_key "shop_cuts", "shop_size_guides", column: "size_guide_id", on_delete: :nullify
+  add_foreign_key "shop_order_lines", "shop_colors", column: "color_id", on_delete: :nullify
+  add_foreign_key "shop_order_lines", "shop_cuts", column: "cut_id", on_delete: :nullify
+  add_foreign_key "shop_order_lines", "shop_orders", column: "order_id", on_delete: :cascade
+  add_foreign_key "shop_order_lines", "shop_products", column: "product_id"
+  add_foreign_key "shop_orders", "shop_campaigns", column: "campaign_id"
+  add_foreign_key "shop_orders", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

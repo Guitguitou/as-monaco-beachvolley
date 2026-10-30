@@ -1,0 +1,61 @@
+fr:
+  activerecord:
+    models:
+      shop/product:
+        one: "Article"
+        other: "Articles"
+      shop/cut:
+        one: "Coupe"
+        other: "Coupes"
+      shop/color:
+        one: "Coloris"
+        other: "Coloris"
+      shop/size_guide:
+        one: "Guide des tailles"
+        other: "Guides des tailles"
+      shop/campaign:
+        one: "Campagne"
+        other: "Campagnes"
+      shop/order:
+        one: "Commande"
+        other: "Commandes"
+      shop/order_line:
+        one: "Ligne de commande"
+        other: "Lignes de commande"
+    attributes:
+      shop/product:
+        name: "Nom"
+        brand: "Marque"
+        description: "Description"
+        marking: "Marquage"
+        position: "Position"
+        active: "En vente"
+      shop/cut:
+        label: "Coupe"
+        price_cents: "Prix"
+        price_eur: "Prix"
+        sizes: "Tailles"
+        sizes_text: "Tailles"
+        size_guide: "Guide des tailles"
+        position: "Position"
+      shop/color:
+        name: "Nom"
+        hex: "Couleur"
+        photo: "Photo"
+        position: "Position"
+      shop/size_guide:
+        name: "Nom"
+        measure_label: "Mesure"
+        rows: "Tableau"
+        rows_text: "Tableau"
+      shop/campaign:
+        name: "Nom"
+        opens_on: "Ouverture"
+        closes_on: "Clôture"
+        status: "Statut"
+        welcome_message: "Message d'accueil"
+        allow_edits: "Modification possible jusqu'à la clôture"
+      shop/order_line:
+        quantity: "Quantité"
+        size: "Taille"
+        unit_price_cents: "Prix"
