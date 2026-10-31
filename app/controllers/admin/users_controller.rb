@@ -33,7 +33,7 @@ module Admin
     end
 
     def create
-      @user = Users::AdminAttributes.apply(User.new, user_params, activate: params[:user][:activate_immediately])
+      @user = Users::AdminAttributes.apply(User.new, user_params, activate: params[:user][:licence_payee])
 
       redirect_or_render(@user.save, :new, to: [ :admin, @user ], notice: "Utilisateur créé avec succès")
     end
@@ -41,7 +41,7 @@ module Admin
     def edit; end
 
     def update
-      Users::AdminAttributes.apply(@user, user_params, activate: params[:user][:activate_immediately])
+      Users::AdminAttributes.apply(@user, user_params, activate: params[:user][:licence_payee])
 
       redirect_or_render(@user.save, :edit, to: [ :admin, @user ], notice: "Utilisateur mis à jour")
     end
