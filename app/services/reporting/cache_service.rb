@@ -16,9 +16,5 @@ module Reporting
         block.call
       end
     end
-
-    def self.clear_all
-      Rails.cache.delete_matched("reporting_*")
-    end
   end
 end

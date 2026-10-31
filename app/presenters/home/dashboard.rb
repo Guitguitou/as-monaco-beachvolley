@@ -9,6 +9,7 @@ module Home
   class Dashboard
     AGENDA_LIMIT = 4
     SUPERVISED_LIMIT = 4
+    OPEN_SLOTS_LIMIT = 3
 
     def initialize(user:)
       @user = user
@@ -61,9 +62,13 @@ module Home
       @featured_tournament = Tournament.featured
     end
 
-    # Annonce de jeu libre la plus proche que le joueur peut rejoindre.
-    def next_annonce
-      @next_annonce ||= Annonces::EligibleAnnoncesQuery.call(user: user).first
+    # Créneaux de jeu libre à rejoindre, les plus près d'être complets d'abord.
+    def open_slots
+      @open_slots ||= Annonces::OpenSlotsQuery.call(user: user, limit: OPEN_SLOTS_LIMIT)
+    end
+
+    def quick_slots
+      Annonces::QuickSlot.available
     end
 
     private

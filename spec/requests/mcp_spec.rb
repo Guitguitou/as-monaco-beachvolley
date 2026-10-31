@@ -187,7 +187,9 @@ RSpec.describe "Serveur MCP", type: :request do
       expect((first["players"] + second["players"]).map { |player| player["id"] }).to eq([ admin.id ] + players.map(&:id))
       expect(second["next_cursor"]).to be_nil
 
-      recent = call_tool("list_players", { updated_since: 9.days.ago.iso8601 })["structuredContent"]
+      # Seuil entre deux mises à jour : à 9 jours pile, la troncature à la
+      # seconde de iso8601 rend le résultat dépendant du moment du run.
+      recent = call_tool("list_players", { updated_since: (9.days + 12.hours).ago.iso8601 })["structuredContent"]
       expect(recent["players"].map { |player| player["id"] }).to eq(players.last(2).map(&:id))
     end
 

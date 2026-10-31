@@ -85,25 +85,4 @@ RSpec.describe Reporting::CacheService do
       expect(result2).to eq('result2')
     end
   end
-
-  describe '.clear_all' do
-    before do
-      Rails.cache.clear
-    end
-
-    it 'clears all reporting cache entries' do
-      described_class.fetch('Service1', 'method1') { 'value1' }
-      described_class.fetch('Service2', 'method2') { 'value2' }
-
-      described_class.clear_all
-
-      call_count = 0
-      described_class.fetch('Service1', 'method1') do
-        call_count += 1
-        'new_value'
-      end
-
-      expect(call_count).to eq(1)
-    end
-  end
 end

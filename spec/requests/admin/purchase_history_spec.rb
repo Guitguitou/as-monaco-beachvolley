@@ -70,7 +70,7 @@ RSpec.describe "Admin::PurchaseHistories", type: :request do
           create(:credit_purchase, :paid,
                  user: regular_user,
                  pack: pack,
-                 created_at: 2.months.ago,
+                 created_at: start_date - 1.day,
                  amount_cents: 1000,
                  credits: 1000)
         end

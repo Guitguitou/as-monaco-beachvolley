@@ -142,7 +142,7 @@ RSpec.describe "Profiles", type: :request do
 
         expect(response).to have_http_status(:success)
         expect(response.body).to include("Les sessions dont tu es le titulaire")
-        expect(response.body).to include("Mes annonces")
+        expect(response.body).to include("Mes parties")
       end
 
       # Coach::TrainingsController#ensure_coach_or_admin! le redirigerait.
