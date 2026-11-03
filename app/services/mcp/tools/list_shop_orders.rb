@@ -88,7 +88,7 @@ module Mcp
 
         def line_hash(line)
           {
-            brand: line.product.brand, product: line.product_name, cut: line.cut_label, color: line.color_name,
+            id: line.id, brand: line.product.brand, product: line.product_name, cut: line.cut_label, color: line.color_name,
             size: line.size, quantity: line.quantity, unit_price_eur: line.unit_price_cents / 100.0
           }
         end

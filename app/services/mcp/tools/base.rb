@@ -47,6 +47,13 @@ module Mcp
 
         private
 
+        # Enregistre ou signale pourquoi l'enregistrement est invalide.
+        def save!(record)
+          return record if record.save
+
+          raise ArgumentError, "Enregistrement invalide : #{record.errors.full_messages.to_sentence}"
+        end
+
         def error(message)
           MCP::Tool::Response.new([ { type: "text", text: message } ], error: true)
         end

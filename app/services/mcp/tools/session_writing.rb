@@ -50,10 +50,6 @@ module Mcp
           max_players: session.max_players
         }
       end
-
-      def self.invalid(session)
-        raise ArgumentError, "Session invalide : #{session.errors.full_messages.to_sentence}"
-      end
     end
   end
 end

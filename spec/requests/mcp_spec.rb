@@ -91,10 +91,11 @@ RSpec.describe "Serveur MCP", type: :request do
       mcp({ jsonrpc: "2.0", id: 1, method: "tools/list" })
 
       tools = response.parsed_body.dig("result", "tools")
-      writers = %w[create_session update_session delete_session]
+      writers = %w[create_session update_session delete_session save_shop_campaign save_shop_product save_shop_cut
+                   save_shop_color save_shop_size_guide delete_shop_item update_shop_order change_shop_order_line_size]
       expect(tools.map { |tool| tool["name"] }).to contain_exactly(
         "list_sessions", "list_players", "get_player", "list_level_groups", "list_tournaments", "list_stages", "club_stats",
-        "list_purchases", "list_credit_transactions", "list_late_cancellations", "list_shop_orders", "shop_summary", *writers
+        "list_purchases", "list_credit_transactions", "list_late_cancellations", "list_shop_orders", "shop_summary", "list_shop_catalog", *writers
       )
       read_only = tools.reject { |tool| writers.include?(tool["name"]) }
       expect(read_only.map { |tool| tool.dig("annotations", "readOnlyHint") }).to all(be(true))
@@ -285,13 +286,14 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
       end
 
       it "liste les commandes avec leurs lignes, le groupe du joueur et les totaux" do
+        paid_line = Shop::OrderLine.find_by!(order: paid)
         result = call_tool("list_shop_orders")["structuredContent"]
 
         expect(result["totals"]).to eq("paid_eur" => 36.0, "count_by_status" => { "paid" => 1, "unfinished" => 1 })
         expect(result["orders"]).to include(a_hash_including(
           "number" => paid.number, "status" => "paid", "player" => "Camille Rossi", "training_group" => "Intermédiaire",
           "amount_eur" => 36.0, "handed_over" => false,
-          "lines" => [ { "brand" => "Nine", "product" => "T-shirt Varone", "cut" => "Femme", "color" => "Noir",
+          "lines" => [ { "id" => paid_line.id, "brand" => "Nine", "product" => "T-shirt Varone", "cut" => "Femme", "color" => "Noir",
                          "size" => "M", "quantity" => 2, "unit_price_eur" => 18.0 } ]
         ))
       end
@@ -351,7 +353,7 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
                                                start_at: start_at.iso8601, terrain_id: 0 })
 
         expect(result["isError"]).to be(true)
-        expect(result.dig("content", 0, "text")).to include("Session invalide")
+        expect(result.dig("content", 0, "text")).to include("invalide")
       end
 
       it "modifie seulement les champs fournis" do
@@ -379,6 +381,97 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
         expect(call_tool("create_session", { title: "X", session_type: "entrainement", start_at: start_at.iso8601,
                                              terrain_id: terrain.id }, token: staff_token)["isError"]).to be(true)
         expect(Session.exists?(session.id)).to be(true)
+      end
+    end
+
+    describe "gestion de la boutique" do
+      let(:product) { create(:shop_product, name: "Parka") }
+
+      it "crée puis modifie une campagne" do
+        created = call_tool("save_shop_campaign", { name: "Hiver", opens_on: "2030-01-01", closes_on: "2030-01-15", status: "draft" })
+        id = created.dig("structuredContent", "campaign", "id")
+
+        call_tool("save_shop_campaign", { id:, status: "open" })
+
+        expect(Shop::Campaign.find(id)).to have_attributes(name: "Hiver", status: "open")
+      end
+
+      it "signale une campagne invalide" do
+        result = call_tool("save_shop_campaign", { name: "À l'envers", opens_on: "2030-01-15", closes_on: "2030-01-01" })
+
+        expect(result["isError"]).to be(true)
+        expect(result.dig("content", 0, "text")).to include("invalide")
+      end
+
+      it "crée un article, retire un article de la vente et le liste dans le catalogue" do
+        created = call_tool("save_shop_product", { name: "Sweat", brand: "Joma" })
+        call_tool("save_shop_product", { id: product.id, active: false })
+
+        catalog = call_tool("list_shop_catalog")["structuredContent"]
+        expect(catalog["products"].map { |each| each["name"] }).to include("Sweat", "Parka")
+        expect(created.dig("structuredContent", "product", "active")).to be(true)
+        expect(product.reload.active).to be(false)
+      end
+
+      it "gère les coupes d'un article, avec leur guide des tailles" do
+        guide = call_tool("save_shop_size_guide", { name: "Joma adulte", measure_label: "Tour de poitrine (cm)",
+                                                    rows: [ { size: "M", measure: "96-105" }, { size: "L", measure: "106-113" } ] })
+        guide_id = guide.dig("structuredContent", "size_guide", "id")
+
+        cut = call_tool("save_shop_cut", { product_id: product.id, label: "Homme", price_eur: 45.5, sizes: %w[M L],
+                                           size_guide_id: guide_id }).dig("structuredContent", "cut")
+
+        expect(cut).to include("price_eur" => 45.5, "sizes" => %w[M L], "size_guide_id" => guide_id)
+        expect(Shop::SizeGuide.find(guide_id).rows.first).to eq("size" => "M", "measure" => "96-105", "note" => "")
+      end
+
+      it "ajoute un coloris avec sa photo téléchargée depuis une URL" do
+        photo = Mcp::PhotoDownload::Photo.new(io: File.open(file_fixture("avatar.png")), filename: "parka.png", content_type: "image/png")
+        downloader = instance_double(Mcp::PhotoDownload, call: photo)
+        allow(Mcp::PhotoDownload).to receive(:new).with("https://example.com/parka.png").and_return(downloader)
+
+        color = call_tool("save_shop_color", { product_id: product.id, name: "Noir", hex: "#000000",
+                                               photo_url: "https://example.com/parka.png" }).dig("structuredContent", "color")
+
+        expect(color).to include("name" => "Noir", "has_photo" => true)
+      end
+
+      it "supprime une coupe, un coloris ou un guide des tailles" do
+        cut = create(:shop_cut, product:)
+        guide = create(:shop_size_guide)
+
+        call_tool("delete_shop_item", { kind: "cut", id: cut.id })
+        call_tool("delete_shop_item", { kind: "size_guide", id: guide.id })
+
+        expect(Shop::Cut.exists?(cut.id)).to be(false)
+        expect(Shop::SizeGuide.exists?(guide.id)).to be(false)
+      end
+
+      it "remet une commande payée au membre et corrige une taille" do
+        order = create(:shop_order, campaign: create(:shop_campaign, allow_edits: true))
+        line = create(:shop_order_line, order:, size: "M")
+        order.mark_paid!
+
+        call_tool("update_shop_order", { id: order.id, handed_over: true })
+        call_tool("change_shop_order_line_size", { line_id: line.id, size: "L" })
+
+        expect(order.reload.handed_over?).to be(true)
+        expect(line.reload.size).to eq("L")
+      end
+
+      it "relance une commande non finalisée mais pas une commande payée" do
+        unfinished = create(:shop_order)
+        paid = create(:shop_order).tap(&:mark_paid!)
+
+        expect { call_tool("update_shop_order", { id: unfinished.id, remind: true }) }.to have_enqueued_mail(ShopMailer, :unfinished_order)
+        expect(call_tool("update_shop_order", { id: paid.id, remind: true })["isError"]).to be(true)
+      end
+
+      it "est réservée aux admins" do
+        staff_token = token_for(create(:user, :financial_manager))
+
+        expect(call_tool("save_shop_product", { id: product.id, active: false }, token: staff_token)["isError"]).to be(true)
+        expect(product.reload.active).to be(true)
       end
     end
 

@@ -17,8 +17,7 @@ module Mcp
           attributes = SessionWriting.attributes(arguments)
           attributes[:user_id] ||= context.user.id
           attributes = Sessions::DefaultEndAt.fill(attributes)
-          session = Session.new(attributes)
-          SessionWriting.invalid(session) unless session.save
+          session = save!(Session.new(attributes))
 
           { session: SessionWriting.serialize(session) }
         end

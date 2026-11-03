@@ -19,7 +19,7 @@ module Mcp
             session:, attributes: SessionWriting.attributes(arguments), level_priorities: nil,
             levels_submitted: arguments.key?(:level_ids), scope: "this"
           ).call { nil }
-          SessionWriting.invalid(session) unless result.saved?
+          raise ArgumentError, "Session invalide : #{session.errors.full_messages.to_sentence}" unless result.saved?
 
           { session: SessionWriting.serialize(session.reload) }
         end
