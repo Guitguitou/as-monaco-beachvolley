@@ -15,11 +15,15 @@ module Mcp
       Tools::ListCreditTransactions,
       Tools::ListLateCancellations,
       Tools::ListShopOrders,
-      Tools::ShopSummary
+      Tools::ShopSummary,
+      Tools::CreateSession,
+      Tools::UpdateSession,
+      Tools::DeleteSession
     ].freeze
 
     INSTRUCTIONS = <<~TEXT
-      Données du club de beach volley de l'AS Monaco, en lecture seule.
+      Données du club de beach volley de l'AS Monaco, en lecture seule,
+      sauf pour les admins qui peuvent créer, modifier et supprimer des sessions.
       Les crédits sont la monnaie interne du club (un entraînement en coûte 400) ;
       les montants en euros sont suffixés _eur. Les dates sont à l'heure de Paris.
       Les coordonnées des joueurs ne sont volontairement pas exposées.

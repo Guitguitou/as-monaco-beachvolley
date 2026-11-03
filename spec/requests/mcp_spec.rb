@@ -87,15 +87,17 @@ RSpec.describe "Serveur MCP", type: :request do
       expect(response).to have_http_status(:accepted)
     end
 
-    it "liste uniquement des tools en lecture seule" do
+    it "liste des tools en lecture seule, sauf l'écriture des sessions" do
       mcp({ jsonrpc: "2.0", id: 1, method: "tools/list" })
 
       tools = response.parsed_body.dig("result", "tools")
+      writers = %w[create_session update_session delete_session]
       expect(tools.map { |tool| tool["name"] }).to contain_exactly(
         "list_sessions", "list_players", "get_player", "list_level_groups", "list_tournaments", "list_stages", "club_stats",
-        "list_purchases", "list_credit_transactions", "list_late_cancellations", "list_shop_orders", "shop_summary"
+        "list_purchases", "list_credit_transactions", "list_late_cancellations", "list_shop_orders", "shop_summary", *writers
       )
-      expect(tools.map { |tool| tool.dig("annotations", "readOnlyHint") }).to all(be(true))
+      read_only = tools.reject { |tool| writers.include?(tool["name"]) }
+      expect(read_only.map { |tool| tool.dig("annotations", "readOnlyHint") }).to all(be(true))
     end
 
     it "refuse les requêtes GET (serveur sans état)" do
@@ -321,6 +323,62 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
         financial_manager = create(:user, :financial_manager)
 
         expect(call_tool("list_shop_orders", {}, token: token_for(financial_manager))["isError"]).to be(true)
+      end
+    end
+
+    describe "écriture des sessions" do
+      let(:terrain) { FactoryHelpers.resolve_terrain("Terrain 1") }
+      let(:start_at) { 2.days.from_now.change(hour: 18, min: 0) }
+
+      it "crée une session avec les règles du club, encadrée par défaut par l'admin" do
+        result = call_tool("create_session", { title: "Entraînement du soir", session_type: "entrainement",
+                                               start_at: start_at.iso8601, terrain_id: terrain.id, max_players: 10 })
+
+        session = Session.find(result.dig("structuredContent", "session", "id"))
+        expect(session).to have_attributes(user: admin, end_at: start_at + 90.minutes, max_players: 10)
+        expect(session.price).to eq(ClubRules.current.price_for("entrainement"))
+      end
+
+      it "lit une heure sans fuseau à l'heure de Paris" do
+        result = call_tool("create_session", { title: "Jeu libre", session_type: "jeu_libre",
+                                               start_at: "2030-07-01T18:00:00", terrain_id: terrain.id })
+
+        expect(result.dig("structuredContent", "session", "start_at")).to eq("2030-07-01T18:00:00+02:00")
+      end
+
+      it "signale une session invalide" do
+        result = call_tool("create_session", { title: "Sans terrain", session_type: "entrainement",
+                                               start_at: start_at.iso8601, terrain_id: 0 })
+
+        expect(result["isError"]).to be(true)
+        expect(result.dig("content", 0, "text")).to include("Session invalide")
+      end
+
+      it "modifie seulement les champs fournis" do
+        session = create(:session, title: "Avant", max_players: 12)
+
+        call_tool("update_session", { id: session.id, title: "Après" })
+
+        expect(session.reload).to have_attributes(title: "Après", max_players: 12)
+      end
+
+      it "supprime une session en remboursant les inscrits" do
+        session = create(:session)
+
+        result = call_tool("delete_session", { id: session.id })
+
+        expect(result["isError"]).to be_falsey
+        expect(Session.exists?(session.id)).to be(false)
+      end
+
+      it "est réservé aux admins" do
+        session = create(:session)
+        staff_token = token_for(create(:user, :financial_manager))
+
+        expect(call_tool("delete_session", { id: session.id }, token: staff_token)["isError"]).to be(true)
+        expect(call_tool("create_session", { title: "X", session_type: "entrainement", start_at: start_at.iso8601,
+                                             terrain_id: terrain.id }, token: staff_token)["isError"]).to be(true)
+        expect(Session.exists?(session.id)).to be(true)
       end
     end
 

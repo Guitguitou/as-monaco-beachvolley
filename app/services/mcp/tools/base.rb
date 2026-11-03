@@ -15,6 +15,7 @@ module Mcp
     # `execute(context, **arguments)` qui renvoie un Hash.
     class Base < MCP::Tool
       READ_ONLY = { read_only_hint: true, destructive_hint: false, idempotent_hint: true, open_world_hint: false }.freeze
+      WRITE = { read_only_hint: false, destructive_hint: false, idempotent_hint: false, open_world_hint: false }.freeze
       PAGINATION_PROPERTIES = {
         cursor: { type: "string", description: "Curseur opaque : le next_cursor de la page précédente pour obtenir la suivante." },
         updated_since: { type: "string", format: "date-time",
@@ -37,7 +38,7 @@ module Mcp
           data = execute(server_context, **arguments)
           MCP::Tool::Response.new([ { type: "text", text: data.to_json } ], structured_content: data)
         rescue CanCan::AccessDenied
-          error("Accès refusé : ton rôle ne permet pas de consulter ces données.")
+          error("Accès refusé : ton rôle ne permet pas d'accéder à ces données.")
         rescue ActiveRecord::RecordNotFound
           error("Introuvable.")
         rescue ArgumentError => e
