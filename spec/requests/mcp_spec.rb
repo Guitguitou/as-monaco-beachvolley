@@ -87,15 +87,18 @@ RSpec.describe "Serveur MCP", type: :request do
       expect(response).to have_http_status(:accepted)
     end
 
-    it "liste uniquement des tools en lecture seule" do
+    it "liste des tools en lecture seule, sauf l'écriture des sessions" do
       mcp({ jsonrpc: "2.0", id: 1, method: "tools/list" })
 
       tools = response.parsed_body.dig("result", "tools")
+      writers = %w[create_session update_session delete_session save_shop_campaign save_shop_product save_shop_cut
+                   save_shop_color save_shop_size_guide delete_shop_item update_shop_order change_shop_order_line_size]
       expect(tools.map { |tool| tool["name"] }).to contain_exactly(
         "list_sessions", "list_players", "get_player", "list_level_groups", "list_tournaments", "list_stages", "club_stats",
-        "list_purchases", "list_credit_transactions", "list_late_cancellations", "list_shop_orders", "shop_summary"
+        "list_purchases", "list_credit_transactions", "list_late_cancellations", "list_shop_orders", "shop_summary", "list_shop_catalog", *writers
       )
-      expect(tools.map { |tool| tool.dig("annotations", "readOnlyHint") }).to all(be(true))
+      read_only = tools.reject { |tool| writers.include?(tool["name"]) }
+      expect(read_only.map { |tool| tool.dig("annotations", "readOnlyHint") }).to all(be(true))
     end
 
     it "refuse les requêtes GET (serveur sans état)" do
@@ -120,7 +123,7 @@ RSpec.describe "Serveur MCP", type: :request do
       sessions = result.dig("structuredContent", "sessions")
       expect(sessions.size).to eq(1)
       expect(sessions.first).to include("id" => session.id, "confirmed_count" => 1, "waitlisted_count" => 1, "places_left" => 3,
-                                        "levels" => [ "G2 M" ])
+                                        "levels" => [ { "id" => level.id, "name" => "G2 M", "priority" => 0 } ])
     end
 
     it "list_sessions distingue coach et responsable de réservation, et montre les séances annulées" do
@@ -187,9 +190,7 @@ RSpec.describe "Serveur MCP", type: :request do
       expect((first["players"] + second["players"]).map { |player| player["id"] }).to eq([ admin.id ] + players.map(&:id))
       expect(second["next_cursor"]).to be_nil
 
-      # Seuil entre deux mises à jour : à 9 jours pile, la troncature à la
-      # seconde de iso8601 rend le résultat dépendant du moment du run.
-      recent = call_tool("list_players", { updated_since: (9.days + 12.hours).ago.iso8601 })["structuredContent"]
+      recent = call_tool("list_players", { updated_since: 9.5.days.ago.iso8601 })["structuredContent"]
       expect(recent["players"].map { |player| player["id"] }).to eq(players.last(2).map(&:id))
     end
 
@@ -285,13 +286,14 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
       end
 
       it "liste les commandes avec leurs lignes, le groupe du joueur et les totaux" do
+        paid_line = Shop::OrderLine.find_by!(order: paid)
         result = call_tool("list_shop_orders")["structuredContent"]
 
         expect(result["totals"]).to eq("paid_eur" => 36.0, "count_by_status" => { "paid" => 1, "unfinished" => 1 })
         expect(result["orders"]).to include(a_hash_including(
           "number" => paid.number, "status" => "paid", "player" => "Camille Rossi", "training_group" => "Intermédiaire",
           "amount_eur" => 36.0, "handed_over" => false,
-          "lines" => [ { "brand" => "Nine", "product" => "T-shirt Varone", "cut" => "Femme", "color" => "Noir",
+          "lines" => [ { "id" => paid_line.id, "brand" => "Nine", "product" => "T-shirt Varone", "cut" => "Femme", "color" => "Noir",
                          "size" => "M", "quantity" => 2, "unit_price_eur" => 18.0 } ]
         ))
       end
@@ -323,6 +325,168 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
         financial_manager = create(:user, :financial_manager)
 
         expect(call_tool("list_shop_orders", {}, token: token_for(financial_manager))["isError"]).to be(true)
+      end
+    end
+
+    describe "écriture des sessions" do
+      let(:terrain) { FactoryHelpers.resolve_terrain("Terrain 1") }
+      let(:start_at) { 2.days.from_now.change(hour: 18, min: 0) }
+
+      it "crée une session avec les règles du club, encadrée par défaut par l'admin" do
+        result = call_tool("create_session", { title: "Entraînement du soir", session_type: "entrainement",
+                                               start_at: start_at.iso8601, terrain_id: terrain.id, max_players: 10 })
+
+        session = Session.find(result.dig("structuredContent", "session", "id"))
+        expect(session).to have_attributes(user: admin, end_at: start_at + 90.minutes, max_players: 10)
+        expect(session.price).to eq(ClubRules.current.price_for("entrainement"))
+      end
+
+      it "lit une heure sans fuseau à l'heure de Paris" do
+        result = call_tool("create_session", { title: "Jeu libre", session_type: "jeu_libre",
+                                               start_at: "2030-07-01T18:00:00", terrain_id: terrain.id })
+
+        expect(result.dig("structuredContent", "session", "start_at")).to eq("2030-07-01T18:00:00+02:00")
+      end
+
+      it "signale une session invalide" do
+        result = call_tool("create_session", { title: "Sans terrain", session_type: "entrainement",
+                                               start_at: start_at.iso8601, terrain_id: 0 })
+
+        expect(result["isError"]).to be(true)
+        expect(result.dig("content", 0, "text")).to include("invalide")
+      end
+
+      it "définit la priorité des niveaux, à la création comme à la modification" do
+        first, second = create_list(:level, 2)
+        result = call_tool("create_session", { title: "Entraînement", session_type: "entrainement", start_at: start_at.iso8601,
+                                               terrain_id: terrain.id, level_ids: [ first.id, second.id ],
+                                               level_priorities: [ { level_id: first.id, priority: 1 }, { level_id: second.id, priority: 2 } ] })
+        session_id = result.dig("structuredContent", "session", "id")
+
+        expect(result.dig("structuredContent", "session", "levels").map { |level| [ level["id"], level["priority"] ] })
+          .to eq([ [ first.id, 1 ], [ second.id, 2 ] ])
+
+        call_tool("update_session", { id: session_id, level_priorities: [ { level_id: first.id, priority: 3 } ] })
+
+        expect(SessionLevel.find_by!(session_id:, level: first).priority).to eq(3)
+      end
+
+      it "modifie seulement les champs fournis" do
+        session = create(:session, title: "Avant", max_players: 12)
+
+        call_tool("update_session", { id: session.id, title: "Après" })
+
+        expect(session.reload).to have_attributes(title: "Après", max_players: 12)
+      end
+
+      it "supprime une session en remboursant les inscrits" do
+        session = create(:session)
+
+        result = call_tool("delete_session", { id: session.id })
+
+        expect(result["isError"]).to be_falsey
+        expect(Session.exists?(session.id)).to be(false)
+      end
+
+      it "est réservé aux admins" do
+        session = create(:session)
+        staff_token = token_for(create(:user, :financial_manager))
+
+        expect(call_tool("delete_session", { id: session.id }, token: staff_token)["isError"]).to be(true)
+        expect(call_tool("create_session", { title: "X", session_type: "entrainement", start_at: start_at.iso8601,
+                                             terrain_id: terrain.id }, token: staff_token)["isError"]).to be(true)
+        expect(Session.exists?(session.id)).to be(true)
+      end
+    end
+
+    describe "gestion de la boutique" do
+      let(:product) { create(:shop_product, name: "Parka") }
+
+      it "crée puis modifie une campagne" do
+        created = call_tool("save_shop_campaign", { name: "Hiver", opens_on: "2030-01-01", closes_on: "2030-01-15", status: "draft" })
+        id = created.dig("structuredContent", "campaign", "id")
+
+        call_tool("save_shop_campaign", { id:, status: "open" })
+
+        expect(Shop::Campaign.find(id)).to have_attributes(name: "Hiver", status: "open")
+      end
+
+      it "signale une campagne invalide" do
+        result = call_tool("save_shop_campaign", { name: "À l'envers", opens_on: "2030-01-15", closes_on: "2030-01-01" })
+
+        expect(result["isError"]).to be(true)
+        expect(result.dig("content", 0, "text")).to include("invalide")
+      end
+
+      it "crée un article, retire un article de la vente et le liste dans le catalogue" do
+        created = call_tool("save_shop_product", { name: "Sweat", brand: "Joma" })
+        call_tool("save_shop_product", { id: product.id, active: false })
+
+        catalog = call_tool("list_shop_catalog")["structuredContent"]
+        expect(catalog["products"].map { |each| each["name"] }).to include("Sweat", "Parka")
+        expect(created.dig("structuredContent", "product", "active")).to be(true)
+        expect(product.reload.active).to be(false)
+      end
+
+      it "gère les coupes d'un article, avec leur guide des tailles" do
+        guide = call_tool("save_shop_size_guide", { name: "Joma adulte", measure_label: "Tour de poitrine (cm)",
+                                                    rows: [ { size: "M", measure: "96-105" }, { size: "L", measure: "106-113" } ] })
+        guide_id = guide.dig("structuredContent", "size_guide", "id")
+
+        cut = call_tool("save_shop_cut", { product_id: product.id, label: "Homme", price_eur: 45.5, sizes: %w[M L],
+                                           size_guide_id: guide_id }).dig("structuredContent", "cut")
+
+        expect(cut).to include("price_eur" => 45.5, "sizes" => %w[M L], "size_guide_id" => guide_id)
+        expect(Shop::SizeGuide.find(guide_id).rows.first).to eq("size" => "M", "measure" => "96-105", "note" => "")
+      end
+
+      it "ajoute un coloris avec sa photo téléchargée depuis une URL" do
+        photo = Mcp::PhotoDownload::Photo.new(io: File.open(file_fixture("avatar.png")), filename: "parka.png", content_type: "image/png")
+        downloader = instance_double(Mcp::PhotoDownload, call: photo)
+        allow(Mcp::PhotoDownload).to receive(:new).with("https://example.com/parka.png").and_return(downloader)
+
+        color = call_tool("save_shop_color", { product_id: product.id, name: "Noir", hex: "#000000",
+                                               photo_url: "https://example.com/parka.png" }).dig("structuredContent", "color")
+
+        expect(color).to include("name" => "Noir", "has_photo" => true)
+      end
+
+      it "supprime une coupe, un coloris ou un guide des tailles" do
+        cut = create(:shop_cut, product:)
+        guide = create(:shop_size_guide)
+
+        call_tool("delete_shop_item", { kind: "cut", id: cut.id })
+        call_tool("delete_shop_item", { kind: "size_guide", id: guide.id })
+
+        expect(Shop::Cut.exists?(cut.id)).to be(false)
+        expect(Shop::SizeGuide.exists?(guide.id)).to be(false)
+      end
+
+      it "remet une commande payée au membre et corrige une taille" do
+        order = create(:shop_order, campaign: create(:shop_campaign, allow_edits: true))
+        line = create(:shop_order_line, order:, size: "M")
+        order.mark_paid!
+
+        call_tool("update_shop_order", { id: order.id, handed_over: true })
+        call_tool("change_shop_order_line_size", { line_id: line.id, size: "L" })
+
+        expect(order.reload.handed_over?).to be(true)
+        expect(line.reload.size).to eq("L")
+      end
+
+      it "relance une commande non finalisée mais pas une commande payée" do
+        unfinished = create(:shop_order)
+        paid = create(:shop_order).tap(&:mark_paid!)
+
+        expect { call_tool("update_shop_order", { id: unfinished.id, remind: true }) }.to have_enqueued_mail(ShopMailer, :unfinished_order)
+        expect(call_tool("update_shop_order", { id: paid.id, remind: true })["isError"]).to be(true)
+      end
+
+      it "est réservée aux admins" do
+        staff_token = token_for(create(:user, :financial_manager))
+
+        expect(call_tool("save_shop_product", { id: product.id, active: false }, token: staff_token)["isError"]).to be(true)
+        expect(product.reload.active).to be(true)
       end
     end
 

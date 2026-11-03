@@ -9,7 +9,8 @@ module Mcp
       tool_name "list_sessions"
       description "Liste les sessions (entraînements, jeu libre, coachings privés, stages, tournois) " \
                   "sur une période, avec encadrant (coach, ou responsable pour le jeu libre), inscrits confirmés, " \
-                  "liste d'attente, places restantes et séances annulées (motif). " \
+                  "liste d'attente, places restantes, niveaux ouverts avec leur priorité (1 = prioritaire, 0 = non définie, traitée comme 1) " \
+                  "et séances annulées (motif). " \
                   "Par défaut : les 7 prochains jours."
       input_schema(
         properties: {
@@ -42,7 +43,7 @@ module Mcp
 
         def scope(start_on, end_on, session_type, level_id)
           sessions = Session.where(start_at: start_on.beginning_of_day..end_on.end_of_day)
-                            .includes(:user, :levels, :terrain)
+                            .includes(:user, :terrain, session_levels: :level)
                             .ordered_by_start
                             .limit(MAX_RESULTS)
           sessions = sessions.where(session_type: session_type) if session_type.present?
@@ -67,7 +68,7 @@ module Mcp
             **encadrant(session),
             cancelled: session.cancelled?,
             cancellation_reason: session.cancellation_reason,
-            levels: session.levels.map(&:display_name),
+            levels: SessionWriting.levels(session),
             price_credits: session.price,
             max_players: session.max_players,
             confirmed_count: confirmed,
