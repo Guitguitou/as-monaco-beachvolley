@@ -52,6 +52,13 @@ module Mcp
         raise ArgumentError, "Date-heure invalide : #{value} (format attendu ISO8601)"
       end
 
+      # Niveaux ouverts par ordre de priorité (1 = prioritaire), sur `session_levels: :level` préchargés.
+      def self.levels(session)
+        session.session_levels.sort_by { |session_level| [ session_level.priority, session_level.id ] }.map do |session_level|
+          { id: session_level.level_id, name: session_level.level.display_name, priority: session_level.priority }
+        end
+      end
+
       def self.serialize(session)
         {
           id: session.id,
@@ -61,9 +68,7 @@ module Mcp
           end_at: session.end_at&.in_time_zone(ClubRules.current.time_zone)&.iso8601,
           terrain: session.terrain&.name,
           encadrant: session.user&.full_name,
-          levels: session.session_levels.includes(:level).ordered_by_priority.map do |session_level|
-            { id: session_level.level_id, name: session_level.level.display_name, priority: session_level.priority }
-          end,
+          levels: levels(session),
           price_credits: session.price,
           max_players: session.max_players
         }

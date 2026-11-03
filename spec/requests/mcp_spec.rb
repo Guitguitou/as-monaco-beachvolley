@@ -123,7 +123,7 @@ RSpec.describe "Serveur MCP", type: :request do
       sessions = result.dig("structuredContent", "sessions")
       expect(sessions.size).to eq(1)
       expect(sessions.first).to include("id" => session.id, "confirmed_count" => 1, "waitlisted_count" => 1, "places_left" => 3,
-                                        "levels" => [ "G2 M" ])
+                                        "levels" => [ { "id" => level.id, "name" => "G2 M", "priority" => 0 } ])
     end
 
     it "list_sessions distingue coach et responsable de réservation, et montre les séances annulées" do
@@ -190,7 +190,7 @@ RSpec.describe "Serveur MCP", type: :request do
       expect((first["players"] + second["players"]).map { |player| player["id"] }).to eq([ admin.id ] + players.map(&:id))
       expect(second["next_cursor"]).to be_nil
 
-      recent = call_tool("list_players", { updated_since: 9.days.ago.iso8601 })["structuredContent"]
+      recent = call_tool("list_players", { updated_since: 9.5.days.ago.iso8601 })["structuredContent"]
       expect(recent["players"].map { |player| player["id"] }).to eq(players.last(2).map(&:id))
     end
 
