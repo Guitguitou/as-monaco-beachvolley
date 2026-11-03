@@ -19,13 +19,29 @@ module Mcp
         terrain_id: { type: "integer" },
         user_id: { type: "integer", description: "Encadrant (coach, ou responsable pour le jeu libre)." },
         max_players: { type: "integer" },
-        level_ids: { type: "array", items: { type: "integer" }, description: "Niveaux ouverts (cf. list_level_groups)." }
+        level_ids: { type: "array", items: { type: "integer" }, description: "Niveaux ouverts (cf. list_level_groups)." },
+        level_priorities: {
+          type: "array",
+          description: "Pour un entraînement : priorité des niveaux ouverts, qui départage les inscriptions (1 = prioritaire). " \
+                       "Un niveau plus prioritaire décale les autres en liste d'attente quand la session est pleine.",
+          items: {
+            type: "object",
+            properties: { level_id: { type: "integer" }, priority: { type: "integer", enum: [ 1, 2, 3 ] } },
+            required: %w[level_id priority]
+          }
+        }
       }.freeze
+      ATTRIBUTES = (PROPERTIES.keys - [ :level_priorities ]).freeze
 
       def self.attributes(arguments)
-        attributes = arguments.slice(*PROPERTIES.keys)
+        attributes = arguments.slice(*ATTRIBUTES)
         %i[start_at end_at].each { |key| attributes[key] = parse_time(attributes[key]) if attributes.key?(key) }
         attributes
+      end
+
+      # Priorités au format de Session#sync_level_priorities : { level_id => rang }.
+      def self.level_priorities(arguments)
+        arguments[:level_priorities]&.to_h { |entry| [ entry[:level_id], entry[:priority] ] }
       end
 
       def self.parse_time(value)
@@ -45,7 +61,9 @@ module Mcp
           end_at: session.end_at&.in_time_zone(ClubRules.current.time_zone)&.iso8601,
           terrain: session.terrain&.name,
           encadrant: session.user&.full_name,
-          levels: session.levels.map(&:display_name),
+          levels: session.session_levels.includes(:level).ordered_by_priority.map do |session_level|
+            { id: session_level.level_id, name: session_level.level.display_name, priority: session_level.priority }
+          end,
           price_credits: session.price,
           max_players: session.max_players
         }

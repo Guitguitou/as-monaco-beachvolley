@@ -356,6 +356,21 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
         expect(result.dig("content", 0, "text")).to include("invalide")
       end
 
+      it "définit la priorité des niveaux, à la création comme à la modification" do
+        first, second = create_list(:level, 2)
+        result = call_tool("create_session", { title: "Entraînement", session_type: "entrainement", start_at: start_at.iso8601,
+                                               terrain_id: terrain.id, level_ids: [ first.id, second.id ],
+                                               level_priorities: [ { level_id: first.id, priority: 1 }, { level_id: second.id, priority: 2 } ] })
+        session_id = result.dig("structuredContent", "session", "id")
+
+        expect(result.dig("structuredContent", "session", "levels").map { |level| [ level["id"], level["priority"] ] })
+          .to eq([ [ first.id, 1 ], [ second.id, 2 ] ])
+
+        call_tool("update_session", { id: session_id, level_priorities: [ { level_id: first.id, priority: 3 } ] })
+
+        expect(SessionLevel.find_by!(session_id:, level: first).priority).to eq(3)
+      end
+
       it "modifie seulement les champs fournis" do
         session = create(:session, title: "Avant", max_players: 12)
 

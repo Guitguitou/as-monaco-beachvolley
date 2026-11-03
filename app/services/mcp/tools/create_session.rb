@@ -18,6 +18,7 @@ module Mcp
           attributes[:user_id] ||= context.user.id
           attributes = Sessions::DefaultEndAt.fill(attributes)
           session = save!(Session.new(attributes))
+          session.sync_level_priorities(SessionWriting.level_priorities(arguments))
 
           { session: SessionWriting.serialize(session) }
         end
