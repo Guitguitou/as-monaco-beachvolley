@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Users
-  # Un membre pas encore activé (ni licence ni pack stage) n'accède qu'aux
+  # Un membre sans Compte actif (licence payée et dossier complet) n'accède qu'aux
   # pages qui lui permettent de s'en procurer un, et aux infos du club.
   # Admins et gestionnaires financiers ont toujours accès à tout.
   module ActivationGate
@@ -15,7 +15,7 @@ module Users
     ].freeze
 
     def self.restricted?(user)
-      !user.activated? && !user.admin? && !user.financial_manager?
+      !user.compte_actif? && !user.admin? && !user.financial_manager?
     end
 
     def self.allows?(path)

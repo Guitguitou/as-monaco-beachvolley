@@ -31,9 +31,9 @@ class User < ApplicationRecord
   scope :responsables, -> { where(responsable: true) }
   scope :admins, -> { where(admin: true) }
   scope :financial_managers, -> { where(financial_manager: true) }
-  scope :activated, -> { where.not(activated_at: nil) }
-  scope :not_activated, -> { where(activated_at: nil) }
-  scope :peut_reserver, -> { activated.where(dossier_complet: true) }
+  scope :licence_payee, -> { where.not(activated_at: nil) }
+  scope :licence_non_payee, -> { where(activated_at: nil) }
+  scope :comptes_actifs, -> { licence_payee.where(dossier_complet: true) }
   scope :renewed_for_next_season, -> { where(next_season_renewed: true) }
   scope :gender, ->(g) { joins(:levels).where(levels: { gender: g }) }
   scope :with_license, ->(lic) { where(license_type: lic) }
@@ -67,24 +67,26 @@ class User < ApplicationRecord
     super
   end
 
-  # Check if account is activated (licence paid)
-  def activated?
+  # Licence de la saison réglée (achat en ligne ou case cochée par le Staff).
+  def licence_payee?
     activated_at.present?
   end
 
-  # Peut réserver : licence payée ET dossier complet (cf. GLOSSARY.md).
-  def peut_reserver?
-    activated? && dossier_complet?
+  # Compte actif : licence payée ET dossier complet (cf. GLOSSARY.md, ADR 0004).
+  # Seul un Compte actif accède à l'app au-delà de la boutique, des stages et des infos.
+  def compte_actif?
+    licence_payee? && dossier_complet?
   end
 
   # Licence payée, mais le Staff n'a pas encore coché le dossier complet.
   def dossier_en_attente?
-    activated? && !dossier_complet?
+    licence_payee? && !dossier_complet?
   end
 
-  # Activate the account (called when licence is paid)
-  def activate!
-    update!(activated_at: Time.current) unless activated?
+  # Appelé au paiement de la licence. N'active pas le compte à lui seul :
+  # il faut aussi que le Staff coche le dossier complet.
+  def mark_licence_paid!
+    update!(activated_at: Time.current) unless licence_payee?
   end
 
   # Flag that the licence for the upcoming season has been paid.

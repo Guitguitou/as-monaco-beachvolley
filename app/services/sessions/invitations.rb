@@ -27,7 +27,7 @@ module Sessions
 
     # Membres qui peuvent réserver, ni inscrits, ni déjà invités, ni soi-même.
     def invitable_users
-      User.peut_reserver
+      User.comptes_actifs
         .where.not(id: @inviter.id)
         .where.not(id: Registration.where(session_id: @session.id).select(:user_id))
         .where.not(id: SessionInvitation.where(session_id: @session.id).select(:invitee_id))

@@ -7,9 +7,20 @@ RSpec.describe Licenses::ResetSeason do
 
       result = described_class.call
 
-      expect(user.reload.activated?).to be(false)
+      expect(user.reload.licence_payee?).to be(false)
       expect(result.deactivated).to eq(1)
       expect(result.kept).to eq(0)
+    end
+
+    it "décoche le dossier complet de tous, renouvellements compris" do
+      renewed = create(:user, activated_at: 1.year.ago, next_season_renewed: true, dossier_complet: true)
+      dropped = create(:user, activated_at: 1.year.ago, dossier_complet: true)
+
+      described_class.call
+
+      expect(renewed.reload.dossier_complet?).to be(false)
+      expect(renewed.licence_payee?).to be(true)
+      expect(dropped.reload.dossier_complet?).to be(false)
     end
 
     it "keeps a renewed user and consumes the renewal flag" do
@@ -17,7 +28,7 @@ RSpec.describe Licenses::ResetSeason do
 
       result = described_class.call
 
-      expect(user.reload.activated?).to be(true)
+      expect(user.reload.licence_payee?).to be(true)
       expect(user.next_season_renewed?).to be(false)
       expect(result.kept).to eq(1)
       expect(result.deactivated).to eq(0)
@@ -28,7 +39,7 @@ RSpec.describe Licenses::ResetSeason do
 
       described_class.call
 
-      expect(user.reload.activated?).to be(false)
+      expect(user.reload.licence_payee?).to be(false)
     end
 
     it "returns the counts of kept and deactivated licences" do
@@ -49,10 +60,10 @@ RSpec.describe Licenses::ResetSeason do
       user = create(:user, activated_at: 1.year.ago, next_season_renewed: true)
 
       described_class.call
-      expect(user.reload.activated?).to be(true)
+      expect(user.reload.licence_payee?).to be(true)
 
       described_class.call
-      expect(user.reload.activated?).to be(false)
+      expect(user.reload.licence_payee?).to be(false)
     end
   end
 end

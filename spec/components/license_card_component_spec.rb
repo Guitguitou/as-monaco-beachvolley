@@ -39,7 +39,7 @@ RSpec.describe LicenseCardComponent, type: :component do
       render_inline(described_class.new(user: user))
 
       expect(page).to have_text("Licence active")
-      expect(page).to have_text("Active depuis le 15 janvier 2026")
+      expect(page).to have_text("Payée le 15 janvier 2026")
     end
 
     it "ne propose plus la boutique" do

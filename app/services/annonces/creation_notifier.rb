@@ -49,7 +49,7 @@ module Annonces
     end
 
     def candidate_ids
-      User.activated.where.not(id: annonce.user_id).pluck(:id)
+      User.comptes_actifs.where.not(id: annonce.user_id).pluck(:id)
     end
 
     def enqueue(user, title:, body:, url:)

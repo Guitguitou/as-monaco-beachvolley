@@ -24,13 +24,13 @@ RSpec.describe User, 'Non-activated users' do
     end
   end
 
-  describe '#activated?' do
+  describe '#licence_payee?' do
     it 'returns false for non-activated users' do
-      expect(non_activated_user.activated?).to be false
+      expect(non_activated_user.licence_payee?).to be false
     end
 
     it 'returns true for activated users' do
-      expect(activated_user.activated?).to be true
+      expect(activated_user.licence_payee?).to be true
     end
   end
 
@@ -41,13 +41,13 @@ RSpec.describe User, 'Non-activated users' do
     end
 
     it 'finds non-activated users' do
-      expect(User.not_activated).to include(non_activated_user)
-      expect(User.not_activated).not_to include(activated_user)
+      expect(User.licence_non_payee).to include(non_activated_user)
+      expect(User.licence_non_payee).not_to include(activated_user)
     end
 
     it 'finds activated users' do
-      expect(User.activated).to include(activated_user)
-      expect(User.activated).not_to include(non_activated_user)
+      expect(User.licence_payee).to include(activated_user)
+      expect(User.licence_payee).not_to include(non_activated_user)
     end
   end
 end

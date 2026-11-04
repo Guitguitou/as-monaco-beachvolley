@@ -1,12 +1,16 @@
 module Licenses
   # Réinitialise les licences pour une nouvelle saison.
   #
-  # Pour chaque membre actuellement activé :
+  # Pour chaque membre dont la licence est payée :
   #   - s'il a réglé la licence de la prochaine saison (next_season_renewed) →
-  #     on le garde activé et on consomme la coche (remise à false) ;
-  #   - sinon → on le désactive (activated_at = nil). Il devra racheter une licence.
+  #     on garde sa licence payée et on consomme la coche (remise à false) ;
+  #   - sinon → on efface sa licence (activated_at = nil). Il devra la racheter.
   #
-  # Idempotent : relancer après coup ne désactive personne de plus.
+  # Le Dossier complet est décoché pour tous : les pièces valent pour une saison
+  # (ADR 0004), même pour ceux qui ont déjà renouvelé.
+  #
+  # À lancer une seule fois par saison : un second passage effacerait les
+  # licences renouvelées (coche déjà consommée) et les dossiers recochés depuis.
   class ResetSeason
     Result = Struct.new(:kept, :deactivated, keyword_init: true)
 
@@ -19,7 +23,8 @@ module Licenses
       deactivated = 0
 
       ActiveRecord::Base.transaction do
-        User.activated.find_each do |user|
+        User.where(dossier_complet: true).update_all(dossier_complet: false, updated_at: Time.current)
+        User.licence_payee.find_each do |user|
           if user.next_season_renewed?
             user.update!(next_season_renewed: false)
             kept += 1

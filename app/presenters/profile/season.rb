@@ -17,8 +17,8 @@ module Profile
 
     # Licence ------------------------------------------------------------
 
-    def activated?
-      user.activated?
+    def licence_payee?
+      user.licence_payee?
     end
 
     def member_since_year

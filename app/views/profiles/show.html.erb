@@ -23,7 +23,7 @@
           <%= render BadgeComponent.new(label: role, variant: :hero_inverse, size: :xs) %>
         <% end %>
 
-        <% unless @user.activated? %>
+        <% unless @user.licence_payee? %>
           <%= render BadgeComponent.new(label: "Licence à régler", variant: :warning, size: :xs) %>
         <% end %>
         <% if @user.dossier_en_attente? %>

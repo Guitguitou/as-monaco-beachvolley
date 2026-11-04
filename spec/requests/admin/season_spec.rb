@@ -37,9 +37,9 @@ RSpec.describe "Admin::Season", type: :request do
         post admin_reset_season_path
 
         expect(response).to redirect_to(admin_season_path)
-        expect(kept.reload.activated?).to be(true)
+        expect(kept.reload.licence_payee?).to be(true)
         expect(kept.next_season_renewed?).to be(false)
-        expect(dropped.reload.activated?).to be(false)
+        expect(dropped.reload.licence_payee?).to be(false)
       end
     end
 
@@ -52,7 +52,7 @@ RSpec.describe "Admin::Season", type: :request do
         post admin_reset_season_path
 
         expect(response).to redirect_to(root_path)
-        expect(other.reload.activated?).to be(true)
+        expect(other.reload.licence_payee?).to be(true)
       end
     end
   end
