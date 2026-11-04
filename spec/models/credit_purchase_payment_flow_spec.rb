@@ -35,7 +35,7 @@ RSpec.describe 'CreditPurchase Payment Flow Integration', type: :model do
     it 'processes licence pack and activates inactive user' do
       purchase = create(:credit_purchase, user: inactive_user, pack: licence_pack, credits: 0, amount_cents: 5000)
 
-      expect(inactive_user.activated?).to be false
+      expect(inactive_user.licence_payee?).to be false
 
       # Simuler le paiement
       purchase.credit!
@@ -45,7 +45,7 @@ RSpec.describe 'CreditPurchase Payment Flow Integration', type: :model do
       expect(purchase.paid_at).to be_present
 
       # CRITIQUE : L'utilisateur doit être activé !
-      expect(inactive_user.reload.activated?).to be true
+      expect(inactive_user.reload.licence_payee?).to be true
       expect(inactive_user.activated_at).to be_present
     end
 

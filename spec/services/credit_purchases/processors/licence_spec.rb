@@ -10,7 +10,7 @@ RSpec.describe CreditPurchases::Processors::Licence do
 
       described_class.new(purchase: purchase).call
 
-      expect(user.reload.activated?).to be(true)
+      expect(user.reload.licence_payee?).to be(true)
       expect(user.next_season_renewed?).to be(false)
     end
 

@@ -20,9 +20,9 @@ module Admin
 
     def actions
       [
-        Action.new(label: "Dossiers à compléter (licence payée)", count: User.activated.where(dossier_complet: false).count,
+        Action.new(label: "Dossiers à compléter (licence payée)", count: User.licence_payee.where(dossier_complet: false).count,
                    icon: "file-warning", path: @routes.admin_users_path(f: { activated: "1", dossier_complet: "0" })),
-        Action.new(label: "Licences non payées", count: User.not_activated.where(disabled_at: nil).count, icon: "badge-euro",
+        Action.new(label: "Licences non payées", count: User.licence_non_payee.where(disabled_at: nil).count, icon: "badge-euro",
                    path: @routes.admin_users_path(f: { activated: "0" })),
         Action.new(label: "Paiements en attente", count: CreditPurchase.pending_status.count, icon: "clock",
                    path: @routes.admin_purchase_history_index_path(f: { status: [ "pending" ] })),

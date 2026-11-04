@@ -129,34 +129,34 @@ RSpec.describe User, type: :model do
   end
 
   describe 'Account activation' do
-    describe '#activated?' do
+    describe '#licence_payee?' do
       it 'returns true when activated_at is present' do
         user.update!(activated_at: Time.current)
-        expect(user.activated?).to be true
+        expect(user.licence_payee?).to be true
       end
 
       it 'returns false when activated_at is nil' do
         user.update!(activated_at: nil)
-        expect(user.activated?).to be false
+        expect(user.licence_payee?).to be false
       end
     end
 
-    describe '#activate!' do
+    describe '#mark_licence_paid!' do
       it 'sets activated_at to current time' do
         user.update!(activated_at: nil)
 
         expect {
-          user.activate!
+          user.mark_licence_paid!
         }.to change { user.reload.activated_at }.from(nil)
 
-        expect(user.activated?).to be true
+        expect(user.licence_payee?).to be true
       end
 
       it 'does not update if already activated' do
         original_time = 1.day.ago
         user.update!(activated_at: original_time)
 
-        user.activate!
+        user.mark_licence_paid!
 
         expect(user.reload.activated_at).to be_within(1.second).of(original_time)
       end
@@ -166,17 +166,17 @@ RSpec.describe User, type: :model do
       let!(:activated_user) { create(:user, activated_at: Time.current) }
       let!(:not_activated_user) { create(:user, activated_at: nil) }
 
-      describe '.activated' do
+      describe '.licence_payee' do
         it 'returns only activated users' do
-          expect(User.activated).to include(activated_user)
-          expect(User.activated).not_to include(not_activated_user)
+          expect(User.licence_payee).to include(activated_user)
+          expect(User.licence_payee).not_to include(not_activated_user)
         end
       end
 
-      describe '.not_activated' do
+      describe '.licence_non_payee' do
         it 'returns only non-activated users' do
-          expect(User.not_activated).to include(not_activated_user)
-          expect(User.not_activated).not_to include(activated_user)
+          expect(User.licence_non_payee).to include(not_activated_user)
+          expect(User.licence_non_payee).not_to include(activated_user)
         end
       end
     end

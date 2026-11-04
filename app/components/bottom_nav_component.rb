@@ -37,7 +37,7 @@ class BottomNavComponent < ApplicationComponent
   attr_reader :user, :current_path
 
   def items
-    @items ||= (user.activated? ? MEMBER_ITEMS : GUEST_ITEMS).map do |label, route, icon, match|
+    @items ||= (user.compte_actif? ? MEMBER_ITEMS : GUEST_ITEMS).map do |label, route, icon, match|
       Item.new(label: label, path: helpers.public_send(route), icon: icon, match: match)
     end
   end

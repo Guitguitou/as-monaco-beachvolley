@@ -14,9 +14,9 @@ module PushNotifications
     def users
       case @event_type
       when "session_created", "session_cancelled", "registration_opened", "stage_created", "stage_registration_opened"
-        User.activated
+        User.comptes_actifs
       when "registration_confirmed", "registration_cancelled" then User.where(id: @context[:user]&.id)
-      when "credit_low" then User.activated.joins(:balance).where("balances.amount < ?", LOW_CREDITS)
+      when "credit_low" then User.comptes_actifs.joins(:balance).where("balances.amount < ?", LOW_CREDITS)
       else User.none
       end
     end

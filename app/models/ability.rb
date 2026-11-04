@@ -30,26 +30,29 @@ class Ability
 
     # Base permissions for all authenticated users
     if user.id.present? && !user.disabled?
-      # Non-activated users: limited access to licenses, stages and infos
-      if !user.activated?
-        can :read, Pack, pack_type: [ "licence", "stage", "inscription_tournoi", "equipements" ]
-        can :buy, Pack, pack_type: [ "licence", "stage", "inscription_tournoi", "equipements" ]
+      # Sans Compte actif : accès limité aux licences, stages et infos. Une fois
+      # la licence payée (dossier en attente), le pack licence disparaît pour
+      # éviter un second paiement.
+      if !user.compte_actif?
+        pack_types = [ "stage", "inscription_tournoi", "equipements" ]
+        pack_types << "licence" unless user.licence_payee?
+        can :read, Pack, pack_type: pack_types
+        can :buy, Pack, pack_type: pack_types
         can :read, Stage
         can :read, Tournament
         # Access to infos pages (handled in routes, no specific permission needed)
       else
-        # Activated users: full access
+        # Compte actif : accès complet
         can :read, Session
         can :read, Stage
         can :read, Tournament
         can :read, Pack  # Tous les packs
         can :buy, Pack   # Peut acheter tous les packs
 
-        # Registrations (sign-up to sessions) - seulement si Peut réserver
-        can :create, Registration if user.peut_reserver?
+        can :create, Registration
         can [ :destroy ], Registration, user_id: user.id
 
-        # Annonces de jeu libre : lecture/création pour tous les activés,
+        # Annonces de jeu libre : lecture/création pour tout Compte actif,
         # gestion (édition, confirmation, annulation) réservée au créateur.
         can [ :read, :create ], Annonce
         can :toggle_availability, Annonce

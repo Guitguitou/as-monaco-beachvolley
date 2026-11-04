@@ -45,14 +45,14 @@
   <div class="flex items-start">
     <div class="flex items-center h-5">
       <%= f.check_box :licence_payee,
-            { checked: @user.activated?, class: "h-4 w-4 text-brand border-gray-300 rounded-none focus:ring-brand" },
+            { checked: @user.licence_payee?, class: "h-4 w-4 text-brand border-gray-300 rounded-none focus:ring-brand" },
             "1", "0" %>
     </div>
     <div class="ml-3">
       <%= f.label :licence_payee, "Licence payée", class: "text-sm font-medium text-gray-900" %>
       <p class="text-xs text-gray-600 mt-1">
         Cochée automatiquement au paiement en ligne de la licence.
-        <% if @user.activated? %>Payée le <%= l(@user.activated_at, format: :short) %>.<% end %>
+        <% if @user.licence_payee? %>Payée le <%= l(@user.activated_at, format: :short) %>.<% end %>
       </p>
     </div>
   </div>
@@ -72,11 +72,11 @@
 
   <!-- Statut du compte : licence payée + dossier complet -->
   <% if @user.persisted? %>
-    <p class="text-sm <%= @user.peut_reserver? ? "text-green-700" : "text-gray-600" %>">
-      <% if @user.peut_reserver? %>
-        ✅ Compte actif : licence payée et dossier complet, peut réserver.
+    <p class="text-sm <%= @user.compte_actif? ? "text-green-700" : "text-gray-600" %>">
+      <% if @user.compte_actif? %>
+        ✅ Compte actif : licence payée et dossier complet.
       <% else %>
-        ❌ Compte non actif : il manque <%= [ ("la licence" unless @user.activated?), ("le dossier complet" unless @user.dossier_complet?) ].compact.to_sentence(two_words_connector: " et ") %>.
+        ❌ Compte non actif : il manque <%= [ ("la licence" unless @user.licence_payee?), ("le dossier complet" unless @user.dossier_complet?) ].compact.to_sentence(two_words_connector: " et ") %>.
       <% end %>
     </p>
   <% end %>

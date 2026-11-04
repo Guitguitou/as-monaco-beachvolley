@@ -10,7 +10,7 @@
       <%= render BadgeComponent.new(label: "Crédits & Équipements", variant: :neutral, size: :sm) %>
     <% end %>
     <% hero.with_actions do %>
-      <% if current_user&.activated? %>
+      <% if current_user&.compte_actif? %>
         <div class="w-full lg:w-auto flex justify-start">
           <div class="w-[170px] rounded-none border border-gray-200 bg-gray-50 px-3 py-3 text-gray-900">
             <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-500 text-center leading-none">Tes crédits</p>
@@ -26,7 +26,9 @@
   <% end %>
 <% end %>
 
-<!-- Notice pour les comptes non activés -->
+<%= render DossierPendingComponent.new(user: current_user) %>
+
+<!-- Notice pour les licences non payées -->
 <% if @show_activation_notice %>
   <div class="mb-6 border-l-4 border-blue-500 bg-blue-50 p-4 rounded-none">
     <div class="flex items-start">
@@ -37,10 +39,10 @@
         <h3 class="text-sm font-medium text-blue-900">Bienvenue ! 👋</h3>
         <div class="mt-2 text-sm text-blue-800">
           <p>
-            Ton compte n'est pas encore activé : tu peux acheter ta licence, t'inscrire aux stages
+            Ton compte n'est pas encore actif : tu peux acheter ta licence, t'inscrire aux stages
             et commander de l'équipement, mais pas encore t'inscrire aux entraînements.
           </p>
-          <p class="mt-2 font-medium">Prends ta licence ci-dessous pour débloquer tout le reste.</p>
+          <p class="mt-2 font-medium">Prends ta licence ci-dessous : ton compte sera actif dès que le Staff aura validé ton dossier.</p>
         </div>
       </div>
     </div>
