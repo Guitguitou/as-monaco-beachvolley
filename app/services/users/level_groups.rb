@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Users
-  # Répartit les joueurs actifs (activés et non désactivés) par niveau,
+  # Répartit les joueurs actifs (Compte actif et non désactivés) par niveau,
   # et repère ceux qui appartiennent à plusieurs groupes.
   class LevelGroups
     Group = Struct.new(:level, :members, keyword_init: true)
@@ -20,7 +20,7 @@ module Users
 
     def memberships
       @memberships ||= UserLevel.joins(:user)
-                                .merge(User.activated.enabled)
+                                .merge(User.comptes_actifs.enabled)
                                 .includes(:user)
                                 .to_a
     end

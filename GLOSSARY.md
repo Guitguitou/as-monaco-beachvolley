@@ -41,9 +41,9 @@ _Avoid_: Compte activé
 **Dossier complet** :
 Le Staff a vérifié toutes les pièces d'adhésion, qui restent sur le Drive ; il le coche dans la fiche joueur.
 
-**Peut réserver** :
-Licence payée et Dossier complet : seule condition pour s'inscrire à une session.
-_Avoid_: Compte activé
+**Compte actif** :
+Licence payée et Dossier complet. Seul un Compte actif accède à l'app au-delà des licences, stages, tournois et infos, et peut s'inscrire à une session.
+_Avoid_: Peut réserver, Compte activé
 
 ## Inscriptions
 

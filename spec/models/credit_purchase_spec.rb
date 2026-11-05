@@ -152,11 +152,11 @@ RSpec.describe CreditPurchase, type: :model do
     it 'activates user account when licence is paid' do
       purchase = create(:credit_purchase, user: inactive_user, pack: licence_pack, credits: 0)
 
-      expect(inactive_user.activated?).to be false
+      expect(inactive_user.licence_payee?).to be false
 
       purchase.credit!
 
-      expect(inactive_user.reload.activated?).to be true
+      expect(inactive_user.reload.licence_payee?).to be true
       expect(purchase.reload.status).to eq('paid')
     end
 

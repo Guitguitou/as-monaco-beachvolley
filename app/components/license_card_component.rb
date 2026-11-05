@@ -25,8 +25,12 @@ class LicenseCardComponent < ApplicationComponent
 
   attr_reader :user
 
-  def activated?
-    user.activated?
+  def licence_payee?
+    user.licence_payee?
+  end
+
+  def dossier_en_attente?
+    user.dossier_en_attente?
   end
 
   def license_type_label
@@ -48,12 +52,16 @@ class LicenseCardComponent < ApplicationComponent
   end
 
   def title
-    activated? ? "Licence active" : "Licence à régler"
+    return "Licence à régler" unless licence_payee?
+
+    dossier_en_attente? ? "Licence reçue" : "Licence active"
   end
 
   def description
-    if !activated?
-      "Ta licence n'est pas encore enregistrée. Tu pourras t'inscrire aux sessions dès qu'elle sera réglée."
+    if !licence_payee?
+      "Ta licence n'est pas encore enregistrée. Ton compte sera actif quand elle sera réglée et ton dossier validé."
+    elsif dossier_en_attente?
+      "Licence reçue, dossier en attente de validation par le Staff. Ton compte sera actif dès qu'il sera validé."
     elsif competition?
       "Ta licence compétition t'ouvre les inscriptions 24 h avant les autres joueurs."
     else
@@ -63,11 +71,11 @@ class LicenseCardComponent < ApplicationComponent
 
   def wrapper_classes
     base = "border rounded-none p-5 sm:p-6"
-    activated? ? "#{base} border-gray-200 bg-white" : "#{base} border-brand bg-brand-light"
+    user.compte_actif? ? "#{base} border-gray-200 bg-white" : "#{base} border-brand bg-brand-light"
   end
 
   def icon_name
-    activated? ? "shield-check" : "shield-alert"
+    user.compte_actif? ? "shield-check" : "shield-alert"
   end
 
   def icon_classes

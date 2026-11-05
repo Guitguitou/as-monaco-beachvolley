@@ -7,14 +7,14 @@
     <div class="flex items-center h-16 gap-4">
       <%# Zone gauche : logo %>
       <div class="flex-1 min-w-0 flex items-center justify-start">
-        <%= link_to (current_user&.activated? ? home_path : packs_path), class: "flex items-center shrink-0" do %>
+        <%= link_to (current_user&.compte_actif? ? home_path : packs_path), class: "flex items-center shrink-0" do %>
           <%= image_tag "logo-reverse.png", alt: "AS Monaco Beach-Volley", class: "h-10 w-10" %>
         <% end %>
       </div>
 
       <%# Zone centre : navigation %>
       <nav class="hidden lg:flex items-center justify-center gap-1">
-        <% if current_user&.activated? %>
+        <% if current_user&.compte_actif? %>
           <%= nav_link_navbar "Mon terrain", home_path %>
           <%= nav_link_navbar "Calendrier", sessions_path %>
           <%= nav_link_navbar "Jeu libre", annonces_path %>
@@ -104,7 +104,7 @@
               </button>
             </div>
             <div class="p-4 space-y-1">
-              <% if current_user&.activated? %>
+              <% if current_user&.compte_actif? %>
                 <%= link_to home_path, class: navbar_mobile_link_class do %>
                   Mon terrain
                 <% end %>

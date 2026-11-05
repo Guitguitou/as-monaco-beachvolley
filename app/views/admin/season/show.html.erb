@@ -16,6 +16,7 @@
       Désactive les comptes des membres dont la licence n'a pas été renouvelée pour la nouvelle saison.
       Les membres ayant déjà réglé la nouvelle licence (coche « Prochaine saison réglée ») sont conservés,
       et leur coche est remise à zéro pour la saison suivante.
+      Le « Dossier complet » est décoché pour tous les membres : le Staff devra le recocher pour réactiver chaque compte.
     </p>
   </div>
 
@@ -36,11 +37,11 @@
 
   <div class="border-l-4 border-brand bg-brand/5 p-4 rounded-none text-sm text-gray-700">
     ⚠️ Action irréversible : les <%= @to_deactivate_count %> membre(s) concerné(s) perdront l'accès et devront
-    racheter une licence. L'historique, les crédits et les niveaux sont conservés.
+    racheter une licence. Tous les dossiers complets seront décochés. L'historique, les crédits et les niveaux sont conservés.
   </div>
 
   <%= render ButtonComponent.new(href: admin_reset_season_path, method: :post, full_width: true,
-                                 data: { turbo_confirm: "Confirmer la réinitialisation de la saison ? #{@to_deactivate_count} licence(s) seront désactivée(s)." }) do %>
+                                 data: { turbo_confirm: "Confirmer la réinitialisation de la saison ? #{@to_deactivate_count} licence(s) seront désactivée(s) et tous les dossiers décochés." }) do %>
     <%= lucide_icon("refresh-cw", size: 16) %> Réinitialiser la saison
   <% end %>
 <% end %>

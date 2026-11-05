@@ -5,8 +5,8 @@ module Admin
     before_action :require_admin!
 
     def show
-      @activated_count = User.activated.count
-      @renewed_count = User.activated.renewed_for_next_season.count
+      @activated_count = User.licence_payee.count
+      @renewed_count = User.licence_payee.renewed_for_next_season.count
       @to_deactivate_count = @activated_count - @renewed_count
     end
 
@@ -15,7 +15,7 @@ module Admin
 
       redirect_to admin_season_path,
                   notice: "Saison réinitialisée : #{result.deactivated} licence(s) désactivée(s), " \
-                          "#{result.kept} conservée(s) (déjà réglée(s) pour la nouvelle saison)."
+                          "#{result.kept} conservée(s) (déjà réglée(s) pour la nouvelle saison). Dossiers complets décochés."
     end
   end
 end

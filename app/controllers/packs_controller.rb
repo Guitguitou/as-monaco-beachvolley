@@ -8,8 +8,8 @@ class PacksController < ApplicationController
     @credits_packs, @licence_packs, @stage_packs, @inscription_tournoi_packs, @equipements_packs =
       %w[credits licence stage inscription_tournoi equipements].map { |type| packs.select { |pack| pack.pack_type == type } }
 
-    # Afficher la notice si user non activé
-    @show_activation_notice = user_signed_in? && !current_user.activated?
+    # Bienvenue tant que la licence n'est pas payée ; ensuite DossierPendingComponent prend le relais.
+    @show_activation_notice = user_signed_in? && !current_user.licence_payee?
     @current_balance = current_user&.balance&.amount || 0
   end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Annonces
-  # Joueurs à prévenir pour un créneau de jeu libre : activés, d'un niveau
+  # Joueurs à prévenir pour un créneau de jeu libre : au compte actif, d'un niveau
   # compatible avec la partie, pas encore dispos sur ce créneau et sans
   # session qui le chevauche. Le créateur n'est jamais prévenu de sa partie.
   class SlotCandidatesQuery
@@ -15,7 +15,7 @@ module Annonces
     end
 
     def call
-      level_matched(User.activated)
+      level_matched(User.comptes_actifs)
         .where.not(id: annonce.user_id)
         .where.not(id: AnnonceAvailability.where(annonce_slot_id: slot.id).select(:user_id))
         .where.not(id: busy_user_ids)

@@ -18,7 +18,7 @@
         <% end %>
       <% end %>
       <% row.with_cell { render BadgeComponent.new(label: @table.license_label(user), variant: :neutral, size: :xs) } %>
-      <% row.with_cell { render BadgeComponent.new(label: user.activated? ? "Oui" : "Non", variant: user.activated? ? :success : :danger, size: :xs) } %>
+      <% row.with_cell { render BadgeComponent.new(label: user.licence_payee? ? "Oui" : "Non", variant: user.licence_payee? ? :success : :danger, size: :xs) } %>
       <% row.with_cell { render BadgeComponent.new(label: user.dossier_complet? ? "Oui" : "Non", variant: user.dossier_complet? ? :success : :warning, size: :xs) } %>
       <% row.with_cell(wrap: true) { user.levels.map(&:display_name).join(", ").presence || "–" } %>
       <% row.with_cell(align: :right) do %>

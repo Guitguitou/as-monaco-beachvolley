@@ -9,16 +9,17 @@ RSpec.describe Annonces::SlotCandidatesQuery do
   let(:annonce) { create(:annonce, user: creator, slots: [ build(:annonce_slot, start_at: start_at, end_at: start_at + 2.hours) ]) }
   let(:slot) { annonce.slots.first }
 
-  it "retient les joueurs activés, hors créateur et hors joueurs déjà dispos" do
+  it "retient les comptes actifs, hors créateur et hors joueurs déjà dispos" do
     free = create(:user)
     already_in = create(:user)
     create(:annonce_availability, annonce_slot: slot, user: already_in)
     not_activated = create(:user, activated_at: nil)
+    dossier_incomplet = create(:user, dossier_complet: false)
 
     result = described_class.call(slot: slot)
 
     expect(result).to include(free)
-    expect(result).not_to include(creator, already_in, not_activated)
+    expect(result).not_to include(creator, already_in, not_activated, dossier_incomplet)
   end
 
   it "écarte les joueurs déjà inscrits à une session qui chevauche le créneau" do

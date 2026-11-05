@@ -11,14 +11,14 @@
   </div>
   <div class="p-4 flex flex-col h-full space-y-6">
     <div class="flex items-center gap-2 text-brand text-xl font-semibold justify-center">
-      <%= link_to (current_user.activated? ? root_path : packs_path) do %>
+      <%= link_to (current_user.compte_actif? ? root_path : packs_path) do %>
         <%= image_tag "logo.png", class: "w-16 h-16 md:w-20 md:h-20" %>
       <% end %>
     </div>
 
     <% shop_open = Shop::Campaign.for_member(current_user).present? %>
     <nav class="flex-1 space-y-2 text-xs">
-      <% if current_user.activated? %>
+      <% if current_user.compte_actif? %>
         <%= nav_link "Performances & Stats", performances_path, icon: "bar-chart-3", extra_classes: 'sidebar-link' %>
         <%= nav_link "Calendrier", sessions_path, icon: "calendar", extra_classes: 'sidebar-link' %>
         <%= nav_link "Tournois", tournaments_path, icon: "trophy", extra_classes: 'sidebar-link' %>

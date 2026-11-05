@@ -23,11 +23,11 @@
 
       <% if activated_on.present? %>
         <p class="mt-2 text-[11px] font-bold uppercase tracking-widest text-gray-500">
-          Active depuis le <%= activated_on %>
+          Payée le <%= activated_on %>
         </p>
       <% end %>
 
-      <% unless activated? %>
+      <% unless licence_payee? %>
         <div class="mt-4">
           <%= helpers.button(
                 "Régler ma licence",

@@ -15,7 +15,7 @@ module Mcp
           name: { type: "string", description: "Recherche sur le prénom ou le nom." },
           level_id: { type: "integer", description: "Niveau (cf. list_level_groups)." },
           balance_below: { type: "integer", description: "Solde de crédits strictement inférieur à cette valeur." },
-          include_inactive: { type: "boolean", description: "Inclure les comptes non activés ou désactivés." },
+          include_inactive: { type: "boolean", description: "Inclure les comptes non actifs (licence ou dossier manquant) ou désactivés." },
           **PAGINATION_PROPERTIES
         }
       )
@@ -33,7 +33,7 @@ module Mcp
 
         def scope(name, level_id, balance_below, include_inactive)
           users = User.includes(:balance, :levels)
-          users = users.activated.enabled unless include_inactive
+          users = users.comptes_actifs.enabled unless include_inactive
           if name.present?
             pattern = "%#{User.sanitize_sql_like(name)}%"
             users = users.where("first_name ILIKE :p OR last_name ILIKE :p", p: pattern)
@@ -51,9 +51,9 @@ module Mcp
             license_type: user.license_type,
             balance_credits: user.balance&.amount.to_i,
             roles: user.role_labels,
-            activated: user.activated_at.present?,
-            licence_payee: user.activated?,
+            licence_payee: user.licence_payee?,
             dossier_complet: user.dossier_complet?,
+            compte_actif: user.compte_actif?,
             disabled: user.disabled?
           }
         end
