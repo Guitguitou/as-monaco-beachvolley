@@ -33,14 +33,15 @@ module Registrations
       paid? && (started? || past_deadline?)
     end
 
+    # Le joueur récupère ses crédits (désinscription dans les délais ou excusée).
+    def refundable?
+      paid? && (@excused || !late?)
+    end
+
     private
 
     def paid?
       @amount.positive?
-    end
-
-    def refundable?
-      paid? && (@excused || !late?)
     end
 
     # Une session déjà commencée n'est jamais remboursée, quel que soit son type.
