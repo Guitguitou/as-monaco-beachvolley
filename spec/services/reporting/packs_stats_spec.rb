@@ -8,7 +8,7 @@ RSpec.describe Reporting::PacksStats do
 
   before do
     travel_to(current_time)
-    Reporting::CacheService.clear_all
+    Rails.cache.clear
   end
 
   after do

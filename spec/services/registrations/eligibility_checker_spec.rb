@@ -4,7 +4,7 @@ RSpec.describe Registrations::EligibilityChecker do
   describe ".call" do
     let(:level) { create(:level) }
     let(:user) { create(:user, level: level) }
-    let(:session_record) { create(:session, session_type: "entrainement", levels: [level], start_at: Time.current + 2.days, end_at: Time.current + 2.days + 90.minutes) }
+    let(:session_record) { create(:session, session_type: "entrainement", levels: [ level ], start_at: Time.current + 2.days, end_at: Time.current + 2.days + 90.minutes) }
     let(:registration) { build(:registration, user: user, session: session_record, status: :confirmed) }
 
     before do

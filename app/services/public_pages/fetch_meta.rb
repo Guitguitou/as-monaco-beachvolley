@@ -30,7 +30,7 @@ module PublicPages
                                  open_timeout: TIMEOUT, read_timeout: TIMEOUT) do |http|
         http.get(uri.request_uri)
       end
-      return response.body.to_s.force_encoding(Encoding::UTF_8) unless response.is_a?(Net::HTTPRedirection)
+      return response.body.to_s.dup.force_encoding(Encoding::UTF_8) unless response.is_a?(Net::HTTPRedirection)
       raise "trop de redirections" if redirects.zero?
 
       fetch(URI.join(uri, response["location"]), redirects - 1)

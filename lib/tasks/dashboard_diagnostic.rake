@@ -8,19 +8,16 @@ namespace :dashboard do
     puts "📊 Environnement: #{Rails.env}"
     puts "📊 Cache store: #{Rails.cache.class.name}"
 
-    # 2. Vérifier Redis si utilisé
-    if Rails.cache.is_a?(ActiveSupport::Cache::RedisCacheStore)
-      begin
-        Rails.cache.write("test_key", "test_value", expires_in: 1.minute)
-        test_value = Rails.cache.read("test_key")
-        if test_value == "test_value"
-          puts "✅ Redis cache: OK"
-        else
-          puts "❌ Redis cache: Échec de lecture"
-        end
-      rescue => e
-        puts "❌ Redis cache: Erreur - #{e.message}"
+    # 2. Vérifier que le cache répond
+    begin
+      Rails.cache.write("test_key", "test_value", expires_in: 1.minute)
+      if Rails.cache.read("test_key") == "test_value"
+        puts "✅ Cache: OK"
+      else
+        puts "❌ Cache: Échec de lecture"
       end
+    rescue => e
+      puts "❌ Cache: Erreur - #{e.message}"
     end
 
     # 3. Vérifier les données

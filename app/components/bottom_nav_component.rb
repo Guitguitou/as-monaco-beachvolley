@@ -12,7 +12,7 @@ class BottomNavComponent < ApplicationComponent
   MEMBER_ITEMS = [
     [ "Terrain", :home_path, "house", %w[/mon-terrain] ],
     [ "Calendrier", :sessions_path, "calendar", %w[/sessions] ],
-    [ "Annonces", :annonces_path, "megaphone", %w[/annonces] ],
+    [ "Jeu libre", :annonces_path, "users", %w[/jeu-libre] ],
     [ "Boutique", :packs_path, "credit-card", %w[/packs /stages] ],
     [ "Profil", :profile_path, "user", %w[/profile] ]
   ].freeze

@@ -15,7 +15,7 @@ RSpec.describe BottomNavComponent, type: :component do
 
     expect(page).to have_link("Terrain", href: "/mon-terrain")
     expect(page).to have_link("Calendrier", href: "/sessions")
-    expect(page).to have_link("Annonces", href: "/annonces")
+    expect(page).to have_link("Jeu libre", href: "/jeu-libre")
     expect(page).to have_link("Boutique", href: "/packs")
     expect(page).to have_link("Profil", href: "/profile")
   end
@@ -27,7 +27,7 @@ RSpec.describe BottomNavComponent, type: :component do
     expect(page).to have_link("Stages")
     expect(page).to have_link("Profil")
     expect(page).not_to have_link("Calendrier")
-    expect(page).not_to have_link("Annonces")
+    expect(page).not_to have_link("Jeu libre")
   end
 
   it "marque l'onglet courant" do
