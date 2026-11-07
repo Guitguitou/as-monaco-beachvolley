@@ -92,7 +92,8 @@ RSpec.describe "Serveur MCP", type: :request do
 
       tools = response.parsed_body.dig("result", "tools")
       writers = %w[create_session update_session delete_session save_shop_campaign save_shop_product save_shop_cut
-                   save_shop_color save_shop_size_guide delete_shop_item update_shop_order change_shop_order_line_size]
+                   save_shop_color save_shop_size_guide delete_shop_item update_shop_order change_shop_order_line_size
+                   register_player unregister_player]
       expect(tools.map { |tool| tool["name"] }).to contain_exactly(
         "list_sessions", "list_players", "get_player", "list_level_groups", "list_tournaments", "list_stages", "club_stats",
         "list_purchases", "list_credit_transactions", "list_late_cancellations", "list_shop_orders", "shop_summary", "list_shop_catalog", *writers
@@ -398,6 +399,82 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
         expect(call_tool("create_session", { title: "X", session_type: "entrainement", start_at: start_at.iso8601,
                                              terrain_id: terrain.id }, token: staff_token)["isError"]).to be(true)
         expect(Session.exists?(session.id)).to be(true)
+      end
+    end
+
+    describe "inscriptions" do
+      let(:session) { create(:session, start_at: 2.days.from_now.change(hour: 18), max_players: 1) }
+      let(:player) { create(:user, first_name: "Paul") }
+
+      before { player.balance.update!(amount: 1_000) }
+
+      it "inscrit un joueur en le débitant" do
+        result = call_tool("register_player", { session_id: session.id, player_id: player.id })
+
+        content = result["structuredContent"]
+        expect(content).to include("status" => "confirmed", "message" => "Inscription réussie ✅")
+        expect(content["session"]).to include("id" => session.id, "confirmed_count" => 1, "waitlisted_count" => 0)
+        expect(player.balance.reload.amount).to eq(1_000 - session.price)
+      end
+
+      it "met en liste d'attente sur une session pleine" do
+        create(:registration, session:)
+
+        result = call_tool("register_player", { session_id: session.id, player_id: player.id, waitlist: true })
+
+        expect(result.dig("structuredContent", "status")).to eq("waitlisted")
+      end
+
+      it "refuse un joueur qui ne peut pas réserver" do
+        player.update!(dossier_complet: false)
+
+        result = call_tool("register_player", { session_id: session.id, player_id: player.id })
+
+        expect(result["isError"]).to be(true)
+        expect(result.dig("content", 0, "text")).to include("ne peut pas réserver")
+        expect(Registration.exists?(user: player, session:)).to be(false)
+      end
+
+      it "signale un échec du service" do
+        call_tool("register_player", { session_id: session.id, player_id: player.id })
+
+        result = call_tool("register_player", { session_id: session.id, player_id: player.id })
+
+        expect(result["isError"]).to be(true)
+      end
+
+      it "désinscrit un joueur et le rembourse dans les délais" do
+        call_tool("register_player", { session_id: session.id, player_id: player.id })
+
+        result = call_tool("unregister_player", { session_id: session.id, player_id: player.id })
+
+        expect(result.dig("structuredContent", "refunded")).to be(true)
+        expect(result.dig("structuredContent", "session", "confirmed_count")).to eq(0)
+        expect(player.balance.reload.amount).to eq(1_000)
+      end
+
+      it "ne rembourse pas une désinscription tardive, sauf excusée" do
+        call_tool("register_player", { session_id: session.id, player_id: player.id })
+        session.update_column(:cancellation_deadline_at, 1.hour.ago)
+
+        result = call_tool("unregister_player", { session_id: session.id, player_id: player.id, excused: true })
+
+        expect(result.dig("structuredContent", "refunded")).to be(true)
+        expect(LateCancellation.find_by!(user: player, session:).excused).to be(true)
+      end
+
+      it "signale un joueur non inscrit" do
+        result = call_tool("unregister_player", { session_id: session.id, player_id: player.id })
+
+        expect(result["isError"]).to be(true)
+      end
+
+      it "est réservé aux admins" do
+        staff_token = token_for(create(:user, :financial_manager))
+
+        result = call_tool("register_player", { session_id: session.id, player_id: player.id }, token: staff_token)
+
+        expect(result["isError"]).to be(true)
       end
     end
 
