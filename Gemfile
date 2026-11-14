@@ -26,15 +26,13 @@ gem "jbuilder"
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
-# Use Redis for caching and Sidekiq
-gem "redis", "~> 6.0"
+# Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
+gem "solid_cache", "1.0.10"
+gem "solid_queue", "1.7.0"
 gem "solid_cable"
-gem "connection_pool", "~> 3.0"
 
-# Use Sidekiq for background jobs
-gem "sidekiq"
-gem "sidekiq-cron"
-gem "sidekiq-unique-jobs"
+# Dashboard des jobs Solid Queue (/admin/jobs)
+gem "mission_control-jobs", "1.3.1"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false

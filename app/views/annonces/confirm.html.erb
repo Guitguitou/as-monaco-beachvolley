@@ -1,5 +1,5 @@
 <div class="max-w-2xl mx-auto px-4 py-8">
-  <div class="mb-4"><%= render BackLinkComponent.new(href: annonce_path(@annonce), label: "Retour à l'annonce") %></div>
+  <div class="mb-4"><%= render BackLinkComponent.new(href: annonce_path(@annonce), label: "Retour à la partie") %></div>
 
   <h1 class="text-2xl font-bold text-gray-900 mb-1">Confirmer « <%= @annonce.title %> »</h1>
   <p class="text-sm text-gray-500 mb-6">Choisis le créneau et un terrain libre. La session de jeu libre sera créée et les joueurs disponibles inscrits (débit de <%= ClubRules.current.price_for("jeu_libre") %> crédits chacun).</p>

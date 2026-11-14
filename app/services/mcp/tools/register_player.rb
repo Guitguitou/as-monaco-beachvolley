@@ -4,7 +4,7 @@ module Mcp
   module Tools
     # Inscrit un joueur à une session comme un admin dans l'app : crédits
     # débités, priorité appliquée, date limite de 17h ignorée. Refuse un joueur
-    # qui ne « Peut pas réserver » (cf. GLOSSARY.md, ADR 0004).
+    # qui n'a pas de « Compte actif » (cf. GLOSSARY.md, ADR 0004).
     class RegisterPlayer < Base
       tool_name "register_player"
       description "Inscrit un joueur à une session (admins uniquement), en liste principale (débitée) ou en liste d'attente."
@@ -23,7 +23,7 @@ module Mcp
         def execute(_context, session_id:, player_id:, waitlist: false)
           session = Session.find(session_id)
           player = User.find(player_id)
-          raise ArgumentError, "#{player.full_name} ne peut pas réserver (licence ou dossier incomplet)." unless player.peut_reserver?
+          raise ArgumentError, "#{player.full_name} ne peut pas réserver (licence ou dossier incomplet)." unless player.compte_actif?
 
           result = Registrations::Enrollment.new(user: player, session:, waitlist:, privileged: true).call
           raise ArgumentError, result.message unless result.success?

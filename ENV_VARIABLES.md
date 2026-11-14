@@ -1,9 +1,16 @@
 # Variables d'environnement requises
 
-## Redis & Sidekiq
+## Jobs (Solid Queue)
+
+Aucun Redis : cache, jobs et Action Cable utilisent la base Postgres.
 
 ```bash
-REDIS_URL=redis://localhost:6379/1
+# Traite les jobs dans le process web (recommandé sur Scalingo, pas de worker)
+SOLID_QUEUE_IN_PUMA=true
+# Optionnel : async (défaut, threads, économe en mémoire) ou fork (process séparés)
+SOLID_QUEUE_MODE=async
+# Optionnel : taille du pool de connexions Postgres (défaut : RAILS_MAX_THREADS + 7)
+DB_POOL=10
 ```
 
 ## Sherlock's (LCL)
@@ -84,7 +91,6 @@ Créez un fichier `.env` à la racine avec ces variables :
 
 ```bash
 # Copier-coller ce template dans votre .env local
-REDIS_URL=redis://localhost:6379/1
 SHERLOCK_GATEWAY=fake
 BREVO_API_KEY=your_brevo_api_key
 BREVO_SENDER_EMAIL=notifications@example.com
@@ -98,6 +104,7 @@ CURRENCY=EUR
 
 ```bash
 # Ajouter les variables via CLI
+scalingo --app votre-app env-set SOLID_QUEUE_IN_PUMA=true
 scalingo --app votre-app env-set SHERLOCK_GATEWAY=real
 scalingo --app votre-app env-set SHERLOCK_MERCHANT_ID=votre_merchant_id
 scalingo --app votre-app env-set SHERLOCK_API_KEY=votre_cle_secrete
@@ -116,6 +123,6 @@ scalingo --app votre-app env-set VAPID_SUBJECT="mailto:votre-email@example.com"
 ```
 
 Note : 
-- `REDIS_URL` est automatiquement configurée par l'addon Redis de Scalingo.
+- Seul l'addon PostgreSQL est nécessaire (`DATABASE_URL`), plus d'addon Redis.
 - Voir `SCALINGO_PUSH_NOTIFICATIONS.md` pour la configuration complète des notifications push.
 

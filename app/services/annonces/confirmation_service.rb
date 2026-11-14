@@ -54,7 +54,7 @@ module Annonces
         end_at: slot.end_at,
         terrain: terrain,
         user: annonce.user,
-        max_players: slot.available_users.size
+        max_players: [ slot.available_users.size, Annonce::SESSION_CAPACITY ].max
       )
     end
 
