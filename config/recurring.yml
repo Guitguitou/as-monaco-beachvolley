@@ -20,6 +20,11 @@ default: &default
     queue: default
     schedule: every day at 3:15am
     description: "Révoque les connexions Claude (MCP) inutilisées depuis 30 jours"
+  cancel_underfilled_trainings:
+    class: CancelUnderfilledTrainingsJob
+    queue: default
+    schedule: "0 15 * * * Europe/Paris"
+    description: "Annule les entraînements du jour à moins de 2 inscrits et prévient les inscrits"
 
 development:
   <<: *default

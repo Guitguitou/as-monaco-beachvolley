@@ -93,7 +93,7 @@ RSpec.describe "Serveur MCP", type: :request do
       tools = response.parsed_body.dig("result", "tools")
       writers = %w[create_session update_session delete_session save_shop_campaign save_shop_product save_shop_cut
                    save_shop_color save_shop_size_guide delete_shop_item update_shop_order change_shop_order_line_size
-                   register_player unregister_player]
+                   register_player unregister_player cancel_session]
       expect(tools.map { |tool| tool["name"] }).to contain_exactly(
         "list_sessions", "list_players", "get_player", "list_level_groups", "list_tournaments", "list_stages", "club_stats",
         "list_purchases", "list_credit_transactions", "list_late_cancellations", "list_shop_orders", "shop_summary", "list_shop_catalog", *writers
@@ -382,6 +382,27 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
         expect(session.reload).to have_attributes(title: "Après", max_players: 12)
       end
 
+      it "annule une session avec son motif en prévenant les inscrits" do
+        session = create(:session)
+        create(:registration, session:)
+
+        result = nil
+        expect { result = call_tool("cancel_session", { id: session.id, reason: "meteo" }) }
+          .to have_enqueued_mail(SessionMailer, :session_cancelled)
+
+        expect(result.dig("structuredContent", "notified_players_count")).to eq(1)
+        expect(session.reload).to have_attributes(cancelled?: true, cancellation_reason: "meteo")
+        expect(call_tool("cancel_session", { id: session.id, reason: "meteo" })["isError"]).to be(true)
+      end
+
+      it "expose l'email de l'encadrant" do
+        session = create(:session)
+
+        result = call_tool("list_sessions", {})
+
+        expect(result.dig("structuredContent", "sessions", 0, "encadrant_email")).to eq(session.user.email)
+      end
+
       it "supprime une session en remboursant les inscrits" do
         session = create(:session)
 
@@ -431,7 +452,7 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
         result = call_tool("register_player", { session_id: session.id, player_id: player.id })
 
         expect(result["isError"]).to be(true)
-        expect(result.dig("content", 0, "text")).to include("ne peut pas réserver")
+        expect(result.dig("content", 0, "text")).to include("ne peut pas réserver : son dossier n'est pas encore complet")
         expect(Registration.exists?(user: player, session:)).to be(false)
       end
 

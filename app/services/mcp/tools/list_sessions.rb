@@ -66,6 +66,7 @@ module Mcp
             end_at: paris_time(session.end_at),
             terrain: session.terrain&.name,
             **encadrant(session),
+            encadrant_email: session.user&.email,
             cancelled: session.cancelled?,
             cancellation_reason: session.cancellation_reason,
             levels: SessionWriting.levels(session),

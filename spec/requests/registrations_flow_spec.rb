@@ -154,6 +154,17 @@ RSpec.describe "Registrations flow", type: :request do
     end
   end
 
+  it "explique à un joueur à la licence payée que son dossier n'est pas complet" do
+    player.update!(dossier_complet: false)
+    sign_in player, scope: :user
+
+    post session_registrations_path(session_record)
+
+    expect(response).to redirect_to(packs_path)
+    expect(flash[:alert]).to include("Ton dossier n'est pas encore complet")
+    expect(Registration.exists?(user: player)).to be(false)
+  end
+
   describe "priorité hebdomadaire" do
     let(:monday) { Time.zone.parse("2035-01-01 10:00:00") } # un lundi
     let(:rival) { create(:user, level: level, activated_at: Time.current) }

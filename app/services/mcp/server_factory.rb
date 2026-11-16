@@ -18,6 +18,7 @@ module Mcp
       Tools::ShopSummary,
       Tools::CreateSession,
       Tools::UpdateSession,
+      Tools::CancelSession,
       Tools::DeleteSession,
       Tools::RegisterPlayer,
       Tools::UnregisterPlayer,
@@ -37,7 +38,8 @@ module Mcp
       sauf pour les admins qui peuvent gérer les sessions et la boutique équipements.
       Les crédits sont la monnaie interne du club (un entraînement en coûte 400) ;
       les montants en euros sont suffixés _eur. Les dates sont à l'heure de Paris.
-      Les coordonnées des joueurs ne sont volontairement pas exposées.
+      Les coordonnées des joueurs ne sont volontairement pas exposées ; seul l'email
+      de l'encadrant d'une session l'est, pour le prévenir d'un changement.
     TEXT
 
     def self.build(context:)

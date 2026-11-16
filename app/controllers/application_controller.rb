@@ -56,6 +56,11 @@ class ApplicationController < ActionController::Base
     return unless user_signed_in? && Users::ActivationGate.restricted?(current_user)
     return if Users::ActivationGate.allows?(request.path)
 
-    redirect_to packs_path, alert: "Ton compte n'est pas encore activé. Prends une licence ou un pack stage pour accéder à tout."
+    alert = if current_user.licence_payee?
+      "Ton dossier n'est pas encore complet : le club doit le valider avant que tu puisses t'inscrire aux sessions."
+    else
+      "Ton compte n'est pas encore activé. Prends une licence ou un pack stage pour accéder à tout."
+    end
+    redirect_to packs_path, alert:
   end
 end
