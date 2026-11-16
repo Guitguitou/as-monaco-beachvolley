@@ -56,7 +56,8 @@
             required: true,
             options: options_for_select(@merge_candidates.map { |candidate|
               [ "#{candidate.display_name} · #{candidate.user.full_name} · #{candidate.registrations.confirmed.count} inscrit(s)", candidate.id ]
-            })
+            }),
+            select_options: { include_blank: "Choisir une séance..." }
           ) %>
           <%= render FormFieldComponent.new(
             form: f,
