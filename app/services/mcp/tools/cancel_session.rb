@@ -12,8 +12,8 @@ module Mcp
       input_schema(
         properties: {
           id: { type: "integer" },
-          reason: { type: "string", enum: Session.cancellation_reasons.keys,
-                    description: Session::CANCELLATION_REASON_LABELS.map { |key, label| "#{key} : #{label}" }.join(", ") }
+          reason: { type: "string", enum: Session::MANUAL_CANCELLATION_REASON_LABELS.keys,
+                    description: Session::MANUAL_CANCELLATION_REASON_LABELS.map { |key, label| "#{key} : #{label}" }.join(", ") }
         },
         required: %w[id reason]
       )

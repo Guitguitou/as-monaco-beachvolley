@@ -93,7 +93,7 @@ RSpec.describe "Serveur MCP", type: :request do
       tools = response.parsed_body.dig("result", "tools")
       writers = %w[create_session update_session delete_session save_shop_campaign save_shop_product save_shop_cut
                    save_shop_color save_shop_size_guide delete_shop_item update_shop_order change_shop_order_line_size
-                   register_player unregister_player cancel_session]
+                   register_player unregister_player cancel_session merge_sessions]
       expect(tools.map { |tool| tool["name"] }).to contain_exactly(
         "list_sessions", "list_players", "get_player", "list_level_groups", "list_tournaments", "list_stages", "club_stats",
         "list_purchases", "list_credit_transactions", "list_late_cancellations", "list_shop_orders", "shop_summary", "list_shop_catalog", *writers
@@ -393,6 +393,23 @@ it "list_players et get_player distinguent licence payée et dossier complet" do
         expect(result.dig("structuredContent", "notified_players_count")).to eq(1)
         expect(session.reload).to have_attributes(cancelled?: true, cancellation_reason: "meteo")
         expect(call_tool("cancel_session", { id: session.id, reason: "meteo" })["isError"]).to be(true)
+      end
+
+      it "fusionne deux entraînements au même créneau" do
+        slot = 3.days.from_now.change(hour: 18)
+        kept = create(:session, start_at: slot, end_at: slot + 90.minutes, max_players: 4)
+        absorbed = create(:session, :terrain_2, start_at: slot, end_at: slot + 90.minutes, max_players: 4)
+        create(:registration, session: absorbed)
+
+        result = call_tool("merge_sessions", { kept_session_id: kept.id, absorbed_session_id: absorbed.id,
+                                               coach_id: absorbed.user_id, max_players: 6 })
+
+        expect(result["isError"]).to be_falsey
+        expect(result.dig("structuredContent", "session")).to include("id" => kept.id, "max_players" => 6)
+        expect(result.dig("structuredContent", "transferred_players_count")).to eq(1)
+        expect(absorbed.reload).to have_attributes(cancelled?: true, cancellation_reason: "fusionnee")
+        expect(call_tool("merge_sessions", { kept_session_id: kept.id, absorbed_session_id: absorbed.id,
+                                             coach_id: absorbed.user_id, max_players: 6 })["isError"]).to be(true)
       end
 
       it "expose l'email de l'encadrant" do

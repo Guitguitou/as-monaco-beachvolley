@@ -3,7 +3,7 @@
 class SessionsController < ApplicationController
   before_action :authenticate_user!
   load_and_authorize_resource
-  before_action :set_session, only: [ :show, :preview, :edit, :update, :destroy, :calendar, :cancel ]
+  before_action :set_session, only: [ :show, :preview, :edit, :update, :destroy, :calendar, :cancel, :merge ]
 
   def index
     return redirect_to(sessions_path(request.query_parameters.merge("terrain" => Terrain.resolve(params[:terrain])&.id))) if legacy_terrain_param?
@@ -19,6 +19,7 @@ class SessionsController < ApplicationController
     @candidate_users = Sessions::CandidateUsersQuery.call(session: @session) if can?(:manage, Registration)
     @invitations = Sessions::Invitations.new(session: @session, inviter: current_user)
     @invitation = SessionInvitation.includes(:inviter).find_by(session: @session, invitee: current_user)
+    @merge_candidates = Sessions::MergeCandidatesQuery.call(session: @session) if can?(:merge, @session)
   end
 
   # Aperçu chargé dans la modale du calendrier (Turbo Frame) : l'essentiel de
@@ -87,6 +88,17 @@ class SessionsController < ApplicationController
     redirect_to sessions_path(sessions_index_redirect_params), notice: "Session annulée et remboursée ✅"
   rescue StandardError => e
     redirect_to session_path(@session, session_show_query_params), alert: "Erreur lors de l'annulation: #{e.message}"
+  end
+
+  # Fusion de séances (cf. GLOSSARY.md, ADR 0005) : réservée au Staff.
+  def merge
+    authorize! :merge, @session
+
+    Sessions::MergeService.call(kept: @session, absorbed: Session.find(params[:absorbed_session_id]),
+                                coach: User.find(params[:coach_id]), max_players: params[:max_players])
+    redirect_to session_path(@session, session_show_query_params), notice: "Séances fusionnées ✅"
+  rescue Sessions::MergeService::Error => e
+    redirect_to session_path(@session, session_show_query_params), alert: e.message
   end
 
   private

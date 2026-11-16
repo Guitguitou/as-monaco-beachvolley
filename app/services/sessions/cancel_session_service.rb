@@ -8,7 +8,7 @@ module Sessions
     end
 
     def initialize(session:, reason:)
-      raise ArgumentError, "Motif d'annulation inconnu : #{reason}" unless Session.cancellation_reasons.key?(reason.to_s)
+      raise ArgumentError, "Motif d'annulation inconnu : #{reason}" unless Session::MANUAL_CANCELLATION_REASON_LABELS.key?(reason.to_s)
 
       @session = session
       @reason = reason.to_s
