@@ -68,6 +68,7 @@ module Mcp
           end_at: session.end_at&.in_time_zone(ClubRules.current.time_zone)&.iso8601,
           terrain: session.terrain&.name,
           encadrant: session.user&.full_name,
+          encadrant_email: session.user&.email,
           levels: levels(session),
           price_credits: session.price,
           max_players: session.max_players

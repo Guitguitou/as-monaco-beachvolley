@@ -9,3 +9,9 @@ mcp_expire_idle_tokens:
   class: Mcp::ExpireIdleTokensJob
   queue: default
   description: "Révoque les connexions Claude (MCP) inutilisées depuis 30 jours"
+
+cancel_underfilled_trainings:
+  cron: "0 15 * * * Europe/Paris" # Tous les jours à 15h, heure de Paris
+  class: CancelUnderfilledTrainingsJob
+  queue: default
+  description: "Annule les entraînements du jour à moins de 2 inscrits et prévient les inscrits"
