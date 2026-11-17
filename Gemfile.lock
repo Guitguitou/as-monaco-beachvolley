@@ -93,7 +93,7 @@ GEM
     brakeman (8.1.0)
       racc
     builder (3.3.0)
-    cancancan (3.7.0)
+    cancancan (3.7.1)
     capybara (3.40.0)
       addressable
       matrix
@@ -403,7 +403,7 @@ GEM
       parser (~> 3.3.0)
       rainbow (>= 2.0, < 4.0)
       rexml (~> 3.1)
-    regexp_parser (2.13.2)
+    regexp_parser (2.13.3)
     reline (0.7.0)
       io-console (~> 0.5)
     responders (3.2.1)
@@ -427,7 +427,7 @@ GEM
       rspec-mocks (>= 3.13.0, < 5.0.0)
       rspec-support (>= 3.13.0, < 5.0.0)
     rspec-support (3.13.8)
-    rubocop (1.92.2)
+    rubocop (1.92.3)
       json (>= 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
