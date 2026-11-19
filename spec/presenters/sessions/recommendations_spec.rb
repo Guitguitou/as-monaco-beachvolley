@@ -40,4 +40,13 @@ RSpec.describe Sessions::Recommendations do
     expect(state.action).to eq(:register)
     expect(state.balance).to eq(1000)
   end
+
+  it "can be restricted to some session types, with its own limit" do
+    sessions = (0..3).map { |i| free_play(i * 2.hours) }
+    create(:session, user: coach, start_at: day + 10.hours, end_at: day + 11.hours)
+
+    free_plays = described_class.new(user: player, types: "jeu_libre", limit: 6)
+
+    expect(free_plays.sessions).to eq(sessions)
+  end
 end

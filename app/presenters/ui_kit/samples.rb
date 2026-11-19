@@ -60,6 +60,17 @@ module UiKit
                               conflict: false, balance: 100)
     end
 
+    # Créneau de jeu libre lancé par Bob, avec les `joined` premiers joueurs
+    # du classement (Alice, Bob, Chloé…) déjà partants.
+    def play_slot(joined: 2, min_players: 4)
+      start_at = 3.days.from_now.change(hour: 10)
+      annonce = Annonce.new(id: 1, user: player(first_name: "Bob", last_name: "Durand", id: 2),
+                            title: "Jeu libre détente", min_players: min_players)
+      annonce.slots.build(id: 1, start_at: start_at, end_at: start_at + 2.hours).tap do |slot|
+        ranked_players.first(joined).each { |p| slot.availabilities.build(user: p[:user]) }
+      end
+    end
+
     def registration
       session_with_players.registrations.build(user: activated_player, status: :confirmed)
     end

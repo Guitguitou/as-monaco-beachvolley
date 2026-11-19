@@ -17,16 +17,16 @@ RSpec.describe "Annonces views smoke", type: :request do
   it "renders show with a slot and toggle button" do
     start_at = (Time.current + 2.days).change(hour: 19, min: 0)
     annonce = create(:annonce, user: create(:user),
-                     slots: [build(:annonce_slot, start_at: start_at, end_at: start_at + 2.hours)])
+                     slots: [ build(:annonce_slot, start_at: start_at, end_at: start_at + 2.hours) ])
     get annonce_path(annonce)
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Je suis dispo")
+    expect(response.body).to include("J&#39;en suis")
   end
 
   it "renders confirm page for the owner" do
     start_at = (Time.current + 2.days).change(hour: 19, min: 0)
     annonce = create(:annonce, user: user, min_players: 1,
-                     slots: [build(:annonce_slot, start_at: start_at, end_at: start_at + 2.hours)])
+                     slots: [ build(:annonce_slot, start_at: start_at, end_at: start_at + 2.hours) ])
     create(:annonce_availability, annonce_slot: annonce.slots.first, user: create(:user))
     get confirm_annonce_path(annonce)
     expect(response).to have_http_status(:ok)
@@ -37,7 +37,7 @@ RSpec.describe "Annonces views smoke", type: :request do
     start_at = (Time.current + 2.days).change(hour: 19, min: 0)
     session = create(:session, :jeu_libre, start_at: start_at, end_at: start_at + 2.hours)
     annonce = create(:annonce, :confirmed, user: user, session: session,
-                     slots: [build(:annonce_slot, start_at: start_at, end_at: start_at + 2.hours)])
+                     slots: [ build(:annonce_slot, start_at: start_at, end_at: start_at + 2.hours) ])
     get annonce_path(annonce)
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("wa.me")
