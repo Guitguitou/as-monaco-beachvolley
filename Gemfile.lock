@@ -138,7 +138,7 @@ GEM
       responders
       warden (~> 1.2.3)
     diff-lcs (1.6.2)
-    doorkeeper (5.9.9)
+    doorkeeper (5.9.10)
       railties (>= 5)
     dotenv (3.2.0)
     dotenv-rails (3.2.0)
@@ -340,7 +340,7 @@ GEM
       nio4r (~> 2.0)
     raabro (1.5.0)
     racc (1.8.1)
-    rack (3.2.8)
+    rack (3.2.9)
     rack-session (2.1.2)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
@@ -625,7 +625,7 @@ DEPENDENCIES
   csv
   debug
   devise (~> 5.0)
-  doorkeeper (= 5.9.9)
+  doorkeeper (= 5.9.10)
   dotenv-rails
   factory_bot_rails
   faker
