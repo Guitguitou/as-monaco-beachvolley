@@ -169,6 +169,10 @@ RSpec.describe Stats::PerformanceDashboard do
     end
 
     context "with training month stats" do
+      # En fin de mois, les deux sessions sont passées : en début de mois,
+      # la seconde serait future et pas encore ouverte aux inscriptions.
+      before { travel_to timezone.now.end_of_month.change(hour: 12) }
+
       it "returns top 3 players with most training sessions this month" do
         month_start = timezone.now.beginning_of_month
         session1 = create(:session, :entrainement, start_at: month_start + 1.day, end_at: month_start + 1.day + 90.minutes, user: coach)

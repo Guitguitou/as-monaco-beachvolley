@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe ShopMailer do
   it "relance un membre dont la commande n'est pas payée" do
-    order = create(:shop_order, campaign: create(:shop_campaign, closes_on: Date.new(2026, 11, 17)))
+    order = create(:shop_order, campaign: create(:shop_campaign, opens_on: Date.new(2026, 11, 1), closes_on: Date.new(2026, 11, 17)))
 
     mail = described_class.unfinished_order(order)
 
