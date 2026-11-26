@@ -30,6 +30,12 @@ RSpec.describe Sessions::CancelSessionService do
     expect(session_record.reload).not_to be_cancelled
   end
 
+  it "rejects the merged reason, reserved to a session merge" do
+    expect {
+      described_class.call(session: session_record, reason: "fusionnee")
+    }.to raise_error(ArgumentError)
+  end
+
   it "refunds confirmed participants" do
     expect {
       described_class.call(session: session_record, reason: "meteo")

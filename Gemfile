@@ -44,7 +44,7 @@ gem "kamal", require: false
 gem "thruster", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-gem "image_processing", "2.2.0"
+gem "image_processing", "2.2.2"
 gem "mini_magick", "5.4.0"
 
 gem "view_component", "~> 4.15"
@@ -118,5 +118,5 @@ gem "prawn", "2.5.0"
 gem "prawn-table", "0.2.2"
 
 # Serveur MCP pour le Claude du Staff (cf. docs/adr/0001)
-gem "mcp", "1.10.0"
-gem "doorkeeper", "5.9.9"
+gem "mcp", "1.11.0"
+gem "doorkeeper", "5.9.10"

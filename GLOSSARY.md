@@ -62,7 +62,17 @@ Séance prévue qui n'aura pas lieu ; elle disparaît du calendrier mais reste c
 _Avoid_: Séance supprimée
 
 **Motif d'annulation** :
-Raison d'une séance annulée : météo, moins de 2 inscrits, absence d'encadrant ou autre.
+Raison d'une séance annulée : météo, moins de 2 inscrits, absence d'encadrant, fusionnée ou autre.
+
+**Fusion de séances** :
+Le Staff réunit deux entraînements au même créneau et au même prix : la séance conservée reçoit les groupes et les inscrits de la séance absorbée, avec le coach choisi et la capacité fixée lors de la fusion.
+_Avoid_: Regroupement, merge
+
+**Séance conservée** :
+Séance qui subsiste après une fusion de séances.
+
+**Séance absorbée** :
+Séance dont les inscrits passent dans la séance conservée ; elle devient une séance annulée au motif « fusionnée », sans remboursement.
 
 **Suppression de séance** :
 Effacement d'une séance qui n'aurait jamais dû exister (erreur de saisie) ; ne laisse aucune trace.

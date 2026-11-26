@@ -28,14 +28,18 @@ class Session < ApplicationRecord
     meteo: "meteo",
     moins_de_2_inscrits: "moins_de_2_inscrits",
     absence_encadrant: "absence_encadrant",
+    fusionnee: "fusionnee",
     autre: "autre"
   }, prefix: :cancelled_for
   CANCELLATION_REASON_LABELS = {
     "meteo" => "Météo",
     "moins_de_2_inscrits" => "Moins de 2 inscrits",
     "absence_encadrant" => "Absence d'encadrant",
+    "fusionnee" => "Fusionnée",
     "autre" => "Autre"
   }.freeze
+  # « Fusionnée » ne s'obtient que par une fusion de séances (Sessions::MergeService).
+  MANUAL_CANCELLATION_REASON_LABELS = CANCELLATION_REASON_LABELS.except("fusionnee").freeze
 
   before_validation { Sessions::TypeDefaults.apply(self) }
 

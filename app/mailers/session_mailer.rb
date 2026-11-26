@@ -21,6 +21,18 @@ class SessionMailer < ApplicationMailer
     )
   end
 
+  def session_merged(user, session_record)
+    mail_about_session(user, session_record, "Ta session est regroupée")
+  end
+
+  def coach_released(user, session_name:, session_date:)
+    @user = user
+    @session_name = session_name
+    @session_date = session_date
+
+    mail(to: user.email, subject: "Tu n'encadres plus – #{session_name} du #{session_date}")
+  end
+
   private
 
   def mail_about_session(user, session_record, headline)

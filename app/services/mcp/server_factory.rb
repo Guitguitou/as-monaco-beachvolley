@@ -22,6 +22,7 @@ module Mcp
       Tools::DeleteSession,
       Tools::RegisterPlayer,
       Tools::UnregisterPlayer,
+      Tools::MergeSessions,
       Tools::ListShopCatalog,
       Tools::SaveShopCampaign,
       Tools::SaveShopProduct,

@@ -1,0 +1,9 @@
+<p>Bonjour <%= @user.first_name.presence || @user.email %>.</p>
+
+<p>Ta session a été regroupée avec un autre groupe au même créneau : rendez-vous à la session <strong><%= @session_name %></strong> du <strong><%= @session_date %></strong> à <strong><%= @session_time %></strong>.</p>
+
+<p>Ton inscription est conservée, rien à faire de ton côté.</p>
+
+<p><%= link_to "Voir la session", @session_url %></p>
+
+<p>À bientôt sur le sable,<br>L'équipe AS Monaco Beach Volley</p>

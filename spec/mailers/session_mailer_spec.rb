@@ -79,4 +79,31 @@ RSpec.describe SessionMailer, type: :mailer do
 
     it_behaves_like "includes the Captive footer"
   end
+
+  describe "#session_merged" do
+    let(:session_record) do
+      create(:session, title: "Entraînement", start_at: Time.zone.local(2026, 6, 15, 18, 0), end_at: Time.zone.local(2026, 6, 15, 19, 30))
+    end
+
+    subject(:mail) { described_class.session_merged(user, session_record) }
+
+    it "tells the player their session was merged and the registration kept" do
+      expect(mail.to).to eq([ user.email ])
+      expect(mail.subject).to start_with("Ta session est regroupée")
+      expect(mail.html_part.body.to_s).to include("regroupée", "inscription est conservée")
+    end
+
+    it_behaves_like "includes the Captive footer"
+  end
+
+  describe "#coach_released" do
+    subject(:mail) { described_class.coach_released(user, session_name: "Entraînement", session_date: "15/06/2026") }
+
+    it "tells the coach they no longer lead the session" do
+      expect(mail.subject).to eq("Tu n'encadres plus – Entraînement du 15/06/2026")
+      expect(mail.html_part.body.to_s).to include("plus à l'encadrer")
+    end
+
+    it_behaves_like "includes the Captive footer"
+  end
 end

@@ -38,6 +38,7 @@ Rails.application.routes.draw do
   end
   resources :sessions do
     post :cancel, on: :member
+    post :merge, on: :member
     get :calendar, on: :member
     get :preview, on: :member
     resources :registrations, only: [ :create, :destroy ]

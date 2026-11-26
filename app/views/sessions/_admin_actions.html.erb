@@ -42,6 +42,48 @@
       </div>
     <% end %>
 
+    <% if @merge_candidates.present? %>
+      <% confirmed = session.registrations.confirmed.count %>
+      <div class="border-t border-gray-200 pt-4">
+        <h4 class="text-xs font-semibold text-gray-700 mb-2">Fusionner avec un entraînement du même créneau</h4>
+        <%= form_with url: merge_session_path(session, calendar_ctx), method: :post, local: true, class: "space-y-3",
+                      data: { turbo_confirm: "Fusionner les séances ? L'autre séance sera annulée et ses inscrits transférés ici. Irréversible." } do |f| %>
+          <%= render FormFieldComponent.new(
+            form: f,
+            attribute: :absorbed_session_id,
+            type: :select,
+            label: "Séance absorbée",
+            required: true,
+            options: options_for_select(@merge_candidates.map { |candidate|
+              [ "#{candidate.display_name} · #{candidate.user.full_name} · #{candidate.registrations.confirmed.count} inscrit(s)", candidate.id ]
+            }),
+            select_options: { include_blank: "Choisir une séance..." }
+          ) %>
+          <%= render FormFieldComponent.new(
+            form: f,
+            attribute: :coach_id,
+            type: :select,
+            label: "Coach",
+            required: true,
+            options: options_from_collection_for_select(User.coachs.order(:first_name), :id, :full_name, session.user_id)
+          ) %>
+          <%= render FormFieldComponent.new(
+            form: f,
+            attribute: :max_players,
+            type: :number_field,
+            label: "Nombre max de joueurs",
+            required: true,
+            html_options: { value: session.max_players.to_i + @merge_candidates.first.max_players.to_i, min: confirmed }
+          ) %>
+          <%= button_tag type: :submit,
+                         class: "w-full inline-flex items-center justify-center gap-2 rounded-none border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-100" do %>
+            <%= lucide_icon("merge", class: "w-4 h-4 shrink-0", aria: { hidden: true }) %>
+            <span>Fusionner</span>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
     <% if can?(:cancel, session) && !session.cancelled? %>
       <div class="border-t border-gray-200 pt-4">
         <%= form_with url: cancel_session_path(session, calendar_ctx), method: :post, local: true, class: "space-y-3",
@@ -52,7 +94,7 @@
             type: :select,
             label: "Motif d'annulation",
             required: true,
-            options: options_for_select(Session::CANCELLATION_REASON_LABELS.invert),
+            options: options_for_select(Session::MANUAL_CANCELLATION_REASON_LABELS.invert),
             select_options: { include_blank: "Choisir un motif..." }
           ) %>
           <%= button_tag type: :submit,
